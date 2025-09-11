@@ -5,25 +5,25 @@
 
 ## 📖 Introduction
 
-This project, initiated by **DGRV (Deutscher Genossenschafts- und Raiffeisenverband e.V.)**, aims to develop a robust Digital Gap Analysis Tool (DGAT) to support cooperatives in Southern Africa[cite: 193, 225, 354]. The primary goal is to transform an existing Excel-based tool into an integrated, user-friendly, and secure Progressive Web App (PWA) with full offline functionality[cite: 226, 364].
+This project, initiated by **DGRV (Deutscher Genossenschafts- und Raiffeisenverband e.V.)**, aims to develop a robust Digital Gap Analysis Tool (DGAT) to support cooperatives in Southern Africa. The primary goal is to transform an existing Excel-based tool into an integrated, user-friendly, and secure Progressive Web App (PWA) with full offline functionality.
 
-The tool empowers cooperatives to assess their digital maturity, identify critical gaps between their current and desired digital states, and formulate actionable strategies for digital growth and resilience[cite: 5, 227, 361].
+The tool empowers cooperatives to assess their digital maturity, identify critical gaps between their current and desired digital states, and formulate actionable strategies for digital growth and resilience.
 
 ## ✨ Key Features
 
-* **Multi-Platform Access**: A Progressive Web App (PWA) ensures accessibility on desktops, and mobile devices (Android/iOS) through a web browser, with options for installation for an app-like experience[cite: 247, 418].
-* **Offline Capability**: Users can conduct assessments and enter data without an internet connection. Data automatically syncs once connectivity is restored[cite: 248, 421, 422].
-* **Comprehensive Assessment Workflow**: A guided, three-stage process[cite: 6, 375]:
+* **Multi-Platform Access**: A Progressive Web App (PWA) ensures accessibility on desktops, and mobile devices (Android/iOS) through a web browser, with options for installation for an app-like experience.
+* **Offline Capability**: Users can conduct assessments and enter data without an internet connection. Data automatically syncs once connectivity is restored.
+* **Comprehensive Assessment Workflow**: A guided, three-stage process:
     1.  Assess Current Level of Digitalization.
     2.  Define the Desired "To-Be" Level.
     3.  Analyze Gaps and receive actionable recommendations.
-* **Role-Based Access Control**: Secure user management with distinct roles (e.g., DGRV Admin, Organization Users) to manage permissions and data access, handled by Keycloak[cite: 249, 369].
-* **Automated Reporting & Action Plans**: Generates summary reports and draft action plans based on assessment results, which can be customized by the user[cite: 25, 28, 362].
-* **Multilingual Support**: The interface supports multiple languages, including English, Portuguese, and others relevant to the region, to ensure broad usability[cite: 250, 439].
+* **Role-Based Access Control**: Secure user management with distinct roles (e.g., DGRV Admin, Organization Users) to manage permissions and data access, handled by Keycloak.
+* **Automated Reporting & Action Plans**: Generates summary reports and draft action plans based on assessment results, which can be customized by the user.
+* **Multilingual Support**: The interface supports multiple languages, including English, Portuguese, and others relevant to the region, to ensure broad usability.
 
 ## 🛠️ Technology Stack
 
-The solution is built on a modern, secure, and scalable technology stack as proposed by adorsys[cite: 230, 255].
+The solution is built on a modern, secure, and scalable technology stack as proposed by adorsys.
 
 | Component              | Technology                               | Description                                                                     |
 | ---------------------- | ---------------------------------------- | ------------------------------------------------------------------------------- |
