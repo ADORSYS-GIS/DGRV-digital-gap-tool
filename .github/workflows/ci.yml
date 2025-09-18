@@ -18,15 +18,10 @@ jobs:
       with:
         path: frontend/node_modules
         key: ${{ github.sha }}
-    - name: Cached node modules
-      uses: actions/cache@v4
-      with:
-        path: frontend/node_modules
-        key: ${{ github.sha }}
 
   frontend_build:
     name: Frontend Build
-    needs: [ frontend_install, openapi_codegen ]
+    needs: [ frontend_install ]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -34,11 +29,6 @@ jobs:
       uses: actions/cache@v4
       with:
         path: frontend/node_modules
-        key: ${{ github.sha }}
-    - name: Restore api generated files
-      uses: actions/cache@v4
-      with:
-        path: frontend/src/openapi-rq
         key: ${{ github.sha }}
     - name: Build
       run: npm run build
@@ -46,7 +36,7 @@ jobs:
 
   frontend_lint:
     name: Frontend Lint
-    needs: [ frontend_install, openapi_codegen ]
+    needs: [ frontend_install ]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -54,11 +44,6 @@ jobs:
       uses: actions/cache@v4
       with:
         path: frontend/node_modules
-        key: ${{ github.sha }}
-    - name: Restore api generated files
-      uses: actions/cache@v4
-      with:
-        path: frontend/src/openapi-rq
         key: ${{ github.sha }}
     - name: ESLint
       run: npm run lint:check
@@ -66,7 +51,7 @@ jobs:
 
   frontend_prettier:
     name: Frontend Prettier
-    needs: [ frontend_install, openapi_codegen ]
+    needs: [ frontend_install ]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -74,11 +59,6 @@ jobs:
       uses: actions/cache@v4
       with:
         path: frontend/node_modules
-        key: ${{ github.sha }}
-    - name: Restore api generated files
-      uses: actions/cache@v4
-      with:
-        path: frontend/src/openapi-rq
         key: ${{ github.sha }}
     - name: Prettier
       run: npm run prettier:check
@@ -86,7 +66,7 @@ jobs:
 
   frontend_typescript:
     name: Frontend TypeScript
-    needs: [ frontend_install, openapi_codegen ]
+    needs: [ frontend_install ]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -94,11 +74,6 @@ jobs:
       uses: actions/cache@v4
       with:
         path: frontend/node_modules
-        key: ${{ github.sha }}
-    - name: Restore api generated files
-      uses: actions/cache@v4
-      with:
-        path: frontend/src/openapi-rq
         key: ${{ github.sha }}
     - name: TypeScript
       run: npm run ts:check
@@ -106,7 +81,7 @@ jobs:
 
   frontend_unit_tests:
     name: Frontend Unit Tests
-    needs: [ frontend_install, openapi_codegen ]
+    needs: [ frontend_install ]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -114,11 +89,6 @@ jobs:
       uses: actions/cache@v4
       with:
         path: frontend/node_modules
-        key: ${{ github.sha }}
-    - name: Restore api generated files
-      uses: actions/cache@v4
-      with:
-        path: frontend/src/openapi-rq
         key: ${{ github.sha }}
     - name: Unit tests
       run: npm run test:unit
