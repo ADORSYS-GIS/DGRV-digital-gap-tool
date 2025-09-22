@@ -7,12 +7,8 @@ erDiagram
     
     DIMENSIONS {
         uuid dimension_id PK
-        string name
-        string code UK
+        string name UK
         text description
-        string category
-        integer sort_order
-        boolean is_active
         datetime created_at
         datetime updated_at
     }
@@ -23,10 +19,6 @@ erDiagram
         string title
         text description
         integer score
-        text characteristics
-        text examples
-        integer sort_order
-        boolean is_active
         datetime created_at
         datetime updated_at
     }
@@ -37,10 +29,6 @@ erDiagram
         string title
         text description
         integer score
-        text characteristics
-        text examples
-        integer sort_order
-        boolean is_active
         datetime created_at
         datetime updated_at
     }
@@ -50,7 +38,6 @@ erDiagram
         string user_id
         string organization_id
         string document_title
-        string file_name
         string status
         datetime started_at
         datetime completed_at
@@ -67,7 +54,6 @@ erDiagram
         uuid desired_state_id FK
         integer current_score
         integer desired_score
-        text notes
         datetime created_at
         datetime updated_at
     }
@@ -79,7 +65,6 @@ erDiagram
         integer gap_size
         string gap_severity
         text gap_description
-        boolean ease_and_impact
         datetime calculated_at
         datetime created_at
         datetime updated_at
@@ -93,12 +78,6 @@ erDiagram
         integer max_gap_size
         string priority
         text description
-        text action_items
-        text resources
-        integer estimated_effort_hours
-        decimal estimated_cost
-        string time_frame
-        boolean is_active
         datetime created_at
         datetime updated_at
     }

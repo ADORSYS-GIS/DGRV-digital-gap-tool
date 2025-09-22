@@ -436,38 +436,40 @@ PWA          Service       API Gateway    Backend
 
 ```mermaid
 erDiagram
+
     DIMENSIONS {
         uuid dimension_id PK
-        string name
-        string code UK
+        string name UK
         text description
-        string category
-        integer sort_order
-        boolean is_active
         datetime created_at
         datetime updated_at
     }
-    
-    STATES {
-        uuid state_id PK
+
+    CURRENT_STATES {
+        uuid current_state_id PK
         uuid dimension_id FK
         string title
         text description
         integer score
-        text characteristics
-        text examples
-        integer sort_order
-        boolean is_active
         datetime created_at
         datetime updated_at
     }
-    
+
+    DESIRED_STATES {
+        uuid desired_state_id PK
+        uuid dimension_id FK
+        string title
+        text description
+        integer score
+        datetime created_at
+        datetime updated_at
+    }
+
     ASSESSMENTS {
         uuid assessment_id PK
         string user_id
         string organization_id
         string document_title
-        string file_name
         string status
         datetime started_at
         datetime completed_at
@@ -475,31 +477,31 @@ erDiagram
         datetime updated_at
         json metadata
     }
-    
-    ASSESSMENT_RESPONSES {
-        uuid response_id PK
+
+    DIMENSION_ASSESSMENTS {
+        uuid dimension_assessment_id PK
         uuid assessment_id FK
         uuid dimension_id FK
         uuid current_state_id FK
         uuid desired_state_id FK
-        text notes
+        integer current_score
+        integer desired_score
         datetime created_at
         datetime updated_at
     }
-    
+
     GAPS {
         uuid gap_id PK
-        uuid response_id FK
+        uuid dimension_assessment_id FK
         uuid dimension_id FK
         integer gap_size
         string gap_severity
         text gap_description
-        boolean ease_and_impact
         datetime calculated_at
         datetime created_at
         datetime updated_at
     }
-    
+
     RECOMMENDATIONS {
         uuid recommendation_id PK
         uuid dimension_id FK
@@ -508,16 +510,10 @@ erDiagram
         integer max_gap_size
         string priority
         text description
-        text action_items
-        text resources
-        integer estimated_effort_hours
-        decimal estimated_cost
-        string time_frame
-        boolean is_active
         datetime created_at
         datetime updated_at
     }
-    
+
     ASSESSMENT_RECOMMENDATIONS {
         uuid assessment_recommendation_id PK
         uuid assessment_id FK
@@ -530,7 +526,7 @@ erDiagram
         datetime created_at
         datetime updated_at
     }
-    
+
     REPORTS {
         uuid report_id PK
         uuid assessment_id FK
@@ -545,7 +541,7 @@ erDiagram
         datetime created_at
         datetime updated_at
     }
-    
+
     ACTION_PLANS {
         uuid action_plan_id PK
         uuid assessment_id FK
@@ -557,7 +553,7 @@ erDiagram
         datetime created_at
         datetime updated_at
     }
-    
+
     ACTION_ITEMS {
         uuid action_item_id PK
         uuid action_plan_id FK
@@ -575,25 +571,26 @@ erDiagram
         datetime updated_at
     }
 
-    %% Relationships
-    DIMENSIONS ||--o{ STATES : contains
-    DIMENSIONS ||--o{ ASSESSMENT_RESPONSES : assessed_in
+%% Relationships
+    DIMENSIONS ||--o{ CURRENT_STATES : contains
+    DIMENSIONS ||--o{ DESIRED_STATES : contains
+    DIMENSIONS ||--o{ DIMENSION_ASSESSMENTS : assessed_in
     DIMENSIONS ||--o{ GAPS : calculated_for
     DIMENSIONS ||--o{ RECOMMENDATIONS : provides
-    
-    STATES ||--o{ ASSESSMENT_RESPONSES : selected_as_current
-    STATES ||--o{ ASSESSMENT_RESPONSES : selected_as_desired
-    
-    ASSESSMENTS ||--o{ ASSESSMENT_RESPONSES : includes
+
+    CURRENT_STATES ||--o{ DIMENSION_ASSESSMENTS : selected_as_current
+    DESIRED_STATES ||--o{ DIMENSION_ASSESSMENTS : selected_as_desired
+
+    ASSESSMENTS ||--o{ DIMENSION_ASSESSMENTS : includes
     ASSESSMENTS ||--o{ REPORTS : generates
     ASSESSMENTS ||--o{ ACTION_PLANS : creates
-    
-    ASSESSMENT_RESPONSES ||--|| GAPS : calculates
-    
+
+    DIMENSION_ASSESSMENTS ||--|| GAPS : calculates
+
     ASSESSMENTS ||--o{ ASSESSMENT_RECOMMENDATIONS : suggests
     RECOMMENDATIONS ||--o{ ASSESSMENT_RECOMMENDATIONS : suggested_in
     RECOMMENDATIONS ||--o{ ACTION_ITEMS : implemented_as
-    
+
     REPORTS ||--o{ ACTION_PLANS : spawns
     ACTION_PLANS ||--o{ ACTION_ITEMS : contains
 ```
