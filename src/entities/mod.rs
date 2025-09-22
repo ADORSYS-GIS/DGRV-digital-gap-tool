@@ -1,0 +1,23 @@
+pub mod dimensions;
+pub mod current_states;
+pub mod desired_states;
+pub mod assessments;
+pub mod dimension_assessments;
+pub mod gaps;
+pub mod recommendations;
+pub mod assessment_recommendations;
+pub mod reports;
+pub mod action_plans;
+pub mod action_items;
+
+pub use dimensions::Entity as Dimensions;
+pub use current_states::Entity as CurrentStates;
+pub use desired_states::Entity as DesiredStates;
+pub use assessments::Entity as Assessments;
+pub use dimension_assessments::Entity as DimensionAssessments;
+pub use gaps::Entity as Gaps;
+pub use recommendations::Entity as Recommendations;
+pub use assessment_recommendations::Entity as AssessmentRecommendations;
+pub use reports::Entity as Reports;
+pub use action_plans::Entity as ActionPlans;
+pub use action_items::Entity as ActionItems;
