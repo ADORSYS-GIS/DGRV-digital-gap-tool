@@ -532,7 +532,6 @@ erDiagram
         uuid assessment_id FK
         string report_type
         string title
-        string format
         text summary
         json report_data
         string file_path
