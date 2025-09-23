@@ -8,19 +8,27 @@
  */
 import { ROLES } from "@/constants/roles";
 import * as React from "react";
-import { Welcome } from "../pages/HomePage";
+import { HomePage } from "../pages/HomePage";
+import OnboardingFlow from "../pages/OnboardingFlow";
 import NotFound from "../pages/NotFound";
 import AdminDashboard from "../pages/admin/AdminDashboard";
 import Dashboard from "../pages/user/Dashboard";
 import { ProtectedRoute } from "./ProtectedRoute";
 
 const routes = [
-  { path: "/", element: React.createElement(Welcome) },
+  { path: "/", element: React.createElement(HomePage) },
   {
     path: "/unauthorized",
     element: React.createElement(() =>
       React.createElement("div", null, "Unauthorized"),
     ),
+  },
+  {
+    path: "/onboarding",
+    element: React.createElement(ProtectedRoute, {
+      allowedRoles: [ROLES.ADMIN, ROLES.Org_User],
+    }),
+    children: [{ path: "", element: React.createElement(OnboardingFlow) }],
   },
   {
     path: "/admin",
