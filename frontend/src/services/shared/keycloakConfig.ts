@@ -5,8 +5,8 @@ import Keycloak from "keycloak-js";
  */
 export const keycloakConfig = {
   url: window.location.origin, // Use same origin to leverage Vite proxy
-  realm: import.meta.env.VITE_KEYCLOAK_REALM || "sustainability-realm",
-  clientId: import.meta.env.VITE_KEYCLOAK_CLIENT_ID || "sustainability-tool",
+  realm: import.meta.env.VITE_KEYCLOAK_REALM || "DGAT-realm",
+  clientId: import.meta.env.VITE_KEYCLOAK_CLIENT_ID || "DGAT-tool",
 };
 
 /**
