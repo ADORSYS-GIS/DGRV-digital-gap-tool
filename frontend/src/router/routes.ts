@@ -11,9 +11,23 @@ import * as React from "react";
 import { HomePage } from "../pages/HomePage";
 import OnboardingFlow from "../pages/OnboardingFlow";
 import NotFound from "../pages/NotFound";
-import AdminDashboard from "../pages/admin/AdminDashboard";
 import Dashboard from "../pages/user/Dashboard";
 import { ProtectedRoute } from "./ProtectedRoute";
+import AdminLayout from "@/layouts/AdminLayout";
+import ManageOrganizations from "../pages/admin/ManageOrganizations";
+
+const AdminDashboard = React.lazy(
+  () => import("../pages/admin/AdminDashboard"),
+);
+const ManageDigitalisationLevels = React.lazy(
+  () => import("../pages/admin/ManageDigitalisationLevels"),
+);
+const ManageDimensions = React.lazy(
+  () => import("../pages/admin/ManageDimensions"),
+);
+const ManageGapRecommendations = React.lazy(
+  () => import("../pages/admin/ManageGapRecommendations"),
+);
 
 const routes = [
   { path: "/", element: React.createElement(HomePage) },
@@ -34,9 +48,20 @@ const routes = [
     path: "/admin",
     element: React.createElement(ProtectedRoute, {
       allowedRoles: [ROLES.ADMIN],
+      children: React.createElement(AdminLayout),
     }),
     children: [
       { path: "dashboard", element: React.createElement(AdminDashboard) },
+      {
+        path: "organizations",
+        element: React.createElement(ManageOrganizations),
+      },
+      { path: "digitalisation-levels", element: React.createElement(ManageDigitalisationLevels) },
+      { path: "dimensions", element: React.createElement(ManageDimensions) },
+      {
+        path: "recommendations",
+        element: React.createElement(ManageGapRecommendations),
+      },
     ],
   },
   {

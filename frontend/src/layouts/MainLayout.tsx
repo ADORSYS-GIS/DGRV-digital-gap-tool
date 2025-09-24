@@ -23,11 +23,11 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const shouldShowNavbar = !routesWithoutNavbar.includes(location.pathname);
 
   return (
-    <>
+    <div className="min-h-screen bg-gray-50">
       {shouldShowNavbar && <Navbar />}
-      {children}
+      <main className={shouldShowNavbar ? "pt-16" : ""}>{children}</main>
       <Toaster />
-    </>
+    </div>
   );
 };
 
