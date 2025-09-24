@@ -42,18 +42,8 @@ export const useAuth = (): AuthHookState => {
       }
 
       try {
-        const authenticated = await authService.initialize();
-
-        if (authenticated) {
-          return () => {};
-        } else {
-          setAuthState({
-            isAuthenticated: false,
-            user: null,
-            roles: [],
-            loading: false,
-          });
-        }
+        await authService.initialize();
+        updateAuthState();
       } catch (error) {
         setAuthState({
           isAuthenticated: false,

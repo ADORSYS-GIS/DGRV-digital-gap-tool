@@ -11,6 +11,7 @@
     "lint:check": "eslint . --max-warnings 0 --ignore-pattern '**/src/openapi-rq/**'",
     "prettier:check": "prettier --check .",
     "ts:check": "tsc --noEmit",
+    "test": "vitest",
     "test:unit": "vitest",
     "coverage": "vitest run --coverage",
     "preview": "vite preview"

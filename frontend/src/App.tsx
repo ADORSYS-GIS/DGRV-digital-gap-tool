@@ -8,31 +8,11 @@
  */
 import AppRouter from "./router/AppRouter";
 import { ErrorBoundary } from "./components/shared/ErrorBoundary";
-import { FullPageLoader } from "./components/shared/LoadingSpinner";
-import { useAuth } from "./hooks/shared/useAuth";
-
-const AuthenticatedUserApp = () => {
-  return <AppRouter />;
-};
-
-const UnauthenticatedApp = () => {
-  return <AppRouter />;
-};
-
-const AuthenticatedApp = () => {
-  const { isAuthenticated, loading: authLoading } = useAuth();
-
-  if (authLoading) {
-    return <FullPageLoader text="Initializing..." />;
-  }
-
-  return isAuthenticated ? <AuthenticatedUserApp /> : <UnauthenticatedApp />;
-};
 
 const App = () => {
   return (
     <ErrorBoundary>
-      <AuthenticatedApp />
+      <AppRouter />
     </ErrorBoundary>
   );
 };
