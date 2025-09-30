@@ -10,21 +10,21 @@ impl ActionPlansRepository {
         ActionPlans::find()
             .all(db)
             .await
-            .map_err(AppError::DatabaseError)
+            .map_err(AppError::from)
     }
 
     pub async fn find_by_id(db: &DbConn, action_plan_id: Uuid) -> Result<Option<action_plans::Model>, AppError> {
         ActionPlans::find_by_id(action_plan_id)
             .one(db)
             .await
-            .map_err(AppError::DatabaseError)
+            .map_err(AppError::from)
     }
 
     pub async fn create(db: &DbConn, action_plan_data: action_plans::ActiveModel) -> Result<action_plans::Model, AppError> {
         action_plan_data
             .insert(db)
             .await
-            .map_err(AppError::DatabaseError)
+            .map_err(AppError::from)
     }
 
     pub async fn update(
@@ -35,7 +35,7 @@ impl ActionPlansRepository {
         let action_plan = ActionPlans::find_by_id(action_plan_id)
             .one(db)
             .await
-            .map_err(AppError::DatabaseError)?
+            .map_err(AppError::from)?
             .ok_or_else(|| AppError::NotFound("Action plan not found".to_string()))?;
 
         let mut active_model: action_plans::ActiveModel = action_plan.into();
@@ -64,14 +64,14 @@ impl ActionPlansRepository {
         active_model
             .update(db)
             .await
-            .map_err(AppError::DatabaseError)
+            .map_err(AppError::from)
     }
 
     pub async fn delete(db: &DbConn, action_plan_id: Uuid) -> Result<bool, AppError> {
         let result = ActionPlans::delete_by_id(action_plan_id)
             .exec(db)
             .await
-            .map_err(AppError::DatabaseError)?;
+            .map_err(AppError::from)?;
 
         Ok(result.rows_affected > 0)
     }
@@ -84,7 +84,7 @@ impl ActionPlansRepository {
             .filter(action_plans::Column::AssessmentId.eq(assessment_id))
             .all(db)
             .await
-            .map_err(AppError::DatabaseError)
+            .map_err(AppError::from)
     }
 
     pub async fn find_by_report(
@@ -95,7 +95,7 @@ impl ActionPlansRepository {
             .filter(action_plans::Column::ReportId.eq(report_id))
             .all(db)
             .await
-            .map_err(AppError::DatabaseError)
+            .map_err(AppError::from)
     }
 
     pub async fn find_by_status(db: &DbConn, status: crate::entities::action_plans::ActionPlanStatus) -> Result<Vec<action_plans::Model>, AppError> {
@@ -103,7 +103,7 @@ impl ActionPlansRepository {
             .filter(action_plans::Column::Status.eq(status))
             .all(db)
             .await
-            .map_err(AppError::DatabaseError)
+            .map_err(AppError::from)
     }
 
     pub async fn find_overdue(db: &DbConn) -> Result<Vec<action_plans::Model>, AppError> {
@@ -116,7 +116,7 @@ impl ActionPlansRepository {
             )
             .all(db)
             .await
-            .map_err(AppError::DatabaseError)
+            .map_err(AppError::from)
     }
 
     pub async fn update_status(
@@ -127,7 +127,7 @@ impl ActionPlansRepository {
         let action_plan = ActionPlans::find_by_id(action_plan_id)
             .one(db)
             .await
-            .map_err(AppError::DatabaseError)?
+            .map_err(AppError::from)?
             .ok_or_else(|| AppError::NotFound("Action plan not found".to_string()))?;
 
         let mut active_model: action_plans::ActiveModel = action_plan.into();
@@ -137,7 +137,7 @@ impl ActionPlansRepository {
         active_model
             .update(db)
             .await
-            .map_err(AppError::DatabaseError)
+            .map_err(AppError::from)
     }
 
     pub async fn update_target_date(
@@ -148,7 +148,7 @@ impl ActionPlansRepository {
         let action_plan = ActionPlans::find_by_id(action_plan_id)
             .one(db)
             .await
-            .map_err(AppError::DatabaseError)?
+            .map_err(AppError::from)?
             .ok_or_else(|| AppError::NotFound("Action plan not found".to_string()))?;
 
         let mut active_model: action_plans::ActiveModel = action_plan.into();
@@ -158,6 +158,6 @@ impl ActionPlansRepository {
         active_model
             .update(db)
             .await
-            .map_err(AppError::DatabaseError)
+            .map_err(AppError::from)
     }
 }

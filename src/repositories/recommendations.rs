@@ -10,21 +10,21 @@ impl RecommendationsRepository {
         Recommendations::find()
             .all(db)
             .await
-            .map_err(AppError::DatabaseError)
+            .map_err(AppError::from)
     }
 
     pub async fn find_by_id(db: &DbConn, recommendation_id: Uuid) -> Result<Option<recommendations::Model>, AppError> {
         Recommendations::find_by_id(recommendation_id)
             .one(db)
             .await
-            .map_err(AppError::DatabaseError)
+            .map_err(AppError::from)
     }
 
     pub async fn create(db: &DbConn, recommendation_data: recommendations::ActiveModel) -> Result<recommendations::Model, AppError> {
         recommendation_data
             .insert(db)
             .await
-            .map_err(AppError::DatabaseError)
+            .map_err(AppError::from)
     }
 
     pub async fn update(
@@ -35,7 +35,7 @@ impl RecommendationsRepository {
         let recommendation = Recommendations::find_by_id(recommendation_id)
             .one(db)
             .await
-            .map_err(AppError::DatabaseError)?
+            .map_err(AppError::from)?
             .ok_or_else(|| AppError::NotFound("Recommendation not found".to_string()))?;
 
         let mut active_model: recommendations::ActiveModel = recommendation.into();
@@ -45,12 +45,6 @@ impl RecommendationsRepository {
         }
         if let ActiveValue::Set(gap_severity) = recommendation_data.gap_severity {
             active_model.gap_severity = Set(gap_severity);
-        }
-        if let ActiveValue::Set(min_gap_size) = recommendation_data.min_gap_size {
-            active_model.min_gap_size = Set(min_gap_size);
-        }
-        if let ActiveValue::Set(max_gap_size) = recommendation_data.max_gap_size {
-            active_model.max_gap_size = Set(max_gap_size);
         }
         if let ActiveValue::Set(priority) = recommendation_data.priority {
             active_model.priority = Set(priority);
@@ -64,14 +58,14 @@ impl RecommendationsRepository {
         active_model
             .update(db)
             .await
-            .map_err(AppError::DatabaseError)
+            .map_err(AppError::from)
     }
 
     pub async fn delete(db: &DbConn, recommendation_id: Uuid) -> Result<bool, AppError> {
         let result = Recommendations::delete_by_id(recommendation_id)
             .exec(db)
             .await
-            .map_err(AppError::DatabaseError)?;
+            .map_err(AppError::from)?;
 
         Ok(result.rows_affected > 0)
     }
@@ -84,7 +78,7 @@ impl RecommendationsRepository {
             .filter(recommendations::Column::DimensionId.eq(dimension_id))
             .all(db)
             .await
-            .map_err(AppError::DatabaseError)
+            .map_err(AppError::from)
     }
 
     pub async fn find_by_priority(db: &DbConn, priority: crate::entities::recommendations::RecommendationPriority) -> Result<Vec<recommendations::Model>, AppError> {
@@ -92,7 +86,7 @@ impl RecommendationsRepository {
             .filter(recommendations::Column::Priority.eq(priority))
             .all(db)
             .await
-            .map_err(AppError::DatabaseError)
+            .map_err(AppError::from)
     }
 
     pub async fn find_high_priority(db: &DbConn) -> Result<Vec<recommendations::Model>, AppError> {
@@ -100,7 +94,7 @@ impl RecommendationsRepository {
             .filter(recommendations::Column::Priority.eq(crate::entities::recommendations::RecommendationPriority::High))
             .all(db)
             .await
-            .map_err(AppError::DatabaseError)
+            .map_err(AppError::from)
     }
 
 
@@ -112,7 +106,7 @@ impl RecommendationsRepository {
         let recommendation = Recommendations::find_by_id(recommendation_id)
             .one(db)
             .await
-            .map_err(AppError::DatabaseError)?
+            .map_err(AppError::from)?
             .ok_or_else(|| AppError::NotFound("Recommendation not found".to_string()))?;
 
         let mut active_model: recommendations::ActiveModel = recommendation.into();
@@ -122,6 +116,6 @@ impl RecommendationsRepository {
         active_model
             .update(db)
             .await
-            .map_err(AppError::DatabaseError)
+            .map_err(AppError::from)
     }
 }

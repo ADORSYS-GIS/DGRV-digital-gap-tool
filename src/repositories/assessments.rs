@@ -77,7 +77,7 @@ impl AssessmentsRepository {
         let result = Assessments::delete_by_id(assessment_id)
             .exec(db)
             .await
-            .map_err(AppError::DatabaseError)?;
+            .map_err(AppError::from)?;
 
         Ok(result.rows_affected > 0)
     }
@@ -130,7 +130,7 @@ impl AssessmentsRepository {
     pub async fn update_overall_score(
         db: &DbConn,
         assessment_id: Uuid,
-        score: i32,
+        _score: i32,
     ) -> Result<assessments::Model, AppError> {
         let assessment = Assessments::find_by_id(assessment_id)
             .one(db)
@@ -144,6 +144,6 @@ impl AssessmentsRepository {
         active_model
             .update(db)
             .await
-            .map_err(AppError::DatabaseError)
+            .map_err(AppError::from)
     }
 }

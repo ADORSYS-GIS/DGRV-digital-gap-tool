@@ -11,7 +11,6 @@ pub struct Model {
     pub gap_size: i32,
     pub gap_severity: GapSeverity,
     pub gap_description: Option<String>,
-    pub ease_and_impact: Option<bool>,
     pub calculated_at: DateTimeUtc,
     pub created_at: DateTimeUtc,
     pub updated_at: DateTimeUtc,

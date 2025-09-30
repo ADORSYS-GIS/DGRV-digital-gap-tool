@@ -45,6 +45,11 @@ validator = { version = "0.16", features = ["derive"] }
 
 # Migration
 sea-orm-migration = "0.12"
+bytes = "1.10.1"
+async-trait = "0.1.89"
+aws-sdk-s3 = "1.106.0"
+aws-config = "1.8.6"
+aws-credential-types = "1.2.6"
 
 [dev-dependencies]
 sea-orm = { version = "0.12", features = ["mock"] }

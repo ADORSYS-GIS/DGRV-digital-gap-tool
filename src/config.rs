@@ -1,5 +1,4 @@
 use serde::Deserialize;
-use std::env;
 
 #[derive(Debug, Deserialize)]
 pub struct Config {
@@ -10,6 +9,16 @@ pub struct Config {
     pub keycloak_client_id: String,
     pub keycloak_client_secret: String,
     pub jwt_secret: String,
+    pub minio: MinioConfig,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct MinioConfig {
+    pub endpoint: String,
+    pub access_key: String,
+    pub secret_key: String,
+    pub bucket_name: String,
+    pub use_ssl: bool,
 }
 
 impl Config {
@@ -20,6 +29,8 @@ impl Config {
         cfg = cfg.set_default("port", 8080)?;
         cfg = cfg.set_default("keycloak_realm", "dgat")?;
         cfg = cfg.set_default("keycloak_client_id", "dgat-backend")?;
+        cfg = cfg.set_default("minio.use_ssl", true)?;
+        cfg = cfg.set_default("minio.bucket_name", "reports")?;
         
         // Add environment variables
         cfg = cfg.add_source(config::Environment::with_prefix("DGAT").separator("_"));

@@ -9,15 +9,3 @@ pub mod assessment_recommendations;
 pub mod reports;
 pub mod action_plans;
 pub mod action_items;
-
-pub use dimensions::DimensionsRepository;
-pub use current_states::CurrentStatesRepository;
-pub use desired_states::DesiredStatesRepository;
-pub use assessments::AssessmentsRepository;
-pub use dimension_assessments::DimensionAssessmentsRepository;
-pub use gaps::GapsRepository;
-pub use recommendations::RecommendationsRepository;
-pub use assessment_recommendations::AssessmentRecommendationsRepository;
-pub use reports::ReportsRepository;
-pub use action_plans::ActionPlansRepository;
-pub use action_items::ActionItemsRepository;

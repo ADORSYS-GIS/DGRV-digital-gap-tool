@@ -1,6 +1,7 @@
 use sea_orm::*;
 use crate::entities::dimension_assessments::{self, Entity as DimensionAssessments};
 use crate::error::AppError;
+use crate::services::dimension_scoring::DimensionScoringService;
 use uuid::Uuid;
 
 pub struct DimensionAssessmentsRepository;
@@ -10,62 +11,62 @@ impl DimensionAssessmentsRepository {
         DimensionAssessments::find()
             .all(db)
             .await
-            .map_err(AppError::DatabaseError)
+            .map_err(AppError::from)
     }
 
     pub async fn find_by_id(db: &DbConn, dimension_assessment_id: Uuid) -> Result<Option<dimension_assessments::Model>, AppError> {
         DimensionAssessments::find_by_id(dimension_assessment_id)
             .one(db)
             .await
-            .map_err(AppError::DatabaseError)
+            .map_err(AppError::from)
     }
 
-    pub async fn create(db: &DbConn, dimension_assessment_data: dimension_assessments::ActiveModel) -> Result<dimension_assessments::Model, AppError> {
-        dimension_assessment_data
+    pub async fn find_by_assessment_id(db: &DbConn, assessment_id: Uuid) -> Result<Vec<dimension_assessments::Model>, AppError> {
+        DimensionAssessments::find()
+            .filter(dimension_assessments::Column::AssessmentId.eq(assessment_id))
+            .all(db)
+            .await
+            .map_err(AppError::from)
+    }
+
+    pub async fn create(db: &DbConn, assessment_data: dimension_assessments::ActiveModel) -> Result<dimension_assessments::Model, AppError> {
+        assessment_data
             .insert(db)
             .await
-            .map_err(AppError::DatabaseError)
+            .map_err(AppError::from)
     }
 
     pub async fn update(
         db: &DbConn,
         dimension_assessment_id: Uuid,
-        dimension_assessment_data: dimension_assessments::ActiveModel,
+        assessment_data: dimension_assessments::ActiveModel,
     ) -> Result<dimension_assessments::Model, AppError> {
-        let dimension_assessment = DimensionAssessments::find_by_id(dimension_assessment_id)
+        let assessment = DimensionAssessments::find_by_id(dimension_assessment_id)
             .one(db)
             .await
-            .map_err(AppError::DatabaseError)?
+            .map_err(AppError::from)?
             .ok_or_else(|| AppError::NotFound("Dimension assessment not found".to_string()))?;
 
-        let mut active_model: dimension_assessments::ActiveModel = dimension_assessment.into();
+        let mut active_model: dimension_assessments::ActiveModel = assessment.into();
         
-        if let ActiveValue::Set(assessment_id) = dimension_assessment_data.assessment_id {
-            active_model.assessment_id = Set(assessment_id);
+        // Update fields if they are set
+        if assessment_data.assessment_id.is_set() {
+            active_model.assessment_id = assessment_data.assessment_id;
         }
-        if let ActiveValue::Set(dimension_id) = dimension_assessment_data.dimension_id {
-            active_model.dimension_id = Set(dimension_id);
+        if assessment_data.dimension_id.is_set() {
+            active_model.dimension_id = assessment_data.dimension_id;
         }
-        if let ActiveValue::Set(current_state_id) = dimension_assessment_data.current_state_id {
-            active_model.current_state_id = Set(current_state_id);
+        if assessment_data.current_state_id.is_set() {
+            active_model.current_state_id = assessment_data.current_state_id;
         }
-        if let ActiveValue::Set(desired_state_id) = dimension_assessment_data.desired_state_id {
-            active_model.desired_state_id = Set(desired_state_id);
+        if assessment_data.desired_state_id.is_set() {
+            active_model.desired_state_id = assessment_data.desired_state_id;
         }
-        if let ActiveValue::Set(current_score) = dimension_assessment_data.current_score {
-            active_model.current_score = Set(current_score);
+        if assessment_data.current_score.is_set() {
+            active_model.current_score = assessment_data.current_score;
         }
-        if let ActiveValue::Set(desired_score) = dimension_assessment_data.desired_score {
-            active_model.desired_score = Set(desired_score);
-        }
-        if let ActiveValue::Set(desired_state_id) = dimension_assessment_data.desired_state_id {
-            active_model.desired_state_id = Set(desired_state_id);
-        }
-        if let ActiveValue::Set(current_score) = dimension_assessment_data.current_score {
-            active_model.current_score = Set(current_score);
-        }
-        if let ActiveValue::Set(desired_score) = dimension_assessment_data.desired_score {
-            active_model.desired_score = Set(desired_score);
+        if assessment_data.desired_score.is_set() {
+            active_model.desired_score = assessment_data.desired_score;
         }
 
         active_model.updated_at = Set(chrono::Utc::now());
@@ -73,73 +74,71 @@ impl DimensionAssessmentsRepository {
         active_model
             .update(db)
             .await
-            .map_err(AppError::DatabaseError)
+            .map_err(AppError::from)
     }
 
     pub async fn delete(db: &DbConn, dimension_assessment_id: Uuid) -> Result<bool, AppError> {
         let result = DimensionAssessments::delete_by_id(dimension_assessment_id)
             .exec(db)
             .await
-            .map_err(AppError::DatabaseError)?;
+            .map_err(AppError::from)?;
 
         Ok(result.rows_affected > 0)
     }
 
-    pub async fn find_by_assessment(
+    /// Calculate weighted scores for all dimension assessments in an assessment
+    pub async fn calculate_weighted_scores(
         db: &DbConn,
         assessment_id: Uuid,
-    ) -> Result<Vec<dimension_assessments::Model>, AppError> {
-        DimensionAssessments::find()
-            .filter(dimension_assessments::Column::AssessmentId.eq(assessment_id))
-            .all(db)
-            .await
-            .map_err(AppError::DatabaseError)
+    ) -> Result<Vec<(Uuid, f64)>, AppError> {
+        let assessments = Self::find_by_assessment_id(db, assessment_id).await?;
+        let mut weighted_scores = Vec::new();
+
+        for assessment in assessments {
+            // Get the dimension to retrieve its weight
+            let dimension = crate::entities::dimensions::Entity::find_by_id(assessment.dimension_id)
+                .one(db)
+                .await
+                .map_err(AppError::DatabaseError)?
+                .ok_or_else(|| AppError::NotFound("Dimension not found".to_string()))?;
+
+            let gap_size = assessment.desired_score - assessment.current_score;
+            let weighted_score = DimensionScoringService::calculate_weighted_score(
+                gap_size,
+                dimension.weight,
+            )?;
+
+            weighted_scores.push((assessment.dimension_assessment_id, weighted_score));
+        }
+
+        Ok(weighted_scores)
     }
 
-    pub async fn find_by_dimension(
-        db: &DbConn,
-        dimension_id: Uuid,
-    ) -> Result<Vec<dimension_assessments::Model>, AppError> {
-        DimensionAssessments::find()
-            .filter(dimension_assessments::Column::DimensionId.eq(dimension_id))
-            .all(db)
-            .await
-            .map_err(AppError::DatabaseError)
-    }
-
-    pub async fn find_by_assessment_and_dimension(
+    /// Get priority scores for dimension assessments based on weights and gap sizes
+    pub async fn get_priority_scores(
         db: &DbConn,
         assessment_id: Uuid,
-        dimension_id: Uuid,
-    ) -> Result<Option<dimension_assessments::Model>, AppError> {
-        DimensionAssessments::find()
-            .filter(
-                Condition::all()
-                    .add(dimension_assessments::Column::AssessmentId.eq(assessment_id))
-                    .add(dimension_assessments::Column::DimensionId.eq(dimension_id))
-            )
-            .one(db)
-            .await
-            .map_err(AppError::DatabaseError)
-    }
+    ) -> Result<Vec<(Uuid, i32)>, AppError> {
+        let assessments = Self::find_by_assessment_id(db, assessment_id).await?;
+        let mut priority_scores = Vec::new();
 
-    pub async fn update_dimension_score(
-        db: &DbConn,
-        dimension_assessment_id: Uuid,
-        score: i32,
-    ) -> Result<dimension_assessments::Model, AppError> {
-        let dimension_assessment = DimensionAssessments::find_by_id(dimension_assessment_id)
-            .one(db)
-            .await
-            .map_err(AppError::DatabaseError)?
-            .ok_or_else(|| AppError::NotFound("Dimension assessment not found".to_string()))?;
+        for assessment in assessments {
+            // Get the dimension to retrieve its weight
+            let dimension = crate::entities::dimensions::Entity::find_by_id(assessment.dimension_id)
+                .one(db)
+                .await
+                .map_err(AppError::DatabaseError)?
+                .ok_or_else(|| AppError::NotFound("Dimension not found".to_string()))?;
 
-        let mut active_model: dimension_assessments::ActiveModel = dimension_assessment.into();
-        active_model.updated_at = Set(chrono::Utc::now());
+            let gap_size = assessment.desired_score - assessment.current_score;
+            let priority_score = DimensionScoringService::calculate_priority_score(
+                gap_size,
+                dimension.weight,
+            )?;
 
-        active_model
-            .update(db)
-            .await
-            .map_err(AppError::DatabaseError)
+            priority_scores.push((assessment.dimension_assessment_id, priority_score));
+        }
+
+        Ok(priority_scores)
     }
 }

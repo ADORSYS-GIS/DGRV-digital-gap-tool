@@ -28,6 +28,9 @@ pub enum AppError {
     
     #[error("Authentication error: {0}")]
     AuthError(String),
+    
+    #[error("File storage error: {0}")]
+    FileStorageError(String),
 }
 
 impl IntoResponse for AppError {
@@ -40,6 +43,7 @@ impl IntoResponse for AppError {
             AppError::BadRequest(_) => (StatusCode::BAD_REQUEST, "Bad request"),
             AppError::InternalServerError(_) => (StatusCode::INTERNAL_SERVER_ERROR, "Internal server error"),
             AppError::AuthError(_) => (StatusCode::UNAUTHORIZED, "Authentication error"),
+            AppError::FileStorageError(_) => (StatusCode::INTERNAL_SERVER_ERROR, "File storage error"),
         };
 
         let body = Json(json!({

@@ -10,21 +10,21 @@ impl ReportsRepository {
         Reports::find()
             .all(db)
             .await
-            .map_err(AppError::DatabaseError)
+            .map_err(AppError::from)
     }
 
     pub async fn find_by_id(db: &DbConn, report_id: Uuid) -> Result<Option<reports::Model>, AppError> {
         Reports::find_by_id(report_id)
             .one(db)
             .await
-            .map_err(AppError::DatabaseError)
+            .map_err(AppError::from)
     }
 
     pub async fn create(db: &DbConn, report_data: reports::ActiveModel) -> Result<reports::Model, AppError> {
         report_data
             .insert(db)
             .await
-            .map_err(AppError::DatabaseError)
+            .map_err(AppError::from)
     }
 
     pub async fn update(
@@ -35,7 +35,7 @@ impl ReportsRepository {
         let report = Reports::find_by_id(report_id)
             .one(db)
             .await
-            .map_err(AppError::DatabaseError)?
+            .map_err(AppError::from)?
             .ok_or_else(|| AppError::NotFound("Report not found".to_string()))?;
 
         let mut active_model: reports::ActiveModel = report.into();
@@ -61,6 +61,9 @@ impl ReportsRepository {
         if let ActiveValue::Set(file_path) = report_data.file_path {
             active_model.file_path = Set(file_path);
         }
+        if let ActiveValue::Set(minio_path) = report_data.minio_path {
+            active_model.minio_path = Set(minio_path);
+        }
         if let ActiveValue::Set(status) = report_data.status {
             active_model.status = Set(status);
         }
@@ -73,14 +76,14 @@ impl ReportsRepository {
         active_model
             .update(db)
             .await
-            .map_err(AppError::DatabaseError)
+            .map_err(AppError::from)
     }
 
     pub async fn delete(db: &DbConn, report_id: Uuid) -> Result<bool, AppError> {
         let result = Reports::delete_by_id(report_id)
             .exec(db)
             .await
-            .map_err(AppError::DatabaseError)?;
+            .map_err(AppError::from)?;
 
         Ok(result.rows_affected > 0)
     }
@@ -93,7 +96,7 @@ impl ReportsRepository {
             .filter(reports::Column::AssessmentId.eq(assessment_id))
             .all(db)
             .await
-            .map_err(AppError::DatabaseError)
+            .map_err(AppError::from)
     }
 
     pub async fn find_by_type(db: &DbConn, report_type: &str) -> Result<Vec<reports::Model>, AppError> {
@@ -101,7 +104,7 @@ impl ReportsRepository {
             .filter(reports::Column::ReportType.eq(report_type))
             .all(db)
             .await
-            .map_err(AppError::DatabaseError)
+            .map_err(AppError::from)
     }
 
     pub async fn find_by_status(db: &DbConn, status: &str) -> Result<Vec<reports::Model>, AppError> {
@@ -109,7 +112,7 @@ impl ReportsRepository {
             .filter(reports::Column::Status.eq(status))
             .all(db)
             .await
-            .map_err(AppError::DatabaseError)
+            .map_err(AppError::from)
     }
 
     pub async fn update_status(
@@ -120,7 +123,7 @@ impl ReportsRepository {
         let report = Reports::find_by_id(report_id)
             .one(db)
             .await
-            .map_err(AppError::DatabaseError)?
+            .map_err(AppError::from)?
             .ok_or_else(|| AppError::NotFound("Report not found".to_string()))?;
 
         let mut active_model: reports::ActiveModel = report.into();
@@ -130,7 +133,7 @@ impl ReportsRepository {
         active_model
             .update(db)
             .await
-            .map_err(AppError::DatabaseError)
+            .map_err(AppError::from)
     }
 
     pub async fn update_file_path(
@@ -141,7 +144,7 @@ impl ReportsRepository {
         let report = Reports::find_by_id(report_id)
             .one(db)
             .await
-            .map_err(AppError::DatabaseError)?
+            .map_err(AppError::from)?
             .ok_or_else(|| AppError::NotFound("Report not found".to_string()))?;
 
         let mut active_model: reports::ActiveModel = report.into();
@@ -151,6 +154,27 @@ impl ReportsRepository {
         active_model
             .update(db)
             .await
-            .map_err(AppError::DatabaseError)
+            .map_err(AppError::from)
+    }
+
+    pub async fn update_minio_path(
+        db: &DbConn,
+        report_id: Uuid,
+        minio_path: &str,
+    ) -> Result<reports::Model, AppError> {
+        let report = Reports::find_by_id(report_id)
+            .one(db)
+            .await
+            .map_err(AppError::from)?
+            .ok_or_else(|| AppError::NotFound("Report not found".to_string()))?;
+
+        let mut active_model: reports::ActiveModel = report.into();
+        active_model.minio_path = Set(Some(minio_path.to_string()));
+        active_model.updated_at = Set(chrono::Utc::now());
+
+        active_model
+            .update(db)
+            .await
+            .map_err(AppError::from)
     }
 }

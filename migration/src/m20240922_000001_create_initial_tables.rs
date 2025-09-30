@@ -124,7 +124,6 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(Gaps::GapSize).integer().not_null())
                     .col(ColumnDef::new(Gaps::GapSeverity).string().not_null())
                     .col(ColumnDef::new(Gaps::GapDescription).text())
-                    .col(ColumnDef::new(Gaps::EaseAndImpact).boolean())
                     .col(ColumnDef::new(Gaps::CalculatedAt).timestamp().not_null().default(Expr::current_timestamp()))
                     .col(ColumnDef::new(Gaps::CreatedAt).timestamp().not_null().default(Expr::current_timestamp()))
                     .col(ColumnDef::new(Gaps::UpdatedAt).timestamp().not_null().default(Expr::current_timestamp()))
@@ -141,8 +140,6 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(Recommendations::RecommendationId).uuid().not_null().primary_key())
                     .col(ColumnDef::new(Recommendations::DimensionId).uuid().not_null())
                     .col(ColumnDef::new(Recommendations::GapSeverity).string().not_null())
-                    .col(ColumnDef::new(Recommendations::MinGapSize).integer().not_null())
-                    .col(ColumnDef::new(Recommendations::MaxGapSize).integer().not_null())
                     .col(ColumnDef::new(Recommendations::Priority).string().not_null())
                     .col(ColumnDef::new(Recommendations::Description).text().not_null())
                     .col(ColumnDef::new(Recommendations::CreatedAt).timestamp().not_null().default(Expr::current_timestamp()))
@@ -161,7 +158,6 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(AssessmentRecommendations::AssessmentId).uuid().not_null())
                     .col(ColumnDef::new(AssessmentRecommendations::RecommendationId).uuid().not_null())
                     .col(ColumnDef::new(AssessmentRecommendations::GapValue).integer().not_null())
-                    .col(ColumnDef::new(AssessmentRecommendations::IsSelected).boolean().not_null().default(false))
                     .col(ColumnDef::new(AssessmentRecommendations::CustomNotes).text())
                     .col(ColumnDef::new(AssessmentRecommendations::ImplementationStatus).string().not_null().default("planned"))
                     .col(ColumnDef::new(AssessmentRecommendations::SelectedAt).timestamp())
@@ -425,7 +421,6 @@ enum Gaps {
     GapSize,
     GapSeverity,
     GapDescription,
-    EaseAndImpact,
     CalculatedAt,
     CreatedAt,
     UpdatedAt,
@@ -437,8 +432,6 @@ enum Recommendations {
     RecommendationId,
     DimensionId,
     GapSeverity,
-    MinGapSize,
-    MaxGapSize,
     Priority,
     Description,
     CreatedAt,
@@ -452,7 +445,6 @@ enum AssessmentRecommendations {
     AssessmentId,
     RecommendationId,
     GapValue,
-    IsSelected,
     CustomNotes,
     ImplementationStatus,
     SelectedAt,

@@ -50,6 +50,56 @@ impl MigrationTrait for Migration {
             )
             .await?;
 
+        // Add foreign keys for action_plans table
+        manager
+            .create_foreign_key(
+                ForeignKey::create()
+                    .name("fk_action_plans_assessments")
+                    .from(ActionPlans::Table, ActionPlans::AssessmentId)
+                    .to(Assessments::Table, Assessments::AssessmentId)
+                    .on_delete(ForeignKeyAction::Cascade)
+                    .on_update(ForeignKeyAction::Cascade)
+                    .to_owned(),
+            )
+            .await?;
+
+        manager
+            .create_foreign_key(
+                ForeignKey::create()
+                    .name("fk_action_plans_reports")
+                    .from(ActionPlans::Table, ActionPlans::ReportId)
+                    .to(Reports::Table, Reports::ReportId)
+                    .on_delete(ForeignKeyAction::SetNull)
+                    .on_update(ForeignKeyAction::Cascade)
+                    .to_owned(),
+            )
+            .await?;
+
+        // Add foreign keys for action_items table
+        manager
+            .create_foreign_key(
+                ForeignKey::create()
+                    .name("fk_action_items_action_plans")
+                    .from(ActionItems::Table, ActionItems::ActionPlanId)
+                    .to(ActionPlans::Table, ActionPlans::ActionPlanId)
+                    .on_delete(ForeignKeyAction::Cascade)
+                    .on_update(ForeignKeyAction::Cascade)
+                    .to_owned(),
+            )
+            .await?;
+
+        manager
+            .create_foreign_key(
+                ForeignKey::create()
+                    .name("fk_action_items_recommendations")
+                    .from(ActionItems::Table, ActionItems::RecommendationId)
+                    .to(Recommendations::Table, Recommendations::RecommendationId)
+                    .on_delete(ForeignKeyAction::SetNull)
+                    .on_update(ForeignKeyAction::Cascade)
+                    .to_owned(),
+            )
+            .await?;
+
         Ok(())
     }
 
@@ -113,4 +163,23 @@ enum ActionItems {
     AssignedTo,
     CreatedAt,
     UpdatedAt,
+}
+
+// Import the missing enums from the first migration
+#[derive(DeriveIden)]
+enum Assessments {
+    Table,
+    AssessmentId,
+}
+
+#[derive(DeriveIden)]
+enum Reports {
+    Table,
+    ReportId,
+}
+
+#[derive(DeriveIden)]
+enum Recommendations {
+    Table,
+    RecommendationId,
 }

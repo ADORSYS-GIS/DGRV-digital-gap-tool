@@ -8,8 +8,6 @@ pub struct Model {
     pub recommendation_id: Uuid,
     pub dimension_id: Uuid,
     pub gap_severity: GapSeverity,
-    pub min_gap_size: i32,
-    pub max_gap_size: i32,
     pub priority: RecommendationPriority,
     pub description: String,
     pub created_at: DateTimeUtc,

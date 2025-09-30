@@ -1,6 +1,7 @@
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 use serde_json::Value as JsonValue;
+use std::fmt;
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
 #[sea_orm(table_name = "reports")]
@@ -14,6 +15,7 @@ pub struct Model {
     pub summary: Option<String>,
     pub report_data: Option<JsonValue>,
     pub file_path: Option<String>,
+    pub minio_path: Option<String>,
     pub status: ReportStatus,
     pub generated_at: DateTimeUtc,
     pub created_at: DateTimeUtc,
@@ -40,6 +42,16 @@ pub enum ReportFormat {
     Excel,
     #[sea_orm(string_value = "json")]
     Json,
+}
+
+impl fmt::Display for ReportFormat {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            ReportFormat::Pdf => write!(f, "pdf"),
+            ReportFormat::Excel => write!(f, "excel"),
+            ReportFormat::Json => write!(f, "json"),
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize)]

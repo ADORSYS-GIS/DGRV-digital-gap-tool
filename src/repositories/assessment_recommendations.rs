@@ -10,21 +10,21 @@ impl AssessmentRecommendationsRepository {
         AssessmentRecommendations::find()
             .all(db)
             .await
-            .map_err(AppError::DatabaseError)
+            .map_err(AppError::from)
     }
 
     pub async fn find_by_id(db: &DbConn, assessment_recommendation_id: Uuid) -> Result<Option<assessment_recommendations::Model>, AppError> {
         AssessmentRecommendations::find_by_id(assessment_recommendation_id)
             .one(db)
             .await
-            .map_err(AppError::DatabaseError)
+            .map_err(AppError::from)
     }
 
     pub async fn create(db: &DbConn, assessment_recommendation_data: assessment_recommendations::ActiveModel) -> Result<assessment_recommendations::Model, AppError> {
         assessment_recommendation_data
             .insert(db)
             .await
-            .map_err(AppError::DatabaseError)
+            .map_err(AppError::from)
     }
 
     pub async fn update(
@@ -35,7 +35,7 @@ impl AssessmentRecommendationsRepository {
         let assessment_recommendation = AssessmentRecommendations::find_by_id(assessment_recommendation_id)
             .one(db)
             .await
-            .map_err(AppError::DatabaseError)?
+            .map_err(AppError::from)?
             .ok_or_else(|| AppError::NotFound("Assessment recommendation not found".to_string()))?;
 
         let mut active_model: assessment_recommendations::ActiveModel = assessment_recommendation.into();
@@ -48,9 +48,6 @@ impl AssessmentRecommendationsRepository {
         }
         if let ActiveValue::Set(gap_value) = assessment_recommendation_data.gap_value {
             active_model.gap_value = Set(gap_value);
-        }
-        if let ActiveValue::Set(is_selected) = assessment_recommendation_data.is_selected {
-            active_model.is_selected = Set(is_selected);
         }
         if let ActiveValue::Set(custom_notes) = assessment_recommendation_data.custom_notes {
             active_model.custom_notes = Set(custom_notes);
@@ -67,14 +64,14 @@ impl AssessmentRecommendationsRepository {
         active_model
             .update(db)
             .await
-            .map_err(AppError::DatabaseError)
+            .map_err(AppError::from)
     }
 
     pub async fn delete(db: &DbConn, assessment_recommendation_id: Uuid) -> Result<bool, AppError> {
         let result = AssessmentRecommendations::delete_by_id(assessment_recommendation_id)
             .exec(db)
             .await
-            .map_err(AppError::DatabaseError)?;
+            .map_err(AppError::from)?;
 
         Ok(result.rows_affected > 0)
     }
@@ -87,7 +84,7 @@ impl AssessmentRecommendationsRepository {
             .filter(assessment_recommendations::Column::AssessmentId.eq(assessment_id))
             .all(db)
             .await
-            .map_err(AppError::DatabaseError)
+            .map_err(AppError::from)
     }
 
     pub async fn find_by_recommendation(
@@ -98,7 +95,7 @@ impl AssessmentRecommendationsRepository {
             .filter(assessment_recommendations::Column::RecommendationId.eq(recommendation_id))
             .all(db)
             .await
-            .map_err(AppError::DatabaseError)
+            .map_err(AppError::from)
     }
 
     pub async fn find_by_assessment_and_recommendation(
@@ -114,7 +111,7 @@ impl AssessmentRecommendationsRepository {
             )
             .one(db)
             .await
-            .map_err(AppError::DatabaseError)
+            .map_err(AppError::from)
     }
 
     pub async fn update_implementation_status(
@@ -125,7 +122,7 @@ impl AssessmentRecommendationsRepository {
         let assessment_recommendation = AssessmentRecommendations::find_by_id(assessment_recommendation_id)
             .one(db)
             .await
-            .map_err(AppError::DatabaseError)?
+            .map_err(AppError::from)?
             .ok_or_else(|| AppError::NotFound("Assessment recommendation not found".to_string()))?;
 
         let mut active_model: assessment_recommendations::ActiveModel = assessment_recommendation.into();
@@ -135,6 +132,6 @@ impl AssessmentRecommendationsRepository {
         active_model
             .update(db)
             .await
-            .map_err(AppError::DatabaseError)
+            .map_err(AppError::from)
     }
 }

@@ -47,6 +47,15 @@ impl DimensionsRepository {
         if dimension_data.description.is_set() {
             active_model.description = dimension_data.description;
         }
+        if dimension_data.weight.is_set() {
+            // Validate weight is between 0 and 100
+            if let Some(weight) = dimension_data.weight.as_ref() {
+                if *weight < 0 || *weight > 100 {
+                    return Err(AppError::ValidationError("Weight must be between 0 and 100".to_string()));
+                }
+            }
+            active_model.weight = dimension_data.weight;
+        }
 
         active_model.updated_at = Set(chrono::Utc::now());
 

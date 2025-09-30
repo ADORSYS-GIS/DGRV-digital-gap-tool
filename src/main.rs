@@ -3,9 +3,10 @@ mod database;
 mod entities;
 mod error;
 mod repositories;
+mod services;
 
 use axum::{
-    routing::{get, post, put, delete},
+    routing::get,
     Router,
 };
 use std::net::SocketAddr;
@@ -45,7 +46,7 @@ async fn main() -> anyhow::Result<()> {
     Ok(())
 }
 
-fn create_app(db: sea_orm::DatabaseConnection) -> Router {
+fn create_app(_db: sea_orm::DatabaseConnection) -> Router {
     Router::new()
         .route("/health", get(health_check))
         .layer(CorsLayer::permissive())

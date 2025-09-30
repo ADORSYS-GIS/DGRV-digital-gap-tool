@@ -9,7 +9,6 @@ pub struct Model {
     pub assessment_id: Uuid,
     pub recommendation_id: Uuid,
     pub gap_value: i32,
-    pub is_selected: bool,
     pub custom_notes: Option<String>,
     pub implementation_status: ImplementationStatus,
     pub selected_at: Option<DateTimeUtc>,

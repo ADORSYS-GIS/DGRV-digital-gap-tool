@@ -10,21 +10,21 @@ impl ActionItemsRepository {
         ActionItems::find()
             .all(db)
             .await
-            .map_err(AppError::DatabaseError)
+            .map_err(AppError::from)
     }
 
     pub async fn find_by_id(db: &DbConn, action_item_id: Uuid) -> Result<Option<action_items::Model>, AppError> {
         ActionItems::find_by_id(action_item_id)
             .one(db)
             .await
-            .map_err(AppError::DatabaseError)
+            .map_err(AppError::from)
     }
 
     pub async fn create(db: &DbConn, action_item_data: action_items::ActiveModel) -> Result<action_items::Model, AppError> {
         action_item_data
             .insert(db)
             .await
-            .map_err(AppError::DatabaseError)
+            .map_err(AppError::from)
     }
 
     pub async fn update(
@@ -35,7 +35,7 @@ impl ActionItemsRepository {
         let action_item = ActionItems::find_by_id(action_item_id)
             .one(db)
             .await
-            .map_err(AppError::DatabaseError)?
+            .map_err(AppError::from)?
             .ok_or_else(|| AppError::NotFound("Action item not found".to_string()))?;
 
         let mut active_model: action_items::ActiveModel = action_item.into();
@@ -79,14 +79,14 @@ impl ActionItemsRepository {
         active_model
             .update(db)
             .await
-            .map_err(AppError::DatabaseError)
+            .map_err(AppError::from)
     }
 
     pub async fn delete(db: &DbConn, action_item_id: Uuid) -> Result<bool, AppError> {
         let result = ActionItems::delete_by_id(action_item_id)
             .exec(db)
             .await
-            .map_err(AppError::DatabaseError)?;
+            .map_err(AppError::from)?;
 
         Ok(result.rows_affected > 0)
     }
@@ -99,7 +99,7 @@ impl ActionItemsRepository {
             .filter(action_items::Column::ActionPlanId.eq(action_plan_id))
             .all(db)
             .await
-            .map_err(AppError::DatabaseError)
+            .map_err(AppError::from)
     }
 
     pub async fn find_by_recommendation(
@@ -110,7 +110,7 @@ impl ActionItemsRepository {
             .filter(action_items::Column::RecommendationId.eq(recommendation_id))
             .all(db)
             .await
-            .map_err(AppError::DatabaseError)
+            .map_err(AppError::from)
     }
 
     pub async fn find_by_status(db: &DbConn, status: crate::entities::action_items::ActionItemStatus) -> Result<Vec<action_items::Model>, AppError> {
@@ -118,7 +118,7 @@ impl ActionItemsRepository {
             .filter(action_items::Column::Status.eq(status))
             .all(db)
             .await
-            .map_err(AppError::DatabaseError)
+            .map_err(AppError::from)
     }
 
     pub async fn find_by_priority(db: &DbConn, priority: crate::entities::action_items::ActionItemPriority) -> Result<Vec<action_items::Model>, AppError> {
@@ -126,7 +126,7 @@ impl ActionItemsRepository {
             .filter(action_items::Column::Priority.eq(priority))
             .all(db)
             .await
-            .map_err(AppError::DatabaseError)
+            .map_err(AppError::from)
     }
 
     pub async fn find_by_assigned_to(db: &DbConn, assigned_to: &str) -> Result<Vec<action_items::Model>, AppError> {
@@ -134,7 +134,7 @@ impl ActionItemsRepository {
             .filter(action_items::Column::AssignedTo.eq(assigned_to))
             .all(db)
             .await
-            .map_err(AppError::DatabaseError)
+            .map_err(AppError::from)
     }
 
     pub async fn find_overdue(db: &DbConn) -> Result<Vec<action_items::Model>, AppError> {
@@ -147,7 +147,7 @@ impl ActionItemsRepository {
             )
             .all(db)
             .await
-            .map_err(AppError::DatabaseError)
+            .map_err(AppError::from)
     }
 
     pub async fn update_status(
@@ -158,7 +158,7 @@ impl ActionItemsRepository {
         let action_item = ActionItems::find_by_id(action_item_id)
             .one(db)
             .await
-            .map_err(AppError::DatabaseError)?
+            .map_err(AppError::from)?
             .ok_or_else(|| AppError::NotFound("Action item not found".to_string()))?;
 
         let mut active_model: action_items::ActiveModel = action_item.into();
@@ -177,7 +177,7 @@ impl ActionItemsRepository {
         active_model
             .update(db)
             .await
-            .map_err(AppError::DatabaseError)
+            .map_err(AppError::from)
     }
 
     pub async fn mark_as_completed(
@@ -187,7 +187,7 @@ impl ActionItemsRepository {
         let action_item = ActionItems::find_by_id(action_item_id)
             .one(db)
             .await
-            .map_err(AppError::DatabaseError)?
+            .map_err(AppError::from)?
             .ok_or_else(|| AppError::NotFound("Action item not found".to_string()))?;
 
         let mut active_model: action_items::ActiveModel = action_item.into();
@@ -198,6 +198,6 @@ impl ActionItemsRepository {
         active_model
             .update(db)
             .await
-            .map_err(AppError::DatabaseError)
+            .map_err(AppError::from)
     }
 }
