@@ -74,8 +74,6 @@ erDiagram
         uuid recommendation_id PK
         uuid dimension_id FK
         string gap_severity
-        integer min_gap_size
-        integer max_gap_size
         string priority
         text description
         datetime created_at
@@ -87,7 +85,6 @@ erDiagram
         uuid assessment_id FK
         uuid recommendation_id FK
         integer gap_value
-        boolean is_selected
         text custom_notes
         string implementation_status
         datetime selected_at
@@ -219,7 +216,6 @@ erDiagram
   - `gap_size`: Numerical difference (desired_score - current_score)
   - `gap_severity`: Categorical level (LOW, MEDIUM, HIGH)
   - `gap_description`: Detailed explanation of the gap
-  - `ease_and_impact`: Boolean indicating if change is easy and impactful
 
 ### Recommendation & Action Entities
 
@@ -228,7 +224,6 @@ erDiagram
 - **Key Fields**:
   - `dimension_id`: Which dimension this applies to (e.g., "Digital Culture")
   - `gap_severity`: When to show this recommendation (LOW, MEDIUM, HIGH)
-  - `min_gap_size/max_gap_size`: Numerical range this recommendation applies to
   - `priority`: Urgency level (URGENT, HIGH, MEDIUM, LOW)
   - `description`: Specific action recommendation
   - **Example**: "For Digital Culture dimension, HIGH severity gaps, priority URGENT: Implement Digital Literacy Training Programs"
@@ -239,7 +234,6 @@ erDiagram
   - `assessment_id`: Which assessment this belongs to
   - `recommendation_id`: Which template recommendation was suggested
   - `gap_value`: The actual gap value that triggered this recommendation
-  - `is_selected`: Whether user chose to implement this recommendation
   - `implementation_status`: Progress tracking (planned, in_progress, completed)
 
 #### REPORTS
@@ -297,7 +291,6 @@ erDiagram
    - `gap_size`: desired_score - current_score
    - `gap_severity`: LOW/MEDIUM/HIGH based on gap size
    - `gap_description`: Contextual explanation
-   - `ease_and_impact`: Assessment of change feasibility
 5. **Recommendation Matching**: System finds recommendations based on:
    - Dimension match
    - Gap severity match
@@ -321,7 +314,7 @@ CREATE INDEX idx_assessments_user_org ON assessments(user_id, organization_id);
 -- Composite indexes for common queries
 CREATE INDEX idx_dimension_assessments_composite ON dimension_assessments(assessment_id, dimension_id);
 CREATE INDEX idx_assessment_recommendations_composite ON assessment_recommendations(assessment_id, recommendation_id);
-CREATE INDEX idx_recommendations_dimension_gap_range ON recommendations(dimension_id, min_gap_size, max_gap_size);
+CREATE INDEX idx_recommendations_dimension_severity ON recommendations(dimension_id, gap_severity);
 ```
 
 ## Authentication Integration

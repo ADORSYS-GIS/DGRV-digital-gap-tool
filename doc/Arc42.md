@@ -204,7 +204,8 @@ The system follows a microservices architecture with clear separation of concern
 │  │                    Data Layer                           │   │
 │  │  ┌─────────────────┐  ┌─────────────────────────────────┐│   │
 │  │  │   PostgreSQL    │  │        File Storage           ││   │
-│  │  │    Database     │  │      (Reports/Docs)           ││   │
+│  │  │    Database     │  │   (MinIO/S3 + Reports)        ││   │
+│  │  │  (Metadata)     │  │     (Large Files)             ││   │
 │  │  └─────────────────┘  └─────────────────────────────────┘│   │
 │  └─────────────────────────────────────────────────────────┘   │
 └─────────────────────────────────────────────────────────────────┘
@@ -240,10 +241,12 @@ The system follows a microservices architecture with clear separation of concern
 - Activity tracking
 
 **Reporting Service:**
-- Report generation
+- Report generation (PDF, Excel, JSON)
+- File storage management (MinIO/S3)
 - Template management
 - Export functionality
 - Analytics aggregation
+- Dual storage orchestration
 
 ---
 
@@ -298,6 +301,47 @@ PWA          Service       API Gateway    Backend
 │               │             │               │
 ```
 
+### 6.3 Report Generation with Dual Storage
+
+**Scenario:** User requests a PDF report generation
+
+```
+┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
+│   Client    │    │   API       │    │  Report     │    │ PostgreSQL  │
+│  Request    │    │ Gateway     │    │ Service     │    │ Database    │
+└─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘
+       │                   │                   │                   │
+       │ 1. POST /reports  │                   │                   │
+       ├──────────────────►│                   │                   │
+       │                   │ 2. Forward       │                   │
+       │                   ├──────────────────►│                   │
+       │                   │                   │ 3. Create record │
+       │                   │                   ├──────────────────►│
+       │                   │                   │ 4. Record created│
+       │                   │                   │◄──────────────────┤
+       │                   │                   │ 5. Generate file │
+       │                   │                   ├──────────────────►│
+       │                   │                   │                   │
+       │                   │                   │ 6. Upload to     │
+       │                   │                   │    MinIO/S3      │
+       │                   │                   ├──────────────────►│
+       │                   │                   │                   │
+       │                   │                   │ 7. Update path   │
+       │                   │                   ├──────────────────►│
+       │                   │                   │ 8. Report ready  │
+       │                   │                   │◄──────────────────┤
+       │                   │ 9. Report URL     │                   │
+       │                   │◄──────────────────┤                   │
+       │ 10. Report URL    │                   │                   │
+       │◄──────────────────┤                   │                   │
+```
+
+**Storage Flow:**
+1. **Database**: Store report metadata (title, format, status)
+2. **File Storage**: Upload generated file to MinIO/S3
+3. **Database**: Update record with storage path
+4. **Client**: Receive download URL for file access
+
 ---
 
 ## 7. Deployment View
@@ -323,6 +367,11 @@ PWA          Service       API Gateway    Backend
 │  │                                                         │   │
 │  │  ┌─────────────────────────────────────────────────────┐│   │
 │  │  │              PostgreSQL StatefulSet                ││   │
+│  │  └─────────────────────────────────────────────────────┘│   │
+│  │                                                         │   │
+│  │  ┌─────────────────────────────────────────────────────┐│   │
+│  │  │                MinIO StatefulSet                   ││   │
+│  │  │            (File Storage Service)                  ││   │
 │  │  └─────────────────────────────────────────────────────┘│   │
 │  └─────────────────────────────────────────────────────────┘   │
 │                                                                 │
@@ -506,8 +555,6 @@ erDiagram
         uuid recommendation_id PK
         uuid dimension_id FK
         string gap_severity
-        integer min_gap_size
-        integer max_gap_size
         string priority
         text description
         datetime created_at
@@ -519,7 +566,6 @@ erDiagram
         uuid assessment_id FK
         uuid recommendation_id FK
         integer gap_value
-        boolean is_selected
         text custom_notes
         string implementation_status
         datetime selected_at
@@ -532,7 +578,6 @@ erDiagram
         uuid assessment_id FK
         string report_type
         string title
-        string format
         text summary
         json report_data
         string file_path
@@ -598,6 +643,177 @@ erDiagram
 ### 9.5 Database Schema
 
 The DGAT system uses a PostgreSQL database with the following schema structure:
+
+### 9.6 Dual Storage Architecture
+
+The DGAT system implements a **hybrid storage architecture** that separates structured data from file storage for optimal performance and scalability.
+
+#### 9.6.1 Storage Strategy
+
+| Storage Type | Technology | Purpose | Data Types |
+|--------------|------------|---------|------------|
+| **Primary Database** | PostgreSQL | Metadata, structured data, relationships | Assessment data, user info, configurations |
+| **File Storage** | MinIO/S3 | Large files, reports, documents | PDF reports, Excel files, JSON exports |
+
+#### 9.6.2 File Storage Implementation
+
+**Dual Service Architecture:**
+- **MinioService**: Native MinIO client for direct MinIO integration
+- **S3StorageService**: AWS S3 SDK for S3-compatible storage
+- **FileStorageService Trait**: Common interface for both implementations
+
+```rust
+#[async_trait]
+pub trait FileStorageService: Send + Sync {
+    async fn upload_file(&self, object_name: &str, data: Bytes, content_type: &str) -> Result<String, AppError>;
+    async fn download_file(&self, object_name: &str) -> Result<Bytes, AppError>;
+    async fn delete_file(&self, object_name: &str) -> Result<(), AppError>;
+}
+```
+
+#### 9.6.3 Reports Table - Storage Bridge
+
+The `reports` table serves as the bridge between database metadata and file storage:
+
+```sql
+CREATE TABLE reports (
+    report_id UUID PRIMARY KEY,
+    assessment_id UUID NOT NULL,
+    report_type VARCHAR NOT NULL,        -- summary, detailed, action_plan
+    title VARCHAR NOT NULL,
+    format VARCHAR NOT NULL,             -- pdf, excel, json
+    summary TEXT,
+    report_data JSONB,                   -- Small metadata (optional)
+    file_path VARCHAR,                   -- Legacy file path (optional)
+    minio_path VARCHAR,                  -- MinIO storage path
+    status VARCHAR NOT NULL,             -- pending, generating, completed, failed
+    generated_at TIMESTAMP NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL
+);
+```
+
+**Key Integration Fields:**
+- `minio_path`: Full path to file in MinIO (e.g., `"reports/uuid/report.pdf"`)
+- `file_path`: Legacy field for backward compatibility
+- `report_data`: Optional JSON metadata for small data
+
+#### 9.6.4 File Storage Workflow
+
+```mermaid
+graph TD
+    A[Assessment Completed] --> B[Generate Report Data]
+    B --> C[Create Report Record in DB]
+    C --> D[Generate Object Name]
+    D --> E[Upload File to MinIO/S3]
+    E --> F[Update Report with Storage Path]
+    F --> G[Report Available for Download]
+    
+    H[Client Request] --> I[Get Report Metadata from DB]
+    I --> J[Extract Storage Path]
+    J --> K[Download File from Storage]
+    K --> L[Return File + Metadata]
+```
+
+#### 9.6.5 Object Naming Convention
+
+Files are organized using a hierarchical naming structure:
+```
+reports/{report_id}/report.{format}
+```
+
+**Examples:**
+- `reports/550e8400-e29b-41d4-a716-446655440000/report.pdf`
+- `reports/550e8400-e29b-41d4-a716-446655440000/report.xlsx`
+- `reports/550e8400-e29b-41d4-a716-446655440000/report.json`
+
+#### 9.6.6 Supported File Formats
+
+| Format | Extension | Content Type | Use Case |
+|--------|-----------|--------------|----------|
+| **PDF** | `.pdf` | `application/pdf` | Final reports for stakeholders |
+| **Excel** | `.xlsx` | `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet` | Data analysis, spreadsheets |
+| **JSON** | `.json` | `application/json` | API responses, data exchange |
+
+#### 9.6.7 Configuration
+
+**MinIO Configuration:**
+```rust
+pub struct MinioConfig {
+    pub endpoint: String,        // MinIO server URL
+    pub access_key: String,      // Access credentials
+    pub secret_key: String,      // Secret credentials  
+    pub bucket_name: String,     // Storage bucket name
+    pub use_ssl: bool,          // SSL/TLS encryption
+}
+```
+
+**Environment Variables:**
+- `DGAT_MINIO_ENDPOINT`: MinIO server endpoint
+- `DGAT_MINIO_ACCESS_KEY`: Access key for authentication
+- `DGAT_MINIO_SECRET_KEY`: Secret key for authentication
+- `DGAT_MINIO_BUCKET_NAME`: Default bucket name
+- `DGAT_MINIO_USE_SSL`: Enable SSL/TLS encryption
+
+#### 9.6.8 ReportService Orchestration
+
+The `ReportService` coordinates between database and file storage:
+
+**Key Operations:**
+1. **`generate_and_store_report()`**: Creates DB record + uploads file
+2. **`get_report_file()`**: Retrieves metadata + downloads file
+3. **`delete_report()`**: Deletes file + removes DB record
+
+**Data Consistency:**
+- Atomic operations ensure database and file storage remain synchronized
+- Failed uploads don't create orphaned database records
+- Path validation prevents invalid storage operations
+- Status tracking reflects file availability
+
+#### 9.6.9 Benefits of Dual Storage
+
+| Benefit | Description |
+|---------|-------------|
+| **Scalability** | Large files don't bloat the database |
+| **Performance** | Database queries remain fast |
+| **Flexibility** | Can switch between MinIO and S3 |
+| **Cost Efficiency** | Object storage is cheaper than database storage |
+| **Backup & Recovery** | Files can be backed up independently |
+| **CDN Integration** | Files can be served via CDN for better performance |
+
+#### 9.6.10 Storage Architecture Diagram
+
+```mermaid
+graph TB
+    subgraph "Application Layer"
+        RS[ReportService]
+        API[HTTP API]
+    end
+    
+    subgraph "Storage Layer"
+        DB[(PostgreSQL Database)]
+        subgraph "File Storage"
+            MINIO[MinIO Service]
+            S3[S3 Storage Service]
+        end
+    end
+    
+    subgraph "External Storage"
+        MINIO_SERVER[MinIO Server]
+        S3_CLOUD[AWS S3 / S3-Compatible]
+    end
+    
+    API --> RS
+    RS --> DB
+    RS --> MINIO
+    RS --> S3
+    MINIO --> MINIO_SERVER
+    S3 --> S3_CLOUD
+    
+    DB -.->|Metadata| RS
+    MINIO -.->|File Data| RS
+    S3 -.->|File Data| RS
+```
 
 ---
 

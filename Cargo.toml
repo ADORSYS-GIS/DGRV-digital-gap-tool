@@ -1,0 +1,56 @@
+[package]
+name = "dgat-backend"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# Web framework
+axum = { version = "0.7", features = ["macros"] }
+tokio = { version = "1.0", features = ["full"] }
+tower = "0.4"
+tower-http = { version = "0.5", features = ["cors", "trace"] }
+
+# Database
+sea-orm = { version = "0.12", features = ["sqlx-postgres", "runtime-tokio-rustls", "macros"] }
+sqlx = { version = "0.7", features = ["postgres", "runtime-tokio-rustls", "uuid", "chrono", "json"] }
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Authentication
+jsonwebtoken = "9.0"
+uuid = { version = "1.0", features = ["v4", "serde"] }
+
+# Time handling
+chrono = { version = "0.4", features = ["serde"] }
+
+# Decimal handling
+rust_decimal = { version = "1.0", features = ["serde"] }
+
+# Error handling
+thiserror = "1.0"
+anyhow = "1.0"
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Configuration
+config = "0.14"
+dotenv = "0.15"
+
+# Validation
+validator = { version = "0.16", features = ["derive"] }
+
+# Migration
+sea-orm-migration = "0.12"
+bytes = "1.10.1"
+async-trait = "0.1.89"
+aws-sdk-s3 = "1.106.0"
+aws-config = "1.8.6"
+aws-credential-types = "1.2.6"
+
+[dev-dependencies]
+sea-orm = { version = "0.12", features = ["mock"] }
+tokio-test = "0.4"
