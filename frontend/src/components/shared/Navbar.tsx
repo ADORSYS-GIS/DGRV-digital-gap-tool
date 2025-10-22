@@ -38,9 +38,9 @@ export const Navbar = () => {
 
     // Check if user has drgv_admin role
     const hasDgrvAdminRole =
-      user.roles?.some((role) => role.toLowerCase() === "drgv_admin") ||
+      user.roles?.some((role) => role.toLowerCase() === "dgrv_admin") ||
       user.realm_access?.roles?.some(
-        (role) => role.toLowerCase() === "drgv_admin",
+        (role) => role.toLowerCase() === "dgrv_admin",
       );
 
     if (hasDgrvAdminRole) {

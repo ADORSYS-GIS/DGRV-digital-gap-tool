@@ -56,7 +56,10 @@ const routes = [
         path: "organizations",
         element: React.createElement(ManageOrganizations),
       },
-      { path: "digitalisation-levels", element: React.createElement(ManageDigitalisationLevels) },
+      {
+        path: "digitalisation-levels",
+        element: React.createElement(ManageDigitalisationLevels),
+      },
       { path: "dimensions", element: React.createElement(ManageDimensions) },
       {
         path: "recommendations",

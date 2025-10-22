@@ -21,7 +21,11 @@ const AdminLayout: React.FC = () => {
   const navLinks = [
     { to: "/admin/dashboard", icon: BarChart3, text: "Dashboard" },
     { to: "/admin/organizations", icon: Building2, text: "Organizations" },
-    { to: "/admin/digitalisation-levels", icon: FileText, text: "Digitalisation Levels" },
+    {
+      to: "/admin/digitalisation-levels",
+      icon: FileText,
+      text: "Digitalisation Levels",
+    },
     { to: "/admin/dimensions", icon: Settings, text: "Dimensions" },
     { to: "/admin/recommendations", icon: Settings, text: "Recommendations" },
   ];
@@ -38,7 +42,10 @@ const AdminLayout: React.FC = () => {
           {isSidebarOpen && (
             <span className="text-2xl font-bold">Admin Panel</span>
           )}
-          <button onClick={toggleSidebar} className="p-2 rounded-md hover:bg-gray-700">
+          <button
+            onClick={toggleSidebar}
+            className="p-2 rounded-md hover:bg-gray-700"
+          >
             {isSidebarOpen ? <ChevronLeft /> : <Menu />}
           </button>
         </div>
