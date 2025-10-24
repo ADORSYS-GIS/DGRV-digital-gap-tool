@@ -1,6 +1,7 @@
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 use serde_json::Value as JsonValue;
+use std::str::FromStr;
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
 #[sea_orm(table_name = "assessments")]
@@ -9,8 +10,8 @@ pub struct Model {
     pub assessment_id: Uuid,
     pub user_id: String,
     pub organization_id: String,
-    pub document_title: Option<String>,
-    pub file_name: Option<String>,
+    pub cooperative_id: String,
+    pub document_title: String,
     pub status: AssessmentStatus,
     pub started_at: Option<DateTimeUtc>,
     pub completed_at: Option<DateTimeUtc>,
@@ -30,6 +31,20 @@ pub enum AssessmentStatus {
     Completed,
     #[sea_orm(string_value = "archived")]
     Archived,
+}
+
+impl FromStr for AssessmentStatus {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "draft" => Ok(AssessmentStatus::Draft),
+            "in_progress" => Ok(AssessmentStatus::InProgress),
+            "completed" => Ok(AssessmentStatus::Completed),
+            "archived" => Ok(AssessmentStatus::Archived),
+            _ => Err(format!("Invalid assessment status: {}", s)),
+        }
+    }
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

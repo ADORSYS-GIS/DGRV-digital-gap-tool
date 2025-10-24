@@ -40,7 +40,7 @@ impl ReportService {
         };
 
         // Upload file to S3/MinIO
-        let minio_path = self.storage_service
+        let _ = self.storage_service
             .upload_file(&object_name, report_data, content_type)
             .await?;
 
@@ -52,9 +52,8 @@ impl ReportService {
             title: sea_orm::ActiveValue::Set(title),
             format: sea_orm::ActiveValue::Set(format),
             summary: sea_orm::ActiveValue::Set(None),
-            report_data: sea_orm::ActiveValue::Set(None), // Store in MinIO instead
-            file_path: sea_orm::ActiveValue::Set(None),
-            minio_path: sea_orm::ActiveValue::Set(Some(minio_path)),
+            report_data: sea_orm::ActiveValue::Set(None), // Store in object storage instead
+            file_path: sea_orm::ActiveValue::Set(Some(object_name)),
             status: sea_orm::ActiveValue::Set(ReportStatus::Completed),
             generated_at: sea_orm::ActiveValue::Set(chrono::Utc::now()),
             created_at: sea_orm::ActiveValue::Set(chrono::Utc::now()),
@@ -73,13 +72,9 @@ impl ReportService {
             .await?
             .ok_or_else(|| AppError::NotFound("Report not found".to_string()))?;
 
-        // Check if report has MinIO path
-        let minio_path = report.minio_path.as_ref()
+        // Expect object key in file_path
+        let object_name = report.file_path.as_ref()
             .ok_or_else(|| AppError::NotFound("Report file not available".to_string()))?;
-
-        // Extract object name from MinIO path
-        let object_name = minio_path.split('/').last()
-            .ok_or_else(|| AppError::FileStorageError("Invalid MinIO path".to_string()))?;
 
         // Download file from S3/MinIO
         let file_data = self.storage_service
@@ -99,10 +94,7 @@ impl ReportService {
             .ok_or_else(|| AppError::NotFound("Report not found".to_string()))?;
 
         // Delete file from S3/MinIO if it exists
-        if let Some(minio_path) = &report.minio_path {
-            let object_name = minio_path.split('/').last()
-                .ok_or_else(|| AppError::FileStorageError("Invalid MinIO path".to_string()))?;
-
+        if let Some(object_name) = &report.file_path {
             self.storage_service
                 .delete_file(object_name)
                 .await?;

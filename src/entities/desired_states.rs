@@ -10,6 +10,9 @@ pub struct Model {
     pub title: String,
     pub description: Option<String>,
     pub score: i32,
+    pub level: Option<String>,
+    pub target_date: Option<DateTimeUtc>,
+    pub success_criteria: Option<String>,
     pub created_at: DateTimeUtc,
     pub updated_at: DateTimeUtc,
 }
@@ -24,19 +27,11 @@ pub enum Relation {
         on_delete = "Cascade"
     )]
     Dimensions,
-    #[sea_orm(has_many = "super::dimension_assessments::Entity")]
-    DimensionAssessments,
 }
 
 impl Related<super::dimensions::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Dimensions.def()
-    }
-}
-
-impl Related<super::dimension_assessments::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::DimensionAssessments.def()
     }
 }
 

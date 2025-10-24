@@ -2,11 +2,11 @@ use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
-#[sea_orm(table_name = "dimension_assessments")]
+#[sea_orm(table_name = "organisation_dimension")]
 pub struct Model {
     #[sea_orm(primary_key, auto_generate = false)]
-    pub dimension_assessment_id: Uuid,
-    pub assessment_id: Uuid,
+    pub organisation_dimension: Uuid,
+    pub organisation_id: String,
     pub dimension_id: Uuid,
     pub created_at: DateTimeUtc,
     pub updated_at: DateTimeUtc,
@@ -15,14 +15,6 @@ pub struct Model {
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
     #[sea_orm(
-        belongs_to = "super::assessments::Entity",
-        from = "Column::AssessmentId",
-        to = "super::assessments::Column::AssessmentId",
-        on_update = "Cascade",
-        on_delete = "Cascade"
-    )]
-    Assessments,
-    #[sea_orm(
         belongs_to = "super::dimensions::Entity",
         from = "Column::DimensionId",
         to = "super::dimensions::Column::DimensionId",
@@ -30,25 +22,11 @@ pub enum Relation {
         on_delete = "Cascade"
     )]
     Dimensions,
-    #[sea_orm(has_one = "super::gaps::Entity")]
-    Gaps,
-}
-
-impl Related<super::assessments::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::Assessments.def()
-    }
 }
 
 impl Related<super::dimensions::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Dimensions.def()
-    }
-}
-
-impl Related<super::gaps::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::Gaps.def()
     }
 }
 

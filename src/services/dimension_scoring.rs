@@ -54,7 +54,7 @@ impl DimensionScoringService {
                 .ok_or_else(|| AppError::NotFound("Dimension not found".to_string()))?;
 
             let weight = dimension.weight.unwrap_or(100) as f64 / 100.0;
-            let gap_size = (da.desired_score - da.current_score) as f64;
+            let gap_size = 0.0;
             
             // Calculate weighted gap size
             let weighted_gap = gap_size * weight;

@@ -1,3 +1,4 @@
+mod api;
 mod config;
 mod database;
 mod entities;
@@ -13,6 +14,7 @@ use std::net::SocketAddr;
 use tower_http::cors::CorsLayer;
 use tracing::{info, Level};
 use tracing_subscriber::FmtSubscriber;
+use sea_orm::DatabaseConnection;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -46,12 +48,8 @@ async fn main() -> anyhow::Result<()> {
     Ok(())
 }
 
-fn create_app(_db: sea_orm::DatabaseConnection) -> Router {
-    Router::new()
-        .route("/health", get(health_check))
+fn create_app(db: DatabaseConnection) -> Router {
+    api::routes::api::create_api_routes()
+        .with_state(db)
         .layer(CorsLayer::permissive())
-}
-
-async fn health_check() -> &'static str {
-    "OK"
 }
