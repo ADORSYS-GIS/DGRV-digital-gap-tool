@@ -4,9 +4,10 @@ use chrono::{DateTime, Utc};
 use crate::entities::reports::ReportFormat;
 use std::fmt;
 use std::str::FromStr;
+use utoipa::ToSchema;
 
 /// Report generation request
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct GenerateReportRequest {
     pub assessment_id: Uuid,
     pub report_type: ReportType,
@@ -18,7 +19,7 @@ pub struct GenerateReportRequest {
 }
 
 /// Report update request
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct UpdateReportRequest {
     pub title: Option<String>,
     pub summary: Option<String>,
@@ -26,7 +27,7 @@ pub struct UpdateReportRequest {
 }
 
 /// Report response
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct ReportResponse {
     pub report_id: Uuid,
     pub assessment_id: Uuid,
@@ -43,7 +44,7 @@ pub struct ReportResponse {
 }
 
 /// Report type enumeration
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, ToSchema)]
 pub enum ReportType {
     Summary,
     Detailed,
@@ -74,7 +75,7 @@ impl FromStr for ReportType {
 }
 
 /// Report status enumeration
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, ToSchema)]
 pub enum ReportStatus {
     Pending,
     Generating,
@@ -111,7 +112,7 @@ impl FromStr for ReportStatus {
 }
 
 /// Report download response
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct ReportDownloadResponse {
     pub report: ReportResponse,
     pub download_url: Option<String>,
@@ -120,7 +121,7 @@ pub struct ReportDownloadResponse {
 }
 
 /// Report list response with pagination
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct ReportListResponse {
     pub reports: Vec<ReportResponse>,
     pub total: u64,
@@ -130,7 +131,7 @@ pub struct ReportListResponse {
 }
 
 /// Report generation status response
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct ReportStatusResponse {
     pub report_id: Uuid,
     pub status: ReportStatus,

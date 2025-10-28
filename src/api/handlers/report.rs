@@ -17,6 +17,14 @@ use crate::error::AppError;
 use crate::api::dto::report::{ReportType, ReportStatus};
 
 /// Create a new report
+#[utoipa::path(
+    post,
+    path = "/reports",
+    request_body = GenerateReportRequest,
+    responses(
+        (status = 200, description = "Report created", body = ApiResponse<ReportResponse>)
+    )
+)]
 pub async fn create_report(
     State(db): State<DatabaseConnection>,
     Json(request): Json<GenerateReportRequest>,
@@ -105,6 +113,14 @@ fn convert_dto_report_format_to_entity(dto_format: ReportFormat) -> crate::entit
 }
 
 /// Generate a new report
+#[utoipa::path(
+    post,
+    path = "/reports",
+    request_body = GenerateReportRequest,
+    responses(
+        (status = 200, description = "Report generation started", body = ApiResponse<ReportResponse>)
+    )
+)]
 pub async fn generate_report(
     State(db): State<DatabaseConnection>,
     Json(request): Json<GenerateReportRequest>,
@@ -155,6 +171,15 @@ pub async fn generate_report(
 }
 
 /// Get report by ID
+#[utoipa::path(
+    get,
+    path = "/reports/{id}",
+    params(("id" = Uuid, Path, description = "Report ID")),
+    responses(
+        (status = 200, description = "Report fetched", body = ApiResponse<ReportResponse>),
+        (status = 404, description = "Report not found")
+    )
+)]
 pub async fn get_report(
     State(db): State<DatabaseConnection>,
     Path(report_id): Path<Uuid>,
@@ -183,6 +208,15 @@ pub async fn get_report(
 }
 
 /// Get report status
+#[utoipa::path(
+    get,
+    path = "/reports/{id}/status",
+    params(("id" = Uuid, Path, description = "Report ID")),
+    responses(
+        (status = 200, description = "Report status", body = ApiResponse<ReportStatusResponse>),
+        (status = 404, description = "Report not found")
+    )
+)]
 pub async fn get_report_status(
     State(db): State<DatabaseConnection>,
     Path(report_id): Path<Uuid>,
@@ -222,6 +256,15 @@ pub async fn get_report_status(
 }
 
 /// Download report file
+#[utoipa::path(
+    get,
+    path = "/reports/{id}/download",
+    params(("id" = Uuid, Path, description = "Report ID")),
+    responses(
+        (status = 200, description = "Report download info", body = ApiResponse<ReportDownloadResponse>),
+        (status = 404, description = "Report not found")
+    )
+)]
 pub async fn download_report(
     State(db): State<DatabaseConnection>,
     Path(report_id): Path<Uuid>,
@@ -267,6 +310,17 @@ pub async fn download_report(
 }
 
 /// List reports with pagination
+#[utoipa::path(
+    get,
+    path = "/reports",
+    params(
+        ("page" = Option<u32>, Query, description = "Page number (default 1)"),
+        ("limit" = Option<u32>, Query, description = "Page size (default 20)")
+    ),
+    responses(
+        (status = 200, description = "Reports list", body = ApiResponse<PaginatedResponse<ReportResponse>>)
+    )
+)]
 pub async fn list_reports(
     State(db): State<DatabaseConnection>,
     Query(params): Query<PaginationParams>,
@@ -304,6 +358,14 @@ pub async fn list_reports(
 }
 
 /// List reports by assessment
+#[utoipa::path(
+    get,
+    path = "/reports/assessment/{assessment_id}",
+    params(("assessment_id" = Uuid, Path, description = "Assessment ID")),
+    responses(
+        (status = 200, description = "Reports list by assessment", body = ApiResponse<PaginatedResponse<ReportResponse>>)
+    )
+)]
 pub async fn list_reports_by_assessment(
     State(db): State<DatabaseConnection>,
     Path(assessment_id): Path<Uuid>,
@@ -342,6 +404,16 @@ pub async fn list_reports_by_assessment(
 }
 
 /// Update report
+#[utoipa::path(
+    put,
+    path = "/reports/{id}",
+    params(("id" = Uuid, Path, description = "Report ID")),
+    request_body = UpdateReportRequest,
+    responses(
+        (status = 200, description = "Report updated", body = ApiResponse<ReportResponse>),
+        (status = 404, description = "Report not found")
+    )
+)]
 pub async fn update_report(
     State(db): State<DatabaseConnection>,
     Path(report_id): Path<Uuid>,
@@ -389,6 +461,14 @@ pub async fn update_report(
 }
 
 /// Delete report
+#[utoipa::path(
+    delete,
+    path = "/reports/{id}",
+    params(("id" = Uuid, Path, description = "Report ID")),
+    responses(
+        (status = 200, description = "Report deleted")
+    )
+)]
 pub async fn delete_report(
     State(db): State<DatabaseConnection>,
     Path(report_id): Path<Uuid>,

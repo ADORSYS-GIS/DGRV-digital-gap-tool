@@ -1,4 +1,5 @@
 use serde::Deserialize;
+use envconfig::Envconfig;
 
 #[derive(Debug, Deserialize)]
 pub struct Config {
@@ -21,26 +22,68 @@ pub struct MinioConfig {
     pub use_ssl: bool,
 }
 
+#[derive(Envconfig)]
+struct ConfigEnv {
+    #[envconfig(from = "DGAT_DATABASE_URL", default = "postgres://postgres:postgres@localhost:5433/dgat")]
+    database_url: String,
+
+    #[envconfig(from = "DGAT_PORT", default = "8080")]
+    port: u16,
+
+    #[envconfig(from = "DGAT_KEYCLOAK_URL", default = "http://localhost:8081")]
+    keycloak_url: String,
+
+    #[envconfig(from = "DGAT_KEYCLOAK_REALM", default = "dgat")]
+    keycloak_realm: String,
+
+    #[envconfig(from = "DGAT_KEYCLOAK_CLIENT_ID", default = "dgat-backend")]
+    keycloak_client_id: String,
+
+    #[envconfig(from = "DGAT_KEYCLOAK_CLIENT_SECRET", default = "dev-secret")]
+    keycloak_client_secret: String,
+
+    #[envconfig(from = "DGAT_JWT_SECRET", default = "dev-secret")]
+    jwt_secret: String,
+
+    // MinIO
+    #[envconfig(from = "DGAT_MINIO_ENDPOINT", default = "http://localhost:9000")]
+    minio_endpoint: String,
+
+    #[envconfig(from = "DGAT_MINIO_ACCESS_KEY", default = "minioadmin")]
+    minio_access_key: String,
+
+    #[envconfig(from = "DGAT_MINIO_SECRET_KEY", default = "minioadmin")]
+    minio_secret_key: String,
+
+    #[envconfig(from = "DGAT_MINIO_BUCKET_NAME", default = "reports")]
+    minio_bucket_name: String,
+
+    #[envconfig(from = "DGAT_MINIO_USE_SSL", default = "false")]
+    minio_use_ssl: bool,
+}
+
 impl Config {
-    pub fn from_env() -> Result<Self, config::ConfigError> {
-        let mut cfg = config::Config::builder();
-        
-        // Set defaults
-        cfg = cfg.set_default("port", 8080)?;
-        cfg = cfg.set_default("keycloak_realm", "dgat")?;
-        cfg = cfg.set_default("keycloak_client_id", "dgat-backend")?;
-        cfg = cfg.set_default("minio.use_ssl", true)?;
-        cfg = cfg.set_default("minio.bucket_name", "reports")?;
-        
-        // Add environment variables
-        cfg = cfg.add_source(config::Environment::with_prefix("DGAT").separator("_"));
-        
-        // Try to load from .env file
-        if let Ok(_) = dotenv::dotenv() {
-            cfg = cfg.add_source(config::File::with_name(".env"));
-        }
-        
-        cfg.build()?.try_deserialize()
+    pub fn from_env() -> Result<Self, envconfig::Error> {
+        // Load .env first for local development
+        let _ = dotenv::dotenv();
+
+        let e = ConfigEnv::init_from_env()?;
+        Ok(Self {
+            database_url: e.database_url,
+            port: e.port,
+            keycloak_url: e.keycloak_url,
+            keycloak_realm: e.keycloak_realm,
+            keycloak_client_id: e.keycloak_client_id,
+            keycloak_client_secret: e.keycloak_client_secret,
+            jwt_secret: e.jwt_secret,
+            minio: MinioConfig {
+                endpoint: e.minio_endpoint,
+                access_key: e.minio_access_key,
+                secret_key: e.minio_secret_key,
+                bucket_name: e.minio_bucket_name,
+                use_ssl: e.minio_use_ssl,
+            },
+        })
     }
 }
 

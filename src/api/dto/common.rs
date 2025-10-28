@@ -3,17 +3,40 @@ use uuid::Uuid;
 use chrono::{DateTime, Utc};
 use std::fmt;
 use std::str::FromStr;
+use utoipa::ToSchema;
 
 /// Standard API response wrapper
-#[derive(Debug, Serialize, Deserialize)]
-pub struct ApiResponse<T> {
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+#[aliases(
+    ApiResponseActionPlanResponse = ApiResponse<crate::api::dto::action_plan::ActionPlanResponse>,
+    ApiResponseActionPlanWithItemsResponse = ApiResponse<crate::api::dto::action_plan::ActionPlanWithItemsResponse>,
+    ApiResponseActionItemResponse = ApiResponse<crate::api::dto::action_plan::ActionItemResponse>,
+    ApiResponsePaginatedActionPlanResponse = ApiResponse<PaginatedResponse<crate::api::dto::action_plan::ActionPlanResponse>>,
+    ApiResponseAssessmentResponse = ApiResponse<crate::api::dto::assessment::AssessmentResponse>,
+    ApiResponseAssessmentSummaryResponse = ApiResponse<crate::api::dto::assessment::AssessmentSummaryResponse>,
+    ApiResponseDimensionAssessmentResponse = ApiResponse<crate::api::dto::assessment::DimensionAssessmentResponse>,
+    ApiResponseDimensionResponse = ApiResponse<crate::api::dto::dimension::DimensionResponse>,
+    ApiResponseCurrentStateResponse = ApiResponse<crate::api::dto::dimension::CurrentStateResponse>,
+    ApiResponseDesiredStateResponse = ApiResponse<crate::api::dto::dimension::DesiredStateResponse>,
+    ApiResponseReportResponse = ApiResponse<crate::api::dto::report::ReportResponse>,
+    ApiResponseReportDownloadResponse = ApiResponse<crate::api::dto::report::ReportDownloadResponse>,
+    ApiResponseReportStatusResponse = ApiResponse<crate::api::dto::report::ReportStatusResponse>,
+    ApiResponsePaginatedReportResponse = ApiResponse<PaginatedResponse<crate::api::dto::report::ReportResponse>>
+)]
+pub struct ApiResponse<T>
+where
+    T: for<'a> ToSchema<'a>,
+{
     pub success: bool,
     pub data: Option<T>,
     pub message: Option<String>,
     pub error: Option<String>,
 }
 
-impl<T> ApiResponse<T> {
+impl<T> ApiResponse<T>
+where
+    T: for<'a> ToSchema<'a>,
+{
     pub fn success(data: T) -> Self {
         Self {
             success: true,
@@ -43,7 +66,7 @@ impl<T> ApiResponse<T> {
 }
 
 /// Pagination parameters
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct PaginationParams {
     pub page: Option<u32>,
     pub limit: Option<u32>,
@@ -63,7 +86,7 @@ impl Default for PaginationParams {
 }
 
 /// Sort order enumeration
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, ToSchema)]
 pub enum SortOrder {
     Asc,
     Desc,
@@ -91,8 +114,16 @@ impl FromStr for SortOrder {
 }
 
 /// Paginated response
-#[derive(Debug, Serialize, Deserialize)]
-pub struct PaginatedResponse<T> {
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+#[aliases(
+    PaginatedActionPlanResponse = PaginatedResponse<crate::api::dto::action_plan::ActionPlanResponse>,
+    PaginatedReportResponse = PaginatedResponse<crate::api::dto::report::ReportResponse>,
+    PaginatedDimensionResponse = PaginatedResponse<crate::api::dto::dimension::DimensionResponse>
+)]
+pub struct PaginatedResponse<T>
+where
+    T: for<'a> ToSchema<'a>,
+{
     pub items: Vec<T>,
     pub total: u64,
     pub page: u32,
@@ -100,7 +131,10 @@ pub struct PaginatedResponse<T> {
     pub total_pages: u32,
 }
 
-impl<T> PaginatedResponse<T> {
+impl<T> PaginatedResponse<T>
+where
+    T: for<'a> ToSchema<'a>,
+{
     pub fn new(items: Vec<T>, total: u64, page: u32, limit: u32) -> Self {
         let total_pages = ((total as f64) / (limit as f64)).ceil() as u32;
         Self {
@@ -114,20 +148,20 @@ impl<T> PaginatedResponse<T> {
 }
 
 /// Common timestamp fields
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct TimestampFields {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
 
 /// ID parameter for path variables
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct IdParam {
     pub id: Uuid,
 }
 
 /// Status enumeration for common status fields
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, ToSchema)]
 pub enum Status {
     Active,
     Inactive,
@@ -138,7 +172,7 @@ pub enum Status {
 }
 
 /// Priority enumeration
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, ToSchema)]
 pub enum Priority {
     Low,
     Medium,

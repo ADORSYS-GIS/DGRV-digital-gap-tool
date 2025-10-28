@@ -19,6 +19,14 @@ use crate::repositories::{
 use crate::error::AppError;
 
 /// Create a new dimension
+#[utoipa::path(
+    post,
+    path = "/dimensions",
+    request_body = CreateDimensionRequest,
+    responses(
+        (status = 200, description = "Dimension created", body = ApiResponse<DimensionResponse>)
+    )
+)]
 pub async fn create_dimension(
     State(db): State<DatabaseConnection>,
     Json(request): Json<CreateDimensionRequest>,
@@ -51,6 +59,15 @@ pub async fn create_dimension(
 }
 
 /// Get dimension by ID
+#[utoipa::path(
+    get,
+    path = "/dimensions/{id}",
+    params(("id" = Uuid, Path, description = "Dimension ID")),
+    responses(
+        (status = 200, description = "Dimension fetched", body = ApiResponse<DimensionResponse>),
+        (status = 404, description = "Dimension not found")
+    )
+)]
 pub async fn get_dimension(
     State(db): State<DatabaseConnection>,
     Path(dimension_id): Path<Uuid>,
@@ -75,6 +92,15 @@ pub async fn get_dimension(
 }
 
 /// Get dimension with states
+#[utoipa::path(
+    get,
+    path = "/dimensions/{id}/with-states",
+    params(("id" = Uuid, Path, description = "Dimension ID")),
+    responses(
+        (status = 200, description = "Dimension with states", body = ApiResponse<DimensionWithStatesResponse>),
+        (status = 404, description = "Dimension not found")
+    )
+)]
 pub async fn get_dimension_with_states(
     State(db): State<DatabaseConnection>,
     Path(dimension_id): Path<Uuid>,
@@ -147,6 +173,17 @@ pub async fn get_dimension_with_states(
 }
 
 /// List dimensions with pagination
+#[utoipa::path(
+    get,
+    path = "/dimensions",
+    params(
+        ("page" = Option<u32>, Query, description = "Page number (default 1)"),
+        ("limit" = Option<u32>, Query, description = "Page size (default 20)")
+    ),
+    responses(
+        (status = 200, description = "Dimensions list", body = ApiResponse<PaginatedResponse<DimensionResponse>>)
+    )
+)]
 pub async fn list_dimensions(
     State(db): State<DatabaseConnection>,
     Query(params): Query<PaginationParams>,
@@ -180,6 +217,16 @@ pub async fn list_dimensions(
 }
 
 /// Update dimension
+#[utoipa::path(
+    put,
+    path = "/dimensions/{id}",
+    params(("id" = Uuid, Path, description = "Dimension ID")),
+    request_body = UpdateDimensionRequest,
+    responses(
+        (status = 200, description = "Dimension updated", body = ApiResponse<DimensionResponse>),
+        (status = 404, description = "Dimension not found")
+    )
+)]
 pub async fn update_dimension(
     State(db): State<DatabaseConnection>,
     Path(dimension_id): Path<Uuid>,
@@ -229,6 +276,14 @@ pub async fn update_dimension(
 }
 
 /// Delete dimension
+#[utoipa::path(
+    delete,
+    path = "/dimensions/{id}",
+    params(("id" = Uuid, Path, description = "Dimension ID")),
+    responses(
+        (status = 200, description = "Dimension deleted")
+    )
+)]
 pub async fn delete_dimension(
     State(db): State<DatabaseConnection>,
     Path(dimension_id): Path<Uuid>,
@@ -241,6 +296,16 @@ pub async fn delete_dimension(
 }
 
 /// Create current state
+#[utoipa::path(
+    post,
+    path = "/dimensions/{id}/current-states",
+    params(("id" = Uuid, Path, description = "Dimension ID")),
+    request_body = CreateCurrentStateRequest,
+    responses(
+        (status = 200, description = "Current state created", body = ApiResponse<CurrentStateResponse>),
+        (status = 404, description = "Dimension not found")
+    )
+)]
 pub async fn create_current_state(
     State(db): State<DatabaseConnection>,
     Path(dimension_id): Path<Uuid>,
@@ -280,6 +345,19 @@ pub async fn create_current_state(
 }
 
 /// Update current state
+#[utoipa::path(
+    put,
+    path = "/dimensions/{dimension_id}/current-states/{current_state_id}",
+    params(
+        ("dimension_id" = Uuid, Path, description = "Dimension ID"),
+        ("current_state_id" = Uuid, Path, description = "Current state ID")
+    ),
+    request_body = UpdateCurrentStateRequest,
+    responses(
+        (status = 200, description = "Current state updated", body = ApiResponse<CurrentStateResponse>),
+        (status = 404, description = "Current state not found")
+    )
+)]
 pub async fn update_current_state(
     State(db): State<DatabaseConnection>,
     Path((dimension_id, current_state_id)): Path<(Uuid, Uuid)>,
@@ -329,6 +407,16 @@ pub async fn update_current_state(
 }
 
 /// Create desired state
+#[utoipa::path(
+    post,
+    path = "/dimensions/{id}/desired-states",
+    params(("id" = Uuid, Path, description = "Dimension ID")),
+    request_body = CreateDesiredStateRequest,
+    responses(
+        (status = 200, description = "Desired state created", body = ApiResponse<DesiredStateResponse>),
+        (status = 404, description = "Dimension not found")
+    )
+)]
 pub async fn create_desired_state(
     State(db): State<DatabaseConnection>,
     Path(dimension_id): Path<Uuid>,
@@ -370,6 +458,19 @@ pub async fn create_desired_state(
 }
 
 /// Update desired state
+#[utoipa::path(
+    put,
+    path = "/dimensions/{dimension_id}/desired-states/{desired_state_id}",
+    params(
+        ("dimension_id" = Uuid, Path, description = "Dimension ID"),
+        ("desired_state_id" = Uuid, Path, description = "Desired state ID")
+    ),
+    request_body = UpdateDesiredStateRequest,
+    responses(
+        (status = 200, description = "Desired state updated", body = ApiResponse<DesiredStateResponse>),
+        (status = 404, description = "Desired state not found")
+    )
+)]
 pub async fn update_desired_state(
     State(db): State<DatabaseConnection>,
     Path((dimension_id, desired_state_id)): Path<(Uuid, Uuid)>,
@@ -423,6 +524,17 @@ pub async fn update_desired_state(
 }
 
 /// Delete current state
+#[utoipa::path(
+    delete,
+    path = "/dimensions/{dimension_id}/current-states/{current_state_id}",
+    params(
+        ("dimension_id" = Uuid, Path, description = "Dimension ID"),
+        ("current_state_id" = Uuid, Path, description = "Current state ID")
+    ),
+    responses(
+        (status = 200, description = "Current state deleted")
+    )
+)]
 pub async fn delete_current_state(
     State(db): State<DatabaseConnection>,
     Path((dimension_id, current_state_id)): Path<(Uuid, Uuid)>,
@@ -445,6 +557,17 @@ pub async fn delete_current_state(
 }
 
 /// Delete desired state
+#[utoipa::path(
+    delete,
+    path = "/dimensions/{dimension_id}/desired-states/{desired_state_id}",
+    params(
+        ("dimension_id" = Uuid, Path, description = "Dimension ID"),
+        ("desired_state_id" = Uuid, Path, description = "Desired state ID")
+    ),
+    responses(
+        (status = 200, description = "Desired state deleted")
+    )
+)]
 pub async fn delete_desired_state(
     State(db): State<DatabaseConnection>,
     Path((dimension_id, desired_state_id)): Path<(Uuid, Uuid)>,

@@ -4,9 +4,10 @@ use chrono::{DateTime, Utc};
 use crate::api::dto::common::{TimestampFields, Status, Priority};
 use std::fmt;
 use std::str::FromStr;
+use utoipa::ToSchema;
 
 /// Assessment creation request
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct CreateAssessmentRequest {
     pub user_id: String,
     pub organization_id: String,
@@ -16,7 +17,7 @@ pub struct CreateAssessmentRequest {
 }
 
 /// Assessment update request
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct UpdateAssessmentRequest {
     pub document_title: Option<String>,
     pub cooperative_id: Option<String>,
@@ -27,7 +28,7 @@ pub struct UpdateAssessmentRequest {
 }
 
 /// Assessment response
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct AssessmentResponse {
     pub assessment_id: Uuid,
     pub user_id: String,
@@ -43,7 +44,7 @@ pub struct AssessmentResponse {
 }
 
 /// Assessment status enumeration
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, ToSchema)]
 pub enum AssessmentStatus {
     Draft,
     InProgress,
@@ -77,18 +78,18 @@ impl FromStr for AssessmentStatus {
 }
 
 /// Dimension assessment creation request
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct CreateDimensionAssessmentRequest {
     pub dimension_id: Uuid,
 }
 
 /// Dimension assessment update request
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct UpdateDimensionAssessmentRequest {
 }
 
 /// Dimension assessment response
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct DimensionAssessmentResponse {
     pub dimension_assessment_id: Uuid,
     pub assessment_id: Uuid,
@@ -98,7 +99,7 @@ pub struct DimensionAssessmentResponse {
 }
 
 /// Assessment summary response
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct AssessmentSummaryResponse {
     pub assessment: AssessmentResponse,
     pub dimension_assessments: Vec<DimensionAssessmentResponse>,
@@ -108,7 +109,7 @@ pub struct AssessmentSummaryResponse {
 }
 
 /// Assessment list response with pagination
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct AssessmentListResponse {
     pub assessments: Vec<AssessmentResponse>,
     pub total: u64,

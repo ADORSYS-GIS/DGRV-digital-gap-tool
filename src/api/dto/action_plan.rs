@@ -4,9 +4,10 @@ use chrono::{DateTime, Utc};
 use crate::api::dto::common::{Priority, Status};
 use std::fmt;
 use std::str::FromStr;
+use utoipa::ToSchema;
 
 /// Action plan creation request
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct CreateActionPlanRequest {
     pub assessment_id: Uuid,
     pub report_id: Option<Uuid>,
@@ -20,7 +21,7 @@ pub struct CreateActionPlanRequest {
 }
 
 /// Action plan update request
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct UpdateActionPlanRequest {
     pub title: Option<String>,
     pub description: Option<String>,
@@ -32,7 +33,7 @@ pub struct UpdateActionPlanRequest {
 }
 
 /// Action plan response
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct ActionPlanResponse {
     pub action_plan_id: Uuid,
     pub assessment_id: Uuid,
@@ -49,7 +50,7 @@ pub struct ActionPlanResponse {
 }
 
 /// Action plan status enumeration
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, ToSchema)]
 pub enum ActionPlanStatus {
     Draft,
     Active,
@@ -83,7 +84,7 @@ impl FromStr for ActionPlanStatus {
 }
 
 /// Action item creation request
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct CreateActionItemRequest {
     pub action_plan_id: Uuid,
     pub recommendation_id: Option<Uuid>,
@@ -98,7 +99,7 @@ pub struct CreateActionItemRequest {
 }
 
 /// Action item update request
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct UpdateActionItemRequest {
     pub title: Option<String>,
     pub description: Option<String>,
@@ -112,7 +113,7 @@ pub struct UpdateActionItemRequest {
 }
 
 /// Action item response
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct ActionItemResponse {
     pub action_item_id: Uuid,
     pub action_plan_id: Uuid,
@@ -131,7 +132,7 @@ pub struct ActionItemResponse {
 }
 
 /// Action item status enumeration
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, ToSchema)]
 pub enum ActionItemStatus {
     Pending,
     InProgress,
@@ -165,7 +166,7 @@ impl FromStr for ActionItemStatus {
 }
 
 /// Action item priority enumeration
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, ToSchema)]
 pub enum ActionItemPriority {
     Low,
     Medium,
@@ -199,7 +200,7 @@ impl FromStr for ActionItemPriority {
 }
 
 /// Action plan with items response
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct ActionPlanWithItemsResponse {
     pub action_plan: ActionPlanResponse,
     pub action_items: Vec<ActionItemResponse>,
@@ -209,7 +210,7 @@ pub struct ActionPlanWithItemsResponse {
 }
 
 /// Action plan list response with pagination
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct ActionPlanListResponse {
     pub action_plans: Vec<ActionPlanResponse>,
     pub total: u64,
@@ -219,7 +220,7 @@ pub struct ActionPlanListResponse {
 }
 
 /// Action item list response with pagination
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct ActionItemListResponse {
     pub action_items: Vec<ActionItemResponse>,
     pub total: u64,

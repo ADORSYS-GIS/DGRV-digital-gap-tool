@@ -3,9 +3,10 @@ use uuid::Uuid;
 use chrono::{DateTime, Utc};
 use std::fmt;
 use std::str::FromStr;
+use utoipa::ToSchema;
 
 /// Dimension creation request
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct CreateDimensionRequest {
     pub name: String,
     pub description: Option<String>,
@@ -15,7 +16,7 @@ pub struct CreateDimensionRequest {
 }
 
 /// Dimension update request
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct UpdateDimensionRequest {
     pub name: Option<String>,
     pub description: Option<String>,
@@ -25,7 +26,7 @@ pub struct UpdateDimensionRequest {
 }
 
 /// Dimension response
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct DimensionResponse {
     pub dimension_id: Uuid,
     pub name: String,
@@ -38,7 +39,7 @@ pub struct DimensionResponse {
 }
 
 /// Current state creation request
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct CreateCurrentStateRequest {
     pub dimension_id: Uuid,
     pub title: String,
@@ -49,7 +50,7 @@ pub struct CreateCurrentStateRequest {
 }
 
 /// Current state update request
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct UpdateCurrentStateRequest {
     pub title: Option<String>,
     pub description: Option<String>,
@@ -59,7 +60,7 @@ pub struct UpdateCurrentStateRequest {
 }
 
 /// Current state response
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct CurrentStateResponse {
     pub current_state_id: Uuid,
     pub dimension_id: Uuid,
@@ -73,7 +74,7 @@ pub struct CurrentStateResponse {
 }
 
 /// Desired state creation request
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct CreateDesiredStateRequest {
     pub dimension_id: Uuid,
     pub title: String,
@@ -85,7 +86,7 @@ pub struct CreateDesiredStateRequest {
 }
 
 /// Desired state update request
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct UpdateDesiredStateRequest {
     pub title: Option<String>,
     pub description: Option<String>,
@@ -96,7 +97,7 @@ pub struct UpdateDesiredStateRequest {
 }
 
 /// Desired state response
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct DesiredStateResponse {
     pub desired_state_id: Uuid,
     pub dimension_id: Uuid,
@@ -111,7 +112,7 @@ pub struct DesiredStateResponse {
 }
 
 /// Dimension with states response
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct DimensionWithStatesResponse {
     pub dimension: DimensionResponse,
     pub current_states: Vec<CurrentStateResponse>,
@@ -119,7 +120,7 @@ pub struct DimensionWithStatesResponse {
 }
 
 /// Dimension list response with pagination
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct DimensionListResponse {
     pub dimensions: Vec<DimensionResponse>,
     pub total: u64,

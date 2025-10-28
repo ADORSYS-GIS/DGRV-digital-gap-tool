@@ -50,12 +50,18 @@ pub fn extract_pagination(query: Query<PaginationParams>) -> (u32, u32, String, 
 }
 
 /// Create a success response
-pub fn success_response<T: serde::Serialize>(data: T) -> Json<ApiResponse<T>> {
+pub fn success_response<T>(data: T) -> Json<ApiResponse<T>>
+where
+    T: serde::Serialize + for<'a> utoipa::ToSchema<'a>,
+{
     Json(ApiResponse::success(data))
 }
 
 /// Create a success response with message
-pub fn success_response_with_message<T: serde::Serialize>(data: T, message: String) -> Json<ApiResponse<T>> {
+pub fn success_response_with_message<T>(data: T, message: String) -> Json<ApiResponse<T>>
+where
+    T: serde::Serialize + for<'a> utoipa::ToSchema<'a>,
+{
     Json(ApiResponse::success_with_message(data, message))
 }
 

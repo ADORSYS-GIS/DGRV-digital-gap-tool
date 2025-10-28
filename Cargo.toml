@@ -37,7 +37,7 @@ tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 
 # Configuration
-config = "0.14"
+envconfig = "0.10"
 dotenv = "0.15"
 
 # Validation
@@ -50,6 +50,11 @@ async-trait = "0.1.89"
 aws-sdk-s3 = "1.106.0"
 aws-config = "1.8.6"
 aws-credential-types = "1.2.6"
+
+# OpenAPI / Swagger
+utoipa = { version = "4", features = ["chrono", "uuid"] }
+utoipa-axum = { version = "0.1" }
+utoipa-swagger-ui = { version = "6", features = ["axum"] }
 
 [dev-dependencies]
 sea-orm = { version = "0.12", features = ["mock"] }

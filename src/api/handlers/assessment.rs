@@ -38,6 +38,14 @@ fn convert_dto_assessment_status_to_entity(dto_status: AssessmentStatus) -> crat
     }
 }
 
+#[utoipa::path(
+    post,
+    path = "/assessments",
+    request_body = CreateAssessmentRequest,
+    responses(
+        (status = 200, description = "Assessment created", body = ApiResponse<AssessmentResponse>)
+    )
+)]
 /// Create a new assessment
 pub async fn create_assessment(
     State(db): State<DatabaseConnection>,
@@ -75,6 +83,15 @@ pub async fn create_assessment(
     Ok(success_response_with_message(response, "Assessment created successfully".to_string()))
 }
 
+#[utoipa::path(
+    get,
+    path = "/assessments/{id}",
+    params(("id" = Uuid, Path, description = "Assessment ID")),
+    responses(
+        (status = 200, description = "Assessment fetched", body = ApiResponse<AssessmentResponse>),
+        (status = 404, description = "Assessment not found")
+    )
+)]
 /// Get assessment by ID
 pub async fn get_assessment(
     State(db): State<DatabaseConnection>,
@@ -102,6 +119,15 @@ pub async fn get_assessment(
     Ok(success_response(response))
 }
 
+#[utoipa::path(
+    get,
+    path = "/assessments/{id}/summary",
+    params(("id" = Uuid, Path, description = "Assessment ID")),
+    responses(
+        (status = 200, description = "Assessment summary", body = ApiResponse<AssessmentSummaryResponse>),
+        (status = 404, description = "Assessment not found")
+    )
+)]
 /// Get assessment summary with related data
 pub async fn get_assessment_summary(
     State(db): State<DatabaseConnection>,
@@ -165,6 +191,17 @@ pub async fn get_assessment_summary(
     Ok(success_response(summary))
 }
 
+#[utoipa::path(
+    get,
+    path = "/assessments",
+    params(
+        ("page" = Option<u32>, Query, description = "Page number (default 1)"),
+        ("limit" = Option<u32>, Query, description = "Page size (default 20)")
+    ),
+    responses(
+        (status = 200, description = "Assessments list", body = ApiResponse<PaginatedResponse<AssessmentResponse>>)
+    )
+)]
 /// List assessments with pagination
 pub async fn list_assessments(
     State(db): State<DatabaseConnection>,
@@ -201,6 +238,16 @@ pub async fn list_assessments(
     Ok(success_response(response))
 }
 
+#[utoipa::path(
+    put,
+    path = "/assessments/{id}",
+    params(("id" = Uuid, Path, description = "Assessment ID")),
+    request_body = UpdateAssessmentRequest,
+    responses(
+        (status = 200, description = "Assessment updated", body = ApiResponse<AssessmentResponse>),
+        (status = 404, description = "Assessment not found")
+    )
+)]
 /// Update assessment
 pub async fn update_assessment(
     State(db): State<DatabaseConnection>,
@@ -256,6 +303,14 @@ pub async fn update_assessment(
     Ok(success_response_with_message(response, "Assessment updated successfully".to_string()))
 }
 
+#[utoipa::path(
+    delete,
+    path = "/assessments/{id}",
+    params(("id" = Uuid, Path, description = "Assessment ID")),
+    responses(
+        (status = 200, description = "Assessment deleted")
+    )
+)]
 /// Delete assessment
 pub async fn delete_assessment(
     State(db): State<DatabaseConnection>,
@@ -268,6 +323,16 @@ pub async fn delete_assessment(
     Ok(success_response_with_message((), "Assessment deleted successfully".to_string()))
 }
 
+#[utoipa::path(
+    post,
+    path = "/assessments/{id}/dimension-assessments",
+    params(("id" = Uuid, Path, description = "Assessment ID")),
+    request_body = CreateDimensionAssessmentRequest,
+    responses(
+        (status = 200, description = "Dimension assessment created", body = ApiResponse<DimensionAssessmentResponse>),
+        (status = 404, description = "Assessment not found")
+    )
+)]
 /// Create dimension assessment
 pub async fn create_dimension_assessment(
     State(db): State<DatabaseConnection>,
@@ -295,6 +360,19 @@ pub async fn create_dimension_assessment(
     Ok(success_response_with_message(response, "Dimension assessment created successfully".to_string()))
 }
 
+#[utoipa::path(
+    put,
+    path = "/assessments/{assessment_id}/dimension-assessments/{dimension_assessment_id}",
+    params(
+        ("assessment_id" = Uuid, Path, description = "Assessment ID"),
+        ("dimension_assessment_id" = Uuid, Path, description = "Dimension assessment ID")
+    ),
+    request_body = UpdateDimensionAssessmentRequest,
+    responses(
+        (status = 200, description = "Dimension assessment updated", body = ApiResponse<DimensionAssessmentResponse>),
+        (status = 404, description = "Dimension assessment not found")
+    )
+)]
 /// Update dimension assessment
 pub async fn update_dimension_assessment(
     State(db): State<DatabaseConnection>,

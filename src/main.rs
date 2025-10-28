@@ -6,10 +6,7 @@ mod error;
 mod repositories;
 mod services;
 
-use axum::{
-    routing::get,
-    Router,
-};
+use axum::Router;
 use std::net::SocketAddr;
 use tower_http::cors::CorsLayer;
 use tracing::{info, Level};
@@ -50,6 +47,7 @@ async fn main() -> anyhow::Result<()> {
 
 fn create_app(db: DatabaseConnection) -> Router {
     api::routes::api::create_api_routes()
+        .merge(api::openapi::docs_routes())
         .with_state(db)
         .layer(CorsLayer::permissive())
 }

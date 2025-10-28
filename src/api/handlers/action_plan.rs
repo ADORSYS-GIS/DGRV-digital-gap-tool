@@ -77,6 +77,14 @@ fn convert_dto_item_status_to_entity(dto_status: ActionItemStatus) -> EntityActi
 }
 
 /// Create a new action plan
+#[utoipa::path(
+    post,
+    path = "/action-plans",
+    request_body = CreateActionPlanRequest,
+    responses(
+        (status = 200, description = "Action plan created", body = ApiResponse<ActionPlanResponse>)
+    )
+)]
 pub async fn create_action_plan(
     State(db): State<DatabaseConnection>,
     Json(request): Json<CreateActionPlanRequest>,
@@ -117,6 +125,15 @@ pub async fn create_action_plan(
 }
 
 /// Get action plan by ID
+#[utoipa::path(
+    get,
+    path = "/action-plans/{id}",
+    params(("id" = Uuid, Path, description = "Action plan ID")),
+    responses(
+        (status = 200, description = "Action plan fetched", body = ApiResponse<ActionPlanResponse>),
+        (status = 404, description = "Action plan not found")
+    )
+)]
 pub async fn get_action_plan(
     State(db): State<DatabaseConnection>,
     Path(action_plan_id): Path<Uuid>,
@@ -145,6 +162,15 @@ pub async fn get_action_plan(
 }
 
 /// Get action plan with items
+#[utoipa::path(
+    get,
+    path = "/action-plans/{id}/with-items",
+    params(("id" = Uuid, Path, description = "Action plan ID")),
+    responses(
+        (status = 200, description = "Action plan with items", body = ApiResponse<ActionPlanWithItemsResponse>),
+        (status = 404, description = "Action plan not found")
+    )
+)]
 pub async fn get_action_plan_with_items(
     State(db): State<DatabaseConnection>,
     Path(action_plan_id): Path<Uuid>,
@@ -218,6 +244,17 @@ pub async fn get_action_plan_with_items(
 }
 
 /// List action plans with pagination
+#[utoipa::path(
+    get,
+    path = "/action-plans",
+    params(
+        ("page" = Option<u32>, Query, description = "Page number (default 1)"),
+        ("limit" = Option<u32>, Query, description = "Page size (default 20)")
+    ),
+    responses(
+        (status = 200, description = "Action plans list", body = ApiResponse<PaginatedResponse<ActionPlanResponse>>)
+    )
+)]
 pub async fn list_action_plans(
     State(db): State<DatabaseConnection>,
     Query(params): Query<PaginationParams>,
@@ -255,6 +292,14 @@ pub async fn list_action_plans(
 }
 
 /// List action plans by assessment
+#[utoipa::path(
+    get,
+    path = "/action-plans/assessment/{assessment_id}",
+    params(("assessment_id" = Uuid, Path, description = "Assessment ID")),
+    responses(
+        (status = 200, description = "Action plans list by assessment", body = ApiResponse<PaginatedResponse<ActionPlanResponse>>)
+    )
+)]
 pub async fn list_action_plans_by_assessment(
     State(db): State<DatabaseConnection>,
     Path(assessment_id): Path<Uuid>,
@@ -293,6 +338,16 @@ pub async fn list_action_plans_by_assessment(
 }
 
 /// Update action plan
+#[utoipa::path(
+    put,
+    path = "/action-plans/{id}",
+    params(("id" = Uuid, Path, description = "Action plan ID")),
+    request_body = UpdateActionPlanRequest,
+    responses(
+        (status = 200, description = "Action plan updated", body = ApiResponse<ActionPlanResponse>),
+        (status = 404, description = "Action plan not found")
+    )
+)]
 pub async fn update_action_plan(
     State(db): State<DatabaseConnection>,
     Path(action_plan_id): Path<Uuid>,
@@ -352,6 +407,14 @@ pub async fn update_action_plan(
 }
 
 /// Delete action plan
+#[utoipa::path(
+    delete,
+    path = "/action-plans/{id}",
+    params(("id" = Uuid, Path, description = "Action plan ID")),
+    responses(
+        (status = 200, description = "Action plan deleted")
+    )
+)]
 pub async fn delete_action_plan(
     State(db): State<DatabaseConnection>,
     Path(action_plan_id): Path<Uuid>,
@@ -364,6 +427,16 @@ pub async fn delete_action_plan(
 }
 
 /// Create action item
+#[utoipa::path(
+    post,
+    path = "/action-plans/{id}/action-items",
+    params(("id" = Uuid, Path, description = "Action plan ID")),
+    request_body = CreateActionItemRequest,
+    responses(
+        (status = 200, description = "Action item created", body = ApiResponse<ActionItemResponse>),
+        (status = 404, description = "Action plan not found")
+    )
+)]
 pub async fn create_action_item(
     State(db): State<DatabaseConnection>,
     Path(action_plan_id): Path<Uuid>,
@@ -414,6 +487,18 @@ pub async fn create_action_item(
 }
 
 /// Get action item by ID
+#[utoipa::path(
+    get,
+    path = "/action-plans/{id}/action-items/{action_item_id}",
+    params(
+        ("id" = Uuid, Path, description = "Action plan ID"),
+        ("action_item_id" = Uuid, Path, description = "Action item ID")
+    ),
+    responses(
+        (status = 200, description = "Action item fetched", body = ApiResponse<ActionItemResponse>),
+        (status = 404, description = "Action item not found")
+    )
+)]
 pub async fn get_action_item(
     State(db): State<DatabaseConnection>,
     Path((action_plan_id, action_item_id)): Path<(Uuid, Uuid)>,
@@ -449,6 +534,19 @@ pub async fn get_action_item(
 }
 
 /// Update action item
+#[utoipa::path(
+    put,
+    path = "/action-plans/{id}/action-items/{action_item_id}",
+    params(
+        ("id" = Uuid, Path, description = "Action plan ID"),
+        ("action_item_id" = Uuid, Path, description = "Action item ID")
+    ),
+    request_body = UpdateActionItemRequest,
+    responses(
+        (status = 200, description = "Action item updated", body = ApiResponse<ActionItemResponse>),
+        (status = 404, description = "Action item not found")
+    )
+)]
 pub async fn update_action_item(
     State(db): State<DatabaseConnection>,
     Path((action_plan_id, action_item_id)): Path<(Uuid, Uuid)>,
@@ -521,6 +619,17 @@ pub async fn update_action_item(
 }
 
 /// Delete action item
+#[utoipa::path(
+    delete,
+    path = "/action-plans/{id}/action-items/{action_item_id}",
+    params(
+        ("id" = Uuid, Path, description = "Action plan ID"),
+        ("action_item_id" = Uuid, Path, description = "Action item ID")
+    ),
+    responses(
+        (status = 200, description = "Action item deleted")
+    )
+)]
 pub async fn delete_action_item(
     State(db): State<DatabaseConnection>,
     Path((action_plan_id, action_item_id)): Path<(Uuid, Uuid)>,
