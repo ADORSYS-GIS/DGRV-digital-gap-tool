@@ -5,6 +5,7 @@ use axum::{
 };
 use uuid::Uuid;
 use sea_orm::DatabaseConnection;
+use std::sync::Arc;
 
 use crate::api::dto::{
     dimension::*,
@@ -28,7 +29,7 @@ use crate::error::AppError;
     )
 )]
 pub async fn create_dimension(
-    State(db): State<DatabaseConnection>,
+    State(db): State<Arc<DatabaseConnection>>,
     Json(request): Json<CreateDimensionRequest>,
 ) -> Result<Json<ApiResponse<DimensionResponse>>, (StatusCode, Json<serde_json::Value>)> {
     let active_model = crate::entities::dimensions::ActiveModel {
@@ -40,7 +41,7 @@ pub async fn create_dimension(
         ..Default::default()
     };
 
-    let dimension = DimensionsRepository::create(&db, active_model)
+    let dimension = DimensionsRepository::create(db.as_ref(), active_model)
         .await
         .map_err(crate::api::handlers::common::handle_error)?;
 
@@ -69,10 +70,10 @@ pub async fn create_dimension(
     )
 )]
 pub async fn get_dimension(
-    State(db): State<DatabaseConnection>,
+    State(db): State<Arc<DatabaseConnection>>,
     Path(dimension_id): Path<Uuid>,
 ) -> Result<Json<ApiResponse<DimensionResponse>>, (StatusCode, Json<serde_json::Value>)> {
-    let dimension = DimensionsRepository::find_by_id(&db, dimension_id)
+    let dimension = DimensionsRepository::find_by_id(db.as_ref(), dimension_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?
         .ok_or_else(|| crate::api::handlers::common::handle_error(AppError::NotFound("Dimension not found".to_string())))?;
@@ -102,22 +103,22 @@ pub async fn get_dimension(
     )
 )]
 pub async fn get_dimension_with_states(
-    State(db): State<DatabaseConnection>,
+    State(db): State<Arc<DatabaseConnection>>,
     Path(dimension_id): Path<Uuid>,
 ) -> Result<Json<ApiResponse<DimensionWithStatesResponse>>, (StatusCode, Json<serde_json::Value>)> {
     // Get dimension
-    let dimension = DimensionsRepository::find_by_id(&db, dimension_id)
+    let dimension = DimensionsRepository::find_by_id(db.as_ref(), dimension_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?
         .ok_or_else(|| crate::api::handlers::common::handle_error(AppError::NotFound("Dimension not found".to_string())))?;
 
     // Get current states
-    let current_states = CurrentStatesRepository::find_by_dimension(&db, dimension_id)
+    let current_states = CurrentStatesRepository::find_by_dimension(db.as_ref(), dimension_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?;
 
     // Get desired states
-    let desired_states = DesiredStatesRepository::find_by_dimension(&db, dimension_id)
+    let desired_states = DesiredStatesRepository::find_by_dimension(db.as_ref(), dimension_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?;
 
@@ -185,13 +186,13 @@ pub async fn get_dimension_with_states(
     )
 )]
 pub async fn list_dimensions(
-    State(db): State<DatabaseConnection>,
+    State(db): State<Arc<DatabaseConnection>>,
     Query(params): Query<PaginationParams>,
 ) -> Result<Json<ApiResponse<PaginatedResponse<DimensionResponse>>>, (StatusCode, Json<serde_json::Value>)> {
     let (page, limit, _sort_by, _sort_order) = extract_pagination(Query(params));
     let offset = ((page - 1) * limit) as u64;
 
-    let dimensions = DimensionsRepository::find_all(&db)
+    let dimensions = DimensionsRepository::find_all(db.as_ref())
         .await
         .map_err(crate::api::handlers::common::handle_error)?;
 
@@ -228,11 +229,11 @@ pub async fn list_dimensions(
     )
 )]
 pub async fn update_dimension(
-    State(db): State<DatabaseConnection>,
+    State(db): State<Arc<DatabaseConnection>>,
     Path(dimension_id): Path<Uuid>,
     Json(request): Json<UpdateDimensionRequest>,
 ) -> Result<Json<ApiResponse<DimensionResponse>>, (StatusCode, Json<serde_json::Value>)> {
-    let mut dimension = DimensionsRepository::find_by_id(&db, dimension_id)
+    let mut dimension = DimensionsRepository::find_by_id(db.as_ref(), dimension_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?
         .ok_or_else(|| crate::api::handlers::common::handle_error(AppError::NotFound("Dimension not found".to_string())))?;
@@ -257,7 +258,7 @@ pub async fn update_dimension(
     dimension.updated_at = chrono::Utc::now();
 
     let active_model: crate::entities::dimensions::ActiveModel = dimension.into();
-    let updated_dimension = DimensionsRepository::update(&db, dimension_id, active_model)
+    let updated_dimension = DimensionsRepository::update(db.as_ref(), dimension_id, active_model)
         .await
         .map_err(crate::api::handlers::common::handle_error)?;
 
@@ -285,10 +286,10 @@ pub async fn update_dimension(
     )
 )]
 pub async fn delete_dimension(
-    State(db): State<DatabaseConnection>,
+    State(db): State<Arc<DatabaseConnection>>,
     Path(dimension_id): Path<Uuid>,
 ) -> Result<Json<ApiResponse<()>>, (StatusCode, Json<serde_json::Value>)> {
-    DimensionsRepository::delete(&db, dimension_id)
+    DimensionsRepository::delete(db.as_ref(), dimension_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?;
 
@@ -307,12 +308,12 @@ pub async fn delete_dimension(
     )
 )]
 pub async fn create_current_state(
-    State(db): State<DatabaseConnection>,
+    State(db): State<Arc<DatabaseConnection>>,
     Path(dimension_id): Path<Uuid>,
     Json(request): Json<CreateCurrentStateRequest>,
 ) -> Result<Json<ApiResponse<CurrentStateResponse>>, (StatusCode, Json<serde_json::Value>)> {
     // Verify dimension exists
-    DimensionsRepository::find_by_id(&db, dimension_id)
+    DimensionsRepository::find_by_id(db.as_ref(), dimension_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?
         .ok_or_else(|| crate::api::handlers::common::handle_error(AppError::NotFound("Dimension not found".to_string())))?;
@@ -325,7 +326,7 @@ pub async fn create_current_state(
         ..Default::default()
     };
 
-    let current_state = CurrentStatesRepository::create(&db, active_model)
+    let current_state = CurrentStatesRepository::create(db.as_ref(), active_model)
         .await
         .map_err(crate::api::handlers::common::handle_error)?;
 
@@ -359,11 +360,11 @@ pub async fn create_current_state(
     )
 )]
 pub async fn update_current_state(
-    State(db): State<DatabaseConnection>,
+    State(db): State<Arc<DatabaseConnection>>,
     Path((dimension_id, current_state_id)): Path<(Uuid, Uuid)>,
     Json(request): Json<UpdateCurrentStateRequest>,
 ) -> Result<Json<ApiResponse<CurrentStateResponse>>, (StatusCode, Json<serde_json::Value>)> {
-    let mut current_state = CurrentStatesRepository::find_by_id(&db, current_state_id)
+    let mut current_state = CurrentStatesRepository::find_by_id(db.as_ref(), current_state_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?
         .ok_or_else(|| crate::api::handlers::common::handle_error(AppError::NotFound("Current state not found".to_string())))?;
@@ -387,7 +388,7 @@ pub async fn update_current_state(
     current_state.updated_at = chrono::Utc::now();
 
     let active_model: crate::entities::current_states::ActiveModel = current_state.into();
-    let updated_current_state = CurrentStatesRepository::update(&db, current_state_id, active_model)
+    let updated_current_state = CurrentStatesRepository::update(db.as_ref(), current_state_id, active_model)
         .await
         .map_err(crate::api::handlers::common::handle_error)?;
 
@@ -418,12 +419,12 @@ pub async fn update_current_state(
     )
 )]
 pub async fn create_desired_state(
-    State(db): State<DatabaseConnection>,
+    State(db): State<Arc<DatabaseConnection>>,
     Path(dimension_id): Path<Uuid>,
     Json(request): Json<CreateDesiredStateRequest>,
 ) -> Result<Json<ApiResponse<DesiredStateResponse>>, (StatusCode, Json<serde_json::Value>)> {
     // Verify dimension exists
-    DimensionsRepository::find_by_id(&db, dimension_id)
+    DimensionsRepository::find_by_id(db.as_ref(), dimension_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?
         .ok_or_else(|| crate::api::handlers::common::handle_error(AppError::NotFound("Dimension not found".to_string())))?;
@@ -437,7 +438,7 @@ pub async fn create_desired_state(
         ..Default::default()
     };
 
-    let desired_state = DesiredStatesRepository::create(&db, active_model)
+    let desired_state = DesiredStatesRepository::create(db.as_ref(), active_model)
         .await
         .map_err(crate::api::handlers::common::handle_error)?;
 
@@ -472,11 +473,11 @@ pub async fn create_desired_state(
     )
 )]
 pub async fn update_desired_state(
-    State(db): State<DatabaseConnection>,
+    State(db): State<Arc<DatabaseConnection>>,
     Path((dimension_id, desired_state_id)): Path<(Uuid, Uuid)>,
     Json(request): Json<UpdateDesiredStateRequest>,
 ) -> Result<Json<ApiResponse<DesiredStateResponse>>, (StatusCode, Json<serde_json::Value>)> {
-    let mut desired_state = DesiredStatesRepository::find_by_id(&db, desired_state_id)
+    let mut desired_state = DesiredStatesRepository::find_by_id(db.as_ref(), desired_state_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?
         .ok_or_else(|| crate::api::handlers::common::handle_error(AppError::NotFound("Desired state not found".to_string())))?;
@@ -503,7 +504,7 @@ pub async fn update_desired_state(
     desired_state.updated_at = chrono::Utc::now();
 
     let active_model: crate::entities::desired_states::ActiveModel = desired_state.into();
-    let updated_desired_state = DesiredStatesRepository::update(&db, desired_state_id, active_model)
+    let updated_desired_state = DesiredStatesRepository::update(db.as_ref(), desired_state_id, active_model)
         .await
         .map_err(crate::api::handlers::common::handle_error)?;
 
@@ -536,11 +537,11 @@ pub async fn update_desired_state(
     )
 )]
 pub async fn delete_current_state(
-    State(db): State<DatabaseConnection>,
+    State(db): State<Arc<DatabaseConnection>>,
     Path((dimension_id, current_state_id)): Path<(Uuid, Uuid)>,
 ) -> Result<Json<ApiResponse<()>>, (StatusCode, Json<serde_json::Value>)> {
     // Verify current state exists and belongs to dimension
-    let current_state = CurrentStatesRepository::find_by_id(&db, current_state_id)
+    let current_state = CurrentStatesRepository::find_by_id(db.as_ref(), current_state_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?
         .ok_or_else(|| crate::api::handlers::common::handle_error(AppError::NotFound("Current state not found".to_string())))?;
@@ -549,7 +550,7 @@ pub async fn delete_current_state(
         return Err(crate::api::handlers::common::handle_error(AppError::ValidationError("Current state does not belong to this dimension".to_string())));
     }
 
-    CurrentStatesRepository::delete(&db, current_state_id)
+    CurrentStatesRepository::delete(db.as_ref(), current_state_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?;
 
@@ -569,11 +570,11 @@ pub async fn delete_current_state(
     )
 )]
 pub async fn delete_desired_state(
-    State(db): State<DatabaseConnection>,
+    State(db): State<Arc<DatabaseConnection>>,
     Path((dimension_id, desired_state_id)): Path<(Uuid, Uuid)>,
 ) -> Result<Json<ApiResponse<()>>, (StatusCode, Json<serde_json::Value>)> {
     // Verify desired state exists and belongs to dimension
-    let desired_state = DesiredStatesRepository::find_by_id(&db, desired_state_id)
+    let desired_state = DesiredStatesRepository::find_by_id(db.as_ref(), desired_state_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?
         .ok_or_else(|| crate::api::handlers::common::handle_error(AppError::NotFound("Desired state not found".to_string())))?;
@@ -582,7 +583,7 @@ pub async fn delete_desired_state(
         return Err(crate::api::handlers::common::handle_error(AppError::ValidationError("Desired state does not belong to this dimension".to_string())));
     }
 
-    DesiredStatesRepository::delete(&db, desired_state_id)
+    DesiredStatesRepository::delete(db.as_ref(), desired_state_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?;
 

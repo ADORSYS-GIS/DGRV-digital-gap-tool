@@ -3,6 +3,7 @@ use axum::{
     Router,
 };
 use sea_orm::DatabaseConnection;
+use std::sync::Arc;
 
 use crate::api::handlers::{
     assessment::*,
@@ -12,7 +13,7 @@ use crate::api::handlers::{
 };
 
 /// Create the main API routes
-pub fn create_api_routes() -> Router<DatabaseConnection> {
+pub fn create_api_routes() -> Router<Arc<DatabaseConnection>> {
     Router::new()
         // Assessment routes
         .route("/assessments", post(create_assessment))

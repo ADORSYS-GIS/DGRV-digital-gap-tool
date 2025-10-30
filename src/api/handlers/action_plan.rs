@@ -5,6 +5,7 @@ use axum::{
 };
 use uuid::Uuid;
 use sea_orm::DatabaseConnection;
+use std::sync::Arc;
 
 use crate::api::dto::{
     action_plan::*,
@@ -86,7 +87,7 @@ fn convert_dto_item_status_to_entity(dto_status: ActionItemStatus) -> EntityActi
     )
 )]
 pub async fn create_action_plan(
-    State(db): State<DatabaseConnection>,
+    State(db): State<Arc<DatabaseConnection>>,
     Json(request): Json<CreateActionPlanRequest>,
 ) -> Result<Json<ApiResponse<ActionPlanResponse>>, (StatusCode, Json<serde_json::Value>)> {
     let active_model = crate::entities::action_plans::ActiveModel {
@@ -102,7 +103,7 @@ pub async fn create_action_plan(
         ..Default::default()
     };
 
-    let action_plan = ActionPlansRepository::create(&db, active_model)
+    let action_plan = ActionPlansRepository::create(db.as_ref(), active_model)
         .await
         .map_err(crate::api::handlers::common::handle_error)?;
 
@@ -135,10 +136,10 @@ pub async fn create_action_plan(
     )
 )]
 pub async fn get_action_plan(
-    State(db): State<DatabaseConnection>,
+    State(db): State<Arc<DatabaseConnection>>,
     Path(action_plan_id): Path<Uuid>,
 ) -> Result<Json<ApiResponse<ActionPlanResponse>>, (StatusCode, Json<serde_json::Value>)> {
-    let action_plan = ActionPlansRepository::find_by_id(&db, action_plan_id)
+    let action_plan = ActionPlansRepository::find_by_id(db.as_ref(), action_plan_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?
         .ok_or_else(|| crate::api::handlers::common::handle_error(AppError::NotFound("Action plan not found".to_string())))?;
@@ -172,17 +173,17 @@ pub async fn get_action_plan(
     )
 )]
 pub async fn get_action_plan_with_items(
-    State(db): State<DatabaseConnection>,
+    State(db): State<Arc<DatabaseConnection>>,
     Path(action_plan_id): Path<Uuid>,
 ) -> Result<Json<ApiResponse<ActionPlanWithItemsResponse>>, (StatusCode, Json<serde_json::Value>)> {
     // Get action plan
-    let action_plan = ActionPlansRepository::find_by_id(&db, action_plan_id)
+    let action_plan = ActionPlansRepository::find_by_id(db.as_ref(), action_plan_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?
         .ok_or_else(|| crate::api::handlers::common::handle_error(AppError::NotFound("Action plan not found".to_string())))?;
 
     // Get action items
-    let action_items = ActionItemsRepository::find_by_action_plan(&db, action_plan_id)
+    let action_items = ActionItemsRepository::find_by_action_plan(db.as_ref(), action_plan_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?;
 
@@ -256,13 +257,13 @@ pub async fn get_action_plan_with_items(
     )
 )]
 pub async fn list_action_plans(
-    State(db): State<DatabaseConnection>,
+    State(db): State<Arc<DatabaseConnection>>,
     Query(params): Query<PaginationParams>,
 ) -> Result<Json<ApiResponse<PaginatedResponse<ActionPlanResponse>>>, (StatusCode, Json<serde_json::Value>)> {
     let (page, limit, _sort_by, _sort_order) = extract_pagination(Query(params));
     let offset = ((page - 1) * limit) as u64;
 
-    let action_plans = ActionPlansRepository::find_all(&db)
+    let action_plans = ActionPlansRepository::find_all(db.as_ref())
         .await
         .map_err(crate::api::handlers::common::handle_error)?;
 
@@ -301,14 +302,14 @@ pub async fn list_action_plans(
     )
 )]
 pub async fn list_action_plans_by_assessment(
-    State(db): State<DatabaseConnection>,
+    State(db): State<Arc<DatabaseConnection>>,
     Path(assessment_id): Path<Uuid>,
     Query(params): Query<PaginationParams>,
 ) -> Result<Json<ApiResponse<PaginatedResponse<ActionPlanResponse>>>, (StatusCode, Json<serde_json::Value>)> {
     let (page, limit, _sort_by, _sort_order) = extract_pagination(Query(params));
     let offset = ((page - 1) * limit) as u64;
 
-    let action_plans = ActionPlansRepository::find_by_assessment(&db, assessment_id)
+    let action_plans = ActionPlansRepository::find_by_assessment(db.as_ref(), assessment_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?;
 
@@ -349,11 +350,11 @@ pub async fn list_action_plans_by_assessment(
     )
 )]
 pub async fn update_action_plan(
-    State(db): State<DatabaseConnection>,
+    State(db): State<Arc<DatabaseConnection>>,
     Path(action_plan_id): Path<Uuid>,
     Json(request): Json<UpdateActionPlanRequest>,
 ) -> Result<Json<ApiResponse<ActionPlanResponse>>, (StatusCode, Json<serde_json::Value>)> {
-    let mut action_plan = ActionPlansRepository::find_by_id(&db, action_plan_id)
+    let mut action_plan = ActionPlansRepository::find_by_id(db.as_ref(), action_plan_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?
         .ok_or_else(|| crate::api::handlers::common::handle_error(AppError::NotFound("Action plan not found".to_string())))?;
@@ -384,7 +385,7 @@ pub async fn update_action_plan(
     action_plan.updated_at = chrono::Utc::now();
 
     let active_model: crate::entities::action_plans::ActiveModel = action_plan.into();
-    let updated_action_plan = ActionPlansRepository::update(&db, action_plan_id, active_model)
+    let updated_action_plan = ActionPlansRepository::update(db.as_ref(), action_plan_id, active_model)
         .await
         .map_err(crate::api::handlers::common::handle_error)?;
 
@@ -416,10 +417,10 @@ pub async fn update_action_plan(
     )
 )]
 pub async fn delete_action_plan(
-    State(db): State<DatabaseConnection>,
+    State(db): State<Arc<DatabaseConnection>>,
     Path(action_plan_id): Path<Uuid>,
 ) -> Result<Json<ApiResponse<()>>, (StatusCode, Json<serde_json::Value>)> {
-    ActionPlansRepository::delete(&db, action_plan_id)
+    ActionPlansRepository::delete(db.as_ref(), action_plan_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?;
 
@@ -438,12 +439,12 @@ pub async fn delete_action_plan(
     )
 )]
 pub async fn create_action_item(
-    State(db): State<DatabaseConnection>,
+    State(db): State<Arc<DatabaseConnection>>,
     Path(action_plan_id): Path<Uuid>,
     Json(request): Json<CreateActionItemRequest>,
 ) -> Result<Json<ApiResponse<ActionItemResponse>>, (StatusCode, Json<serde_json::Value>)> {
     // Verify action plan exists
-    ActionPlansRepository::find_by_id(&db, action_plan_id)
+    ActionPlansRepository::find_by_id(db.as_ref(), action_plan_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?
         .ok_or_else(|| crate::api::handlers::common::handle_error(AppError::NotFound("Action plan not found".to_string())))?;
@@ -462,7 +463,7 @@ pub async fn create_action_item(
         ..Default::default()
     };
 
-    let action_item = ActionItemsRepository::create(&db, active_model)
+    let action_item = ActionItemsRepository::create(db.as_ref(), active_model)
         .await
         .map_err(crate::api::handlers::common::handle_error)?;
 
@@ -500,10 +501,10 @@ pub async fn create_action_item(
     )
 )]
 pub async fn get_action_item(
-    State(db): State<DatabaseConnection>,
+    State(db): State<Arc<DatabaseConnection>>,
     Path((action_plan_id, action_item_id)): Path<(Uuid, Uuid)>,
 ) -> Result<Json<ApiResponse<ActionItemResponse>>, (StatusCode, Json<serde_json::Value>)> {
-    let action_item = ActionItemsRepository::find_by_id(&db, action_item_id)
+    let action_item = ActionItemsRepository::find_by_id(db.as_ref(), action_item_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?
         .ok_or_else(|| crate::api::handlers::common::handle_error(AppError::NotFound("Action item not found".to_string())))?;
@@ -548,11 +549,11 @@ pub async fn get_action_item(
     )
 )]
 pub async fn update_action_item(
-    State(db): State<DatabaseConnection>,
+    State(db): State<Arc<DatabaseConnection>>,
     Path((action_plan_id, action_item_id)): Path<(Uuid, Uuid)>,
     Json(request): Json<UpdateActionItemRequest>,
 ) -> Result<Json<ApiResponse<ActionItemResponse>>, (StatusCode, Json<serde_json::Value>)> {
-    let mut action_item = ActionItemsRepository::find_by_id(&db, action_item_id)
+    let mut action_item = ActionItemsRepository::find_by_id(db.as_ref(), action_item_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?
         .ok_or_else(|| crate::api::handlers::common::handle_error(AppError::NotFound("Action item not found".to_string())))?;
@@ -594,7 +595,7 @@ pub async fn update_action_item(
     action_item.updated_at = chrono::Utc::now();
 
     let active_model: crate::entities::action_items::ActiveModel = action_item.into();
-    let updated_action_item = ActionItemsRepository::update(&db, action_item_id, active_model)
+    let updated_action_item = ActionItemsRepository::update(db.as_ref(), action_item_id, active_model)
         .await
         .map_err(crate::api::handlers::common::handle_error)?;
 
@@ -631,11 +632,11 @@ pub async fn update_action_item(
     )
 )]
 pub async fn delete_action_item(
-    State(db): State<DatabaseConnection>,
+    State(db): State<Arc<DatabaseConnection>>,
     Path((action_plan_id, action_item_id)): Path<(Uuid, Uuid)>,
 ) -> Result<Json<ApiResponse<()>>, (StatusCode, Json<serde_json::Value>)> {
     // Verify action item exists and belongs to action plan
-    let action_item = ActionItemsRepository::find_by_id(&db, action_item_id)
+    let action_item = ActionItemsRepository::find_by_id(db.as_ref(), action_item_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?
         .ok_or_else(|| crate::api::handlers::common::handle_error(AppError::NotFound("Action item not found".to_string())))?;
@@ -644,7 +645,7 @@ pub async fn delete_action_item(
         return Err(crate::api::handlers::common::handle_error(AppError::ValidationError("Action item does not belong to this action plan".to_string())));
     }
 
-    ActionItemsRepository::delete(&db, action_item_id)
+    ActionItemsRepository::delete(db.as_ref(), action_item_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?;
 

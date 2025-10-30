@@ -3,6 +3,7 @@ use axum::{
     Router,
 };
 use sea_orm::DatabaseConnection;
+use std::sync::Arc;
 
 use crate::api::handlers::report::{
     generate_report,
@@ -16,7 +17,7 @@ use crate::api::handlers::report::{
 };
 
 /// Create report routes
-pub fn create_report_routes() -> Router<DatabaseConnection> {
+pub fn create_report_routes() -> Router<Arc<DatabaseConnection>> {
     Router::new()
         // Report CRUD operations
         .route("/", post(generate_report))

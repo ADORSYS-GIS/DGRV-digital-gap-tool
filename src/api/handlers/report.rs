@@ -5,6 +5,7 @@ use axum::{
 };
 use uuid::Uuid;
 use sea_orm::DatabaseConnection;
+use std::sync::Arc;
 use crate::entities::reports::ReportFormat;
 
 use crate::api::dto::{
@@ -26,7 +27,7 @@ use crate::api::dto::report::{ReportType, ReportStatus};
     )
 )]
 pub async fn create_report(
-    State(db): State<DatabaseConnection>,
+    State(db): State<Arc<DatabaseConnection>>,
     Json(request): Json<GenerateReportRequest>,
 ) -> Result<Json<ApiResponse<ReportResponse>>, (StatusCode, Json<serde_json::Value>)> {
     // Create report record first
@@ -48,7 +49,7 @@ pub async fn create_report(
         ..Default::default()
     };
 
-    let report = ReportsRepository::create(&db, active_model)
+    let report = ReportsRepository::create(db.as_ref(), active_model)
         .await
         .map_err(crate::api::handlers::common::handle_error)?;
 
@@ -122,7 +123,7 @@ fn convert_dto_report_format_to_entity(dto_format: ReportFormat) -> crate::entit
     )
 )]
 pub async fn generate_report(
-    State(db): State<DatabaseConnection>,
+    State(db): State<Arc<DatabaseConnection>>,
     Json(request): Json<GenerateReportRequest>,
 ) -> Result<Json<ApiResponse<ReportResponse>>, (StatusCode, Json<serde_json::Value>)> {
     // Create report record first
@@ -181,10 +182,10 @@ pub async fn generate_report(
     )
 )]
 pub async fn get_report(
-    State(db): State<DatabaseConnection>,
+    State(db): State<Arc<DatabaseConnection>>,
     Path(report_id): Path<Uuid>,
 ) -> Result<Json<ApiResponse<ReportResponse>>, (StatusCode, Json<serde_json::Value>)> {
-    let report = ReportsRepository::find_by_id(&db, report_id)
+    let report = ReportsRepository::find_by_id(db.as_ref(), report_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?
         .ok_or_else(|| crate::api::handlers::common::handle_error(AppError::NotFound("Report not found".to_string())))?;
@@ -218,10 +219,10 @@ pub async fn get_report(
     )
 )]
 pub async fn get_report_status(
-    State(db): State<DatabaseConnection>,
+    State(db): State<Arc<DatabaseConnection>>,
     Path(report_id): Path<Uuid>,
 ) -> Result<Json<ApiResponse<ReportStatusResponse>>, (StatusCode, Json<serde_json::Value>)> {
-    let report = ReportsRepository::find_by_id(&db, report_id)
+    let report = ReportsRepository::find_by_id(db.as_ref(), report_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?
         .ok_or_else(|| crate::api::handlers::common::handle_error(AppError::NotFound("Report not found".to_string())))?;
@@ -266,10 +267,10 @@ pub async fn get_report_status(
     )
 )]
 pub async fn download_report(
-    State(db): State<DatabaseConnection>,
+    State(db): State<Arc<DatabaseConnection>>,
     Path(report_id): Path<Uuid>,
 ) -> Result<Json<ApiResponse<ReportDownloadResponse>>, (StatusCode, Json<serde_json::Value>)> {
-    let report = ReportsRepository::find_by_id(&db, report_id)
+    let report = ReportsRepository::find_by_id(db.as_ref(), report_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?
         .ok_or_else(|| crate::api::handlers::common::handle_error(AppError::NotFound("Report not found".to_string())))?;
@@ -322,13 +323,13 @@ pub async fn download_report(
     )
 )]
 pub async fn list_reports(
-    State(db): State<DatabaseConnection>,
+    State(db): State<Arc<DatabaseConnection>>,
     Query(params): Query<PaginationParams>,
 ) -> Result<Json<ApiResponse<PaginatedResponse<ReportResponse>>>, (StatusCode, Json<serde_json::Value>)> {
     let (page, limit, _sort_by, _sort_order) = extract_pagination(Query(params));
     let offset = ((page - 1) * limit) as u64;
 
-    let reports = ReportsRepository::find_all(&db)
+    let reports = ReportsRepository::find_all(db.as_ref())
         .await
         .map_err(crate::api::handlers::common::handle_error)?;
 
@@ -367,14 +368,14 @@ pub async fn list_reports(
     )
 )]
 pub async fn list_reports_by_assessment(
-    State(db): State<DatabaseConnection>,
+    State(db): State<Arc<DatabaseConnection>>,
     Path(assessment_id): Path<Uuid>,
     Query(params): Query<PaginationParams>,
 ) -> Result<Json<ApiResponse<PaginatedResponse<ReportResponse>>>, (StatusCode, Json<serde_json::Value>)> {
     let (page, limit, _sort_by, _sort_order) = extract_pagination(Query(params));
     let offset = ((page - 1) * limit) as u64;
 
-    let reports = ReportsRepository::find_by_assessment(&db, assessment_id)
+    let reports = ReportsRepository::find_by_assessment(db.as_ref(), assessment_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?;
 
@@ -415,11 +416,11 @@ pub async fn list_reports_by_assessment(
     )
 )]
 pub async fn update_report(
-    State(db): State<DatabaseConnection>,
+    State(db): State<Arc<DatabaseConnection>>,
     Path(report_id): Path<Uuid>,
     Json(request): Json<UpdateReportRequest>,
 ) -> Result<Json<ApiResponse<ReportResponse>>, (StatusCode, Json<serde_json::Value>)> {
-    let mut report = ReportsRepository::find_by_id(&db, report_id)
+    let mut report = ReportsRepository::find_by_id(db.as_ref(), report_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?
         .ok_or_else(|| crate::api::handlers::common::handle_error(AppError::NotFound("Report not found".to_string())))?;
@@ -438,7 +439,7 @@ pub async fn update_report(
     report.updated_at = chrono::Utc::now();
 
     let active_model: crate::entities::reports::ActiveModel = report.into();
-    let updated_report = ReportsRepository::update(&db, report_id, active_model)
+    let updated_report = ReportsRepository::update(db.as_ref(), report_id, active_model)
         .await
         .map_err(crate::api::handlers::common::handle_error)?;
 
@@ -470,10 +471,10 @@ pub async fn update_report(
     )
 )]
 pub async fn delete_report(
-    State(db): State<DatabaseConnection>,
+    State(db): State<Arc<DatabaseConnection>>,
     Path(report_id): Path<Uuid>,
 ) -> Result<Json<ApiResponse<()>>, (StatusCode, Json<serde_json::Value>)> {
-    ReportsRepository::delete(&db, report_id)
+    ReportsRepository::delete(db.as_ref(), report_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?;
 

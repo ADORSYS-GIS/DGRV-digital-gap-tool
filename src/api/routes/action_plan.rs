@@ -3,6 +3,7 @@ use axum::{
     Router,
 };
 use sea_orm::DatabaseConnection;
+use std::sync::Arc;
 
 use crate::api::handlers::action_plan::{
     create_action_plan,
@@ -19,7 +20,7 @@ use crate::api::handlers::action_plan::{
 };
 
 /// Create action plan routes
-pub fn create_action_plan_routes() -> Router<DatabaseConnection> {
+pub fn create_action_plan_routes() -> Router<Arc<DatabaseConnection>> {
     Router::new()
         // Action plan CRUD operations
         .route("/", post(create_action_plan))

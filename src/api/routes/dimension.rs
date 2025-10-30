@@ -3,6 +3,7 @@ use axum::{
     Router,
 };
 use sea_orm::DatabaseConnection;
+use std::sync::Arc;
 
 use crate::api::handlers::dimension::{
     create_dimension,
@@ -18,7 +19,7 @@ use crate::api::handlers::dimension::{
 };
 
 /// Create dimension routes
-pub fn create_dimension_routes() -> Router<DatabaseConnection> {
+pub fn create_dimension_routes() -> Router<Arc<DatabaseConnection>> {
     Router::new()
         // Dimension CRUD operations
         .route("/", post(create_dimension))

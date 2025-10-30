@@ -1,7 +1,6 @@
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use chrono::{DateTime, Utc};
-use crate::api::dto::common::{Priority, Status};
 use std::fmt;
 use std::str::FromStr;
 use utoipa::ToSchema;
