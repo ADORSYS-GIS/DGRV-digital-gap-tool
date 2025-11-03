@@ -14,8 +14,9 @@ import NotFound from "../pages/NotFound";
 import Dashboard from "../pages/user/Dashboard";
 import { ProtectedRoute } from "./ProtectedRoute";
 import AdminLayout from "@/layouts/AdminLayout";
-import ManageOrganizations from "../pages/admin/ManageOrganizations";
-
+const ManageOrganizations = React.lazy(
+  () => import("../pages/admin/ManageOrganizationsPage"),
+);
 const AdminDashboard = React.lazy(
   () => import("../pages/admin/AdminDashboard"),
 );
@@ -70,7 +71,7 @@ const routes = [
   {
     path: "/dashboard",
     element: React.createElement(ProtectedRoute, {
-      allowedRoles: [ROLES.Org_User],
+      allowedRoles: [ROLES.ADMIN, ROLES.Org_User],
     }),
     children: [{ path: "", element: React.createElement(Dashboard) }],
   },

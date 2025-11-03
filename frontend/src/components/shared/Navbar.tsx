@@ -18,6 +18,7 @@ import {
 import { User, LogOut, Home, Menu, X } from "lucide-react";
 import { useAuth } from "@/hooks/shared/useAuth";
 import { useNavigate } from "react-router-dom";
+import { ROLES } from "@/constants/roles";
 
 export const Navbar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -36,14 +37,14 @@ export const Navbar = () => {
       return "/";
     }
 
-    // Check if user has drgv_admin role
-    const hasDgrvAdminRole =
-      user.roles?.some((role) => role.toLowerCase() === "dgrv_admin") ||
-      user.realm_access?.roles?.some(
-        (role) => role.toLowerCase() === "dgrv_admin",
-      );
+    const roles = [
+      ...(user.roles || []),
+      ...(user.realm_access?.roles || []),
+    ].map((r) => r.toLowerCase());
 
-    if (hasDgrvAdminRole) {
+    const hasAdminRole = roles.includes(ROLES.ADMIN);
+
+    if (hasAdminRole) {
       return "/admin/dashboard";
     }
 

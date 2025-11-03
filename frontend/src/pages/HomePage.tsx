@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { FeatureCard } from "@/components/home/FeatureCard";
 import { BenefitCard } from "@/components/home/BenefitCard";
+import { ROLES } from "@/constants/roles";
 
 export const HomePage: React.FC = () => {
   const { isAuthenticated, loading, user, login } = useAuth();
@@ -36,9 +37,11 @@ export const HomePage: React.FC = () => {
     const hasCompletedOnboarding = localStorage.getItem(
       `onboarding_completed_${user?.sub}`,
     );
-    const roles = user?.roles || user?.realm_access?.roles || [];
-    const isAdmin = roles.includes("Dgrv_Admin");
-    const isOrgUser = roles.includes("Org_User");
+    const roles = (user?.roles || user?.realm_access?.roles || []).map((r) =>
+      r.toLowerCase(),
+    );
+    const isAdmin = roles.includes(ROLES.ADMIN);
+    const isOrgUser = roles.includes(ROLES.Org_User.toLowerCase());
 
     if (window.location.pathname === "/") {
       if (hasCompletedOnboarding) {
@@ -63,10 +66,13 @@ export const HomePage: React.FC = () => {
     const hasCompletedOnboarding = localStorage.getItem(
       `onboarding_completed_${user?.sub}`,
     );
-    const roles = user?.roles || user?.realm_access?.roles || [];
+    const roles = (user?.roles || user?.realm_access?.roles || []).map((r) =>
+      r.toLowerCase(),
+    );
     if (hasCompletedOnboarding) {
-      if (roles.includes("Dgrv_Admin")) navigate("/admin/dashboard");
-      else if (roles.includes("Org_User")) navigate("/dashboard");
+      if (roles.includes(ROLES.ADMIN)) navigate("/admin/dashboard");
+      else if (roles.includes(ROLES.Org_User.toLowerCase()))
+        navigate("/dashboard");
     } else {
       navigate("/onboarding");
     }

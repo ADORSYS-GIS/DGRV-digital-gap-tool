@@ -14,12 +14,8 @@ export default defineConfig(({ mode }) => ({
         changeOrigin: true,
         secure: false,
       },
-      "/admin": {
-        target: "http://localhost:8080",
-        changeOrigin: true,
-        secure: false,
-      },
     },
+    appType: "spa",
   },
   plugins: [react(), mode === "development" && componentTagger()].filter(
     Boolean,
