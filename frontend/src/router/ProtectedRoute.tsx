@@ -26,18 +26,15 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   const location = useLocation();
 
   const hasRequiredRole = React.useMemo(() => {
-    console.log("Checking roles. User object:", user);
     if (!allowedRoles || allowedRoles.length === 0) return true;
     if (!user) return false;
 
-    const allRoles = [
+    const userRoles = [
       ...(user.roles || []),
       ...(user.realm_access?.roles || []),
     ].map((r) => r.toLowerCase());
 
-    console.log("User Roles:", allRoles, "Allowed Roles:", allowedRoles);
-
-    return allowedRoles.some((role) => allRoles.includes(role.toLowerCase()));
+    return allowedRoles.some((role) => userRoles.includes(role.toLowerCase()));
   }, [user, allowedRoles]);
 
   if (loading) {

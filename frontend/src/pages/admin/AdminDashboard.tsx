@@ -7,7 +7,6 @@
  * - Organization and user management capabilities
  */
 import { DashboardCard } from "@/components/shared/DashboardCard";
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -16,27 +15,15 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useAuth } from "@/hooks/shared/useAuth";
-import { BarChart3, Building2, Settings, Shield, Users } from "lucide-react";
+import { BarChart3, Building2, FileText, Settings, Users } from "lucide-react";
 import React from "react";
-import { toast } from "sonner";
+import { Link } from "react-router-dom";
 
 const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
 
-  const handleManageOrganizations = () => {
-    toast.success("Managing organizations...");
-  };
-
-  const handleManageUsers = () => {
-    toast.success("Managing users...");
-  };
-
-  const handleViewReports = () => {
-    toast.success("Viewing system reports...");
-  };
-
   return (
-    <div className="container mx-auto p-6">
+    <div className="space-y-6">
       {/* Welcome Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
@@ -49,66 +36,111 @@ const AdminDashboard: React.FC = () => {
         </p>
       </div>
 
-      {/* Management Tools */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-        {/* Management Actions */}
-        <DashboardCard
-          title="Management Tools"
-          description="Administrative actions and system management"
-          icon={Settings}
-          variant="default"
-        >
-          <div className="space-y-3">
-            <Button className="w-full" onClick={handleManageOrganizations}>
-              <Building2 className="h-4 w-4 mr-2" />
-              Manage Organizations
-            </Button>
-            <Button className="w-full" onClick={handleManageUsers}>
-              <Users className="h-4 w-4 mr-2" />
-              Manage Users
-            </Button>
-            <Button className="w-full" onClick={handleViewReports}>
-              <BarChart3 className="h-4 w-4 mr-2" />
-              View System Reports
-            </Button>
-            <Button variant="outline" className="w-full">
-              <Shield className="h-4 w-4 mr-2" />
-              System Settings
-            </Button>
-          </div>
-        </DashboardCard>
-
-        {/* System Status */}
-        <DashboardCard
-          title="System Status"
-          description="Platform overview and quick statistics"
-          icon={BarChart3}
-          variant="success"
-        >
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="text-center p-3 bg-blue-50 rounded-lg">
-                <div className="text-xl font-bold text-blue-600">0</div>
-                <p className="text-sm text-blue-600">Organizations</p>
-              </div>
-              <div className="text-center p-3 bg-green-50 rounded-lg">
-                <div className="text-xl font-bold text-green-600">0</div>
-                <p className="text-sm text-green-600">Active Users</p>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="text-center p-3 bg-purple-50 rounded-lg">
-                <div className="text-xl font-bold text-purple-600">0</div>
-                <p className="text-sm text-purple-600">Assessments</p>
-              </div>
-              <div className="text-center p-3 bg-orange-50 rounded-lg">
-                <div className="text-xl font-bold text-orange-600">0</div>
-                <p className="text-sm text-orange-600">Pending</p>
-              </div>
-            </div>
-          </div>
-        </DashboardCard>
+      {/* System Overview */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Total Organizations
+            </CardTitle>
+            <Building2 className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">0</div>
+            <p className="text-xs text-muted-foreground">+0% from last month</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Active Users</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">0</div>
+            <p className="text-xs text-muted-foreground">+0% from last month</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Assessments Taken
+            </CardTitle>
+            <FileText className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">0</div>
+            <p className="text-xs text-muted-foreground">+0% from last month</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Reports Generated
+            </CardTitle>
+            <BarChart3 className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">0</div>
+            <p className="text-xs text-muted-foreground">+0% from last month</p>
+          </CardContent>
+        </Card>
       </div>
+
+      {/* Management Tools */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Management Tools</CardTitle>
+          <CardDescription>
+            Access various parts of the system to manage them.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <Link to="/admin/organizations">
+            <DashboardCard
+              title="Manage Organizations"
+              description="Create, edit, and manage organizations"
+              icon={Building2}
+              variant="default"
+            />
+          </Link>
+          <Link to="/admin/digitalisation-levels">
+            <DashboardCard
+              title="Manage Digitalisation Levels"
+              description="Manage current and to-be digitalisation levels"
+              icon={FileText}
+              variant="default"
+            />
+          </Link>
+          <Link to="/admin/dimensions">
+            <DashboardCard
+              title="Manage Dimensions"
+              description="Create, edit, and manage dimensions"
+              icon={Settings}
+              variant="default"
+            />
+          </Link>
+          <Link to="/admin/recommendations">
+            <DashboardCard
+              title="Manage Recommendations"
+              description="Create, edit, and manage recommendations"
+              icon={Settings}
+              variant="default"
+            />
+          </Link>
+          <DashboardCard
+            title="Manage Users"
+            description="Create, edit, and manage users"
+            icon={Users}
+            variant="default"
+          />
+          <DashboardCard
+            title="View Reports"
+            description="View system reports"
+            icon={BarChart3}
+            variant="default"
+          />
+        </CardContent>
+      </Card>
 
       {/* Recent Activity Placeholder */}
       <Card>
