@@ -46,11 +46,11 @@ impl AssessmentsRepository {
         if assessment_data.organization_id.is_set() {
             active_model.organization_id = assessment_data.organization_id;
         }
+        if assessment_data.cooperative_id.is_set() {
+            active_model.cooperative_id = assessment_data.cooperative_id;
+        }
         if assessment_data.document_title.is_set() {
             active_model.document_title = assessment_data.document_title;
-        }
-        if assessment_data.file_name.is_set() {
-            active_model.file_name = assessment_data.file_name;
         }
         if assessment_data.status.is_set() {
             active_model.status = assessment_data.status;
@@ -119,26 +119,6 @@ impl AssessmentsRepository {
 
         let mut active_model: assessments::ActiveModel = assessment.into();
         active_model.status = Set(status);
-        active_model.updated_at = Set(chrono::Utc::now());
-
-        active_model
-            .update(db)
-            .await
-            .map_err(AppError::from)
-    }
-
-    pub async fn update_overall_score(
-        db: &DbConn,
-        assessment_id: Uuid,
-        _score: i32,
-    ) -> Result<assessments::Model, AppError> {
-        let assessment = Assessments::find_by_id(assessment_id)
-            .one(db)
-            .await
-            .map_err(AppError::from)?
-            .ok_or_else(|| AppError::NotFound("Assessment not found".to_string()))?;
-
-        let mut active_model: assessments::ActiveModel = assessment.into();
         active_model.updated_at = Set(chrono::Utc::now());
 
         active_model

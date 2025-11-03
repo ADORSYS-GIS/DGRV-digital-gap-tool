@@ -81,6 +81,7 @@ impl RecommendationsRepository {
             .map_err(AppError::from)
     }
 
+
     pub async fn find_by_priority(db: &DbConn, priority: crate::entities::recommendations::RecommendationPriority) -> Result<Vec<recommendations::Model>, AppError> {
         Recommendations::find()
             .filter(recommendations::Column::Priority.eq(priority))

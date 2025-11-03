@@ -1,3 +1,4 @@
+mod api;
 mod config;
 mod database;
 mod entities;
@@ -5,14 +6,13 @@ mod error;
 mod repositories;
 mod services;
 
-use axum::{
-    routing::get,
-    Router,
-};
+use axum::Router;
 use std::net::SocketAddr;
 use tower_http::cors::CorsLayer;
 use tracing::{info, Level};
 use tracing_subscriber::FmtSubscriber;
+use sea_orm::DatabaseConnection;
+use std::sync::Arc;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -46,12 +46,10 @@ async fn main() -> anyhow::Result<()> {
     Ok(())
 }
 
-fn create_app(_db: sea_orm::DatabaseConnection) -> Router {
-    Router::new()
-        .route("/health", get(health_check))
+fn create_app(db: DatabaseConnection) -> Router {
+    let db = Arc::new(db);
+    api::routes::api::create_api_routes()
+        .merge(api::openapi::docs_routes())
+        .with_state(db)
         .layer(CorsLayer::permissive())
-}
-
-async fn health_check() -> &'static str {
-    "OK"
 }

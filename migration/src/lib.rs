@@ -7,6 +7,7 @@ mod m20240924_000002_drop_ease_and_impact_column;
 mod m20240924_000003_drop_recommendation_gap_size_columns;
 mod m20240924_000004_drop_is_selected_column;
 mod m20240924_000005_add_minio_path_to_reports;
+mod m20251024_000001_update_schema;
 
 pub struct Migrator;
 
@@ -21,6 +22,7 @@ impl MigratorTrait for Migrator {
             Box::new(m20240924_000003_drop_recommendation_gap_size_columns::Migration),
             Box::new(m20240924_000004_drop_is_selected_column::Migration),
             Box::new(m20240924_000005_add_minio_path_to_reports::Migration),
+            Box::new(m20251024_000001_update_schema::Migration),
         ]
     }
 }

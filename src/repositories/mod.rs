@@ -9,3 +9,4 @@ pub mod assessment_recommendations;
 pub mod reports;
 pub mod action_plans;
 pub mod action_items;
+pub mod organisation_dimension;

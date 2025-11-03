@@ -1,5 +1,7 @@
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
+use std::str::FromStr;
+use super::action_items::ActionItemPriority;
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
 #[sea_orm(table_name = "action_plans")]
@@ -12,6 +14,9 @@ pub struct Model {
     pub description: Option<String>,
     pub status: ActionPlanStatus,
     pub target_completion_date: Option<DateTimeUtc>,
+    pub priority: ActionItemPriority,
+    pub estimated_budget: Option<rust_decimal::Decimal>,
+    pub responsible_person: Option<String>,
     pub created_at: DateTimeUtc,
     pub updated_at: DateTimeUtc,
 }
@@ -27,6 +32,20 @@ pub enum ActionPlanStatus {
     Completed,
     #[sea_orm(string_value = "cancelled")]
     Cancelled,
+}
+
+impl FromStr for ActionPlanStatus {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "draft" => Ok(ActionPlanStatus::Draft),
+            "active" => Ok(ActionPlanStatus::Active),
+            "completed" => Ok(ActionPlanStatus::Completed),
+            "cancelled" => Ok(ActionPlanStatus::Cancelled),
+            _ => Err(format!("Invalid action plan status: {}", s)),
+        }
+    }
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

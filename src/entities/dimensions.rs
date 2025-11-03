@@ -10,6 +10,8 @@ pub struct Model {
     pub name: String,
     pub description: Option<String>,
     pub weight: Option<i32>,
+    pub category: Option<String>,
+    pub is_active: Option<bool>,
     pub created_at: DateTimeUtc,
     pub updated_at: DateTimeUtc,
 }

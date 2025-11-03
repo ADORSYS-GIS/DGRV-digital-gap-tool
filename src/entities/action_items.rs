@@ -1,6 +1,7 @@
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 use rust_decimal::Decimal;
+use std::str::FromStr;
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
 #[sea_orm(table_name = "action_items")]
@@ -35,6 +36,20 @@ pub enum ActionItemStatus {
     Cancelled,
 }
 
+impl FromStr for ActionItemStatus {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "pending" => Ok(ActionItemStatus::Pending),
+            "in_progress" => Ok(ActionItemStatus::InProgress),
+            "completed" => Ok(ActionItemStatus::Completed),
+            "cancelled" => Ok(ActionItemStatus::Cancelled),
+            _ => Err(format!("Invalid action item status: {}", s)),
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize)]
 #[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "action_item_priority")]
 pub enum ActionItemPriority {
@@ -46,6 +61,20 @@ pub enum ActionItemPriority {
     High,
     #[sea_orm(string_value = "urgent")]
     Urgent,
+}
+
+impl FromStr for ActionItemPriority {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "low" => Ok(ActionItemPriority::Low),
+            "medium" => Ok(ActionItemPriority::Medium),
+            "high" => Ok(ActionItemPriority::High),
+            "urgent" => Ok(ActionItemPriority::Urgent),
+            _ => Err(format!("Invalid action item priority: {}", s)),
+        }
+    }
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

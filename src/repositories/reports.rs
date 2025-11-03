@@ -61,9 +61,6 @@ impl ReportsRepository {
         if let ActiveValue::Set(file_path) = report_data.file_path {
             active_model.file_path = Set(file_path);
         }
-        if let ActiveValue::Set(minio_path) = report_data.minio_path {
-            active_model.minio_path = Set(minio_path);
-        }
         if let ActiveValue::Set(status) = report_data.status {
             active_model.status = Set(status);
         }
@@ -149,27 +146,6 @@ impl ReportsRepository {
 
         let mut active_model: reports::ActiveModel = report.into();
         active_model.file_path = Set(Some(file_path.to_string()));
-        active_model.updated_at = Set(chrono::Utc::now());
-
-        active_model
-            .update(db)
-            .await
-            .map_err(AppError::from)
-    }
-
-    pub async fn update_minio_path(
-        db: &DbConn,
-        report_id: Uuid,
-        minio_path: &str,
-    ) -> Result<reports::Model, AppError> {
-        let report = Reports::find_by_id(report_id)
-            .one(db)
-            .await
-            .map_err(AppError::from)?
-            .ok_or_else(|| AppError::NotFound("Report not found".to_string()))?;
-
-        let mut active_model: reports::ActiveModel = report.into();
-        active_model.minio_path = Set(Some(minio_path.to_string()));
         active_model.updated_at = Set(chrono::Utc::now());
 
         active_model
