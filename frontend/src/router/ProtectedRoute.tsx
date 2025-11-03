@@ -22,6 +22,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   allowedRoles,
   children,
 }) => {
+  // For testing purposes, all routes are accessible.
   const { isAuthenticated, user, loading } = useAuth();
   const location = useLocation();
 

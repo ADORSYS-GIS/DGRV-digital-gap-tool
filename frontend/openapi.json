@@ -1,0 +1,2233 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "dgat-backend",
+    "description": "",
+    "license": { "name": "" },
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/action-plans": {
+      "get": {
+        "tags": ["crate::api::handlers::action_plan"],
+        "summary": "List action plans with pagination",
+        "operationId": "list_action_plans",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number (default 1)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "nullable": true,
+              "minimum": 0
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Page size (default 20)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "nullable": true,
+              "minimum": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Action plans list",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ApiResponse" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["crate::api::handlers::action_plan"],
+        "summary": "Create a new action plan",
+        "operationId": "create_action_plan",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateActionPlanRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Action plan created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ApiResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/action-plans/assessment/{assessment_id}": {
+      "get": {
+        "tags": ["crate::api::handlers::action_plan"],
+        "summary": "List action plans by assessment",
+        "operationId": "list_action_plans_by_assessment",
+        "parameters": [
+          {
+            "name": "assessment_id",
+            "in": "path",
+            "description": "Assessment ID",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Action plans list by assessment",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ApiResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/action-plans/{id}": {
+      "get": {
+        "tags": ["crate::api::handlers::action_plan"],
+        "summary": "Get action plan by ID",
+        "operationId": "get_action_plan",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Action plan ID",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Action plan fetched",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ApiResponse" }
+              }
+            }
+          },
+          "404": { "description": "Action plan not found" }
+        }
+      },
+      "put": {
+        "tags": ["crate::api::handlers::action_plan"],
+        "summary": "Update action plan",
+        "operationId": "update_action_plan",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Action plan ID",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateActionPlanRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Action plan updated",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ApiResponse" }
+              }
+            }
+          },
+          "404": { "description": "Action plan not found" }
+        }
+      },
+      "delete": {
+        "tags": ["crate::api::handlers::action_plan"],
+        "summary": "Delete action plan",
+        "operationId": "delete_action_plan",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Action plan ID",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": { "200": { "description": "Action plan deleted" } }
+      }
+    },
+    "/action-plans/{id}/action-items": {
+      "post": {
+        "tags": ["crate::api::handlers::action_plan"],
+        "summary": "Create action item",
+        "operationId": "create_action_item",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Action plan ID",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateActionItemRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Action item created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ApiResponse" }
+              }
+            }
+          },
+          "404": { "description": "Action plan not found" }
+        }
+      }
+    },
+    "/action-plans/{id}/action-items/{action_item_id}": {
+      "get": {
+        "tags": ["crate::api::handlers::action_plan"],
+        "summary": "Get action item by ID",
+        "operationId": "get_action_item",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Action plan ID",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          },
+          {
+            "name": "action_item_id",
+            "in": "path",
+            "description": "Action item ID",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Action item fetched",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ApiResponse" }
+              }
+            }
+          },
+          "404": { "description": "Action item not found" }
+        }
+      },
+      "put": {
+        "tags": ["crate::api::handlers::action_plan"],
+        "summary": "Update action item",
+        "operationId": "update_action_item",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Action plan ID",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          },
+          {
+            "name": "action_item_id",
+            "in": "path",
+            "description": "Action item ID",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateActionItemRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Action item updated",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ApiResponse" }
+              }
+            }
+          },
+          "404": { "description": "Action item not found" }
+        }
+      },
+      "delete": {
+        "tags": ["crate::api::handlers::action_plan"],
+        "summary": "Delete action item",
+        "operationId": "delete_action_item",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Action plan ID",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          },
+          {
+            "name": "action_item_id",
+            "in": "path",
+            "description": "Action item ID",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": { "200": { "description": "Action item deleted" } }
+      }
+    },
+    "/action-plans/{id}/with-items": {
+      "get": {
+        "tags": ["crate::api::handlers::action_plan"],
+        "summary": "Get action plan with items",
+        "operationId": "get_action_plan_with_items",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Action plan ID",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Action plan with items",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ApiResponse" }
+              }
+            }
+          },
+          "404": { "description": "Action plan not found" }
+        }
+      }
+    },
+    "/assessments": {
+      "get": {
+        "tags": ["crate::api::handlers::assessment"],
+        "summary": "List assessments with pagination",
+        "operationId": "list_assessments",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number (default 1)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "nullable": true,
+              "minimum": 0
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Page size (default 20)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "nullable": true,
+              "minimum": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Assessments list",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ApiResponse" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["crate::api::handlers::assessment"],
+        "summary": "Create a new assessment",
+        "operationId": "create_assessment",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAssessmentRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Assessment created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ApiResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/assessments/{assessment_id}/dimension-assessments/{dimension_assessment_id}": {
+      "put": {
+        "tags": ["crate::api::handlers::assessment"],
+        "summary": "Update dimension assessment",
+        "operationId": "update_dimension_assessment",
+        "parameters": [
+          {
+            "name": "assessment_id",
+            "in": "path",
+            "description": "Assessment ID",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          },
+          {
+            "name": "dimension_assessment_id",
+            "in": "path",
+            "description": "Dimension assessment ID",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateDimensionAssessmentRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Dimension assessment updated",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ApiResponse" }
+              }
+            }
+          },
+          "404": { "description": "Dimension assessment not found" }
+        }
+      }
+    },
+    "/assessments/{id}": {
+      "get": {
+        "tags": ["crate::api::handlers::assessment"],
+        "summary": "Get assessment by ID",
+        "operationId": "get_assessment",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Assessment ID",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Assessment fetched",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ApiResponse" }
+              }
+            }
+          },
+          "404": { "description": "Assessment not found" }
+        }
+      },
+      "put": {
+        "tags": ["crate::api::handlers::assessment"],
+        "summary": "Update assessment",
+        "operationId": "update_assessment",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Assessment ID",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAssessmentRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Assessment updated",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ApiResponse" }
+              }
+            }
+          },
+          "404": { "description": "Assessment not found" }
+        }
+      },
+      "delete": {
+        "tags": ["crate::api::handlers::assessment"],
+        "summary": "Delete assessment",
+        "operationId": "delete_assessment",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Assessment ID",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": { "200": { "description": "Assessment deleted" } }
+      }
+    },
+    "/assessments/{id}/dimension-assessments": {
+      "post": {
+        "tags": ["crate::api::handlers::assessment"],
+        "summary": "Create dimension assessment",
+        "operationId": "create_dimension_assessment",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Assessment ID",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateDimensionAssessmentRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Dimension assessment created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ApiResponse" }
+              }
+            }
+          },
+          "404": { "description": "Assessment not found" }
+        }
+      }
+    },
+    "/assessments/{id}/summary": {
+      "get": {
+        "tags": ["crate::api::handlers::assessment"],
+        "summary": "Get assessment summary with related data",
+        "operationId": "get_assessment_summary",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Assessment ID",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Assessment summary",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ApiResponse" }
+              }
+            }
+          },
+          "404": { "description": "Assessment not found" }
+        }
+      }
+    },
+    "/dimensions": {
+      "get": {
+        "tags": ["crate::api::handlers::dimension"],
+        "summary": "List dimensions with pagination",
+        "operationId": "list_dimensions",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number (default 1)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "nullable": true,
+              "minimum": 0
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Page size (default 20)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "nullable": true,
+              "minimum": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dimensions list",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ApiResponse" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["crate::api::handlers::dimension"],
+        "summary": "Create a new dimension",
+        "operationId": "create_dimension",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateDimensionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Dimension created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ApiResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dimensions/{dimension_id}/current-states/{current_state_id}": {
+      "put": {
+        "tags": ["crate::api::handlers::dimension"],
+        "summary": "Update current state",
+        "operationId": "update_current_state",
+        "parameters": [
+          {
+            "name": "dimension_id",
+            "in": "path",
+            "description": "Dimension ID",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          },
+          {
+            "name": "current_state_id",
+            "in": "path",
+            "description": "Current state ID",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCurrentStateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Current state updated",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ApiResponse" }
+              }
+            }
+          },
+          "404": { "description": "Current state not found" }
+        }
+      },
+      "delete": {
+        "tags": ["crate::api::handlers::dimension"],
+        "summary": "Delete current state",
+        "operationId": "delete_current_state",
+        "parameters": [
+          {
+            "name": "dimension_id",
+            "in": "path",
+            "description": "Dimension ID",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          },
+          {
+            "name": "current_state_id",
+            "in": "path",
+            "description": "Current state ID",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": { "200": { "description": "Current state deleted" } }
+      }
+    },
+    "/dimensions/{dimension_id}/desired-states/{desired_state_id}": {
+      "put": {
+        "tags": ["crate::api::handlers::dimension"],
+        "summary": "Update desired state",
+        "operationId": "update_desired_state",
+        "parameters": [
+          {
+            "name": "dimension_id",
+            "in": "path",
+            "description": "Dimension ID",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          },
+          {
+            "name": "desired_state_id",
+            "in": "path",
+            "description": "Desired state ID",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateDesiredStateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Desired state updated",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ApiResponse" }
+              }
+            }
+          },
+          "404": { "description": "Desired state not found" }
+        }
+      },
+      "delete": {
+        "tags": ["crate::api::handlers::dimension"],
+        "summary": "Delete desired state",
+        "operationId": "delete_desired_state",
+        "parameters": [
+          {
+            "name": "dimension_id",
+            "in": "path",
+            "description": "Dimension ID",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          },
+          {
+            "name": "desired_state_id",
+            "in": "path",
+            "description": "Desired state ID",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": { "200": { "description": "Desired state deleted" } }
+      }
+    },
+    "/dimensions/{id}": {
+      "get": {
+        "tags": ["crate::api::handlers::dimension"],
+        "summary": "Get dimension by ID",
+        "operationId": "get_dimension",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Dimension ID",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dimension fetched",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ApiResponse" }
+              }
+            }
+          },
+          "404": { "description": "Dimension not found" }
+        }
+      },
+      "put": {
+        "tags": ["crate::api::handlers::dimension"],
+        "summary": "Update dimension",
+        "operationId": "update_dimension",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Dimension ID",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateDimensionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Dimension updated",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ApiResponse" }
+              }
+            }
+          },
+          "404": { "description": "Dimension not found" }
+        }
+      },
+      "delete": {
+        "tags": ["crate::api::handlers::dimension"],
+        "summary": "Delete dimension",
+        "operationId": "delete_dimension",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Dimension ID",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": { "200": { "description": "Dimension deleted" } }
+      }
+    },
+    "/dimensions/{id}/current-states": {
+      "post": {
+        "tags": ["crate::api::handlers::dimension"],
+        "summary": "Create current state",
+        "operationId": "create_current_state",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Dimension ID",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCurrentStateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Current state created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ApiResponse" }
+              }
+            }
+          },
+          "404": { "description": "Dimension not found" }
+        }
+      }
+    },
+    "/dimensions/{id}/desired-states": {
+      "post": {
+        "tags": ["crate::api::handlers::dimension"],
+        "summary": "Create desired state",
+        "operationId": "create_desired_state",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Dimension ID",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateDesiredStateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Desired state created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ApiResponse" }
+              }
+            }
+          },
+          "404": { "description": "Dimension not found" }
+        }
+      }
+    },
+    "/dimensions/{id}/with-states": {
+      "get": {
+        "tags": ["crate::api::handlers::dimension"],
+        "summary": "Get dimension with states",
+        "operationId": "get_dimension_with_states",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Dimension ID",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dimension with states",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ApiResponse" }
+              }
+            }
+          },
+          "404": { "description": "Dimension not found" }
+        }
+      }
+    },
+    "/reports": {
+      "get": {
+        "tags": ["crate::api::handlers::report"],
+        "summary": "List reports with pagination",
+        "operationId": "list_reports",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number (default 1)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "nullable": true,
+              "minimum": 0
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Page size (default 20)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "nullable": true,
+              "minimum": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Reports list",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ApiResponse" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["crate::api::handlers::report"],
+        "summary": "Generate a new report",
+        "operationId": "generate_report",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/GenerateReportRequest" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Report generation started",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ApiResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reports/assessment/{assessment_id}": {
+      "get": {
+        "tags": ["crate::api::handlers::report"],
+        "summary": "List reports by assessment",
+        "operationId": "list_reports_by_assessment",
+        "parameters": [
+          {
+            "name": "assessment_id",
+            "in": "path",
+            "description": "Assessment ID",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Reports list by assessment",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ApiResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reports/{id}": {
+      "get": {
+        "tags": ["crate::api::handlers::report"],
+        "summary": "Get report by ID",
+        "operationId": "get_report",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Report ID",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Report fetched",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ApiResponse" }
+              }
+            }
+          },
+          "404": { "description": "Report not found" }
+        }
+      },
+      "put": {
+        "tags": ["crate::api::handlers::report"],
+        "summary": "Update report",
+        "operationId": "update_report",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Report ID",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateReportRequest" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Report updated",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ApiResponse" }
+              }
+            }
+          },
+          "404": { "description": "Report not found" }
+        }
+      },
+      "delete": {
+        "tags": ["crate::api::handlers::report"],
+        "summary": "Delete report",
+        "operationId": "delete_report",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Report ID",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": { "200": { "description": "Report deleted" } }
+      }
+    },
+    "/reports/{id}/download": {
+      "get": {
+        "tags": ["crate::api::handlers::report"],
+        "summary": "Download report file",
+        "operationId": "download_report",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Report ID",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Report download info",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ApiResponse" }
+              }
+            }
+          },
+          "404": { "description": "Report not found" }
+        }
+      }
+    },
+    "/reports/{id}/status": {
+      "get": {
+        "tags": ["crate::api::handlers::report"],
+        "summary": "Get report status",
+        "operationId": "get_report_status",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Report ID",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Report status",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ApiResponse" }
+              }
+            }
+          },
+          "404": { "description": "Report not found" }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ActionItemListResponse": {
+        "type": "object",
+        "description": "Action item list response with pagination",
+        "required": ["action_items", "total", "page", "limit", "total_pages"],
+        "properties": {
+          "action_items": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/ActionItemResponse" }
+          },
+          "limit": { "type": "integer", "format": "int32", "minimum": 0 },
+          "page": { "type": "integer", "format": "int32", "minimum": 0 },
+          "total": { "type": "integer", "format": "int64", "minimum": 0 },
+          "total_pages": { "type": "integer", "format": "int32", "minimum": 0 }
+        }
+      },
+      "ActionItemPriority": {
+        "type": "string",
+        "description": "Action item priority enumeration",
+        "enum": ["Low", "Medium", "High", "Urgent"]
+      },
+      "ActionItemResponse": {
+        "type": "object",
+        "description": "Action item response",
+        "required": [
+          "action_item_id",
+          "action_plan_id",
+          "title",
+          "status",
+          "priority",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "action_item_id": { "type": "string", "format": "uuid" },
+          "action_plan_id": { "type": "string", "format": "uuid" },
+          "assigned_to": { "type": "string", "nullable": true },
+          "completed_date": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "created_at": { "type": "string", "format": "date-time" },
+          "description": { "type": "string", "nullable": true },
+          "estimated_cost": {
+            "allOf": [{ "$ref": "#/components/schemas/rust_decimal.Decimal" }],
+            "nullable": true
+          },
+          "estimated_effort_hours": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "priority": { "$ref": "#/components/schemas/ActionItemPriority" },
+          "recommendation_id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "status": { "$ref": "#/components/schemas/ActionItemStatus" },
+          "target_date": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "title": { "type": "string" },
+          "updated_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "ActionItemStatus": {
+        "type": "string",
+        "description": "Action item status enumeration",
+        "enum": ["Pending", "InProgress", "Completed", "Cancelled"]
+      },
+      "ActionPlanListResponse": {
+        "type": "object",
+        "description": "Action plan list response with pagination",
+        "required": ["action_plans", "total", "page", "limit", "total_pages"],
+        "properties": {
+          "action_plans": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/ActionPlanResponse" }
+          },
+          "limit": { "type": "integer", "format": "int32", "minimum": 0 },
+          "page": { "type": "integer", "format": "int32", "minimum": 0 },
+          "total": { "type": "integer", "format": "int64", "minimum": 0 },
+          "total_pages": { "type": "integer", "format": "int32", "minimum": 0 }
+        }
+      },
+      "ActionPlanResponse": {
+        "type": "object",
+        "description": "Action plan response",
+        "required": [
+          "action_plan_id",
+          "assessment_id",
+          "title",
+          "status",
+          "priority",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "action_plan_id": { "type": "string", "format": "uuid" },
+          "assessment_id": { "type": "string", "format": "uuid" },
+          "created_at": { "type": "string", "format": "date-time" },
+          "description": { "type": "string", "nullable": true },
+          "estimated_budget": {
+            "allOf": [{ "$ref": "#/components/schemas/rust_decimal.Decimal" }],
+            "nullable": true
+          },
+          "priority": { "$ref": "#/components/schemas/ActionItemPriority" },
+          "report_id": { "type": "string", "format": "uuid", "nullable": true },
+          "responsible_person": { "type": "string", "nullable": true },
+          "status": { "$ref": "#/components/schemas/ActionPlanStatus" },
+          "target_completion_date": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "title": { "type": "string" },
+          "updated_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "ActionPlanStatus": {
+        "type": "string",
+        "description": "Action plan status enumeration",
+        "enum": ["Draft", "Active", "Completed", "Cancelled"]
+      },
+      "ActionPlanWithItemsResponse": {
+        "type": "object",
+        "description": "Action plan with items response",
+        "required": [
+          "action_plan",
+          "action_items",
+          "total_items",
+          "completed_items",
+          "progress_percentage"
+        ],
+        "properties": {
+          "action_items": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/ActionItemResponse" }
+          },
+          "action_plan": { "$ref": "#/components/schemas/ActionPlanResponse" },
+          "completed_items": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "progress_percentage": { "type": "number", "format": "double" },
+          "total_items": { "type": "integer", "format": "int32", "minimum": 0 }
+        }
+      },
+      "ApiResponseActionItemResponse": {
+        "type": "object",
+        "description": "Standard API response wrapper",
+        "required": ["success"],
+        "properties": {
+          "data": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/crate.api.dto.action_plan.ActionItemResponse"
+              }
+            ],
+            "nullable": true
+          },
+          "error": { "type": "string", "nullable": true },
+          "message": { "type": "string", "nullable": true },
+          "success": { "type": "boolean" }
+        }
+      },
+      "ApiResponseActionPlanResponse": {
+        "type": "object",
+        "description": "Standard API response wrapper",
+        "required": ["success"],
+        "properties": {
+          "data": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/crate.api.dto.action_plan.ActionPlanResponse"
+              }
+            ],
+            "nullable": true
+          },
+          "error": { "type": "string", "nullable": true },
+          "message": { "type": "string", "nullable": true },
+          "success": { "type": "boolean" }
+        }
+      },
+      "ApiResponseActionPlanWithItemsResponse": {
+        "type": "object",
+        "description": "Standard API response wrapper",
+        "required": ["success"],
+        "properties": {
+          "data": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/crate.api.dto.action_plan.ActionPlanWithItemsResponse"
+              }
+            ],
+            "nullable": true
+          },
+          "error": { "type": "string", "nullable": true },
+          "message": { "type": "string", "nullable": true },
+          "success": { "type": "boolean" }
+        }
+      },
+      "ApiResponseAssessmentResponse": {
+        "type": "object",
+        "description": "Standard API response wrapper",
+        "required": ["success"],
+        "properties": {
+          "data": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/crate.api.dto.assessment.AssessmentResponse"
+              }
+            ],
+            "nullable": true
+          },
+          "error": { "type": "string", "nullable": true },
+          "message": { "type": "string", "nullable": true },
+          "success": { "type": "boolean" }
+        }
+      },
+      "ApiResponseAssessmentSummaryResponse": {
+        "type": "object",
+        "description": "Standard API response wrapper",
+        "required": ["success"],
+        "properties": {
+          "data": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/crate.api.dto.assessment.AssessmentSummaryResponse"
+              }
+            ],
+            "nullable": true
+          },
+          "error": { "type": "string", "nullable": true },
+          "message": { "type": "string", "nullable": true },
+          "success": { "type": "boolean" }
+        }
+      },
+      "ApiResponseCurrentStateResponse": {
+        "type": "object",
+        "description": "Standard API response wrapper",
+        "required": ["success"],
+        "properties": {
+          "data": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/crate.api.dto.dimension.CurrentStateResponse"
+              }
+            ],
+            "nullable": true
+          },
+          "error": { "type": "string", "nullable": true },
+          "message": { "type": "string", "nullable": true },
+          "success": { "type": "boolean" }
+        }
+      },
+      "ApiResponseDesiredStateResponse": {
+        "type": "object",
+        "description": "Standard API response wrapper",
+        "required": ["success"],
+        "properties": {
+          "data": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/crate.api.dto.dimension.DesiredStateResponse"
+              }
+            ],
+            "nullable": true
+          },
+          "error": { "type": "string", "nullable": true },
+          "message": { "type": "string", "nullable": true },
+          "success": { "type": "boolean" }
+        }
+      },
+      "ApiResponseDimensionAssessmentResponse": {
+        "type": "object",
+        "description": "Standard API response wrapper",
+        "required": ["success"],
+        "properties": {
+          "data": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/crate.api.dto.assessment.DimensionAssessmentResponse"
+              }
+            ],
+            "nullable": true
+          },
+          "error": { "type": "string", "nullable": true },
+          "message": { "type": "string", "nullable": true },
+          "success": { "type": "boolean" }
+        }
+      },
+      "ApiResponseDimensionResponse": {
+        "type": "object",
+        "description": "Standard API response wrapper",
+        "required": ["success"],
+        "properties": {
+          "data": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/crate.api.dto.dimension.DimensionResponse"
+              }
+            ],
+            "nullable": true
+          },
+          "error": { "type": "string", "nullable": true },
+          "message": { "type": "string", "nullable": true },
+          "success": { "type": "boolean" }
+        }
+      },
+      "ApiResponsePaginatedActionPlanResponse": {
+        "type": "object",
+        "description": "Standard API response wrapper",
+        "required": ["success"],
+        "properties": {
+          "data": {
+            "allOf": [{ "$ref": "#/components/schemas/PaginatedResponse" }],
+            "nullable": true
+          },
+          "error": { "type": "string", "nullable": true },
+          "message": { "type": "string", "nullable": true },
+          "success": { "type": "boolean" }
+        }
+      },
+      "ApiResponsePaginatedReportResponse": {
+        "type": "object",
+        "description": "Standard API response wrapper",
+        "required": ["success"],
+        "properties": {
+          "data": {
+            "allOf": [{ "$ref": "#/components/schemas/PaginatedResponse" }],
+            "nullable": true
+          },
+          "error": { "type": "string", "nullable": true },
+          "message": { "type": "string", "nullable": true },
+          "success": { "type": "boolean" }
+        }
+      },
+      "ApiResponseReportDownloadResponse": {
+        "type": "object",
+        "description": "Standard API response wrapper",
+        "required": ["success"],
+        "properties": {
+          "data": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/crate.api.dto.report.ReportDownloadResponse"
+              }
+            ],
+            "nullable": true
+          },
+          "error": { "type": "string", "nullable": true },
+          "message": { "type": "string", "nullable": true },
+          "success": { "type": "boolean" }
+        }
+      },
+      "ApiResponseReportResponse": {
+        "type": "object",
+        "description": "Standard API response wrapper",
+        "required": ["success"],
+        "properties": {
+          "data": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/crate.api.dto.report.ReportResponse"
+              }
+            ],
+            "nullable": true
+          },
+          "error": { "type": "string", "nullable": true },
+          "message": { "type": "string", "nullable": true },
+          "success": { "type": "boolean" }
+        }
+      },
+      "ApiResponseReportStatusResponse": {
+        "type": "object",
+        "description": "Standard API response wrapper",
+        "required": ["success"],
+        "properties": {
+          "data": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/crate.api.dto.report.ReportStatusResponse"
+              }
+            ],
+            "nullable": true
+          },
+          "error": { "type": "string", "nullable": true },
+          "message": { "type": "string", "nullable": true },
+          "success": { "type": "boolean" }
+        }
+      },
+      "AssessmentResponse": {
+        "type": "object",
+        "description": "Assessment response",
+        "required": [
+          "assessment_id",
+          "user_id",
+          "organization_id",
+          "cooperative_id",
+          "document_title",
+          "status",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "assessment_id": { "type": "string", "format": "uuid" },
+          "completed_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "cooperative_id": { "type": "string" },
+          "created_at": { "type": "string", "format": "date-time" },
+          "document_title": { "type": "string" },
+          "metadata": { "nullable": true },
+          "organization_id": { "type": "string" },
+          "started_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "status": { "$ref": "#/components/schemas/AssessmentStatus" },
+          "updated_at": { "type": "string", "format": "date-time" },
+          "user_id": { "type": "string" }
+        }
+      },
+      "AssessmentStatus": {
+        "type": "string",
+        "description": "Assessment status enumeration",
+        "enum": ["Draft", "InProgress", "Completed", "Archived"]
+      },
+      "AssessmentSummaryResponse": {
+        "type": "object",
+        "description": "Assessment summary response",
+        "required": [
+          "assessment",
+          "dimension_assessments",
+          "gaps_count",
+          "recommendations_count"
+        ],
+        "properties": {
+          "assessment": { "$ref": "#/components/schemas/AssessmentResponse" },
+          "dimension_assessments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DimensionAssessmentResponse"
+            }
+          },
+          "gaps_count": { "type": "integer", "format": "int32", "minimum": 0 },
+          "overall_score": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "recommendations_count": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          }
+        }
+      },
+      "CreateActionItemRequest": {
+        "type": "object",
+        "description": "Action item creation request",
+        "required": ["action_plan_id", "title", "status", "priority"],
+        "properties": {
+          "action_plan_id": { "type": "string", "format": "uuid" },
+          "assigned_to": { "type": "string", "nullable": true },
+          "description": { "type": "string", "nullable": true },
+          "estimated_cost": {
+            "allOf": [{ "$ref": "#/components/schemas/rust_decimal.Decimal" }],
+            "nullable": true
+          },
+          "estimated_effort_hours": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "priority": { "$ref": "#/components/schemas/ActionItemPriority" },
+          "recommendation_id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "status": { "$ref": "#/components/schemas/ActionItemStatus" },
+          "target_date": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "title": { "type": "string" }
+        }
+      },
+      "CreateActionPlanRequest": {
+        "type": "object",
+        "description": "Action plan creation request",
+        "required": ["assessment_id", "title"],
+        "properties": {
+          "assessment_id": { "type": "string", "format": "uuid" },
+          "description": { "type": "string", "nullable": true },
+          "estimated_budget": {
+            "allOf": [{ "$ref": "#/components/schemas/rust_decimal.Decimal" }],
+            "nullable": true
+          },
+          "priority": {
+            "allOf": [{ "$ref": "#/components/schemas/ActionItemPriority" }],
+            "nullable": true
+          },
+          "report_id": { "type": "string", "format": "uuid", "nullable": true },
+          "responsible_person": { "type": "string", "nullable": true },
+          "status": {
+            "allOf": [{ "$ref": "#/components/schemas/ActionPlanStatus" }],
+            "nullable": true
+          },
+          "target_completion_date": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "title": { "type": "string" }
+        }
+      },
+      "CreateAssessmentRequest": {
+        "type": "object",
+        "description": "Assessment creation request",
+        "required": [
+          "user_id",
+          "organization_id",
+          "cooperative_id",
+          "document_title"
+        ],
+        "properties": {
+          "cooperative_id": { "type": "string" },
+          "document_title": { "type": "string" },
+          "metadata": { "nullable": true },
+          "organization_id": { "type": "string" },
+          "user_id": { "type": "string" }
+        }
+      },
+      "CreateCurrentStateRequest": {
+        "type": "object",
+        "description": "Current state creation request",
+        "required": ["dimension_id", "title", "score"],
+        "properties": {
+          "characteristics": { "type": "string", "nullable": true },
+          "description": { "type": "string", "nullable": true },
+          "dimension_id": { "type": "string", "format": "uuid" },
+          "level": { "type": "string", "nullable": true },
+          "score": { "type": "integer", "format": "int32" },
+          "title": { "type": "string" }
+        }
+      },
+      "CreateDesiredStateRequest": {
+        "type": "object",
+        "description": "Desired state creation request",
+        "required": ["dimension_id", "title", "score"],
+        "properties": {
+          "description": { "type": "string", "nullable": true },
+          "dimension_id": { "type": "string", "format": "uuid" },
+          "level": { "type": "string", "nullable": true },
+          "score": { "type": "integer", "format": "int32" },
+          "success_criteria": { "type": "string", "nullable": true },
+          "target_date": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "title": { "type": "string" }
+        }
+      },
+      "CreateDimensionAssessmentRequest": {
+        "type": "object",
+        "description": "Dimension assessment creation request",
+        "required": ["dimension_id"],
+        "properties": { "dimension_id": { "type": "string", "format": "uuid" } }
+      },
+      "CreateDimensionRequest": {
+        "type": "object",
+        "description": "Dimension creation request",
+        "required": ["name"],
+        "properties": {
+          "category": { "type": "string", "nullable": true },
+          "description": { "type": "string", "nullable": true },
+          "is_active": { "type": "boolean", "nullable": true },
+          "name": { "type": "string" },
+          "weight": { "type": "integer", "format": "int32", "nullable": true }
+        }
+      },
+      "CurrentStateResponse": {
+        "type": "object",
+        "description": "Current state response",
+        "required": [
+          "current_state_id",
+          "dimension_id",
+          "title",
+          "score",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "characteristics": { "type": "string", "nullable": true },
+          "created_at": { "type": "string", "format": "date-time" },
+          "current_state_id": { "type": "string", "format": "uuid" },
+          "description": { "type": "string", "nullable": true },
+          "dimension_id": { "type": "string", "format": "uuid" },
+          "level": { "type": "string", "nullable": true },
+          "score": { "type": "integer", "format": "int32" },
+          "title": { "type": "string" },
+          "updated_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "DesiredStateResponse": {
+        "type": "object",
+        "description": "Desired state response",
+        "required": [
+          "desired_state_id",
+          "dimension_id",
+          "title",
+          "score",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "created_at": { "type": "string", "format": "date-time" },
+          "description": { "type": "string", "nullable": true },
+          "desired_state_id": { "type": "string", "format": "uuid" },
+          "dimension_id": { "type": "string", "format": "uuid" },
+          "level": { "type": "string", "nullable": true },
+          "score": { "type": "integer", "format": "int32" },
+          "success_criteria": { "type": "string", "nullable": true },
+          "target_date": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "title": { "type": "string" },
+          "updated_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "DimensionAssessmentResponse": {
+        "type": "object",
+        "description": "Dimension assessment response",
+        "required": [
+          "dimension_assessment_id",
+          "assessment_id",
+          "dimension_id",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "assessment_id": { "type": "string", "format": "uuid" },
+          "created_at": { "type": "string", "format": "date-time" },
+          "dimension_assessment_id": { "type": "string", "format": "uuid" },
+          "dimension_id": { "type": "string", "format": "uuid" },
+          "updated_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "DimensionListResponse": {
+        "type": "object",
+        "description": "Dimension list response with pagination",
+        "required": ["dimensions", "total", "page", "limit", "total_pages"],
+        "properties": {
+          "dimensions": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/DimensionResponse" }
+          },
+          "limit": { "type": "integer", "format": "int32", "minimum": 0 },
+          "page": { "type": "integer", "format": "int32", "minimum": 0 },
+          "total": { "type": "integer", "format": "int64", "minimum": 0 },
+          "total_pages": { "type": "integer", "format": "int32", "minimum": 0 }
+        }
+      },
+      "DimensionResponse": {
+        "type": "object",
+        "description": "Dimension response",
+        "required": ["dimension_id", "name", "created_at", "updated_at"],
+        "properties": {
+          "category": { "type": "string", "nullable": true },
+          "created_at": { "type": "string", "format": "date-time" },
+          "description": { "type": "string", "nullable": true },
+          "dimension_id": { "type": "string", "format": "uuid" },
+          "is_active": { "type": "boolean", "nullable": true },
+          "name": { "type": "string" },
+          "updated_at": { "type": "string", "format": "date-time" },
+          "weight": { "type": "integer", "format": "int32", "nullable": true }
+        }
+      },
+      "DimensionWithStatesResponse": {
+        "type": "object",
+        "description": "Dimension with states response",
+        "required": ["dimension", "current_states", "desired_states"],
+        "properties": {
+          "current_states": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/CurrentStateResponse" }
+          },
+          "desired_states": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/DesiredStateResponse" }
+          },
+          "dimension": { "$ref": "#/components/schemas/DimensionResponse" }
+        }
+      },
+      "GenerateReportRequest": {
+        "type": "object",
+        "description": "Report generation request",
+        "required": ["assessment_id", "report_type", "format", "title"],
+        "properties": {
+          "assessment_id": { "type": "string", "format": "uuid" },
+          "custom_sections": {
+            "type": "array",
+            "items": { "type": "string" },
+            "nullable": true
+          },
+          "format": { "$ref": "#/components/schemas/ReportFormat" },
+          "include_action_plans": { "type": "boolean", "nullable": true },
+          "include_recommendations": { "type": "boolean", "nullable": true },
+          "report_type": { "$ref": "#/components/schemas/ReportType" },
+          "title": { "type": "string" }
+        }
+      },
+      "PaginatedActionPlanResponse": {
+        "type": "object",
+        "description": "Paginated response",
+        "required": ["items", "total", "page", "limit", "total_pages"],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/crate.api.dto.action_plan.ActionPlanResponse"
+            }
+          },
+          "limit": { "type": "integer", "format": "int32", "minimum": 0 },
+          "page": { "type": "integer", "format": "int32", "minimum": 0 },
+          "total": { "type": "integer", "format": "int64", "minimum": 0 },
+          "total_pages": { "type": "integer", "format": "int32", "minimum": 0 }
+        }
+      },
+      "PaginatedDimensionResponse": {
+        "type": "object",
+        "description": "Paginated response",
+        "required": ["items", "total", "page", "limit", "total_pages"],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/crate.api.dto.dimension.DimensionResponse"
+            }
+          },
+          "limit": { "type": "integer", "format": "int32", "minimum": 0 },
+          "page": { "type": "integer", "format": "int32", "minimum": 0 },
+          "total": { "type": "integer", "format": "int64", "minimum": 0 },
+          "total_pages": { "type": "integer", "format": "int32", "minimum": 0 }
+        }
+      },
+      "PaginatedReportResponse": {
+        "type": "object",
+        "description": "Paginated response",
+        "required": ["items", "total", "page", "limit", "total_pages"],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/crate.api.dto.report.ReportResponse"
+            }
+          },
+          "limit": { "type": "integer", "format": "int32", "minimum": 0 },
+          "page": { "type": "integer", "format": "int32", "minimum": 0 },
+          "total": { "type": "integer", "format": "int64", "minimum": 0 },
+          "total_pages": { "type": "integer", "format": "int32", "minimum": 0 }
+        }
+      },
+      "PaginationParams": {
+        "type": "object",
+        "description": "Pagination parameters",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true,
+            "minimum": 0
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true,
+            "minimum": 0
+          },
+          "sort_by": { "type": "string", "nullable": true },
+          "sort_order": {
+            "allOf": [{ "$ref": "#/components/schemas/SortOrder" }],
+            "nullable": true
+          }
+        }
+      },
+      "ReportDownloadResponse": {
+        "type": "object",
+        "description": "Report download response",
+        "required": ["report"],
+        "properties": {
+          "content_type": { "type": "string", "nullable": true },
+          "download_url": { "type": "string", "nullable": true },
+          "file_size": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "minimum": 0
+          },
+          "report": { "$ref": "#/components/schemas/ReportResponse" }
+        }
+      },
+      "ReportListResponse": {
+        "type": "object",
+        "description": "Report list response with pagination",
+        "required": ["reports", "total", "page", "limit", "total_pages"],
+        "properties": {
+          "limit": { "type": "integer", "format": "int32", "minimum": 0 },
+          "page": { "type": "integer", "format": "int32", "minimum": 0 },
+          "reports": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/ReportResponse" }
+          },
+          "total": { "type": "integer", "format": "int64", "minimum": 0 },
+          "total_pages": { "type": "integer", "format": "int32", "minimum": 0 }
+        }
+      },
+      "ReportResponse": {
+        "type": "object",
+        "description": "Report response",
+        "required": [
+          "report_id",
+          "assessment_id",
+          "report_type",
+          "title",
+          "format",
+          "status",
+          "generated_at",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "assessment_id": { "type": "string", "format": "uuid" },
+          "created_at": { "type": "string", "format": "date-time" },
+          "file_path": { "type": "string", "nullable": true },
+          "format": { "$ref": "#/components/schemas/ReportFormat" },
+          "generated_at": { "type": "string", "format": "date-time" },
+          "report_data": { "nullable": true },
+          "report_id": { "type": "string", "format": "uuid" },
+          "report_type": { "$ref": "#/components/schemas/ReportType" },
+          "status": { "$ref": "#/components/schemas/ReportStatus" },
+          "summary": { "type": "string", "nullable": true },
+          "title": { "type": "string" },
+          "updated_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "ReportStatus": {
+        "type": "string",
+        "description": "Report status enumeration",
+        "enum": ["Pending", "Generating", "Completed", "Failed", "Archived"]
+      },
+      "ReportStatusResponse": {
+        "type": "object",
+        "description": "Report generation status response",
+        "required": ["report_id", "status"],
+        "properties": {
+          "estimated_completion": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "message": { "type": "string", "nullable": true },
+          "progress": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true,
+            "minimum": 0
+          },
+          "report_id": { "type": "string", "format": "uuid" },
+          "status": { "$ref": "#/components/schemas/ReportStatus" }
+        }
+      },
+      "ReportType": {
+        "type": "string",
+        "description": "Report type enumeration",
+        "enum": ["Summary", "Detailed", "ActionPlan"]
+      },
+      "UpdateActionItemRequest": {
+        "type": "object",
+        "description": "Action item update request",
+        "properties": {
+          "assigned_to": { "type": "string", "nullable": true },
+          "completed_date": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "description": { "type": "string", "nullable": true },
+          "estimated_cost": {
+            "allOf": [{ "$ref": "#/components/schemas/rust_decimal.Decimal" }],
+            "nullable": true
+          },
+          "estimated_effort_hours": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "priority": {
+            "allOf": [{ "$ref": "#/components/schemas/ActionItemPriority" }],
+            "nullable": true
+          },
+          "status": {
+            "allOf": [{ "$ref": "#/components/schemas/ActionItemStatus" }],
+            "nullable": true
+          },
+          "target_date": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "title": { "type": "string", "nullable": true }
+        }
+      },
+      "UpdateActionPlanRequest": {
+        "type": "object",
+        "description": "Action plan update request",
+        "properties": {
+          "description": { "type": "string", "nullable": true },
+          "estimated_budget": {
+            "allOf": [{ "$ref": "#/components/schemas/rust_decimal.Decimal" }],
+            "nullable": true
+          },
+          "priority": {
+            "allOf": [{ "$ref": "#/components/schemas/ActionItemPriority" }],
+            "nullable": true
+          },
+          "responsible_person": { "type": "string", "nullable": true },
+          "status": {
+            "allOf": [{ "$ref": "#/components/schemas/ActionPlanStatus" }],
+            "nullable": true
+          },
+          "target_completion_date": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "title": { "type": "string", "nullable": true }
+        }
+      },
+      "UpdateAssessmentRequest": {
+        "type": "object",
+        "description": "Assessment update request",
+        "properties": {
+          "completed_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "cooperative_id": { "type": "string", "nullable": true },
+          "document_title": { "type": "string", "nullable": true },
+          "metadata": { "nullable": true },
+          "started_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "status": {
+            "allOf": [{ "$ref": "#/components/schemas/AssessmentStatus" }],
+            "nullable": true
+          }
+        }
+      },
+      "UpdateCurrentStateRequest": {
+        "type": "object",
+        "description": "Current state update request",
+        "properties": {
+          "characteristics": { "type": "string", "nullable": true },
+          "description": { "type": "string", "nullable": true },
+          "level": { "type": "string", "nullable": true },
+          "score": { "type": "integer", "format": "int32", "nullable": true },
+          "title": { "type": "string", "nullable": true }
+        }
+      },
+      "UpdateDesiredStateRequest": {
+        "type": "object",
+        "description": "Desired state update request",
+        "properties": {
+          "description": { "type": "string", "nullable": true },
+          "level": { "type": "string", "nullable": true },
+          "score": { "type": "integer", "format": "int32", "nullable": true },
+          "success_criteria": { "type": "string", "nullable": true },
+          "target_date": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "title": { "type": "string", "nullable": true }
+        }
+      },
+      "UpdateDimensionAssessmentRequest": {
+        "type": "object",
+        "description": "Dimension assessment update request"
+      },
+      "UpdateDimensionRequest": {
+        "type": "object",
+        "description": "Dimension update request",
+        "properties": {
+          "category": { "type": "string", "nullable": true },
+          "description": { "type": "string", "nullable": true },
+          "is_active": { "type": "boolean", "nullable": true },
+          "name": { "type": "string", "nullable": true },
+          "weight": { "type": "integer", "format": "int32", "nullable": true }
+        }
+      },
+      "UpdateReportRequest": {
+        "type": "object",
+        "description": "Report update request",
+        "properties": {
+          "report_data": { "nullable": true },
+          "summary": { "type": "string", "nullable": true },
+          "title": { "type": "string", "nullable": true }
+        }
+      }
+    }
+  },
+  "tags": [
+    { "name": "Assessments", "description": "Assessment endpoints" },
+    { "name": "Dimensions", "description": "Dimension endpoints" },
+    { "name": "Reports", "description": "Report endpoints" },
+    { "name": "Action Plans", "description": "Action plan endpoints" }
+  ]
+}

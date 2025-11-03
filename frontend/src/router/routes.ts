@@ -66,6 +66,10 @@ const routes = [
         path: "recommendations",
         element: React.createElement(ManageGapRecommendations),
       },
+      {
+        path: "manage-levels/:dimensionId",
+        element: React.createElement(ManageDigitalisationLevels),
+      },
     ],
   },
   {

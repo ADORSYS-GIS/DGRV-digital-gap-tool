@@ -376,7 +376,7 @@ pub async fn create_dimension_assessment(
 pub async fn update_dimension_assessment(
     State(db): State<Arc<DatabaseConnection>>,
     Path((assessment_id, dimension_assessment_id)): Path<(Uuid, Uuid)>,
-    Json(request): Json<UpdateDimensionAssessmentRequest>,
+    Json(_request): Json<UpdateDimensionAssessmentRequest>,
 ) -> Result<Json<ApiResponse<DimensionAssessmentResponse>>, (StatusCode, Json<serde_json::Value>)> {
     let mut dimension_assessment = DimensionAssessmentsRepository::find_by_id(db.as_ref(), dimension_assessment_id)
         .await

@@ -5,28 +5,36 @@ use std::fmt;
 use std::str::FromStr;
 use utoipa::ToSchema;
 
+use crate::api::dto::{
+    action_plan::{ActionItemResponse, ActionPlanResponse, ActionPlanWithItemsResponse},
+    assessment::{
+        AssessmentResponse, AssessmentSummaryResponse, DimensionAssessmentResponse,
+    },
+    dimension::{CurrentStateResponse, DesiredStateResponse, DimensionResponse},
+    report::{ReportDownloadResponse, ReportResponse, ReportStatusResponse},
+};
+
 /// Standard API response wrapper
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
 #[aliases(
-    ApiResponseActionPlanResponse = ApiResponse<crate::api::dto::action_plan::ActionPlanResponse>,
-    ApiResponseActionPlanWithItemsResponse = ApiResponse<crate::api::dto::action_plan::ActionPlanWithItemsResponse>,
-    ApiResponseActionItemResponse = ApiResponse<crate::api::dto::action_plan::ActionItemResponse>,
-    ApiResponsePaginatedActionPlanResponse = ApiResponse<PaginatedResponse<crate::api::dto::action_plan::ActionPlanResponse>>,
-    ApiResponseAssessmentResponse = ApiResponse<crate::api::dto::assessment::AssessmentResponse>,
-    ApiResponseAssessmentSummaryResponse = ApiResponse<crate::api::dto::assessment::AssessmentSummaryResponse>,
-    ApiResponseDimensionAssessmentResponse = ApiResponse<crate::api::dto::assessment::DimensionAssessmentResponse>,
-    ApiResponseDimensionResponse = ApiResponse<crate::api::dto::dimension::DimensionResponse>,
-    ApiResponseCurrentStateResponse = ApiResponse<crate::api::dto::dimension::CurrentStateResponse>,
-    ApiResponseDesiredStateResponse = ApiResponse<crate::api::dto::dimension::DesiredStateResponse>,
-    ApiResponseReportResponse = ApiResponse<crate::api::dto::report::ReportResponse>,
-    ApiResponseReportDownloadResponse = ApiResponse<crate::api::dto::report::ReportDownloadResponse>,
-    ApiResponseReportStatusResponse = ApiResponse<crate::api::dto::report::ReportStatusResponse>,
-    ApiResponsePaginatedReportResponse = ApiResponse<PaginatedResponse<crate::api::dto::report::ReportResponse>>
+    ApiResponseActionPlanResponse = ApiResponse<ActionPlanResponse>,
+    ApiResponseActionPlanWithItemsResponse = ApiResponse<ActionPlanWithItemsResponse>,
+    ApiResponseActionItemResponse = ApiResponse<ActionItemResponse>,
+    ApiResponsePaginatedActionPlanResponse = ApiResponse<PaginatedResponse<ActionPlanResponse>>,
+    ApiResponseAssessmentResponse = ApiResponse<AssessmentResponse>,
+    ApiResponseAssessmentSummaryResponse = ApiResponse<AssessmentSummaryResponse>,
+    ApiResponseDimensionAssessmentResponse = ApiResponse<DimensionAssessmentResponse>,
+    ApiResponseDimensionResponse = ApiResponse<DimensionResponse>,
+    ApiResponseCurrentStateResponse = ApiResponse<CurrentStateResponse>,
+    ApiResponseDesiredStateResponse = ApiResponse<DesiredStateResponse>,
+    ApiResponseReportResponse = ApiResponse<ReportResponse>,
+    ApiResponseReportDownloadResponse = ApiResponse<ReportDownloadResponse>,
+    ApiResponseReportStatusResponse = ApiResponse<ReportStatusResponse>,
+    ApiResponsePaginatedReportResponse = ApiResponse<PaginatedResponse<ReportResponse>>
 )]
 pub struct ApiResponse<T>
 where
-    T: for<'a> ToSchema<'a>,
-{
+    T: for<'a> ToSchema<'a>, {
     pub success: bool,
     pub data: Option<T>,
     pub message: Option<String>,
@@ -116,9 +124,9 @@ impl FromStr for SortOrder {
 /// Paginated response
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
 #[aliases(
-    PaginatedActionPlanResponse = PaginatedResponse<crate::api::dto::action_plan::ActionPlanResponse>,
-    PaginatedReportResponse = PaginatedResponse<crate::api::dto::report::ReportResponse>,
-    PaginatedDimensionResponse = PaginatedResponse<crate::api::dto::dimension::DimensionResponse>
+    PaginatedActionPlanResponse = PaginatedResponse<ActionPlanResponse>,
+    PaginatedReportResponse = PaginatedResponse<ReportResponse>,
+    PaginatedDimensionResponse = PaginatedResponse<DimensionResponse>
 )]
 pub struct PaginatedResponse<T>
 where
