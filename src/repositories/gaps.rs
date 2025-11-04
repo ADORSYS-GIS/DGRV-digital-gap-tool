@@ -1,16 +1,13 @@
-use sea_orm::*;
 use crate::entities::gaps::{self, Entity as Gaps};
 use crate::error::AppError;
+use sea_orm::*;
 use uuid::Uuid;
 
 pub struct GapsRepository;
 
 impl GapsRepository {
     pub async fn find_all(db: &DbConn) -> Result<Vec<gaps::Model>, AppError> {
-        Gaps::find()
-            .all(db)
-            .await
-            .map_err(AppError::from)
+        Gaps::find().all(db).await.map_err(AppError::from)
     }
 
     pub async fn find_by_id(db: &DbConn, gap_id: Uuid) -> Result<Option<gaps::Model>, AppError> {
@@ -21,10 +18,7 @@ impl GapsRepository {
     }
 
     pub async fn create(db: &DbConn, gap_data: gaps::ActiveModel) -> Result<gaps::Model, AppError> {
-        gap_data
-            .insert(db)
-            .await
-            .map_err(AppError::from)
+        gap_data.insert(db).await.map_err(AppError::from)
     }
 
     pub async fn update(
@@ -39,7 +33,7 @@ impl GapsRepository {
             .ok_or_else(|| AppError::NotFound("Gap not found".to_string()))?;
 
         let mut active_model: gaps::ActiveModel = gap.into();
-        
+
         if let ActiveValue::Set(dimension_assessment_id) = gap_data.dimension_assessment_id {
             active_model.dimension_assessment_id = Set(dimension_assessment_id);
         }
@@ -58,10 +52,7 @@ impl GapsRepository {
 
         active_model.updated_at = Set(chrono::Utc::now());
 
-        active_model
-            .update(db)
-            .await
-            .map_err(AppError::from)
+        active_model.update(db).await.map_err(AppError::from)
     }
 
     pub async fn delete(db: &DbConn, gap_id: Uuid) -> Result<bool, AppError> {
@@ -84,7 +75,10 @@ impl GapsRepository {
             .map_err(AppError::from)
     }
 
-    pub async fn find_by_severity(db: &DbConn, severity: crate::entities::gaps::GapSeverity) -> Result<Vec<gaps::Model>, AppError> {
+    pub async fn find_by_severity(
+        db: &DbConn,
+        severity: crate::entities::gaps::GapSeverity,
+    ) -> Result<Vec<gaps::Model>, AppError> {
         Gaps::find()
             .filter(gaps::Column::GapSeverity.eq(severity))
             .all(db)
@@ -92,7 +86,10 @@ impl GapsRepository {
             .map_err(AppError::from)
     }
 
-    pub async fn find_high_impact_gaps(db: &DbConn, min_impact_score: i32) -> Result<Vec<gaps::Model>, AppError> {
+    pub async fn find_high_impact_gaps(
+        db: &DbConn,
+        min_impact_score: i32,
+    ) -> Result<Vec<gaps::Model>, AppError> {
         Gaps::find()
             .filter(gaps::Column::GapSize.gte(min_impact_score))
             .all(db)
@@ -115,10 +112,7 @@ impl GapsRepository {
         active_model.gap_severity = Set(severity);
         active_model.updated_at = Set(chrono::Utc::now());
 
-        active_model
-            .update(db)
-            .await
-            .map_err(AppError::from)
+        active_model.update(db).await.map_err(AppError::from)
     }
 
     /// Find gaps by assessment ID through dimension assessments
@@ -128,7 +122,7 @@ impl GapsRepository {
     ) -> Result<Vec<gaps::Model>, AppError> {
         // First get all dimension assessments for this assessment
         let dimension_assessments = crate::repositories::dimension_assessments::DimensionAssessmentsRepository::find_by_assessment_id(db, assessment_id).await?;
-        
+
         let dimension_assessment_ids: Vec<Uuid> = dimension_assessments
             .into_iter()
             .map(|da| da.dimension_assessment_id)

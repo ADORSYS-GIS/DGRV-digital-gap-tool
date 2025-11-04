@@ -1,12 +1,12 @@
+use crate::config::MinioConfig;
+use crate::error::AppError;
 use async_trait::async_trait;
 use aws_config::BehaviorVersion;
 use aws_credential_types::provider::SharedCredentialsProvider;
 use aws_credential_types::Credentials;
-use aws_sdk_s3::Client as S3Client;
 use aws_sdk_s3::primitives::ByteStream;
+use aws_sdk_s3::Client as S3Client;
 use bytes::Bytes;
-use crate::config::MinioConfig;
-use crate::error::AppError;
 
 pub struct S3StorageService {
     client: S3Client,
@@ -15,13 +15,8 @@ pub struct S3StorageService {
 
 impl S3StorageService {
     pub async fn new(config: &MinioConfig) -> Result<Self, AppError> {
-        let credentials = Credentials::new(
-            &config.access_key,
-            &config.secret_key,
-            None,
-            None,
-            "static",
-        );
+        let credentials =
+            Credentials::new(&config.access_key, &config.secret_key, None, None, "static");
 
         let credentials_provider = SharedCredentialsProvider::new(credentials);
 
@@ -46,19 +41,25 @@ impl S3StorageService {
 
     async fn ensure_bucket(&self) -> Result<(), AppError> {
         // Try to create bucket (idempotent operation)
-        match self.client.create_bucket()
+        match self
+            .client
+            .create_bucket()
             .bucket(&self.bucket_name)
             .send()
-            .await {
+            .await
+        {
             Ok(_) => Ok(()),
             Err(e) => {
                 // Check if bucket already exists by error message
                 let error_message = e.to_string();
-                if error_message.contains("BucketAlreadyExists") ||
-                   error_message.contains("BucketAlreadyOwnedByYou") {
+                if error_message.contains("BucketAlreadyExists")
+                    || error_message.contains("BucketAlreadyOwnedByYou")
+                {
                     Ok(())
                 } else {
-                    Err(AppError::FileStorageError(format!("Failed to create bucket: {}", e)))
+                    Err(AppError::FileStorageError(format!(
+                        "Failed to create bucket: {e}"
+                    )))
                 }
             }
         }
@@ -80,23 +81,26 @@ impl S3StorageService {
             .content_type(content_type)
             .send()
             .await
-            .map_err(|e| AppError::FileStorageError(format!("Failed to upload file: {}", e)))?;
+            .map_err(|e| AppError::FileStorageError(format!("Failed to upload file: {e}")))?;
 
         Ok(format!("s3://{}/{}", self.bucket_name, object_name))
     }
 
     pub async fn download_file(&self, object_name: &str) -> Result<Bytes, AppError> {
-        let response = self.client
+        let response = self
+            .client
             .get_object()
             .bucket(&self.bucket_name)
             .key(object_name)
             .send()
             .await
-            .map_err(|e| AppError::FileStorageError(format!("Failed to download file: {}", e)))?;
+            .map_err(|e| AppError::FileStorageError(format!("Failed to download file: {e}")))?;
 
-        let data = response.body.collect()
+        let data = response
+            .body
+            .collect()
             .await
-            .map_err(|e| AppError::FileStorageError(format!("Failed to collect file data: {}", e)))?
+            .map_err(|e| AppError::FileStorageError(format!("Failed to collect file data: {e}")))?
             .into_bytes();
 
         Ok(data)
@@ -109,7 +113,7 @@ impl S3StorageService {
             .key(object_name)
             .send()
             .await
-            .map_err(|e| AppError::FileStorageError(format!("Failed to delete file: {}", e)))?;
+            .map_err(|e| AppError::FileStorageError(format!("Failed to delete file: {e}")))?;
 
         Ok(())
     }

@@ -1,6 +1,6 @@
-use sea_orm::*;
 use crate::entities::dimension_assessments::{self, Entity as DimensionAssessments};
 use crate::error::AppError;
+use sea_orm::*;
 use uuid::Uuid;
 
 pub struct DimensionAssessmentsRepository;
@@ -13,14 +13,20 @@ impl DimensionAssessmentsRepository {
             .map_err(AppError::from)
     }
 
-    pub async fn find_by_id(db: &DbConn, dimension_assessment_id: Uuid) -> Result<Option<dimension_assessments::Model>, AppError> {
+    pub async fn find_by_id(
+        db: &DbConn,
+        dimension_assessment_id: Uuid,
+    ) -> Result<Option<dimension_assessments::Model>, AppError> {
         DimensionAssessments::find_by_id(dimension_assessment_id)
             .one(db)
             .await
             .map_err(AppError::from)
     }
 
-    pub async fn find_by_assessment_id(db: &DbConn, assessment_id: Uuid) -> Result<Vec<dimension_assessments::Model>, AppError> {
+    pub async fn find_by_assessment_id(
+        db: &DbConn,
+        assessment_id: Uuid,
+    ) -> Result<Vec<dimension_assessments::Model>, AppError> {
         DimensionAssessments::find()
             .filter(dimension_assessments::Column::AssessmentId.eq(assessment_id))
             .all(db)
@@ -28,11 +34,11 @@ impl DimensionAssessmentsRepository {
             .map_err(AppError::from)
     }
 
-    pub async fn create(db: &DbConn, assessment_data: dimension_assessments::ActiveModel) -> Result<dimension_assessments::Model, AppError> {
-        assessment_data
-            .insert(db)
-            .await
-            .map_err(AppError::from)
+    pub async fn create(
+        db: &DbConn,
+        assessment_data: dimension_assessments::ActiveModel,
+    ) -> Result<dimension_assessments::Model, AppError> {
+        assessment_data.insert(db).await.map_err(AppError::from)
     }
 
     pub async fn update(
@@ -47,7 +53,7 @@ impl DimensionAssessmentsRepository {
             .ok_or_else(|| AppError::NotFound("Dimension assessment not found".to_string()))?;
 
         let mut active_model: dimension_assessments::ActiveModel = assessment.into();
-        
+
         // Update fields if they are set
         if assessment_data.assessment_id.is_set() {
             active_model.assessment_id = assessment_data.assessment_id;
@@ -58,10 +64,7 @@ impl DimensionAssessmentsRepository {
 
         active_model.updated_at = Set(chrono::Utc::now());
 
-        active_model
-            .update(db)
-            .await
-            .map_err(AppError::from)
+        active_model.update(db).await.map_err(AppError::from)
     }
 
     pub async fn delete(db: &DbConn, dimension_assessment_id: Uuid) -> Result<bool, AppError> {

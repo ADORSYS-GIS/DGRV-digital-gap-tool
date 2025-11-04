@@ -1,30 +1,30 @@
-use sea_orm::*;
 use crate::entities::reports::{self, Entity as Reports};
 use crate::error::AppError;
+use sea_orm::*;
 use uuid::Uuid;
 
 pub struct ReportsRepository;
 
 impl ReportsRepository {
     pub async fn find_all(db: &DbConn) -> Result<Vec<reports::Model>, AppError> {
-        Reports::find()
-            .all(db)
-            .await
-            .map_err(AppError::from)
+        Reports::find().all(db).await.map_err(AppError::from)
     }
 
-    pub async fn find_by_id(db: &DbConn, report_id: Uuid) -> Result<Option<reports::Model>, AppError> {
+    pub async fn find_by_id(
+        db: &DbConn,
+        report_id: Uuid,
+    ) -> Result<Option<reports::Model>, AppError> {
         Reports::find_by_id(report_id)
             .one(db)
             .await
             .map_err(AppError::from)
     }
 
-    pub async fn create(db: &DbConn, report_data: reports::ActiveModel) -> Result<reports::Model, AppError> {
-        report_data
-            .insert(db)
-            .await
-            .map_err(AppError::from)
+    pub async fn create(
+        db: &DbConn,
+        report_data: reports::ActiveModel,
+    ) -> Result<reports::Model, AppError> {
+        report_data.insert(db).await.map_err(AppError::from)
     }
 
     pub async fn update(
@@ -39,7 +39,7 @@ impl ReportsRepository {
             .ok_or_else(|| AppError::NotFound("Report not found".to_string()))?;
 
         let mut active_model: reports::ActiveModel = report.into();
-        
+
         if let ActiveValue::Set(assessment_id) = report_data.assessment_id {
             active_model.assessment_id = Set(assessment_id);
         }
@@ -70,10 +70,7 @@ impl ReportsRepository {
 
         active_model.updated_at = Set(chrono::Utc::now());
 
-        active_model
-            .update(db)
-            .await
-            .map_err(AppError::from)
+        active_model.update(db).await.map_err(AppError::from)
     }
 
     pub async fn delete(db: &DbConn, report_id: Uuid) -> Result<bool, AppError> {
@@ -96,7 +93,10 @@ impl ReportsRepository {
             .map_err(AppError::from)
     }
 
-    pub async fn find_by_type(db: &DbConn, report_type: &str) -> Result<Vec<reports::Model>, AppError> {
+    pub async fn find_by_type(
+        db: &DbConn,
+        report_type: &str,
+    ) -> Result<Vec<reports::Model>, AppError> {
         Reports::find()
             .filter(reports::Column::ReportType.eq(report_type))
             .all(db)
@@ -104,7 +104,10 @@ impl ReportsRepository {
             .map_err(AppError::from)
     }
 
-    pub async fn find_by_status(db: &DbConn, status: &str) -> Result<Vec<reports::Model>, AppError> {
+    pub async fn find_by_status(
+        db: &DbConn,
+        status: &str,
+    ) -> Result<Vec<reports::Model>, AppError> {
         Reports::find()
             .filter(reports::Column::Status.eq(status))
             .all(db)
@@ -127,10 +130,7 @@ impl ReportsRepository {
         active_model.status = Set(status);
         active_model.updated_at = Set(chrono::Utc::now());
 
-        active_model
-            .update(db)
-            .await
-            .map_err(AppError::from)
+        active_model.update(db).await.map_err(AppError::from)
     }
 
     pub async fn update_file_path(
@@ -148,9 +148,6 @@ impl ReportsRepository {
         active_model.file_path = Set(Some(file_path.to_string()));
         active_model.updated_at = Set(chrono::Utc::now());
 
-        active_model
-            .update(db)
-            .await
-            .map_err(AppError::from)
+        active_model.update(db).await.map_err(AppError::from)
     }
 }

@@ -1,9 +1,9 @@
-use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::str::FromStr;
 use utoipa::ToSchema;
+use uuid::Uuid;
 
 /// Standard API response wrapper
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
@@ -108,7 +108,7 @@ impl FromStr for SortOrder {
         match s.to_lowercase().as_str() {
             "asc" => Ok(SortOrder::Asc),
             "desc" => Ok(SortOrder::Desc),
-            _ => Err(format!("Invalid sort order: {}", s)),
+            _ => Err(format!("Invalid sort order: {s}")),
         }
     }
 }
@@ -200,7 +200,7 @@ impl FromStr for Priority {
             "medium" => Ok(Priority::Medium),
             "high" => Ok(Priority::High),
             "critical" => Ok(Priority::Critical),
-            _ => Err(format!("Invalid priority: {}", s)),
+            _ => Err(format!("Invalid priority: {s}")),
         }
     }
 }

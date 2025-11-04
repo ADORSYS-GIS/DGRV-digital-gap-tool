@@ -1,9 +1,9 @@
-use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::str::FromStr;
 use utoipa::ToSchema;
+use uuid::Uuid;
 
 /// Assessment creation request
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
@@ -71,7 +71,7 @@ impl FromStr for AssessmentStatus {
             "in_progress" => Ok(AssessmentStatus::InProgress),
             "completed" => Ok(AssessmentStatus::Completed),
             "archived" => Ok(AssessmentStatus::Archived),
-            _ => Err(format!("Invalid assessment status: {}", s)),
+            _ => Err(format!("Invalid assessment status: {s}")),
         }
     }
 }
@@ -84,8 +84,7 @@ pub struct CreateDimensionAssessmentRequest {
 
 /// Dimension assessment update request
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
-pub struct UpdateDimensionAssessmentRequest {
-}
+pub struct UpdateDimensionAssessmentRequest {}
 
 /// Dimension assessment response
 #[derive(Debug, Serialize, Deserialize, ToSchema)]

@@ -42,7 +42,7 @@ impl FromStr for AssessmentStatus {
             "in_progress" => Ok(AssessmentStatus::InProgress),
             "completed" => Ok(AssessmentStatus::Completed),
             "archived" => Ok(AssessmentStatus::Archived),
-            _ => Err(format!("Invalid assessment status: {}", s)),
+            _ => Err(format!("Invalid assessment status: {s}")),
         }
     }
 }

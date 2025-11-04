@@ -1,19 +1,13 @@
 use axum::{
-    routing::{get, post, put, delete},
+    routing::{delete, get, post, put},
     Router,
 };
 use sea_orm::DatabaseConnection;
 use std::sync::Arc;
 
 use crate::api::handlers::report::{
-    generate_report,
-    get_report,
-    get_report_status,
-    download_report,
-    list_reports,
-    list_reports_by_assessment,
-    update_report,
-    delete_report,
+    delete_report, download_report, generate_report, get_report, get_report_status, list_reports,
+    list_reports_by_assessment, update_report,
 };
 
 /// Create report routes
@@ -27,7 +21,9 @@ pub fn create_report_routes() -> Router<Arc<DatabaseConnection>> {
         .route("/:id", delete(delete_report))
         .route("/:id/status", get(get_report_status))
         .route("/:id/download", get(download_report))
-        
         // Assessment-specific reports
-        .route("/assessment/:assessment_id", get(list_reports_by_assessment))
+        .route(
+            "/assessment/:assessment_id",
+            get(list_reports_by_assessment),
+        )
 }

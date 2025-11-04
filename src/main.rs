@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 mod api;
 mod config;
 mod database;
@@ -7,12 +9,12 @@ mod repositories;
 mod services;
 
 use axum::Router;
+use sea_orm::DatabaseConnection;
 use std::net::SocketAddr;
+use std::sync::Arc;
 use tower_http::cors::CorsLayer;
 use tracing::{info, Level};
 use tracing_subscriber::FmtSubscriber;
-use sea_orm::DatabaseConnection;
-use std::sync::Arc;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -26,10 +28,10 @@ async fn main() -> anyhow::Result<()> {
 
     // Load configuration
     let config = config::load_config()?;
-    
+
     // Initialize database connection
     let db = database::init_db(&config.database_url).await?;
-    
+
     // Run migrations
     database::run_migrations(&db).await?;
 
@@ -39,7 +41,7 @@ async fn main() -> anyhow::Result<()> {
     // Run the server
     let addr = SocketAddr::from(([0, 0, 0, 0], config.port));
     info!("Server listening on {}", addr);
-    
+
     let listener = tokio::net::TcpListener::bind(addr).await?;
     axum::serve(listener, app).await?;
 

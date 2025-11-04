@@ -1,9 +1,9 @@
-use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::str::FromStr;
 use utoipa::ToSchema;
+use uuid::Uuid;
 
 /// Action plan creation request
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
@@ -77,7 +77,7 @@ impl FromStr for ActionPlanStatus {
             "active" => Ok(ActionPlanStatus::Active),
             "completed" => Ok(ActionPlanStatus::Completed),
             "cancelled" => Ok(ActionPlanStatus::Cancelled),
-            _ => Err(format!("Invalid action plan status: {}", s)),
+            _ => Err(format!("Invalid action plan status: {s}")),
         }
     }
 }
@@ -159,7 +159,7 @@ impl FromStr for ActionItemStatus {
             "in_progress" => Ok(ActionItemStatus::InProgress),
             "completed" => Ok(ActionItemStatus::Completed),
             "cancelled" => Ok(ActionItemStatus::Cancelled),
-            _ => Err(format!("Invalid action item status: {}", s)),
+            _ => Err(format!("Invalid action item status: {s}")),
         }
     }
 }
@@ -193,7 +193,7 @@ impl FromStr for ActionItemPriority {
             "medium" => Ok(ActionItemPriority::Medium),
             "high" => Ok(ActionItemPriority::High),
             "urgent" => Ok(ActionItemPriority::Urgent),
-            _ => Err(format!("Invalid action item priority: {}", s)),
+            _ => Err(format!("Invalid action item priority: {s}")),
         }
     }
 }

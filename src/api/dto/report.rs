@@ -1,10 +1,10 @@
-use serde::{Deserialize, Serialize};
-use uuid::Uuid;
-use chrono::{DateTime, Utc};
 use crate::entities::reports::ReportFormat;
+use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::str::FromStr;
 use utoipa::ToSchema;
+use uuid::Uuid;
 
 /// Report generation request
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
@@ -69,7 +69,7 @@ impl FromStr for ReportType {
             "summary" => Ok(ReportType::Summary),
             "detailed" => Ok(ReportType::Detailed),
             "action_plan" => Ok(ReportType::ActionPlan),
-            _ => Err(format!("Invalid report type: {}", s)),
+            _ => Err(format!("Invalid report type: {s}")),
         }
     }
 }
@@ -106,7 +106,7 @@ impl FromStr for ReportStatus {
             "completed" => Ok(ReportStatus::Completed),
             "failed" => Ok(ReportStatus::Failed),
             "archived" => Ok(ReportStatus::Archived),
-            _ => Err(format!("Invalid report status: {}", s)),
+            _ => Err(format!("Invalid report status: {s}")),
         }
     }
 }
