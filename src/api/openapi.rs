@@ -65,6 +65,19 @@ use crate::api::dto::report::*;
         schemas(
             // Common
             PaginationParams,
+            // ApiResponse aliases for Action Plans
+            ApiResponseActionPlanResponse,
+            ApiResponseActionPlanWithItemsResponse,
+            ApiResponseActionItemResponse,
+            ApiResponsePaginatedActionPlanResponse,
+            // ApiResponse aliases for Reports
+            ApiResponseReportResponse,
+            ApiResponseReportDownloadResponse,
+            ApiResponseReportStatusResponse,
+            ApiResponsePaginatedReportResponse,
+            // Paginated alias types
+            PaginatedActionPlanResponse,
+            PaginatedReportResponse,
             // Assessments
             CreateAssessmentRequest,
             UpdateAssessmentRequest,

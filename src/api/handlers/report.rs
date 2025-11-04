@@ -25,7 +25,7 @@ use crate::repositories::reports::ReportsRepository;
     path = "/reports",
     request_body = GenerateReportRequest,
     responses(
-        (status = 200, description = "Report created", body = inline(ApiResponse<ReportResponse>))
+        (status = 200, description = "Report created", body = ApiResponseReportResponse)
     )
 )]
 pub async fn create_report(
@@ -132,7 +132,7 @@ fn convert_dto_report_format_to_entity(
     path = "/reports",
     request_body = GenerateReportRequest,
     responses(
-        (status = 200, description = "Report generation started", body = inline(ApiResponse<ReportResponse>))
+        (status = 200, description = "Report generation started", body = ApiResponseReportResponse)
     )
 )]
 pub async fn generate_report(
@@ -193,7 +193,7 @@ pub async fn generate_report(
     path = "/reports/{id}",
     params(("id" = Uuid, Path, description = "Report ID")),
     responses(
-        (status = 200, description = "Report fetched", body = inline(ApiResponse<ReportResponse>)),
+        (status = 200, description = "Report fetched", body = ApiResponseReportResponse),
         (status = 404, description = "Report not found")
     )
 )]
@@ -234,7 +234,7 @@ pub async fn get_report(
     path = "/reports/{id}/status",
     params(("id" = Uuid, Path, description = "Report ID")),
     responses(
-        (status = 200, description = "Report status", body = inline(ApiResponse<ReportStatusResponse>)),
+        (status = 200, description = "Report status", body = ApiResponseReportStatusResponse),
         (status = 404, description = "Report not found")
     )
 )]
@@ -286,7 +286,7 @@ pub async fn get_report_status(
     path = "/reports/{id}/download",
     params(("id" = Uuid, Path, description = "Report ID")),
     responses(
-        (status = 200, description = "Report download info", body = inline(ApiResponse<ReportDownloadResponse>)),
+        (status = 200, description = "Report download info", body = ApiResponseReportDownloadResponse),
         (status = 404, description = "Report not found")
     )
 )]
@@ -353,7 +353,7 @@ pub async fn download_report(
         ("limit" = Option<u32>, Query, description = "Page size (default 20)")
     ),
     responses(
-        (status = 200, description = "Reports list", body = inline(ApiResponse<PaginatedResponse<ReportResponse>>))
+        (status = 200, description = "Reports list", body = ApiResponsePaginatedReportResponse)
     )
 )]
 pub async fn list_reports(
@@ -401,7 +401,7 @@ pub async fn list_reports(
     path = "/reports/assessment/{assessment_id}",
     params(("assessment_id" = Uuid, Path, description = "Assessment ID")),
     responses(
-        (status = 200, description = "Reports list by assessment", body = inline(ApiResponse<PaginatedResponse<ReportResponse>>))
+        (status = 200, description = "Reports list by assessment", body = ApiResponsePaginatedReportResponse)
     )
 )]
 pub async fn list_reports_by_assessment(
@@ -451,7 +451,7 @@ pub async fn list_reports_by_assessment(
     params(("id" = Uuid, Path, description = "Report ID")),
     request_body = UpdateReportRequest,
     responses(
-        (status = 200, description = "Report updated", body = inline(ApiResponse<ReportResponse>)),
+        (status = 200, description = "Report updated", body = ApiResponseReportResponse),
         (status = 404, description = "Report not found")
     )
 )]

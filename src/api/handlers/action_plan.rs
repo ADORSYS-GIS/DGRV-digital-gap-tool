@@ -86,7 +86,7 @@ fn convert_dto_item_status_to_entity(dto_status: ActionItemStatus) -> EntityActi
     path = "/action-plans",
     request_body = CreateActionPlanRequest,
     responses(
-        (status = 200, description = "Action plan created", body = inline(ApiResponse<ActionPlanResponse>))
+        (status = 200, description = "Action plan created", body = ApiResponseActionPlanResponse)
     )
 )]
 pub async fn create_action_plan(
@@ -141,7 +141,7 @@ pub async fn create_action_plan(
     path = "/action-plans/{id}",
     params(("id" = Uuid, Path, description = "Action plan ID")),
     responses(
-        (status = 200, description = "Action plan fetched", body = inline(ApiResponse<ActionPlanResponse>)),
+        (status = 200, description = "Action plan fetched", body = ApiResponseActionPlanResponse),
         (status = 404, description = "Action plan not found")
     )
 )]
@@ -182,7 +182,7 @@ pub async fn get_action_plan(
     path = "/action-plans/{id}/with-items",
     params(("id" = Uuid, Path, description = "Action plan ID")),
     responses(
-        (status = 200, description = "Action plan with items", body = inline(ApiResponse<ActionPlanWithItemsResponse>)),
+        (status = 200, description = "Action plan with items", body = ApiResponseActionPlanWithItemsResponse),
         (status = 404, description = "Action plan not found")
     )
 )]
@@ -271,7 +271,7 @@ pub async fn get_action_plan_with_items(
         ("limit" = Option<u32>, Query, description = "Page size (default 20)")
     ),
     responses(
-        (status = 200, description = "Action plans list", body = inline(ApiResponse<PaginatedResponse<ActionPlanResponse>>))
+        (status = 200, description = "Action plans list", body = ApiResponsePaginatedActionPlanResponse)
     )
 )]
 pub async fn list_action_plans(
@@ -319,7 +319,7 @@ pub async fn list_action_plans(
     path = "/action-plans/assessment/{assessment_id}",
     params(("assessment_id" = Uuid, Path, description = "Assessment ID")),
     responses(
-        (status = 200, description = "Action plans list by assessment", body = inline(ApiResponse<PaginatedResponse<ActionPlanResponse>>))
+        (status = 200, description = "Action plans list by assessment", body = ApiResponsePaginatedActionPlanResponse)
     )
 )]
 pub async fn list_action_plans_by_assessment(
@@ -369,7 +369,7 @@ pub async fn list_action_plans_by_assessment(
     params(("id" = Uuid, Path, description = "Action plan ID")),
     request_body = UpdateActionPlanRequest,
     responses(
-        (status = 200, description = "Action plan updated", body = inline(ApiResponse<ActionPlanResponse>)),
+        (status = 200, description = "Action plan updated", body = ApiResponseActionPlanResponse),
         (status = 404, description = "Action plan not found")
     )
 )]
@@ -469,7 +469,7 @@ pub async fn delete_action_plan(
     params(("id" = Uuid, Path, description = "Action plan ID")),
     request_body = CreateActionItemRequest,
     responses(
-        (status = 200, description = "Action item created", body = inline(ApiResponse<ActionItemResponse>)),
+        (status = 200, description = "Action item created", body = ApiResponseActionItemResponse),
         (status = 404, description = "Action plan not found")
     )
 )]
@@ -538,7 +538,7 @@ pub async fn create_action_item(
         ("action_item_id" = Uuid, Path, description = "Action item ID")
     ),
     responses(
-        (status = 200, description = "Action item fetched", body = inline(ApiResponse<ActionItemResponse>)),
+        (status = 200, description = "Action item fetched", body = ApiResponseActionItemResponse),
         (status = 404, description = "Action item not found")
     )
 )]
@@ -594,7 +594,7 @@ pub async fn get_action_item(
     ),
     request_body = UpdateActionItemRequest,
     responses(
-        (status = 200, description = "Action item updated", body = inline(ApiResponse<ActionItemResponse>)),
+        (status = 200, description = "Action item updated", body = ApiResponseActionItemResponse),
         (status = 404, description = "Action item not found")
     )
 )]
