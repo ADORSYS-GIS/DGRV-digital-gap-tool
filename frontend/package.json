@@ -4,7 +4,6 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "predev": "node ../scripts/fetch_openapi.js",
     "dev": "vite",
     "build": "vite build",
     "build:dev": "vite build --mode development",
@@ -16,8 +15,7 @@
     "test:unit": "vitest",
     "coverage": "vitest run --coverage",
     "preview": "vite preview",
-    "codegen": "openapi-rq -i openapi.json -o ./src/openapi-rq -c fetch",
-    "postinstall": "npm run codegen"
+    "codegen": "openapi-rq -i openapi.json -o ./src/openapi-rq -c fetch"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

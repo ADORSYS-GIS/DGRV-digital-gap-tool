@@ -1,4 +1,4 @@
-import { OfflineEntity } from "./sync";
+import { OfflineEntity } from "@/types/sync";
 
 export type LevelType = "current" | "desired";
 export type LevelState = 1 | 2 | 3 | 4 | 5;

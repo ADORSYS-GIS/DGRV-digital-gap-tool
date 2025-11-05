@@ -14,6 +14,7 @@ import NotFound from "../pages/NotFound";
 import Dashboard from "../pages/user/Dashboard";
 import { ProtectedRoute } from "./ProtectedRoute";
 import AdminLayout from "@/layouts/AdminLayout";
+import SecondAdminLayout from "@/layouts/SecondAdminLayout";
 const ManageOrganizations = React.lazy(
   () => import("../pages/admin/ManageOrganizationsPage"),
 );
@@ -28,6 +29,12 @@ const ManageDimensions = React.lazy(
 );
 const ManageGapRecommendations = React.lazy(
   () => import("../pages/admin/ManageGapRecommendations"),
+);
+const SecondAdminDashboard = React.lazy(
+  () => import("../pages/second_admin/SecondAdminDashboard"),
+);
+const ManageCooperations = React.lazy(
+  () => import("../pages/second_admin/ManageCooperations.tsx"),
 );
 
 const routes = [
@@ -69,6 +76,23 @@ const routes = [
       {
         path: "manage-levels/:dimensionId",
         element: React.createElement(ManageDigitalisationLevels),
+      },
+    ],
+  },
+  {
+    path: "/second-admin",
+    element: React.createElement(ProtectedRoute, {
+      allowedRoles: [ROLES.ADMIN],
+      children: React.createElement(SecondAdminLayout),
+    }),
+    children: [
+      {
+        path: "dashboard",
+        element: React.createElement(SecondAdminDashboard),
+      },
+      {
+        path: "cooperations",
+        element: React.createElement(ManageCooperations),
       },
     ],
   },
