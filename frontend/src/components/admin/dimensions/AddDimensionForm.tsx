@@ -41,14 +41,19 @@ export const AddDimensionForm = ({
   const addDimensionMutation = useAddDimension();
 
   const onSubmit = (data: FormValues) => {
+    console.log("AddDimensionForm onSubmit triggered with data:", data);
     const payload = {
       name: data.name,
       ...(data.description && { description: data.description }),
     };
     addDimensionMutation.mutate(payload, {
       onSuccess: () => {
+        console.log("Dimension added successfully (frontend)");
         reset();
         onClose();
+      },
+      onError: (error) => {
+        console.error("Failed to add dimension (frontend):", error);
       },
     });
   };

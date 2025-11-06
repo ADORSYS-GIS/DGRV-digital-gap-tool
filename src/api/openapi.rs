@@ -1,12 +1,14 @@
 use axum::Router;
 use utoipa::OpenApi;
+use crate::entities::reports::ReportFormat;
 use utoipa_swagger_ui::SwaggerUi;
 
+use crate::api::dto::action_plan::*;
 use crate::api::dto::assessment::*;
 use crate::api::dto::common::*;
 use crate::api::dto::dimension::*;
+use crate::api::dto::gap::*;
 use crate::api::dto::report::*;
-use crate::api::dto::action_plan::*;
 
 #[derive(OpenApi)]
 #[openapi(
@@ -50,14 +52,52 @@ use crate::api::dto::action_plan::*;
         crate::api::handlers::action_plan::get_action_item,
         crate::api::handlers::action_plan::update_action_item,
         crate::api::handlers::action_plan::delete_action_item,
+        // Gaps
+        crate::api::handlers::gap::create_gap,
+        crate::api::handlers::gap::get_gap,
+        crate::api::handlers::gap::list_gaps,
+        crate::api::handlers::gap::list_gaps_by_dimension_assessment,
+        crate::api::handlers::gap::list_gaps_by_assessment,
+        // Admin config for gaps
+        crate::api::handlers::gap::set_severity_rules,
+        crate::api::handlers::gap::set_gap_description,
     ),
     components(
         schemas(
-            ApiResponse<AssessmentResponse>,
-            ApiResponse<AssessmentSummaryResponse>,
-            ApiResponse<DimensionAssessmentResponse>,
-            PaginatedResponse<AssessmentResponse>,
+            // Common
             PaginationParams,
+            SortOrder,
+            EmptyResponse,
+            ApiResponseEmpty,
+            // ApiResponse aliases for Action Plans
+            ApiResponseActionPlanResponse,
+            ApiResponseActionPlanWithItemsResponse,
+            ApiResponseActionItemResponse,
+            ApiResponsePaginatedActionPlanResponse,
+            // ApiResponse aliases for Reports
+            ApiResponseReportResponse,
+            ApiResponseReportDownloadResponse,
+            ApiResponseReportStatusResponse,
+            ApiResponsePaginatedReportResponse,
+            // ApiResponse aliases for Assessments & Dimensions
+            ApiResponseAssessmentResponse,
+            ApiResponsePaginatedAssessmentResponse,
+            ApiResponseAssessmentSummaryResponse,
+            ApiResponseDimensionAssessmentResponse,
+            ApiResponseDimensionResponse,
+            ApiResponsePaginatedDimensionResponse,
+            ApiResponseCurrentStateResponse,
+            ApiResponseDesiredStateResponse,
+            ApiResponseDimensionWithStatesResponse,
+            // ApiResponse aliases for Gaps
+            ApiResponseGapResponse,
+            ApiResponsePaginatedGapResponse,
+            // Paginated alias types
+            PaginatedActionPlanResponse,
+            PaginatedReportResponse,
+            PaginatedAssessmentResponse,
+            PaginatedGapResponse,
+            // Assessments
             CreateAssessmentRequest,
             UpdateAssessmentRequest,
             AssessmentResponse,
@@ -67,10 +107,6 @@ use crate::api::dto::action_plan::*;
             DimensionAssessmentResponse,
             AssessmentSummaryResponse,
             // Dimensions
-            ApiResponse<DimensionResponse>,
-            ApiResponse<PaginatedResponse<DimensionResponse>>,
-            ApiResponse<CurrentStateResponse>,
-            ApiResponse<DesiredStateResponse>,
             CreateDimensionRequest,
             UpdateDimensionRequest,
             DimensionResponse,
@@ -83,22 +119,16 @@ use crate::api::dto::action_plan::*;
             DimensionWithStatesResponse,
             DimensionListResponse,
             // Reports
-            ApiResponse<ReportResponse>,
-            ApiResponse<ReportDownloadResponse>,
-            ApiResponse<PaginatedResponse<ReportResponse>>,
             GenerateReportRequest,
             UpdateReportRequest,
             ReportResponse,
             ReportType,
+            ReportFormat,
             ReportStatus,
             ReportDownloadResponse,
             ReportListResponse,
             ReportStatusResponse,
             // Action Plans
-            ApiResponse<ActionPlanResponse>,
-            ApiResponse<ActionPlanWithItemsResponse>,
-            ApiResponse<PaginatedResponse<ActionPlanResponse>>,
-            ApiResponse<ActionItemResponse>,
             CreateActionPlanRequest,
             UpdateActionPlanRequest,
             ActionPlanResponse,
@@ -110,14 +140,24 @@ use crate::api::dto::action_plan::*;
             ActionItemPriority,
             ActionPlanWithItemsResponse,
             ActionPlanListResponse,
-            ActionItemListResponse
+            ActionItemListResponse,
+            // Gaps
+            CreateGapRequest,
+            GapResponse,
+            GapSeverity,
+            // Admin DTOs
+            SeverityRuleDto,
+            SetSeverityRulesRequest,
+            SetGapDescriptionRequest
         )
     ),
     tags(
         (name = "Assessments", description = "Assessment endpoints"),
         (name = "Dimensions", description = "Dimension endpoints"),
         (name = "Reports", description = "Report endpoints"),
-        (name = "Action Plans", description = "Action plan endpoints")
+        (name = "Action Plans", description = "Action plan endpoints"),
+        (name = "Gaps", description = "Gap endpoints"),
+        (name = "Admin", description = "Administrative configuration endpoints")
     )
 )]
 pub struct ApiDoc;
@@ -127,6 +167,5 @@ where
     S: Clone + Send + Sync + 'static,
 {
     let openapi = ApiDoc::openapi();
-    Router::new()
-        .merge(SwaggerUi::new("/api/docs").url("/api/docs/openapi.json", openapi.clone()))
+    Router::new().merge(SwaggerUi::new("/api/docs").url("/api/docs/openapi.json", openapi.clone()))
 }

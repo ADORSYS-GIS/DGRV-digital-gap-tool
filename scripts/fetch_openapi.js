@@ -13,7 +13,7 @@ const https = require("node:https");
 // Change this to the correct eventserver OpenAPI endpoint if needed
 const OPENAPI_URL =
   process.env.EVENTSERVER_OPENAPI_URL ||
-  "http://localhost:8080/api/docs/openapi.json";
+  "http://127.0.0.1:8080/api/docs/openapi.json";
 const OUTPUT_PATH =
   process.env.OPENAPI_OUTPUT_PATH ||
   path.resolve(__dirname, "..", "frontend/openapi.json");

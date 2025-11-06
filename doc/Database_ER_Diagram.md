@@ -5,7 +5,7 @@
 ```mermaid
 erDiagram
     
-    DIMENSIONS {
+    DIMENSIONS {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
         uuid dimension_id PK
         string name UK
         text description
@@ -211,22 +211,24 @@ erDiagram
   - `current_score/desired_score`: Numerical scores (0-6) for gap calculation
 
 #### GAPS
-- **Purpose**: Store calculated analysis between current and desired states
+- **Purpose**: Store the calculated difference between the selected desired and current states for a given dimension assessment
+- **Derived From**: `DIMENSION_ASSESSMENTS.current_score` and `desired_score`
 - **Key Fields**:
-  - `gap_size`: Numerical difference (desired_score - current_score)
-  - `gap_severity`: Categorical level (LOW, MEDIUM, HIGH)
-  - `gap_description`: Detailed explanation of the gap
+  - `gap_size`: Numerical difference `desired_score - current_score` (computed at creation time)
+  - `gap_severity`: Categorical level derived from `gap_size` (LOW, MEDIUM, HIGH)
+  - `gap_description`: Optional admin/user note providing context
 
 ### Recommendation & Action Entities
 
 #### RECOMMENDATIONS
-- **Purpose**: Predefined template suggestions for specific dimensions and gap severities
+- **Purpose**: Admin-defined templates that suggest actions based on the gap for a specific dimension
+- **Admin Input Model**: Admins define recommendations per dimension and gap severity (i.e., per derived gap value bucket)
 - **Key Fields**:
-  - `dimension_id`: Which dimension this applies to (e.g., "Digital Culture")
+  - `dimension_id`: Dimension the recommendation targets
   - `gap_severity`: When to show this recommendation (LOW, MEDIUM, HIGH)
   - `priority`: Urgency level (URGENT, HIGH, MEDIUM, LOW)
   - `description`: Specific action recommendation
-  - **Example**: "For Digital Culture dimension, HIGH severity gaps, priority URGENT: Implement Digital Literacy Training Programs"
+  - **Example**: For the "Digital Culture" dimension, for HIGH severity gaps: "Implement Digital Literacy Training Programs"
 
 #### ASSESSMENT_RECOMMENDATIONS
 - **Purpose**: Track which recommendations were suggested and selected for each assessment
@@ -257,25 +259,40 @@ erDiagram
 - Supports localization through description fields
 
 ### 2. Gap Calculation & Analysis
-- Gaps are calculated and stored (desired_level - current_level)
-- Supports positive gaps (improvement needed), negative gaps (reduction desired), and zero gaps (no change)
+- Gaps are derived from `DIMENSION_ASSESSMENTS` selections and stored as records
+- Calculation: `gap_size = desired_score - current_score`
+- Severity bucketing: LOW (|gap| ≤ 1), MEDIUM (|gap| ∈ {2,3}), HIGH (|gap| ≥ 4)
+- Supports positive (improvement needed), negative (reduction desired), and zero gaps
 - Enables historical tracking and trend analysis
 
 ### 3. Smart Recommendation Engine
-- **Template-based**: Recommendations are predefined templates for specific dimension + gap range combinations
-- **Auto-matching**: System automatically finds applicable recommendations based on calculated gaps
-- **User Selection**: Users can choose which recommended actions to pursue
-- **Example Flow**: 
-  - Gap calculated: Technology dimension, +3 improvement needed
-  - System finds: All recommendations for Technology dimension where min_gap_value ≤ 3 ≤ max_gap_value
+- **Template-based**: Admins provide templates per dimension and gap severity bucket
+- **Auto-matching**: The system selects recommendations for the gap's dimension where `gap_severity` matches the computed severity
+- **User Selection**: Users choose which recommended actions to pursue
+- **Example Flow**:
+  - Gap calculated: Technology dimension, +3 (MEDIUM severity)
+  - System finds: All recommendations for Technology dimension with `gap_severity = MEDIUM`
   - User selects: Which recommendations to implement
+
+## Gap Calculation Logic
+- Source: `DIMENSION_ASSESSMENTS` row selected for a dimension within an assessment
+- Compute: `gap_size = desired_score - current_score`
+- Severity mapping (default):
+  - `|gap_size| <= 1` → LOW
+  - `|gap_size| in {2,3}` → MEDIUM
+  - `|gap_size| >= 4` → HIGH
+- Persisted fields in `GAPS`: `gap_size`, `gap_severity`, `dimension_id` (from the dimension assessment), `dimension_assessment_id`
+
+## Recommendation Mapping Logic
+- Match by: `dimension_id` and `gap_severity`
+- Admins manage recommendation catalogs per dimension for each severity bucket
+- This model supports custom recommendations “per value” via the severity bucket mapping; if finer granularity is required (e.g., per exact `gap_size` range), the schema can be extended later with min/max gap fields.
 
 ### 4. Audit Trail
 - All entities include created_at/updated_at timestamps
 - Assessment history is preserved
 - Enables compliance and progress tracking
 
-### 5. Multi-tenancy Support
 - Organization-based data separation through Keycloak JWT tokens
 - User identity verified through Keycloak authentication
 - Assessments are scoped to organizations via JWT claims

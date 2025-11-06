@@ -1,5 +1,5 @@
-use serde::Deserialize;
 use envconfig::Envconfig;
+use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
 pub struct Config {
@@ -24,7 +24,10 @@ pub struct MinioConfig {
 
 #[derive(Envconfig)]
 struct ConfigEnv {
-    #[envconfig(from = "DGAT_DATABASE_URL", default = "postgres://postgres:postgres@localhost:5433/dgat")]
+    #[envconfig(
+        from = "DGAT_DATABASE_URL",
+        default = "postgres://postgres:postgres@localhost:5433/dgat"
+    )]
     database_url: String,
 
     #[envconfig(from = "DGAT_PORT", default = "8080")]
@@ -88,5 +91,5 @@ impl Config {
 }
 
 pub fn load_config() -> anyhow::Result<Config> {
-    Config::from_env().map_err(|e| anyhow::anyhow!("Failed to load configuration: {}", e))
+    Config::from_env().map_err(|e| anyhow::anyhow!("Failed to load configuration: {e}"))
 }

@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Dimension } from "@/types/dimension";
-import { db } from "@/services/db";
+import { IDimension } from "@/types/dimension";
+import { dimensionRepository } from "@/services/dimensions/dimensionRepository";
 
 export const useUpdateDimension = () => {
   const queryClient = useQueryClient();
@@ -12,22 +12,9 @@ export const useUpdateDimension = () => {
       dimension,
     }: {
       id: string;
-      dimension: Partial<Dimension>;
+      dimension: Partial<IDimension>;
     }) => {
-      const dimensionToUpdate: Partial<Dimension> = {
-        ...dimension,
-        syncStatus: "pending",
-        lastModified: new Date().toISOString(),
-      };
-
-      await db.transaction("rw", db.dimensions, db.sync_queue, async () => {
-        await db.dimensions.update(id, dimensionToUpdate);
-        await db.sync_queue.add({
-          entity: "dimension",
-          action: "update",
-          payload: { id, ...dimensionToUpdate },
-        });
-      });
+      return dimensionRepository.update(id, dimension);
     },
     onSuccess: () => {
       toast.success("Dimension updated successfully");

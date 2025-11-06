@@ -1,20 +1,13 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { db } from "@/services/db";
+import { dimensionRepository } from "@/services/dimensions/dimensionRepository";
 
 export const useDeleteDimension = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (id: string) => {
-      await db.transaction("rw", db.dimensions, db.sync_queue, async () => {
-        await db.sync_queue.add({
-          entity: "dimension",
-          action: "delete",
-          payload: { id },
-        });
-        await db.dimensions.delete(id);
-      });
+      return dimensionRepository.delete(id);
     },
     onSuccess: () => {
       toast.success("Dimension deleted successfully");

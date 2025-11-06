@@ -3,23 +3,26 @@ use axum::{
     http::StatusCode,
     response::Json,
 };
-use uuid::Uuid;
 use sea_orm::DatabaseConnection;
 use std::sync::Arc;
+use uuid::Uuid;
 
 use crate::api::dto::{
     assessment::*,
-    common::{ApiResponse, PaginationParams, PaginatedResponse},
+    common::{ApiResponse, PaginatedResponse, PaginationParams},
 };
-use crate::api::handlers::common::{extract_pagination, success_response, success_response_with_message};
-use crate::repositories::{
-    assessments::AssessmentsRepository,
-    dimension_assessments::DimensionAssessmentsRepository,
+use crate::api::handlers::common::{
+    extract_pagination, success_response, success_response_with_message,
 };
 use crate::error::AppError;
+use crate::repositories::{
+    assessments::AssessmentsRepository, dimension_assessments::DimensionAssessmentsRepository,
+};
 
 // Conversion functions between entity and DTO types
-fn convert_entity_assessment_status_to_dto(entity_status: crate::entities::assessments::AssessmentStatus) -> AssessmentStatus {
+fn convert_entity_assessment_status_to_dto(
+    entity_status: crate::entities::assessments::AssessmentStatus,
+) -> AssessmentStatus {
     match entity_status {
         crate::entities::assessments::AssessmentStatus::Draft => AssessmentStatus::Draft,
         crate::entities::assessments::AssessmentStatus::InProgress => AssessmentStatus::InProgress,
@@ -28,7 +31,9 @@ fn convert_entity_assessment_status_to_dto(entity_status: crate::entities::asses
     }
 }
 
-fn convert_dto_assessment_status_to_entity(dto_status: AssessmentStatus) -> crate::entities::assessments::AssessmentStatus {
+fn convert_dto_assessment_status_to_entity(
+    dto_status: AssessmentStatus,
+) -> crate::entities::assessments::AssessmentStatus {
     match dto_status {
         AssessmentStatus::Draft => crate::entities::assessments::AssessmentStatus::Draft,
         AssessmentStatus::InProgress => crate::entities::assessments::AssessmentStatus::InProgress,
@@ -42,7 +47,7 @@ fn convert_dto_assessment_status_to_entity(dto_status: AssessmentStatus) -> crat
     path = "/assessments",
     request_body = CreateAssessmentRequest,
     responses(
-        (status = 200, description = "Assessment created", body = ApiResponse<AssessmentResponse>)
+        (status = 200, description = "Assessment created", body = ApiResponseAssessmentResponse)
     )
 )]
 /// Create a new assessment
@@ -79,7 +84,10 @@ pub async fn create_assessment(
         metadata: assessment.metadata,
     };
 
-    Ok(success_response_with_message(response, "Assessment created successfully".to_string()))
+    Ok(success_response_with_message(
+        response,
+        "Assessment created successfully".to_string(),
+    ))
 }
 
 #[utoipa::path(
@@ -87,7 +95,7 @@ pub async fn create_assessment(
     path = "/assessments/{id}",
     params(("id" = Uuid, Path, description = "Assessment ID")),
     responses(
-        (status = 200, description = "Assessment fetched", body = ApiResponse<AssessmentResponse>),
+        (status = 200, description = "Assessment fetched", body = ApiResponseAssessmentResponse),
         (status = 404, description = "Assessment not found")
     )
 )]
@@ -99,7 +107,11 @@ pub async fn get_assessment(
     let assessment = AssessmentsRepository::find_by_id(db.as_ref(), assessment_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?
-        .ok_or_else(|| crate::api::handlers::common::handle_error(AppError::NotFound("Assessment not found".to_string())))?;
+        .ok_or_else(|| {
+            crate::api::handlers::common::handle_error(AppError::NotFound(
+                "Assessment not found".to_string(),
+            ))
+        })?;
 
     let response = AssessmentResponse {
         assessment_id: assessment.assessment_id,
@@ -123,7 +135,7 @@ pub async fn get_assessment(
     path = "/assessments/{id}/summary",
     params(("id" = Uuid, Path, description = "Assessment ID")),
     responses(
-        (status = 200, description = "Assessment summary", body = ApiResponse<AssessmentSummaryResponse>),
+        (status = 200, description = "Assessment summary", body = ApiResponseAssessmentSummaryResponse),
         (status = 404, description = "Assessment not found")
     )
 )]
@@ -136,17 +148,23 @@ pub async fn get_assessment_summary(
     let assessment = AssessmentsRepository::find_by_id(db.as_ref(), assessment_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?
-        .ok_or_else(|| crate::api::handlers::common::handle_error(AppError::NotFound("Assessment not found".to_string())))?;
+        .ok_or_else(|| {
+            crate::api::handlers::common::handle_error(AppError::NotFound(
+                "Assessment not found".to_string(),
+            ))
+        })?;
 
     // Get dimension assessments
-    let dimension_assessments = DimensionAssessmentsRepository::find_by_assessment_id(db.as_ref(), assessment_id)
-        .await
-        .map_err(crate::api::handlers::common::handle_error)?;
+    let dimension_assessments =
+        DimensionAssessmentsRepository::find_by_assessment_id(db.as_ref(), assessment_id)
+            .await
+            .map_err(crate::api::handlers::common::handle_error)?;
 
     // Get gaps count
-    let gaps = crate::repositories::gaps::GapsRepository::find_by_assessment(db.as_ref(), assessment_id)
-        .await
-        .map_err(crate::api::handlers::common::handle_error)?;
+    let gaps =
+        crate::repositories::gaps::GapsRepository::find_by_assessment(db.as_ref(), assessment_id)
+            .await
+            .map_err(crate::api::handlers::common::handle_error)?;
 
     // Get recommendations count - TODO: Implement when recommendations have assessment_id
     // let recommendations = RecommendationsRepository::find_by_assessment_id(&db, assessment_id)
@@ -198,14 +216,17 @@ pub async fn get_assessment_summary(
         ("limit" = Option<u32>, Query, description = "Page size (default 20)")
     ),
     responses(
-        (status = 200, description = "Assessments list", body = ApiResponse<PaginatedResponse<AssessmentResponse>>)
+        (status = 200, description = "Assessments list", body = ApiResponsePaginatedAssessmentResponse)
     )
 )]
 /// List assessments with pagination
 pub async fn list_assessments(
     State(db): State<Arc<DatabaseConnection>>,
     Query(params): Query<PaginationParams>,
-) -> Result<Json<ApiResponse<PaginatedResponse<AssessmentResponse>>>, (StatusCode, Json<serde_json::Value>)> {
+) -> Result<
+    Json<ApiResponse<PaginatedResponse<AssessmentResponse>>>,
+    (StatusCode, Json<serde_json::Value>),
+> {
     let (page, limit, _sort_by, _sort_order) = extract_pagination(Query(params));
     let offset = ((page - 1) * limit) as u64;
 
@@ -243,7 +264,7 @@ pub async fn list_assessments(
     params(("id" = Uuid, Path, description = "Assessment ID")),
     request_body = UpdateAssessmentRequest,
     responses(
-        (status = 200, description = "Assessment updated", body = ApiResponse<AssessmentResponse>),
+        (status = 200, description = "Assessment updated", body = ApiResponseAssessmentResponse),
         (status = 404, description = "Assessment not found")
     )
 )]
@@ -256,7 +277,11 @@ pub async fn update_assessment(
     let mut assessment = AssessmentsRepository::find_by_id(db.as_ref(), assessment_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?
-        .ok_or_else(|| crate::api::handlers::common::handle_error(AppError::NotFound("Assessment not found".to_string())))?;
+        .ok_or_else(|| {
+            crate::api::handlers::common::handle_error(AppError::NotFound(
+                "Assessment not found".to_string(),
+            ))
+        })?;
 
     // Update fields if provided
     if let Some(document_title) = request.document_title {
@@ -281,9 +306,10 @@ pub async fn update_assessment(
     assessment.updated_at = chrono::Utc::now();
 
     let active_model: crate::entities::assessments::ActiveModel = assessment.into();
-    let updated_assessment = AssessmentsRepository::update(db.as_ref(), assessment_id, active_model)
-        .await
-        .map_err(crate::api::handlers::common::handle_error)?;
+    let updated_assessment =
+        AssessmentsRepository::update(db.as_ref(), assessment_id, active_model)
+            .await
+            .map_err(crate::api::handlers::common::handle_error)?;
 
     let response = AssessmentResponse {
         assessment_id: updated_assessment.assessment_id,
@@ -299,7 +325,10 @@ pub async fn update_assessment(
         metadata: updated_assessment.metadata,
     };
 
-    Ok(success_response_with_message(response, "Assessment updated successfully".to_string()))
+    Ok(success_response_with_message(
+        response,
+        "Assessment updated successfully".to_string(),
+    ))
 }
 
 #[utoipa::path(
@@ -319,7 +348,10 @@ pub async fn delete_assessment(
         .await
         .map_err(crate::api::handlers::common::handle_error)?;
 
-    Ok(success_response_with_message((), "Assessment deleted successfully".to_string()))
+    Ok(success_response_with_message(
+        (),
+        "Assessment deleted successfully".to_string(),
+    ))
 }
 
 #[utoipa::path(
@@ -328,7 +360,7 @@ pub async fn delete_assessment(
     params(("id" = Uuid, Path, description = "Assessment ID")),
     request_body = CreateDimensionAssessmentRequest,
     responses(
-        (status = 200, description = "Dimension assessment created", body = ApiResponse<DimensionAssessmentResponse>),
+        (status = 200, description = "Dimension assessment created", body = ApiResponseDimensionAssessmentResponse),
         (status = 404, description = "Assessment not found")
     )
 )]
@@ -356,7 +388,10 @@ pub async fn create_dimension_assessment(
         updated_at: dimension_assessment.updated_at,
     };
 
-    Ok(success_response_with_message(response, "Dimension assessment created successfully".to_string()))
+    Ok(success_response_with_message(
+        response,
+        "Dimension assessment created successfully".to_string(),
+    ))
 }
 
 #[utoipa::path(
@@ -368,7 +403,7 @@ pub async fn create_dimension_assessment(
     ),
     request_body = UpdateDimensionAssessmentRequest,
     responses(
-        (status = 200, description = "Dimension assessment updated", body = ApiResponse<DimensionAssessmentResponse>),
+        (status = 200, description = "Dimension assessment updated", body = ApiResponseDimensionAssessmentResponse),
         (status = 404, description = "Dimension assessment not found")
     )
 )]
@@ -378,14 +413,23 @@ pub async fn update_dimension_assessment(
     Path((assessment_id, dimension_assessment_id)): Path<(Uuid, Uuid)>,
     Json(_request): Json<UpdateDimensionAssessmentRequest>,
 ) -> Result<Json<ApiResponse<DimensionAssessmentResponse>>, (StatusCode, Json<serde_json::Value>)> {
-    let mut dimension_assessment = DimensionAssessmentsRepository::find_by_id(db.as_ref(), dimension_assessment_id)
-        .await
-        .map_err(crate::api::handlers::common::handle_error)?
-        .ok_or_else(|| crate::api::handlers::common::handle_error(AppError::NotFound("Dimension assessment not found".to_string())))?;
+    let mut dimension_assessment =
+        DimensionAssessmentsRepository::find_by_id(db.as_ref(), dimension_assessment_id)
+            .await
+            .map_err(crate::api::handlers::common::handle_error)?
+            .ok_or_else(|| {
+                crate::api::handlers::common::handle_error(AppError::NotFound(
+                    "Dimension assessment not found".to_string(),
+                ))
+            })?;
 
     // Verify it belongs to the assessment
     if dimension_assessment.assessment_id != assessment_id {
-        return Err(crate::api::handlers::common::handle_error(AppError::ValidationError("Dimension assessment does not belong to this assessment".to_string())));
+        return Err(crate::api::handlers::common::handle_error(
+            AppError::ValidationError(
+                "Dimension assessment does not belong to this assessment".to_string(),
+            ),
+        ));
     }
 
     // Update fields if provided
@@ -393,10 +437,12 @@ pub async fn update_dimension_assessment(
 
     dimension_assessment.updated_at = chrono::Utc::now();
 
-    let active_model: crate::entities::dimension_assessments::ActiveModel = dimension_assessment.into();
-    let updated_dimension_assessment = DimensionAssessmentsRepository::update(db.as_ref(), dimension_assessment_id, active_model)
-        .await
-        .map_err(crate::api::handlers::common::handle_error)?;
+    let active_model: crate::entities::dimension_assessments::ActiveModel =
+        dimension_assessment.into();
+    let updated_dimension_assessment =
+        DimensionAssessmentsRepository::update(db.as_ref(), dimension_assessment_id, active_model)
+            .await
+            .map_err(crate::api::handlers::common::handle_error)?;
 
     let response = DimensionAssessmentResponse {
         dimension_assessment_id: updated_dimension_assessment.dimension_assessment_id,
@@ -406,5 +452,8 @@ pub async fn update_dimension_assessment(
         updated_at: updated_dimension_assessment.updated_at,
     };
 
-    Ok(success_response_with_message(response, "Dimension assessment updated successfully".to_string()))
+    Ok(success_response_with_message(
+        response,
+        "Dimension assessment updated successfully".to_string(),
+    ))
 }

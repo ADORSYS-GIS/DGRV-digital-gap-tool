@@ -52,9 +52,10 @@ aws-config = "1.8.6"
 aws-credential-types = "1.2.6"
 
 # OpenAPI / Swagger
-utoipa = { version = "4", features = ["chrono", "uuid"] }
-utoipa-axum = "0.2.0"
-utoipa-swagger-ui = { version = "7.1.0", features = ["axum"] }
+utoipa = { version = "4", features = ["chrono", "uuid", "decimal"] }
+utoipa-axum = { version = "0.1" }
+utoipa-swagger-ui = { version = "6", features = ["axum"] }
+openapiv3 = "2.0"
 
 [dev-dependencies]
 sea-orm = { version = "0.12", features = ["mock"] }

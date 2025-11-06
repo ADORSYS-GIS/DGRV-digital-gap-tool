@@ -1,11 +1,7 @@
-use axum::{
-    http::StatusCode,
-    response::Json,
-    extract::Query,
-};
-use serde_json::json;
 use crate::api::dto::common::{ApiResponse, PaginationParams};
 use crate::error::AppError;
+use axum::{extract::Query, http::StatusCode, response::Json};
+use serde_json::json;
 
 /// Health check endpoint
 pub async fn health_check() -> Json<serde_json::Value> {
@@ -36,8 +32,11 @@ pub fn handle_error(error: AppError) -> (StatusCode, Json<serde_json::Value>) {
 /// Extract pagination parameters from query string
 pub fn extract_pagination(query: Query<PaginationParams>) -> (u32, u32, String, String) {
     let page = query.page.unwrap_or(1).max(1);
-    let limit = query.limit.unwrap_or(20).min(100).max(1);
-    let sort_by = query.sort_by.clone().unwrap_or_else(|| "created_at".to_string());
+    let limit = query.limit.unwrap_or(20).clamp(1, 100);
+    let sort_by = query
+        .sort_by
+        .clone()
+        .unwrap_or_else(|| "created_at".to_string());
     let sort_order = match &query.sort_order {
         Some(order) => match order {
             crate::api::dto::common::SortOrder::Asc => "ASC".to_string(),
@@ -45,7 +44,7 @@ pub fn extract_pagination(query: Query<PaginationParams>) -> (u32, u32, String, 
         },
         None => "DESC".to_string(),
     };
-    
+
     (page, limit, sort_by, sort_order)
 }
 

@@ -3,24 +3,27 @@ use axum::{
     http::StatusCode,
     response::Json,
 };
-use uuid::Uuid;
 use sea_orm::DatabaseConnection;
 use std::sync::Arc;
+use uuid::Uuid;
 
 use crate::api::dto::{
     action_plan::*,
-    common::{ApiResponse, PaginationParams, PaginatedResponse},
+    common::{ApiResponse, PaginatedResponse, PaginationParams},
+};
+use crate::api::handlers::common::{
+    extract_pagination, success_response, success_response_with_message,
 };
 use crate::entities::{
+    action_items::{
+        ActionItemPriority as EntityActionItemPriority, ActionItemStatus as EntityActionItemStatus,
+    },
     action_plans::ActionPlanStatus as EntityActionPlanStatus,
-    action_items::{ActionItemStatus as EntityActionItemStatus, ActionItemPriority as EntityActionItemPriority},
-};
-use crate::api::handlers::common::{extract_pagination, success_response, success_response_with_message};
-use crate::repositories::{
-    action_plans::ActionPlansRepository,
-    action_items::ActionItemsRepository,
 };
 use crate::error::AppError;
+use crate::repositories::{
+    action_items::ActionItemsRepository, action_plans::ActionPlansRepository,
+};
 
 // Conversion functions between entity and DTO types
 fn convert_entity_priority_to_dto(entity_priority: EntityActionItemPriority) -> ActionItemPriority {
@@ -83,7 +86,7 @@ fn convert_dto_item_status_to_entity(dto_status: ActionItemStatus) -> EntityActi
     path = "/action-plans",
     request_body = CreateActionPlanRequest,
     responses(
-        (status = 200, description = "Action plan created", body = ApiResponse<ActionPlanResponse>)
+        (status = 200, description = "Action plan created", body = ApiResponseActionPlanResponse)
     )
 )]
 pub async fn create_action_plan(
@@ -95,11 +98,15 @@ pub async fn create_action_plan(
         report_id: sea_orm::Set(request.report_id),
         title: sea_orm::Set(request.title),
         description: sea_orm::Set(request.description),
-        priority: sea_orm::Set(convert_dto_priority_to_entity(request.priority.unwrap_or(ActionItemPriority::Medium))),
+        priority: sea_orm::Set(convert_dto_priority_to_entity(
+            request.priority.unwrap_or(ActionItemPriority::Medium),
+        )),
         target_completion_date: sea_orm::Set(request.target_completion_date),
         estimated_budget: sea_orm::Set(request.estimated_budget),
         responsible_person: sea_orm::Set(request.responsible_person),
-        status: sea_orm::Set(convert_dto_status_to_entity(request.status.unwrap_or(ActionPlanStatus::Draft))),
+        status: sea_orm::Set(convert_dto_status_to_entity(
+            request.status.unwrap_or(ActionPlanStatus::Draft),
+        )),
         ..Default::default()
     };
 
@@ -122,7 +129,10 @@ pub async fn create_action_plan(
         updated_at: action_plan.updated_at,
     };
 
-    Ok(success_response_with_message(response, "Action plan created successfully".to_string()))
+    Ok(success_response_with_message(
+        response,
+        "Action plan created successfully".to_string(),
+    ))
 }
 
 /// Get action plan by ID
@@ -131,7 +141,7 @@ pub async fn create_action_plan(
     path = "/action-plans/{id}",
     params(("id" = Uuid, Path, description = "Action plan ID")),
     responses(
-        (status = 200, description = "Action plan fetched", body = ApiResponse<ActionPlanResponse>),
+        (status = 200, description = "Action plan fetched", body = ApiResponseActionPlanResponse),
         (status = 404, description = "Action plan not found")
     )
 )]
@@ -142,7 +152,11 @@ pub async fn get_action_plan(
     let action_plan = ActionPlansRepository::find_by_id(db.as_ref(), action_plan_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?
-        .ok_or_else(|| crate::api::handlers::common::handle_error(AppError::NotFound("Action plan not found".to_string())))?;
+        .ok_or_else(|| {
+            crate::api::handlers::common::handle_error(AppError::NotFound(
+                "Action plan not found".to_string(),
+            ))
+        })?;
 
     let response = ActionPlanResponse {
         action_plan_id: action_plan.action_plan_id,
@@ -168,7 +182,7 @@ pub async fn get_action_plan(
     path = "/action-plans/{id}/with-items",
     params(("id" = Uuid, Path, description = "Action plan ID")),
     responses(
-        (status = 200, description = "Action plan with items", body = ApiResponse<ActionPlanWithItemsResponse>),
+        (status = 200, description = "Action plan with items", body = ApiResponseActionPlanWithItemsResponse),
         (status = 404, description = "Action plan not found")
     )
 )]
@@ -180,7 +194,11 @@ pub async fn get_action_plan_with_items(
     let action_plan = ActionPlansRepository::find_by_id(db.as_ref(), action_plan_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?
-        .ok_or_else(|| crate::api::handlers::common::handle_error(AppError::NotFound("Action plan not found".to_string())))?;
+        .ok_or_else(|| {
+            crate::api::handlers::common::handle_error(AppError::NotFound(
+                "Action plan not found".to_string(),
+            ))
+        })?;
 
     // Get action items
     let action_items = ActionItemsRepository::find_by_action_plan(db.as_ref(), action_plan_id)
@@ -253,13 +271,16 @@ pub async fn get_action_plan_with_items(
         ("limit" = Option<u32>, Query, description = "Page size (default 20)")
     ),
     responses(
-        (status = 200, description = "Action plans list", body = ApiResponse<PaginatedResponse<ActionPlanResponse>>)
+        (status = 200, description = "Action plans list", body = ApiResponsePaginatedActionPlanResponse)
     )
 )]
 pub async fn list_action_plans(
     State(db): State<Arc<DatabaseConnection>>,
     Query(params): Query<PaginationParams>,
-) -> Result<Json<ApiResponse<PaginatedResponse<ActionPlanResponse>>>, (StatusCode, Json<serde_json::Value>)> {
+) -> Result<
+    Json<ApiResponse<PaginatedResponse<ActionPlanResponse>>>,
+    (StatusCode, Json<serde_json::Value>),
+> {
     let (page, limit, _sort_by, _sort_order) = extract_pagination(Query(params));
     let offset = ((page - 1) * limit) as u64;
 
@@ -298,14 +319,17 @@ pub async fn list_action_plans(
     path = "/action-plans/assessment/{assessment_id}",
     params(("assessment_id" = Uuid, Path, description = "Assessment ID")),
     responses(
-        (status = 200, description = "Action plans list by assessment", body = ApiResponse<PaginatedResponse<ActionPlanResponse>>)
+        (status = 200, description = "Action plans list by assessment", body = ApiResponsePaginatedActionPlanResponse)
     )
 )]
 pub async fn list_action_plans_by_assessment(
     State(db): State<Arc<DatabaseConnection>>,
     Path(assessment_id): Path<Uuid>,
     Query(params): Query<PaginationParams>,
-) -> Result<Json<ApiResponse<PaginatedResponse<ActionPlanResponse>>>, (StatusCode, Json<serde_json::Value>)> {
+) -> Result<
+    Json<ApiResponse<PaginatedResponse<ActionPlanResponse>>>,
+    (StatusCode, Json<serde_json::Value>),
+> {
     let (page, limit, _sort_by, _sort_order) = extract_pagination(Query(params));
     let offset = ((page - 1) * limit) as u64;
 
@@ -345,7 +369,7 @@ pub async fn list_action_plans_by_assessment(
     params(("id" = Uuid, Path, description = "Action plan ID")),
     request_body = UpdateActionPlanRequest,
     responses(
-        (status = 200, description = "Action plan updated", body = ApiResponse<ActionPlanResponse>),
+        (status = 200, description = "Action plan updated", body = ApiResponseActionPlanResponse),
         (status = 404, description = "Action plan not found")
     )
 )]
@@ -357,7 +381,11 @@ pub async fn update_action_plan(
     let mut action_plan = ActionPlansRepository::find_by_id(db.as_ref(), action_plan_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?
-        .ok_or_else(|| crate::api::handlers::common::handle_error(AppError::NotFound("Action plan not found".to_string())))?;
+        .ok_or_else(|| {
+            crate::api::handlers::common::handle_error(AppError::NotFound(
+                "Action plan not found".to_string(),
+            ))
+        })?;
 
     // Update fields if provided
     if let Some(title) = request.title {
@@ -385,9 +413,10 @@ pub async fn update_action_plan(
     action_plan.updated_at = chrono::Utc::now();
 
     let active_model: crate::entities::action_plans::ActiveModel = action_plan.into();
-    let updated_action_plan = ActionPlansRepository::update(db.as_ref(), action_plan_id, active_model)
-        .await
-        .map_err(crate::api::handlers::common::handle_error)?;
+    let updated_action_plan =
+        ActionPlansRepository::update(db.as_ref(), action_plan_id, active_model)
+            .await
+            .map_err(crate::api::handlers::common::handle_error)?;
 
     let response = ActionPlanResponse {
         action_plan_id: updated_action_plan.action_plan_id,
@@ -404,7 +433,10 @@ pub async fn update_action_plan(
         updated_at: updated_action_plan.updated_at,
     };
 
-    Ok(success_response_with_message(response, "Action plan updated successfully".to_string()))
+    Ok(success_response_with_message(
+        response,
+        "Action plan updated successfully".to_string(),
+    ))
 }
 
 /// Delete action plan
@@ -424,7 +456,10 @@ pub async fn delete_action_plan(
         .await
         .map_err(crate::api::handlers::common::handle_error)?;
 
-    Ok(success_response_with_message((), "Action plan deleted successfully".to_string()))
+    Ok(success_response_with_message(
+        (),
+        "Action plan deleted successfully".to_string(),
+    ))
 }
 
 /// Create action item
@@ -434,7 +469,7 @@ pub async fn delete_action_plan(
     params(("id" = Uuid, Path, description = "Action plan ID")),
     request_body = CreateActionItemRequest,
     responses(
-        (status = 200, description = "Action item created", body = ApiResponse<ActionItemResponse>),
+        (status = 200, description = "Action item created", body = ApiResponseActionItemResponse),
         (status = 404, description = "Action plan not found")
     )
 )]
@@ -447,7 +482,11 @@ pub async fn create_action_item(
     ActionPlansRepository::find_by_id(db.as_ref(), action_plan_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?
-        .ok_or_else(|| crate::api::handlers::common::handle_error(AppError::NotFound("Action plan not found".to_string())))?;
+        .ok_or_else(|| {
+            crate::api::handlers::common::handle_error(AppError::NotFound(
+                "Action plan not found".to_string(),
+            ))
+        })?;
 
     let active_model = crate::entities::action_items::ActiveModel {
         action_plan_id: sea_orm::Set(action_plan_id),
@@ -484,7 +523,10 @@ pub async fn create_action_item(
         updated_at: action_item.updated_at,
     };
 
-    Ok(success_response_with_message(response, "Action item created successfully".to_string()))
+    Ok(success_response_with_message(
+        response,
+        "Action item created successfully".to_string(),
+    ))
 }
 
 /// Get action item by ID
@@ -496,7 +538,7 @@ pub async fn create_action_item(
         ("action_item_id" = Uuid, Path, description = "Action item ID")
     ),
     responses(
-        (status = 200, description = "Action item fetched", body = ApiResponse<ActionItemResponse>),
+        (status = 200, description = "Action item fetched", body = ApiResponseActionItemResponse),
         (status = 404, description = "Action item not found")
     )
 )]
@@ -507,11 +549,19 @@ pub async fn get_action_item(
     let action_item = ActionItemsRepository::find_by_id(db.as_ref(), action_item_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?
-        .ok_or_else(|| crate::api::handlers::common::handle_error(AppError::NotFound("Action item not found".to_string())))?;
+        .ok_or_else(|| {
+            crate::api::handlers::common::handle_error(AppError::NotFound(
+                "Action item not found".to_string(),
+            ))
+        })?;
 
     // Verify it belongs to the action plan
     if action_item.action_plan_id != action_plan_id {
-        return Err(crate::api::handlers::common::handle_error(AppError::ValidationError("Action item does not belong to this action plan".to_string())));
+        return Err(crate::api::handlers::common::handle_error(
+            AppError::ValidationError(
+                "Action item does not belong to this action plan".to_string(),
+            ),
+        ));
     }
 
     let response = ActionItemResponse {
@@ -544,7 +594,7 @@ pub async fn get_action_item(
     ),
     request_body = UpdateActionItemRequest,
     responses(
-        (status = 200, description = "Action item updated", body = ApiResponse<ActionItemResponse>),
+        (status = 200, description = "Action item updated", body = ApiResponseActionItemResponse),
         (status = 404, description = "Action item not found")
     )
 )]
@@ -556,11 +606,19 @@ pub async fn update_action_item(
     let mut action_item = ActionItemsRepository::find_by_id(db.as_ref(), action_item_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?
-        .ok_or_else(|| crate::api::handlers::common::handle_error(AppError::NotFound("Action item not found".to_string())))?;
+        .ok_or_else(|| {
+            crate::api::handlers::common::handle_error(AppError::NotFound(
+                "Action item not found".to_string(),
+            ))
+        })?;
 
     // Verify it belongs to the action plan
     if action_item.action_plan_id != action_plan_id {
-        return Err(crate::api::handlers::common::handle_error(AppError::ValidationError("Action item does not belong to this action plan".to_string())));
+        return Err(crate::api::handlers::common::handle_error(
+            AppError::ValidationError(
+                "Action item does not belong to this action plan".to_string(),
+            ),
+        ));
     }
 
     // Update fields if provided
@@ -595,9 +653,10 @@ pub async fn update_action_item(
     action_item.updated_at = chrono::Utc::now();
 
     let active_model: crate::entities::action_items::ActiveModel = action_item.into();
-    let updated_action_item = ActionItemsRepository::update(db.as_ref(), action_item_id, active_model)
-        .await
-        .map_err(crate::api::handlers::common::handle_error)?;
+    let updated_action_item =
+        ActionItemsRepository::update(db.as_ref(), action_item_id, active_model)
+            .await
+            .map_err(crate::api::handlers::common::handle_error)?;
 
     let response = ActionItemResponse {
         action_item_id: updated_action_item.action_item_id,
@@ -616,7 +675,10 @@ pub async fn update_action_item(
         updated_at: updated_action_item.updated_at,
     };
 
-    Ok(success_response_with_message(response, "Action item updated successfully".to_string()))
+    Ok(success_response_with_message(
+        response,
+        "Action item updated successfully".to_string(),
+    ))
 }
 
 /// Delete action item
@@ -639,15 +701,26 @@ pub async fn delete_action_item(
     let action_item = ActionItemsRepository::find_by_id(db.as_ref(), action_item_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?
-        .ok_or_else(|| crate::api::handlers::common::handle_error(AppError::NotFound("Action item not found".to_string())))?;
+        .ok_or_else(|| {
+            crate::api::handlers::common::handle_error(AppError::NotFound(
+                "Action item not found".to_string(),
+            ))
+        })?;
 
     if action_item.action_plan_id != action_plan_id {
-        return Err(crate::api::handlers::common::handle_error(AppError::ValidationError("Action item does not belong to this action plan".to_string())));
+        return Err(crate::api::handlers::common::handle_error(
+            AppError::ValidationError(
+                "Action item does not belong to this action plan".to_string(),
+            ),
+        ));
     }
 
     ActionItemsRepository::delete(db.as_ref(), action_item_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?;
 
-    Ok(success_response_with_message((), "Action item deleted successfully".to_string()))
+    Ok(success_response_with_message(
+        (),
+        "Action item deleted successfully".to_string(),
+    ))
 }

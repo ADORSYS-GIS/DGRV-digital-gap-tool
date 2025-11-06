@@ -1,6 +1,6 @@
+use rust_decimal::Decimal;
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
-use rust_decimal::Decimal;
 use std::str::FromStr;
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
@@ -45,13 +45,17 @@ impl FromStr for ActionItemStatus {
             "in_progress" => Ok(ActionItemStatus::InProgress),
             "completed" => Ok(ActionItemStatus::Completed),
             "cancelled" => Ok(ActionItemStatus::Cancelled),
-            _ => Err(format!("Invalid action item status: {}", s)),
+            _ => Err(format!("Invalid action item status: {s}")),
         }
     }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize)]
-#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "action_item_priority")]
+#[sea_orm(
+    rs_type = "String",
+    db_type = "Enum",
+    enum_name = "action_item_priority"
+)]
 pub enum ActionItemPriority {
     #[sea_orm(string_value = "low")]
     Low,
@@ -72,7 +76,7 @@ impl FromStr for ActionItemPriority {
             "medium" => Ok(ActionItemPriority::Medium),
             "high" => Ok(ActionItemPriority::High),
             "urgent" => Ok(ActionItemPriority::Urgent),
-            _ => Err(format!("Invalid action item priority: {}", s)),
+            _ => Err(format!("Invalid action item priority: {s}")),
         }
     }
 }
