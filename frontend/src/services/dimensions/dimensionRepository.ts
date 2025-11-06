@@ -1,9 +1,9 @@
-import { db } from "../db";
-import { IDimension, ICreateDimensionRequest } from "@/types/dimension";
-import { v4 as uuidv4 } from "uuid";
+import { getDimension, listDimensions } from "@/openapi-client/services.gen"; // Import API functions
+import { ICreateDimensionRequest, IDimension } from "@/types/dimension";
 import { SyncStatus } from "@/types/sync/index";
+import { v4 as uuidv4 } from "uuid";
+import { db } from "../db";
 import { syncService } from "../sync/syncService"; // Import syncService
-import { createDimension, deleteDimension, updateDimension, getDimension, listDimensions } from "@/openapi-client/services.gen"; // Import API functions
 
 export const dimensionRepository = {
   getAll: async (): Promise<IDimension[]> => {
