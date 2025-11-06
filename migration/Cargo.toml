@@ -15,7 +15,7 @@ sea-orm-migration = "0.12"
 tokio = { version = "1.0", features = ["full"] }
 
 [dependencies.sea-schema]
-version = "0.14"
+version = "0.15"
 default-features = false
 features = [
   "debug-print",

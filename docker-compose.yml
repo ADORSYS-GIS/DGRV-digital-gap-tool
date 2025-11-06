@@ -18,6 +18,30 @@ services:
       timeout: 3s
       retries: 20
     restart: unless-stopped
+    networks:
+      - dgat-network
+
+  # Uncomment this section to run your application in Docker
+  # app:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   container_name: dgat-backend
+  #   environment:
+  #     DGAT_DATABASE_URL: postgres://postgres:postgres@postgres:5432/dgat
+  #     DGAT_PORT: 8080
+  #   ports:
+  #     - "8080:8080"
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #   restart: unless-stopped
+  #   networks:
+  #     - dgat-network
 
 volumes:
   pg_data:
+
+networks:
+  dgat-network:
+    driver: bridge

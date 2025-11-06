@@ -7,16 +7,9 @@ pub struct Migration;
 impl MigrationTrait for Migration {
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         // Drop the min_gap_size and max_gap_size columns from the recommendations table
-        manager
-            .alter_table(
-                Table::alter()
-                    .table(Recommendations::Table)
-                    .drop_column(Recommendations::MinGapSize)
-                    .drop_column(Recommendations::MaxGapSize)
-                    .to_owned(),
-            )
-            .await?;
-
+        // Note: These columns were never created in the initial migration, so we skip this
+        // to avoid errors on fresh database installations
+        let _ = manager;
         Ok(())
     }
 

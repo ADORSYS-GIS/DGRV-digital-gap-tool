@@ -173,12 +173,6 @@ enum Assessments {
 }
 
 #[derive(DeriveIden)]
-enum Reports {
-    Table,
-    ReportId,
-}
-
-#[derive(DeriveIden)]
 enum Recommendations {
     Table,
     RecommendationId,
