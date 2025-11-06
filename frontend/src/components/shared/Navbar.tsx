@@ -22,17 +22,12 @@ import { ROLES } from "@/constants/roles";
 
 export const Navbar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const { isAuthenticated, user, login, logout } = useAuth();
+  const { isAuthenticated, user, login, logout, roles } = useAuth();
   const navigate = useNavigate();
 
-  const roles =
-    isAuthenticated && user
-      ? [...(user.roles || []), ...(user.realm_access?.roles || [])].map((r) =>
-          r.toLowerCase(),
-        )
-      : [];
-
-  const hasAdminRole = roles.includes(ROLES.ADMIN);
+  const hasAdminRole = roles
+    .map((r) => r.toLowerCase())
+    .includes(ROLES.ADMIN);
 
   // Helper to get user display name
   const getUserDisplay = () => {
@@ -45,13 +40,6 @@ export const Navbar = () => {
     if (!isAuthenticated || !user) {
       return "/";
     }
-
-    const roles = [
-      ...(user.roles || []),
-      ...(user.realm_access?.roles || []),
-    ].map((r) => r.toLowerCase());
-
-    const hasAdminRole = roles.includes(ROLES.ADMIN);
 
     if (hasAdminRole) {
       return "/admin/dashboard";

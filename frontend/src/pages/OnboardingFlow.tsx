@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/shared/useAuth";
 import OnboardingStep from "@/components/onboarding/OnboardingStep";
 import OnboardingCompletion from "@/components/onboarding/OnboardingCompletion";
 import ProgressIndicators from "@/components/onboarding/ProgressIndicators";
+import { ROLES } from "@/constants/roles";
 
 interface OnboardingStepData {
   icon: React.ComponentType<LucideProps>;
@@ -46,7 +47,7 @@ const onboardingSteps: OnboardingStepData[] = [
 ];
 
 export default function EnhancedOnboardingFlow() {
-  const { user } = useAuth();
+  const { user, roles } = useAuth();
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -90,25 +91,33 @@ export default function EnhancedOnboardingFlow() {
         `onboarding_completed_${user.sub}`,
       );
       if (hasCompletedOnboarding) {
-        if (user?.roles?.includes("Dgrv_Admin")) {
+        if (roles.includes(ROLES.ADMIN)) {
           navigate("/admin/dashboard");
-        } else if (user?.roles?.includes("Org_User")) {
+        } else if (roles.includes(ROLES.ORG_ADMIN)) {
+          navigate("/second-admin/dashboard");
+        } else if (roles.includes(ROLES.COOP_ADMIN)) {
+          navigate("/third-admin/dashboard");
+        } else if (roles.includes(ROLES.Org_User)) {
           navigate("/dashboard");
         } else {
-          navigate("/dashboard");
+          navigate("/");
         }
       }
     }
-  }, [user, navigate]);
+  }, [user, navigate, roles]);
 
   const handleGetStarted = () => {
     if (user?.sub) {
       localStorage.setItem(`onboarding_completed_${user.sub}`, "true");
     }
 
-    if (user?.roles?.includes("Dgrv_Admin")) {
+    if (roles.includes(ROLES.ADMIN)) {
       navigate("/admin/dashboard");
-    } else if (user?.roles?.includes("Org_User")) {
+    } else if (roles.includes(ROLES.ORG_ADMIN)) {
+      navigate("/second-admin/dashboard");
+    } else if (roles.includes(ROLES.COOP_ADMIN)) {
+      navigate("/third-admin/dashboard");
+    } else if (roles.includes(ROLES.Org_User)) {
       navigate("/dashboard");
     } else {
       navigate("/dashboard");
@@ -142,7 +151,6 @@ export default function EnhancedOnboardingFlow() {
         {showCompletion ? (
           <OnboardingCompletion
             isTransitioning={isTransitioning}
-            handleGetStarted={handleGetStarted}
             handlePrevious={handlePrevious}
           />
         ) : (

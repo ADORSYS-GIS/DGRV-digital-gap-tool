@@ -30,12 +30,10 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     if (!allowedRoles || allowedRoles.length === 0) return true;
     if (!user) return false;
 
-    const userRoles = [
-      ...(user.roles || []),
-      ...(user.realm_access?.roles || []),
-    ].map((r) => r.toLowerCase());
-
-    return allowedRoles.some((role) => userRoles.includes(role.toLowerCase()));
+    if (!user || !user.roles) return false;
+    return allowedRoles.some((role) =>
+      user.roles?.map((r) => r.toLowerCase()).includes(role.toLowerCase()),
+    );
   }, [user, allowedRoles]);
 
   if (loading) {

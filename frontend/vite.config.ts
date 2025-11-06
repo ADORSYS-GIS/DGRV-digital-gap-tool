@@ -9,7 +9,7 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8000,
     proxy: {
-      "/realms": {
+      "/auth": {
         target: "http://localhost:8080",
         changeOrigin: true,
         secure: false,

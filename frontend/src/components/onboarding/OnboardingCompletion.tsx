@@ -1,16 +1,34 @@
 import { ArrowLeft, ArrowRight, CheckCircle, Sparkles } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/shared/useAuth";
+import { ROLES } from "@/constants/roles";
 
 interface OnboardingCompletionProps {
   isTransitioning: boolean;
-  handleGetStarted: () => void;
   handlePrevious: () => void;
 }
 
 export default function OnboardingCompletion({
   isTransitioning,
-  handleGetStarted,
   handlePrevious,
 }: OnboardingCompletionProps) {
+  const { roles } = useAuth();
+  const navigate = useNavigate();
+
+  const handleGetStarted = () => {
+    if (roles.includes(ROLES.ADMIN)) {
+      navigate("/admin/dashboard");
+    } else if (roles.includes(ROLES.ORG_ADMIN)) {
+      navigate("/second-admin/dashboard");
+    } else if (roles.includes(ROLES.COOP_ADMIN)) {
+      navigate("/third-admin/dashboard");
+    } else if (roles.includes(ROLES.Org_User)) {
+      navigate("/dashboard");
+    } else {
+      navigate("/");
+    }
+  };
+
   return (
     <div
       className={`bg-white rounded-3xl shadow-2xl p-12 text-center transition-all duration-500 ease-in-out ${

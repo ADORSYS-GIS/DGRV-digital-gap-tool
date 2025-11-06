@@ -4,7 +4,7 @@ import Keycloak from "keycloak-js";
  * Keycloak configuration for the DGAT tool
  */
 export const keycloakConfig = {
-  url: window.location.origin, // Use same origin to leverage Vite proxy
+  url: import.meta.env.VITE_KEYCLOAK_URL || "http://localhost:8080",
   realm: import.meta.env.VITE_KEYCLOAK_REALM || "DGAT",
   clientId: import.meta.env.VITE_KEYCLOAK_CLIENT_ID || "DGAT-tool",
 };

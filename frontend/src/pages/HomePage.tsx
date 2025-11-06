@@ -27,7 +27,7 @@ import { BenefitCard } from "@/components/home/BenefitCard";
 import { ROLES } from "@/constants/roles";
 
 export const HomePage: React.FC = () => {
-  const { isAuthenticated, loading, user, login } = useAuth();
+  const { isAuthenticated, loading, user, login, roles } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -37,21 +37,24 @@ export const HomePage: React.FC = () => {
     const hasCompletedOnboarding = localStorage.getItem(
       `onboarding_completed_${user?.sub}`,
     );
-    const roles = (user?.roles || user?.realm_access?.roles || []).map((r) =>
-      r.toLowerCase(),
-    );
-    const isAdmin = roles.includes(ROLES.ADMIN);
-    const isOrgUser = roles.includes(ROLES.Org_User.toLowerCase());
-
     if (window.location.pathname === "/") {
       if (hasCompletedOnboarding) {
-        if (isAdmin) navigate("/admin/dashboard", { replace: true });
-        else if (isOrgUser) navigate("/dashboard", { replace: true });
+        if (roles.includes(ROLES.ADMIN)) {
+          navigate("/admin/dashboard", { replace: true });
+        } else if (roles.includes(ROLES.ORG_ADMIN)) {
+          navigate("/second-admin/dashboard", { replace: true });
+        } else if (roles.includes(ROLES.COOP_ADMIN)) {
+          navigate("/third-admin/dashboard", { replace: true });
+        } else if (roles.includes(ROLES.Org_User)) {
+          navigate("/user/dashboard", { replace: true });
+        } else {
+          navigate("/dashboard", { replace: true });
+        }
       } else {
         navigate("/onboarding", { replace: true });
       }
     }
-  }, [isAuthenticated, loading, user, navigate]);
+  }, [isAuthenticated, loading, user, navigate, roles]);
 
   const handleGetStarted = async () => {
     if (!isAuthenticated) {
@@ -66,13 +69,18 @@ export const HomePage: React.FC = () => {
     const hasCompletedOnboarding = localStorage.getItem(
       `onboarding_completed_${user?.sub}`,
     );
-    const roles = (user?.roles || user?.realm_access?.roles || []).map((r) =>
-      r.toLowerCase(),
-    );
     if (hasCompletedOnboarding) {
-      if (roles.includes(ROLES.ADMIN)) navigate("/admin/dashboard");
-      else if (roles.includes(ROLES.Org_User.toLowerCase()))
+      if (roles.includes(ROLES.ADMIN)) {
+        navigate("/admin/dashboard");
+      } else if (roles.includes(ROLES.ORG_ADMIN)) {
+        navigate("/second-admin/dashboard");
+      } else if (roles.includes(ROLES.COOP_ADMIN)) {
+        navigate("/third-admin/dashboard");
+      } else if (roles.includes(ROLES.Org_User)) {
+        navigate("/user/dashboard");
+      } else {
         navigate("/dashboard");
+      }
     } else {
       navigate("/onboarding");
     }

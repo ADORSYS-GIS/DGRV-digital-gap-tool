@@ -1,0 +1,1 @@
+export const DGRV_LOGO = "/dgrv-logo.svg";

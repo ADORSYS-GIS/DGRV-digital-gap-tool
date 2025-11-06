@@ -1,14 +1,11 @@
 /**
- * User dashboard page that displays assessment information and user statistics.
+ * Third Admin dashboard page for managing specific administrative tasks.
  * This page provides:
- * - Welcome message with user name
- * - Quick statistics overview
- * - Assessment management section
- * - Placeholder for additional content
+ * - User management access
+ * - Assessment answering interface
+ * - Action plan viewing
+ * - Submission tracking
  */
-import React from "react";
-import { Link } from "react-router-dom";
-import { useAuth } from "@/hooks/shared/useAuth";
 import { DashboardCard } from "@/components/shared/DashboardCard";
 import {
   Card,
@@ -17,56 +14,70 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useAuth } from "@/hooks/shared/useAuth";
 import {
+  Users,
   FilePenLine,
   ClipboardList,
   Inbox,
   History,
 } from "lucide-react";
+import React from "react";
+import { Link } from "react-router-dom";
 
-const Dashboard: React.FC = () => {
+const ThirdAdminDashboard: React.FC = () => {
   const { user } = useAuth();
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 p-4 sm:p-6 md:p-8">
       {/* Welcome Header */}
       <div className="mb-8">
         <h1 className="text-4xl font-bold tracking-tight text-gray-900 dark:text-gray-100">
-          User Dashboard
+          Third Admin Dashboard
         </h1>
         <p className="text-lg text-gray-600 dark:text-gray-400 mt-2">
           Welcome back,{" "}
-          {user?.name || user?.preferred_username || "User"}. Here are
-          your tools to manage your assessments and action plans.
+          {user?.name || user?.preferred_username || "Administrator"}. Here are
+          your tools to manage assessments and users.
         </p>
       </div>
 
       {/* Management Tools Grid */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <Link to="/dashboard/answer-assessment" className="flex">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <Link to="/third-admin/users" className="flex">
+          <DashboardCard
+            title="Manage Users"
+            description="Administer user accounts and permissions"
+            icon={Users}
+            variant="default"
+            titleClassName="text-xl font-bold"
+            descriptionClassName="text-lg"
+          />
+        </Link>
+        <Link to="/third-admin/answer-assessment" className="flex">
           <DashboardCard
             title="Answer Assesment"
-            description="Fill out and manage your assessments"
+            description="Fill out and manage assessments"
             icon={FilePenLine}
             variant="default"
             titleClassName="text-xl font-bold"
             descriptionClassName="text-lg"
           />
         </Link>
-        <Link to="/dashboard/action-plan" className="flex">
+        <Link to="/third-admin/action-plan" className="flex">
           <DashboardCard
             title="View Action Plan"
-            description="Review and track your action plans"
+            description="Review and track action plans"
             icon={ClipboardList}
             variant="default"
             titleClassName="text-xl font-bold"
             descriptionClassName="text-lg"
           />
         </Link>
-        <Link to="/dashboard/submissions" className="flex">
+        <Link to="/third-admin/submissions" className="flex">
           <DashboardCard
             title="View Submissions"
-            description="Browse and manage your assessment submissions"
+            description="Browse and manage all submissions"
             icon={Inbox}
             variant="default"
             titleClassName="text-xl font-bold"
@@ -83,7 +94,7 @@ const Dashboard: React.FC = () => {
             <div>
               <CardTitle>Recent History</CardTitle>
               <CardDescription>
-                A log of your recent activities and events.
+                A log of recent activities and events in the system.
               </CardDescription>
             </div>
           </div>
@@ -100,4 +111,4 @@ const Dashboard: React.FC = () => {
   );
 };
 
-export default Dashboard;
+export default ThirdAdminDashboard;

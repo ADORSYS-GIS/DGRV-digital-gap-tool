@@ -15,6 +15,17 @@ import Dashboard from "../pages/user/Dashboard";
 import { ProtectedRoute } from "./ProtectedRoute";
 import AdminLayout from "@/layouts/AdminLayout";
 import SecondAdminLayout from "@/layouts/SecondAdminLayout";
+import ThirdAdminLayout from "@/layouts/ThirdAdminLayout";
+import UserLayout from "@/layouts/UserLayout";
+const UserAnswerAssessment = React.lazy(
+  () => import("../pages/user/AnswerAssessment.tsx"),
+);
+const UserViewActionPlan = React.lazy(
+  () => import("../pages/user/ViewActionPlan.tsx"),
+);
+const UserViewSubmissions = React.lazy(
+  () => import("../pages/user/ViewSubmissions.tsx"),
+);
 const ManageOrganizations = React.lazy(
   () => import("../pages/admin/ManageOrganizationsPage"),
 );
@@ -36,6 +47,21 @@ const SecondAdminDashboard = React.lazy(
 const ManageCooperations = React.lazy(
   () => import("../pages/second_admin/ManageCooperations.tsx"),
 );
+const ThirdAdminDashboard = React.lazy(
+  () => import("../pages/third_admin/ThirdAdminDashboard"),
+);
+const ManageUsers = React.lazy(
+  () => import("../pages/third_admin/ManageUsers"),
+);
+const AnswerAssessment = React.lazy(
+  () => import("../pages/third_admin/AnswerAssessment"),
+);
+const ViewActionPlan = React.lazy(
+  () => import("../pages/third_admin/ViewActionPlan"),
+);
+const ViewSubmissions = React.lazy(
+  () => import("../pages/third_admin/ViewSubmissions"),
+);
 
 const routes = [
   { path: "/", element: React.createElement(HomePage) },
@@ -48,9 +74,14 @@ const routes = [
   {
     path: "/onboarding",
     element: React.createElement(ProtectedRoute, {
-      allowedRoles: [ROLES.ADMIN, ROLES.Org_User],
+      allowedRoles: [
+        ROLES.ADMIN,
+        ROLES.ORG_ADMIN,
+        ROLES.COOP_ADMIN,
+        ROLES.Org_User,
+      ],
+      children: React.createElement(OnboardingFlow),
     }),
-    children: [{ path: "", element: React.createElement(OnboardingFlow) }],
   },
   {
     path: "/admin",
@@ -82,7 +113,7 @@ const routes = [
   {
     path: "/second-admin",
     element: React.createElement(ProtectedRoute, {
-      allowedRoles: [ROLES.ADMIN],
+      allowedRoles: [ROLES.ORG_ADMIN],
       children: React.createElement(SecondAdminLayout),
     }),
     children: [
@@ -97,11 +128,34 @@ const routes = [
     ],
   },
   {
+    path: "/third-admin",
+    element: React.createElement(ProtectedRoute, {
+      allowedRoles: [ROLES.COOP_ADMIN],
+      children: React.createElement(ThirdAdminLayout),
+    }),
+    children: [
+      { path: "dashboard", element: React.createElement(ThirdAdminDashboard) },
+      { path: "users", element: React.createElement(ManageUsers) },
+      {
+        path: "answer-assessment",
+        element: React.createElement(AnswerAssessment),
+      },
+      { path: "action-plan", element: React.createElement(ViewActionPlan) },
+      { path: "submissions", element: React.createElement(ViewSubmissions) },
+    ],
+  },
+  {
     path: "/dashboard",
     element: React.createElement(ProtectedRoute, {
-      allowedRoles: [ROLES.ADMIN, ROLES.Org_User],
+      allowedRoles: [ROLES.Org_User],
+      children: React.createElement(UserLayout),
     }),
-    children: [{ path: "", element: React.createElement(Dashboard) }],
+    children: [
+      { path: "", element: React.createElement(Dashboard) },
+      { path: "answer-assessment", element: React.createElement(UserAnswerAssessment) },
+      { path: "action-plan", element: React.createElement(UserViewActionPlan) },
+      { path: "submissions", element: React.createElement(UserViewSubmissions) },
+    ],
   },
   { path: "*", element: React.createElement(NotFound) },
 ];
