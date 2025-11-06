@@ -19,12 +19,16 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(GapSeverityRules::GapSeverity).string().not_null())
                     .col(ColumnDef::new(GapSeverityRules::CreatedAt).timestamp_with_time_zone().not_null())
                     .col(ColumnDef::new(GapSeverityRules::UpdatedAt).timestamp_with_time_zone().not_null())
-                    .index(
-                        Index::create()
-                            .name("idx_gap_severity_rules_dim")
-                            .col(GapSeverityRules::DimensionId)
-                            .to_owned(),
-                    )
+                    .to_owned(),
+            )
+            .await?;
+
+        manager
+            .create_index(
+                Index::create()
+                    .name("idx_gap_severity_rules_dim")
+                    .table(GapSeverityRules::Table)
+                    .col(GapSeverityRules::DimensionId)
                     .to_owned(),
             )
             .await?;
@@ -41,14 +45,18 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(GapDescriptions::Description).text().not_null())
                     .col(ColumnDef::new(GapDescriptions::CreatedAt).timestamp_with_time_zone().not_null())
                     .col(ColumnDef::new(GapDescriptions::UpdatedAt).timestamp_with_time_zone().not_null())
-                    .index(
-                        Index::create()
-                            .name("uk_gap_description_dim_size")
-                            .col(GapDescriptions::DimensionId)
-                            .col(GapDescriptions::GapSize)
-                            .unique()
-                            .to_owned(),
-                    )
+                    .to_owned(),
+            )
+            .await?;
+
+        manager
+            .create_index(
+                Index::create()
+                    .name("uk_gap_description_dim_size")
+                    .table(GapDescriptions::Table)
+                    .col(GapDescriptions::DimensionId)
+                    .col(GapDescriptions::GapSize)
+                    .unique()
                     .to_owned(),
             )
             .await?;
