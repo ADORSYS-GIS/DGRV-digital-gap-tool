@@ -45,7 +45,7 @@ export const DimensionCard = ({ dimension }: DimensionCardProps) => {
 
   const handleStateSelect = (state: "current" | "desired") => {
     setSelectStateDialogOpen(false);
-    navigate(`/admin/manage-levels/${dimension.id}?levelType=${state}`);
+    navigate(`/admin/dimensions/${dimension.id}/levels?levelType=${state}`);
   };
 
   return (

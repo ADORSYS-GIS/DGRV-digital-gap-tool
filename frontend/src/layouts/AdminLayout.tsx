@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import {
   Building2,
@@ -7,6 +7,8 @@ import {
   Settings,
   ChevronLeft,
   Menu,
+  Users,
+  ScrollText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -22,12 +24,14 @@ const AdminLayout: React.FC = () => {
     { to: "/admin/dashboard", icon: BarChart3, text: "Dashboard" },
     { to: "/admin/organizations", icon: Building2, text: "Organizations" },
     {
-      to: "/admin/digitalisation-levels",
+      to: "/admin/digitalisation-gap",
       icon: FileText,
-      text: "Digitalisation Levels",
+      text: "Digitalisation Gap",
     },
     { to: "/admin/dimensions", icon: Settings, text: "Dimensions" },
-    { to: "/admin/recommendations", icon: Settings, text: "Recommendations" },
+    { to: "/admin/action-plan", icon: Settings, text: "Action Plan" },
+    { to: "/admin/users", icon: Users, text: "Manage Users" },
+    { to: "/admin/reports", icon: ScrollText, text: "View Reports" },
   ];
 
   return (

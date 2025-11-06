@@ -23,7 +23,8 @@
     "allowUnusedLabels": false,
     "allowUnreachableCode": false,
     "skipLibCheck": true,
-    "allowJs": true
+    "allowJs": true,
+    "esModuleInterop": true
   }
   // Refresh TS server
 }

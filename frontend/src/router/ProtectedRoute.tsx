@@ -23,30 +23,30 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   children,
 }) => {
   // For testing purposes, all routes are accessible.
-  const { isAuthenticated, user, loading } = useAuth();
-  const location = useLocation();
+  // const { isAuthenticated, user, loading } = useAuth();
+  // const location = useLocation();
 
-  const hasRequiredRole = React.useMemo(() => {
-    if (!allowedRoles || allowedRoles.length === 0) return true;
-    if (!user) return false;
+  // const hasRequiredRole = React.useMemo(() => {
+  //   if (!allowedRoles || allowedRoles.length === 0) return true;
+  //   if (!user) return false;
 
-    if (!user || !user.roles) return false;
-    return allowedRoles.some((role) =>
-      user.roles?.map((r) => r.toLowerCase()).includes(role.toLowerCase()),
-    );
-  }, [user, allowedRoles]);
+  //   if (!user || !user.roles) return false;
+  //   return allowedRoles.some((role) =>
+  //     user.roles?.map((r) => r.toLowerCase()).includes(role.toLowerCase()),
+  //   );
+  // }, [user, allowedRoles]);
 
-  if (loading) {
-    return <LoadingSpinner />;
-  }
+  // if (loading) {
+  //   return <LoadingSpinner />;
+  // }
 
-  if (!isAuthenticated) {
-    return <Navigate to="/" replace state={{ from: location }} />;
-  }
+  // if (!isAuthenticated) {
+  //   return <Navigate to="/" replace state={{ from: location }} />;
+  // }
 
-  if (allowedRoles && allowedRoles.length > 0 && !hasRequiredRole) {
-    return <Navigate to="/unauthorized" replace />;
-  }
+  // if (allowedRoles && allowedRoles.length > 0 && !hasRequiredRole) {
+  //   return <Navigate to="/unauthorized" replace />;
+  // }
 
   return children ? <>{children}</> : <Outlet />;
 };

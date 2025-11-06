@@ -32,20 +32,47 @@ const ManageOrganizations = React.lazy(
 const AdminDashboard = React.lazy(
   () => import("../pages/admin/AdminDashboard"),
 );
-const ManageDigitalisationLevels = React.lazy(
-  () => import("../pages/admin/ManageDigitalisationLevels"),
+const ManageDigitalisationGap = React.lazy(
+  () => import("../pages/admin/ManageDigitalisationGap"),
 );
 const ManageDimensions = React.lazy(
   () => import("../pages/admin/ManageDimensions"),
 );
-const ManageGapRecommendations = React.lazy(
-  () => import("../pages/admin/ManageGapRecommendations"),
+const ManageActionPlan = React.lazy(
+  () => import("../pages/admin/ManageActionPlan"),
+);
+const ManageDigitalisationLevels = React.lazy(
+  () => import("../pages/admin/ManageDigitalisationLevelsPage"),
 );
 const SecondAdminDashboard = React.lazy(
   () => import("../pages/second_admin/SecondAdminDashboard"),
 );
 const ManageCooperations = React.lazy(
   () => import("../pages/second_admin/ManageCooperations.tsx"),
+);
+const SecondAdminManageUsers = React.lazy(
+  () => import("../pages/second_admin/ManageUsers.tsx"),
+);
+const SecondAdminCreateAssessment = React.lazy(
+  () => import("../pages/second_admin/CreateAssessment.tsx"),
+);
+const SecondAdminViewActionPlan = React.lazy(
+  () => import("../pages/second_admin/ViewActionPlan.tsx"),
+);
+const ActionPlan = React.lazy(
+  () => import("../pages/second_admin/ActionPlan.tsx"),
+);
+const SecondAdminViewSubmissions = React.lazy(
+  () => import("../pages/second_admin/ViewSubmissions.tsx"),
+);
+const SubmissionDetailPage = React.lazy(
+  () => import("../pages/second_admin/SubmissionDetailPage.tsx"),
+);
+const SecondAdminAnswerAssessment = React.lazy(
+  () => import("../pages/second_admin/AnswerAssessment.tsx"),
+);
+const SecondAdminAnswerDimension = React.lazy(
+  () => import("../pages/second_admin/AnswerDimension.tsx"),
 );
 const ThirdAdminDashboard = React.lazy(
   () => import("../pages/third_admin/ThirdAdminDashboard"),
@@ -96,16 +123,20 @@ const routes = [
         element: React.createElement(ManageOrganizations),
       },
       {
-        path: "digitalisation-levels",
-        element: React.createElement(ManageDigitalisationLevels),
+        path: "digitalisation-gap",
+        element: React.createElement(ManageDigitalisationGap),
       },
       { path: "dimensions", element: React.createElement(ManageDimensions) },
       {
-        path: "recommendations",
-        element: React.createElement(ManageGapRecommendations),
+        path: "action-plan",
+        element: React.createElement(ManageActionPlan),
       },
       {
-        path: "manage-levels/:dimensionId",
+        path: "manage-gap/:dimensionId",
+        element: React.createElement(ManageDigitalisationGap),
+      },
+      {
+        path: "dimensions/:dimensionId/levels",
         element: React.createElement(ManageDigitalisationLevels),
       },
     ],
@@ -124,6 +155,38 @@ const routes = [
       {
         path: "cooperations",
         element: React.createElement(ManageCooperations),
+      },
+      {
+        path: "users",
+        element: React.createElement(SecondAdminManageUsers),
+      },
+      {
+        path: "create-assessment",
+        element: React.createElement(SecondAdminCreateAssessment),
+      },
+      {
+        path: "action-plan",
+        element: React.createElement(ActionPlan),
+      },
+      {
+        path: "action-plan/:assessmentId",
+        element: React.createElement(SecondAdminViewActionPlan),
+      },
+      {
+        path: "submissions",
+        element: React.createElement(SecondAdminViewSubmissions),
+      },
+      {
+        path: "submissions/:submissionId",
+        element: React.createElement(SubmissionDetailPage),
+      },
+      {
+        path: "answer-assessment",
+        element: React.createElement(SecondAdminAnswerAssessment),
+      },
+      {
+        path: "answer-assessment/:dimensionId",
+        element: React.createElement(SecondAdminAnswerDimension),
       },
     ],
   },

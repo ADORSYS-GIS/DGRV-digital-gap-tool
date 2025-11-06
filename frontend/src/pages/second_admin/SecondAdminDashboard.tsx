@@ -29,77 +29,89 @@ const SecondAdminDashboard: React.FC = () => {
   const { user } = useAuth();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 p-4 sm:p-6 md:p-8">
       {/* Welcome Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Cooperative Management Dashboard
+        <h1 className="text-4xl font-bold tracking-tight text-gray-900 dark:text-gray-100">
+          Second Admin Dashboard
         </h1>
-        <p className="text-gray-600">
+        <p className="text-lg text-gray-600 dark:text-gray-400 mt-2">
           Welcome back,{" "}
-          {user?.name || user?.preferred_username || "Administrator"}. Manage
-          cooperatives and their assessments.
+          {user?.name || user?.preferred_username || "Administrator"}. Here are
+          your tools to manage cooperations, assessments and users.
         </p>
       </div>
 
       {/* Management Tools Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <Link to="/second-admin/cooperations">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <Link to="/second-admin/cooperations" className="flex">
           <DashboardCard
             title="Manage Cooperations"
             description="Administer cooperative profiles and data"
             icon={Building2}
             variant="default"
+            titleClassName="text-xl font-bold"
+            descriptionClassName="text-lg"
           />
         </Link>
-        <Link to="/second-admin/users">
+        <Link to="/second-admin/users" className="flex">
           <DashboardCard
             title="Manage Users"
             description="Oversee user accounts and permissions"
             icon={Users}
             variant="default"
+            titleClassName="text-xl font-bold"
+            descriptionClassName="text-lg"
           />
         </Link>
-        <Link to="/second-admin/create-assessment">
+        <Link to="/second-admin/create-assessment" className="flex">
           <DashboardCard
-            title="Create Assesment"
+            title="Create Assessment"
             description="Design and deploy new assessments"
             icon={FilePlus2}
             variant="default"
+            titleClassName="text-xl font-bold"
+            descriptionClassName="text-lg"
           />
         </Link>
-        <Link to="/second-admin/action-plan">
+        <Link to="/second-admin/action-plan" className="flex">
           <DashboardCard
             title="View Action Plan"
             description="Review and monitor strategic action plans"
             icon={ClipboardList}
             variant="default"
+            titleClassName="text-xl font-bold"
+            descriptionClassName="text-lg"
           />
         </Link>
-        <Link to="/second-admin/submissions">
+        <Link to="/second-admin/submissions" className="flex">
           <DashboardCard
             title="View Submissions"
             description="Track and evaluate assessment submissions"
             icon={ClipboardCheck}
             variant="default"
+            titleClassName="text-xl font-bold"
+            descriptionClassName="text-lg"
           />
         </Link>
       </div>
 
       {/* Recent History */}
-      <Card>
+      <Card className="mt-8">
         <CardHeader>
-          <CardTitle className="flex items-center">
-            <History className="mr-2 h-5 w-5" />
-            Recent History
-          </CardTitle>
-          <CardDescription>
-            A log of recent activities and system events.
-          </CardDescription>
+          <div className="flex items-center space-x-3">
+            <History className="h-6 w-6 text-gray-700 dark:text-gray-300" />
+            <div>
+              <CardTitle>Recent History</CardTitle>
+              <CardDescription>
+                A log of recent activities and events in the system.
+              </CardDescription>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
-          <div className="text-center py-8">
-            <p className="text-gray-500">
+          <div className="text-center py-12">
+            <p className="text-gray-500 dark:text-gray-400">
               Recent history will be displayed here.
             </p>
           </div>

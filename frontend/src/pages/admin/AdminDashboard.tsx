@@ -15,8 +15,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useAuth } from "@/hooks/shared/useAuth";
-import { BarChart3, Building2, FileText, Settings, Users } from "lucide-react";
-import React from "react";
+import { BarChart3, Building2, FileText, Settings, Users, ClipboardList } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const AdminDashboard: React.FC = () => {
@@ -103,10 +102,10 @@ const AdminDashboard: React.FC = () => {
               variant="default"
             />
           </Link>
-          <Link to="/admin/digitalisation-levels">
+          <Link to="/admin/digitalisation-gap">
             <DashboardCard
-              title="Manage Digitalisation Levels"
-              description="Manage current and to-be digitalisation levels"
+              title="Manage Digitalisation Gap"
+              description="Manage current and to-be digitalisation gaps"
               icon={FileText}
               variant="default"
             />
@@ -119,11 +118,11 @@ const AdminDashboard: React.FC = () => {
               variant="default"
             />
           </Link>
-          <Link to="/admin/recommendations">
+          <Link to="/admin/action-plan">
             <DashboardCard
-              title="Manage Recommendations"
-              description="Create, edit, and manage recommendations"
-              icon={Settings}
+              title="Manage Action Plan"
+              description="Create, edit, and manage action plans"
+              icon={ClipboardList}
               variant="default"
             />
           </Link>

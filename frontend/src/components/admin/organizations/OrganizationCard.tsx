@@ -1,5 +1,7 @@
-import React from "react";
+import * as React from "react";
+import { AssignDimensionModal } from "./AssignDimensionModal";
 import { EditOrganizationForm } from "./EditOrganizationForm";
+import { useDimensions } from "@/hooks/dimensions/useDimensions";
 import { Organization } from "@/types/organization";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,6 +26,8 @@ interface OrganizationCardProps {
 export const OrganizationCard: React.FC<OrganizationCardProps> = ({
   organization,
 }) => {
+  const [isAssignDimensionOpen, setAssignDimensionOpen] = React.useState(false);
+  const { data: dimensions, isLoading: isLoadingDimensions } = useDimensions();
   const deleteMutation = useDeleteOrganization();
 
   const handleDelete = () => {
@@ -64,9 +68,22 @@ export const OrganizationCard: React.FC<OrganizationCardProps> = ({
             </AlertDialogContent>
           </AlertDialog>
         </div>
-        <Button variant="outline" size="sm" className="mt-2 w-full">
-          <ListTree className="mr-2 h-4 w-4" /> Assign Categories
+        <Button
+          variant="outline"
+          size="sm"
+          className="mt-2 w-full"
+          onClick={() => setAssignDimensionOpen(true)}
+        >
+          <ListTree className="mr-2 h-4 w-4" /> Assign Dimensions
         </Button>
+        {dimensions && (
+          <AssignDimensionModal
+            isOpen={isAssignDimensionOpen}
+            onClose={() => setAssignDimensionOpen(false)}
+            dimensions={dimensions}
+            organizationName={organization.name}
+          />
+        )}
       </CardContent>
     </Card>
   );

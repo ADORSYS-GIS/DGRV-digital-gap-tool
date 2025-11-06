@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import * as React from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -8,26 +8,25 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { PlusCircle } from "lucide-react";
-import { useAddCooperation } from "@/hooks/cooperations/useAddCooperation";
+// TODO: Create and import useAddCooperation
+// import { useAddCooperation } from "@/hooks/cooperations/useAddCooperation";
 
 export const AddCooperationForm: React.FC = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const { addCooperation, isLoading } = useAddCooperation();
+  const [isOpen, setIsOpen] = React.useState(false);
+  const [name, setName] = React.useState("");
+  const [description, setDescription] = React.useState("");
+  // const addCooperationMutation = useAddCooperation();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    await addCooperation({
-      name,
-      description,
-      domains: [],
-    });
+    // addCooperationMutation.mutate({ name, description });
+    console.log("Adding cooperation:", { name, description });
+    setIsOpen(false);
     setName("");
     setDescription("");
-    setIsOpen(false);
   };
 
   return (
@@ -42,20 +41,27 @@ export const AddCooperationForm: React.FC = () => {
           <DialogTitle>Add New Cooperation</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <Input
-            placeholder="Cooperation Name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
-          <Textarea
-            placeholder="Cooperation Description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            required
-          />
-          <Button type="submit" disabled={isLoading}>
-            {isLoading ? "Adding..." : "Add Cooperation"}
+          <div>
+            <Label htmlFor="name">Cooperation Name</Label>
+            <Input
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
+          </div>
+          <div>
+            <Label htmlFor="description">Description</Label>
+            <Textarea
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              required
+            />
+          </div>
+          <Button type="submit">
+            {/* {addCooperationMutation.isPending ? "Adding..." : "Add Cooperation"} */}
+            Add Cooperation
           </Button>
         </form>
       </DialogContent>
