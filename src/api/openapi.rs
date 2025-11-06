@@ -1,5 +1,6 @@
 use axum::Router;
 use utoipa::OpenApi;
+use crate::entities::reports::ReportFormat;
 use utoipa_swagger_ui::SwaggerUi;
 
 use crate::api::dto::action_plan::*;
@@ -65,6 +66,9 @@ use crate::api::dto::report::*;
         schemas(
             // Common
             PaginationParams,
+            SortOrder,
+            EmptyResponse,
+            ApiResponseEmpty,
             // ApiResponse aliases for Action Plans
             ApiResponseActionPlanResponse,
             ApiResponseActionPlanWithItemsResponse,
@@ -75,9 +79,24 @@ use crate::api::dto::report::*;
             ApiResponseReportDownloadResponse,
             ApiResponseReportStatusResponse,
             ApiResponsePaginatedReportResponse,
+            // ApiResponse aliases for Assessments & Dimensions
+            ApiResponseAssessmentResponse,
+            ApiResponsePaginatedAssessmentResponse,
+            ApiResponseAssessmentSummaryResponse,
+            ApiResponseDimensionAssessmentResponse,
+            ApiResponseDimensionResponse,
+            ApiResponsePaginatedDimensionResponse,
+            ApiResponseCurrentStateResponse,
+            ApiResponseDesiredStateResponse,
+            ApiResponseDimensionWithStatesResponse,
+            // ApiResponse aliases for Gaps
+            ApiResponseGapResponse,
+            ApiResponsePaginatedGapResponse,
             // Paginated alias types
             PaginatedActionPlanResponse,
             PaginatedReportResponse,
+            PaginatedAssessmentResponse,
+            PaginatedGapResponse,
             // Assessments
             CreateAssessmentRequest,
             UpdateAssessmentRequest,
@@ -104,6 +123,7 @@ use crate::api::dto::report::*;
             UpdateReportRequest,
             ReportResponse,
             ReportType,
+            ReportFormat,
             ReportStatus,
             ReportDownloadResponse,
             ReportListResponse,

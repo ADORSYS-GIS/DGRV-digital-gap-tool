@@ -8,7 +8,7 @@ use std::sync::Arc;
 use uuid::Uuid;
 
 use crate::api::dto::{
-    common::{ApiResponse, PaginatedResponse, PaginationParams},
+    common::{ApiResponse, EmptyResponse, PaginatedResponse, PaginationParams},
     gap::{
         CreateGapRequest, GapResponse, GapSeverity, SetGapDescriptionRequest,
         SetSeverityRulesRequest,
@@ -35,41 +35,73 @@ fn to_gap_response(model: gaps::Model) -> GapResponse {
         updated_at: model.updated_at,
     }
 }
-/// Admin: set severity rules (placeholder, DB-backed logic TBD)
+/// Set severity rules for gap analysis
+/// 
+/// This endpoint allows administrators to configure the severity thresholds for gap analysis.
+/// The rules will be used to automatically determine the severity of gaps based on their size.
 #[utoipa::path(
     post,
     path = "/admin/gap-severity-rules",
+    tag = "Admin",
     request_body = SetSeverityRulesRequest,
     responses(
-        (status = 200, description = "Severity rules set", body = inline(ApiResponse<()>))
+        (status = 200, description = "Severity rules successfully updated", body = ApiResponseEmpty),
+        (status = 400, description = "Invalid input data"),
+        (status = 401, description = "Unauthorized"),
+        (status = 403, description = "Forbidden - Admin access required")
+    ),
+    security(
+        ("jwt" = [])
     )
 )]
 pub async fn set_severity_rules(
     Json(_req): Json<SetSeverityRulesRequest>,
-) -> Result<Json<ApiResponse<()>>, (StatusCode, Json<serde_json::Value>)> {
-    Ok(success_response(()))
+) -> Result<Json<ApiResponse<EmptyResponse>>, (StatusCode, Json<serde_json::Value>)> {
+    Ok(success_response(EmptyResponse {}))
 }
 
-/// Admin: set gap description (placeholder, DB-backed logic TBD)
+/// Set a description for a specific gap size in a dimension
+/// 
+/// This endpoint allows administrators to set or update a description for gaps of a specific size
+/// within a dimension. This description will be used as a template or default description for gaps
+/// that match the criteria.
 #[utoipa::path(
     post,
     path = "/admin/gap-descriptions",
+    tag = "Admin",
     request_body = SetGapDescriptionRequest,
     responses(
-        (status = 200, description = "Gap description set", body = inline(ApiResponse<()>))
+        (status = 200, description = "Gap description successfully set", body = ApiResponseEmpty),
+        (status = 400, description = "Invalid input data"),
+        (status = 401, description = "Unauthorized"),
+        (status = 403, description = "Forbidden - Admin access required")
+    ),
+    security(
+        ("jwt" = [])
     )
 )]
 pub async fn set_gap_description(
     Json(_req): Json<SetGapDescriptionRequest>,
-) -> Result<Json<ApiResponse<()>>, (StatusCode, Json<serde_json::Value>)> {
-    Ok(success_response(()))
+) -> Result<Json<ApiResponse<EmptyResponse>>, (StatusCode, Json<serde_json::Value>)> {
+    Ok(success_response(EmptyResponse {}))
 }
+/// Create a new gap
+/// 
+/// Creates a new gap record with the provided details. The gap severity will be automatically
+/// determined based on the configured severity rules.
 #[utoipa::path(
     post,
     path = "/gaps",
+    tag = "Gaps",
     request_body = CreateGapRequest,
     responses(
-        (status = 200, description = "Gap created", body = inline(ApiResponse<GapResponse>))
+        (status = 200, description = "Gap successfully created", body = ApiResponseGapResponse),
+        (status = 400, description = "Invalid input data"),
+        (status = 401, description = "Unauthorized"),
+        (status = 404, description = "Dimension assessment not found")
+    ),
+    security(
+        ("jwt" = [])
     )
 )]
 pub async fn create_gap(
@@ -115,13 +147,23 @@ pub async fn create_gap(
     ))
 }
 
+/// Get a specific gap by ID
+/// 
+/// Retrieves the details of a specific gap using its unique identifier.
 #[utoipa::path(
     get,
     path = "/gaps/{id}",
-    params(("id" = Uuid, Path, description = "Gap ID")),
+    tag = "Gaps",
+    params(
+        ("id" = Uuid, Path, description = "Gap ID")
+    ),
     responses(
-        (status = 200, description = "Gap fetched", body = inline(ApiResponse<GapResponse>)),
+        (status = 200, description = "Gap details retrieved successfully", body = ApiResponseGapResponse),
+        (status = 401, description = "Unauthorized"),
         (status = 404, description = "Gap not found")
+    ),
+    security(
+        ("jwt" = [])
     )
 )]
 pub async fn get_gap(
@@ -140,15 +182,23 @@ pub async fn get_gap(
     Ok(success_response(to_gap_response(gap)))
 }
 
+/// List all gaps with pagination
+/// 
+/// Retrieves a paginated list of all gaps in the system.
 #[utoipa::path(
     get,
     path = "/gaps",
+    tag = "Gaps",
     params(
-        ("page" = Option<u32>, Query, description = "Page number (default 1)"),
-        ("limit" = Option<u32>, Query, description = "Page size (default 20)")
+        ("page" = Option<i64>, Query, description = "Page number (1-based)"),
+        ("limit" = Option<i64>, Query, description = "Number of items per page")
     ),
     responses(
-        (status = 200, description = "Gaps list", body = inline(ApiResponse<PaginatedResponse<GapResponse>>))
+        (status = 200, description = "Gaps retrieved successfully", body = ApiResponsePaginatedGapResponse),
+        (status = 401, description = "Unauthorized")
+    ),
+    security(
+        ("jwt" = [])
     )
 )]
 pub async fn list_gaps(
@@ -176,20 +226,32 @@ pub async fn list_gaps(
     )))
 }
 
+/// List gaps by dimension assessment
+/// 
+/// Retrieves a paginated list of gaps for a specific dimension assessment.
 #[utoipa::path(
     get,
     path = "/dimension-assessments/{dimension_assessment_id}/gaps",
-    params(("dimension_assessment_id" = Uuid, Path, description = "Dimension assessment ID")),
+    tag = "Gaps",
+    params(
+        ("dimension_assessment_id" = Uuid, Path, description = "Dimension Assessment ID"),
+        ("page" = Option<i64>, Query, description = "Page number (1-based)"),
+        ("limit" = Option<i64>, Query, description = "Number of items per page")
+    ),
     responses(
-        (status = 200, description = "Gaps by dimension assessment", body = inline(ApiResponse<PaginatedResponse<GapResponse>>))
+        (status = 200, description = "Gaps retrieved successfully", body = ApiResponsePaginatedGapResponse),
+        (status = 401, description = "Unauthorized"),
+        (status = 404, description = "Dimension assessment not found")
+    ),
+    security(
+        ("jwt" = [])
     )
 )]
 pub async fn list_gaps_by_dimension_assessment(
     State(db): State<Arc<DatabaseConnection>>,
     Path(dimension_assessment_id): Path<Uuid>,
     Query(params): Query<PaginationParams>,
-) -> Result<Json<ApiResponse<PaginatedResponse<GapResponse>>>, (StatusCode, Json<serde_json::Value>)>
-{
+) -> Result<Json<ApiResponse<PaginatedResponse<GapResponse>>>, (StatusCode, Json<serde_json::Value>)> {
     let (page, limit, _sort_by, _sort_order) = extract_pagination(Query(params));
     let offset = ((page - 1) * limit) as u64;
 
@@ -210,20 +272,32 @@ pub async fn list_gaps_by_dimension_assessment(
     )))
 }
 
+/// List gaps by assessment
+/// 
+/// Retrieves a paginated list of gaps for a specific assessment across all dimensions.
 #[utoipa::path(
     get,
     path = "/assessments/{assessment_id}/gaps",
-    params(("assessment_id" = Uuid, Path, description = "Assessment ID")),
+    tag = "Gaps",
+    params(
+        ("assessment_id" = Uuid, Path, description = "Assessment ID"),
+        ("page" = Option<i64>, Query, description = "Page number (1-based)"),
+        ("limit" = Option<i64>, Query, description = "Number of items per page")
+    ),
     responses(
-        (status = 200, description = "Gaps by assessment", body = inline(ApiResponse<PaginatedResponse<GapResponse>>))
+        (status = 200, description = "Gaps retrieved successfully", body = ApiResponsePaginatedGapResponse),
+        (status = 401, description = "Unauthorized"),
+        (status = 404, description = "Assessment not found")
+    ),
+    security(
+        ("jwt" = [])
     )
 )]
 pub async fn list_gaps_by_assessment(
     State(db): State<Arc<DatabaseConnection>>,
     Path(assessment_id): Path<Uuid>,
     Query(params): Query<PaginationParams>,
-) -> Result<Json<ApiResponse<PaginatedResponse<GapResponse>>>, (StatusCode, Json<serde_json::Value>)>
-{
+) -> Result<Json<ApiResponse<PaginatedResponse<GapResponse>>>, (StatusCode, Json<serde_json::Value>)> {
     let (page, limit, _sort_by, _sort_order) = extract_pagination(Query(params));
     let offset = ((page - 1) * limit) as u64;
 

@@ -26,7 +26,7 @@ use crate::repositories::{
     path = "/dimensions",
     request_body = CreateDimensionRequest,
     responses(
-        (status = 200, description = "Dimension created", body = inline(ApiResponse<DimensionResponse>))
+        (status = 200, description = "Dimension created", body = ApiResponseDimensionResponse)
     )
 )]
 pub async fn create_dimension(
@@ -69,7 +69,7 @@ pub async fn create_dimension(
     path = "/dimensions/{id}",
     params(("id" = Uuid, Path, description = "Dimension ID")),
     responses(
-        (status = 200, description = "Dimension fetched", body = inline(ApiResponse<DimensionResponse>)),
+        (status = 200, description = "Dimension fetched", body = ApiResponseDimensionResponse),
         (status = 404, description = "Dimension not found")
     )
 )]
@@ -106,7 +106,7 @@ pub async fn get_dimension(
     path = "/dimensions/{id}/with-states",
     params(("id" = Uuid, Path, description = "Dimension ID")),
     responses(
-        (status = 200, description = "Dimension with states", body = inline(ApiResponse<DimensionWithStatesResponse>)),
+        (status = 200, description = "Dimension with states", body = ApiResponseDimensionWithStatesResponse),
         (status = 404, description = "Dimension not found")
     )
 )]
@@ -194,7 +194,7 @@ pub async fn get_dimension_with_states(
         ("limit" = Option<u32>, Query, description = "Page size (default 20)")
     ),
     responses(
-        (status = 200, description = "Dimensions list", body = inline(ApiResponse<PaginatedResponse<DimensionResponse>>))
+        (status = 200, description = "Dimensions list", body = ApiResponsePaginatedDimensionResponse)
     )
 )]
 pub async fn list_dimensions(
@@ -239,7 +239,7 @@ pub async fn list_dimensions(
     params(("id" = Uuid, Path, description = "Dimension ID")),
     request_body = UpdateDimensionRequest,
     responses(
-        (status = 200, description = "Dimension updated", body = inline(ApiResponse<DimensionResponse>)),
+        (status = 200, description = "Dimension updated", body = ApiResponseDimensionResponse),
         (status = 404, description = "Dimension not found")
     )
 )]
@@ -328,7 +328,7 @@ pub async fn delete_dimension(
     params(("id" = Uuid, Path, description = "Dimension ID")),
     request_body = CreateCurrentStateRequest,
     responses(
-        (status = 200, description = "Current state created", body = inline(ApiResponse<CurrentStateResponse>)),
+        (status = 200, description = "Current state created", body = ApiResponseCurrentStateResponse),
         (status = 404, description = "Dimension not found")
     )
 )]
@@ -387,7 +387,7 @@ pub async fn create_current_state(
     ),
     request_body = UpdateCurrentStateRequest,
     responses(
-        (status = 200, description = "Current state updated", body = inline(ApiResponse<CurrentStateResponse>)),
+        (status = 200, description = "Current state updated", body = ApiResponseCurrentStateResponse),
         (status = 404, description = "Current state not found")
     )
 )]
@@ -458,7 +458,7 @@ pub async fn update_current_state(
     params(("id" = Uuid, Path, description = "Dimension ID")),
     request_body = CreateDesiredStateRequest,
     responses(
-        (status = 200, description = "Desired state created", body = inline(ApiResponse<DesiredStateResponse>)),
+        (status = 200, description = "Desired state created", body = ApiResponseDesiredStateResponse),
         (status = 404, description = "Dimension not found")
     )
 )]
@@ -519,7 +519,7 @@ pub async fn create_desired_state(
     ),
     request_body = UpdateDesiredStateRequest,
     responses(
-        (status = 200, description = "Desired state updated", body = inline(ApiResponse<DesiredStateResponse>)),
+        (status = 200, description = "Desired state updated", body = ApiResponseDesiredStateResponse),
         (status = 404, description = "Desired state not found")
     )
 )]

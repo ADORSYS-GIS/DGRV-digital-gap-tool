@@ -1196,6 +1196,7 @@ dependencies = [
  "dotenv",
  "envconfig",
  "jsonwebtoken",
+ "openapiv3",
  "rust_decimal",
  "sea-orm",
  "sea-orm-migration",
@@ -2390,6 +2391,17 @@ name = "once_cell_polyfill"
 version = "1.70.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a4895175b425cb1f87721b59f0f286c2092bd4af812243672510e1ac53e2e0ad"
+
+[[package]]
+name = "openapiv3"
+version = "2.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5c8d427828b22ae1fff2833a03d8486c2c881367f1c336349f307f321e7f4d05"
+dependencies = [
+ "indexmap",
+ "serde",
+ "serde_json",
+]
 
 [[package]]
 name = "openssl-probe"

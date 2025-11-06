@@ -47,7 +47,7 @@ fn convert_dto_assessment_status_to_entity(
     path = "/assessments",
     request_body = CreateAssessmentRequest,
     responses(
-        (status = 200, description = "Assessment created", body = inline(ApiResponse<AssessmentResponse>))
+        (status = 200, description = "Assessment created", body = ApiResponseAssessmentResponse)
     )
 )]
 /// Create a new assessment
@@ -95,7 +95,7 @@ pub async fn create_assessment(
     path = "/assessments/{id}",
     params(("id" = Uuid, Path, description = "Assessment ID")),
     responses(
-        (status = 200, description = "Assessment fetched", body = inline(ApiResponse<AssessmentResponse>)),
+        (status = 200, description = "Assessment fetched", body = ApiResponseAssessmentResponse),
         (status = 404, description = "Assessment not found")
     )
 )]
@@ -135,7 +135,7 @@ pub async fn get_assessment(
     path = "/assessments/{id}/summary",
     params(("id" = Uuid, Path, description = "Assessment ID")),
     responses(
-        (status = 200, description = "Assessment summary", body = inline(ApiResponse<AssessmentSummaryResponse>)),
+        (status = 200, description = "Assessment summary", body = ApiResponseAssessmentSummaryResponse),
         (status = 404, description = "Assessment not found")
     )
 )]
@@ -216,7 +216,7 @@ pub async fn get_assessment_summary(
         ("limit" = Option<u32>, Query, description = "Page size (default 20)")
     ),
     responses(
-        (status = 200, description = "Assessments list", body = inline(ApiResponse<PaginatedResponse<AssessmentResponse>>))
+        (status = 200, description = "Assessments list", body = ApiResponsePaginatedAssessmentResponse)
     )
 )]
 /// List assessments with pagination
@@ -264,7 +264,7 @@ pub async fn list_assessments(
     params(("id" = Uuid, Path, description = "Assessment ID")),
     request_body = UpdateAssessmentRequest,
     responses(
-        (status = 200, description = "Assessment updated", body = inline(ApiResponse<AssessmentResponse>)),
+        (status = 200, description = "Assessment updated", body = ApiResponseAssessmentResponse),
         (status = 404, description = "Assessment not found")
     )
 )]
@@ -360,7 +360,7 @@ pub async fn delete_assessment(
     params(("id" = Uuid, Path, description = "Assessment ID")),
     request_body = CreateDimensionAssessmentRequest,
     responses(
-        (status = 200, description = "Dimension assessment created", body = inline(ApiResponse<DimensionAssessmentResponse>)),
+        (status = 200, description = "Dimension assessment created", body = ApiResponseDimensionAssessmentResponse),
         (status = 404, description = "Assessment not found")
     )
 )]
@@ -403,7 +403,7 @@ pub async fn create_dimension_assessment(
     ),
     request_body = UpdateDimensionAssessmentRequest,
     responses(
-        (status = 200, description = "Dimension assessment updated", body = inline(ApiResponse<DimensionAssessmentResponse>)),
+        (status = 200, description = "Dimension assessment updated", body = ApiResponseDimensionAssessmentResponse),
         (status = 404, description = "Dimension assessment not found")
     )
 )]

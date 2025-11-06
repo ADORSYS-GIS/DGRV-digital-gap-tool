@@ -14,24 +14,37 @@ use uuid::Uuid;
     ApiResponsePaginatedActionPlanResponse = ApiResponse<PaginatedResponse<crate::api::dto::action_plan::ActionPlanResponse>>,
     ApiResponseAssessmentResponse = ApiResponse<crate::api::dto::assessment::AssessmentResponse>,
     ApiResponseAssessmentSummaryResponse = ApiResponse<crate::api::dto::assessment::AssessmentSummaryResponse>,
+    ApiResponsePaginatedAssessmentResponse = ApiResponse<PaginatedResponse<crate::api::dto::assessment::AssessmentResponse>>,
     ApiResponseDimensionAssessmentResponse = ApiResponse<crate::api::dto::assessment::DimensionAssessmentResponse>,
     ApiResponseDimensionResponse = ApiResponse<crate::api::dto::dimension::DimensionResponse>,
+    ApiResponsePaginatedDimensionResponse = ApiResponse<PaginatedResponse<crate::api::dto::dimension::DimensionResponse>>,
     ApiResponseCurrentStateResponse = ApiResponse<crate::api::dto::dimension::CurrentStateResponse>,
     ApiResponseDesiredStateResponse = ApiResponse<crate::api::dto::dimension::DesiredStateResponse>,
+    ApiResponseDimensionWithStatesResponse = ApiResponse<crate::api::dto::dimension::DimensionWithStatesResponse>,
     ApiResponseReportResponse = ApiResponse<crate::api::dto::report::ReportResponse>,
     ApiResponseReportDownloadResponse = ApiResponse<crate::api::dto::report::ReportDownloadResponse>,
     ApiResponseReportStatusResponse = ApiResponse<crate::api::dto::report::ReportStatusResponse>,
-    ApiResponsePaginatedReportResponse = ApiResponse<PaginatedResponse<crate::api::dto::report::ReportResponse>>
+    ApiResponsePaginatedReportResponse = ApiResponse<PaginatedResponse<crate::api::dto::report::ReportResponse>>,
+    ApiResponseGapResponse = ApiResponse<crate::api::dto::gap::GapResponse>,
+    ApiResponsePaginatedGapResponse = ApiResponse<PaginatedResponse<crate::api::dto::gap::GapResponse>>,
+    ApiResponseEmpty = ApiResponse<EmptyResponse>
 )]
 pub struct ApiResponse<T>
 where
     T: for<'a> ToSchema<'a>,
 {
     pub success: bool,
+    #[schema(inline)]
     pub data: Option<T>,
     pub message: Option<String>,
     pub error: Option<String>,
 }
+
+
+/// Empty response for operations that don't return data
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+pub struct EmptyResponse {}
+
 
 impl<T> ApiResponse<T>
 where
@@ -118,12 +131,15 @@ impl FromStr for SortOrder {
 #[aliases(
     PaginatedActionPlanResponse = PaginatedResponse<crate::api::dto::action_plan::ActionPlanResponse>,
     PaginatedReportResponse = PaginatedResponse<crate::api::dto::report::ReportResponse>,
-    PaginatedDimensionResponse = PaginatedResponse<crate::api::dto::dimension::DimensionResponse>
+    PaginatedDimensionResponse = PaginatedResponse<crate::api::dto::dimension::DimensionResponse>,
+    PaginatedGapResponse = PaginatedResponse<crate::api::dto::gap::GapResponse>,
+    PaginatedAssessmentResponse = PaginatedResponse<crate::api::dto::assessment::AssessmentResponse>
 )]
 pub struct PaginatedResponse<T>
 where
     T: for<'a> ToSchema<'a>,
 {
+    #[schema(inline)]
     pub items: Vec<T>,
     pub total: u64,
     pub page: u32,
