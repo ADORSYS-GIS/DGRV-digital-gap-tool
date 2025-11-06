@@ -1,30 +1,30 @@
-use sea_orm::*;
 use crate::entities::action_items::{self, Entity as ActionItems};
 use crate::error::AppError;
+use sea_orm::*;
 use uuid::Uuid;
 
 pub struct ActionItemsRepository;
 
 impl ActionItemsRepository {
     pub async fn find_all(db: &DbConn) -> Result<Vec<action_items::Model>, AppError> {
-        ActionItems::find()
-            .all(db)
-            .await
-            .map_err(AppError::from)
+        ActionItems::find().all(db).await.map_err(AppError::from)
     }
 
-    pub async fn find_by_id(db: &DbConn, action_item_id: Uuid) -> Result<Option<action_items::Model>, AppError> {
+    pub async fn find_by_id(
+        db: &DbConn,
+        action_item_id: Uuid,
+    ) -> Result<Option<action_items::Model>, AppError> {
         ActionItems::find_by_id(action_item_id)
             .one(db)
             .await
             .map_err(AppError::from)
     }
 
-    pub async fn create(db: &DbConn, action_item_data: action_items::ActiveModel) -> Result<action_items::Model, AppError> {
-        action_item_data
-            .insert(db)
-            .await
-            .map_err(AppError::from)
+    pub async fn create(
+        db: &DbConn,
+        action_item_data: action_items::ActiveModel,
+    ) -> Result<action_items::Model, AppError> {
+        action_item_data.insert(db).await.map_err(AppError::from)
     }
 
     pub async fn update(
@@ -39,7 +39,7 @@ impl ActionItemsRepository {
             .ok_or_else(|| AppError::NotFound("Action item not found".to_string()))?;
 
         let mut active_model: action_items::ActiveModel = action_item.into();
-        
+
         if let ActiveValue::Set(action_plan_id) = action_item_data.action_plan_id {
             active_model.action_plan_id = Set(action_plan_id);
         }
@@ -76,10 +76,7 @@ impl ActionItemsRepository {
 
         active_model.updated_at = Set(chrono::Utc::now());
 
-        active_model
-            .update(db)
-            .await
-            .map_err(AppError::from)
+        active_model.update(db).await.map_err(AppError::from)
     }
 
     pub async fn delete(db: &DbConn, action_item_id: Uuid) -> Result<bool, AppError> {
@@ -113,7 +110,10 @@ impl ActionItemsRepository {
             .map_err(AppError::from)
     }
 
-    pub async fn find_by_status(db: &DbConn, status: crate::entities::action_items::ActionItemStatus) -> Result<Vec<action_items::Model>, AppError> {
+    pub async fn find_by_status(
+        db: &DbConn,
+        status: crate::entities::action_items::ActionItemStatus,
+    ) -> Result<Vec<action_items::Model>, AppError> {
         ActionItems::find()
             .filter(action_items::Column::Status.eq(status))
             .all(db)
@@ -121,7 +121,10 @@ impl ActionItemsRepository {
             .map_err(AppError::from)
     }
 
-    pub async fn find_by_priority(db: &DbConn, priority: crate::entities::action_items::ActionItemPriority) -> Result<Vec<action_items::Model>, AppError> {
+    pub async fn find_by_priority(
+        db: &DbConn,
+        priority: crate::entities::action_items::ActionItemPriority,
+    ) -> Result<Vec<action_items::Model>, AppError> {
         ActionItems::find()
             .filter(action_items::Column::Priority.eq(priority))
             .all(db)
@@ -129,7 +132,10 @@ impl ActionItemsRepository {
             .map_err(AppError::from)
     }
 
-    pub async fn find_by_assigned_to(db: &DbConn, assigned_to: &str) -> Result<Vec<action_items::Model>, AppError> {
+    pub async fn find_by_assigned_to(
+        db: &DbConn,
+        assigned_to: &str,
+    ) -> Result<Vec<action_items::Model>, AppError> {
         ActionItems::find()
             .filter(action_items::Column::AssignedTo.eq(assigned_to))
             .all(db)
@@ -143,7 +149,10 @@ impl ActionItemsRepository {
             .filter(
                 Condition::all()
                     .add(action_items::Column::TargetDate.lt(now))
-                    .add(action_items::Column::Status.ne(crate::entities::action_items::ActionItemStatus::Completed))
+                    .add(
+                        action_items::Column::Status
+                            .ne(crate::entities::action_items::ActionItemStatus::Completed),
+                    ),
             )
             .all(db)
             .await
@@ -162,22 +171,19 @@ impl ActionItemsRepository {
             .ok_or_else(|| AppError::NotFound("Action item not found".to_string()))?;
 
         let mut active_model: action_items::ActiveModel = action_item.into();
-        
+
         // Check if status is completed before setting it
         let is_completed = status == crate::entities::action_items::ActionItemStatus::Completed;
-        
+
         active_model.status = Set(status);
-        
+
         if is_completed {
             active_model.completed_date = Set(Some(chrono::Utc::now()));
         }
-        
+
         active_model.updated_at = Set(chrono::Utc::now());
 
-        active_model
-            .update(db)
-            .await
-            .map_err(AppError::from)
+        active_model.update(db).await.map_err(AppError::from)
     }
 
     pub async fn mark_as_completed(
@@ -195,9 +201,6 @@ impl ActionItemsRepository {
         active_model.completed_date = Set(Some(chrono::Utc::now()));
         active_model.updated_at = Set(chrono::Utc::now());
 
-        active_model
-            .update(db)
-            .await
-            .map_err(AppError::from)
+        active_model.update(db).await.map_err(AppError::from)
     }
 }

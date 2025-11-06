@@ -1,7 +1,7 @@
-use crate::entities::dimensions;
 use crate::entities::dimension_assessments;
+use crate::entities::dimensions;
 use crate::error::AppError;
-use sea_orm::{DatabaseConnection, EntityTrait, QueryFilter, ColumnTrait};
+use sea_orm::{ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter};
 use uuid::Uuid;
 
 pub struct DimensionScoringService;
@@ -15,13 +15,13 @@ impl DimensionScoringService {
     ) -> Result<f64, AppError> {
         let weight = dimension_weight.unwrap_or(100) as f64 / 100.0;
         let weighted_score = base_score as f64 * weight;
-        
+
         Ok(weighted_score)
     }
 
     /// Validate that a weight is within the acceptable range (0-100)
     pub fn validate_weight(weight: i32) -> Result<(), AppError> {
-        if weight < 0 || weight > 100 {
+        if !(0..=100).contains(&weight) {
             return Err(AppError::ValidationError(
                 "Dimension weight must be between 0 and 100".to_string(),
             ));
@@ -55,7 +55,7 @@ impl DimensionScoringService {
 
             let weight = dimension.weight.unwrap_or(100) as f64 / 100.0;
             let gap_size = 0.0;
-            
+
             // Calculate weighted gap size
             let weighted_gap = gap_size * weight;
             total_weighted_score += weighted_gap;

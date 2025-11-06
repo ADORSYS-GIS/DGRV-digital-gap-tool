@@ -1,6 +1,6 @@
-use sea_orm::*;
 use crate::entities::recommendations::{self, Entity as Recommendations};
 use crate::error::AppError;
+use sea_orm::*;
 use uuid::Uuid;
 
 pub struct RecommendationsRepository;
@@ -13,18 +13,21 @@ impl RecommendationsRepository {
             .map_err(AppError::from)
     }
 
-    pub async fn find_by_id(db: &DbConn, recommendation_id: Uuid) -> Result<Option<recommendations::Model>, AppError> {
+    pub async fn find_by_id(
+        db: &DbConn,
+        recommendation_id: Uuid,
+    ) -> Result<Option<recommendations::Model>, AppError> {
         Recommendations::find_by_id(recommendation_id)
             .one(db)
             .await
             .map_err(AppError::from)
     }
 
-    pub async fn create(db: &DbConn, recommendation_data: recommendations::ActiveModel) -> Result<recommendations::Model, AppError> {
-        recommendation_data
-            .insert(db)
-            .await
-            .map_err(AppError::from)
+    pub async fn create(
+        db: &DbConn,
+        recommendation_data: recommendations::ActiveModel,
+    ) -> Result<recommendations::Model, AppError> {
+        recommendation_data.insert(db).await.map_err(AppError::from)
     }
 
     pub async fn update(
@@ -39,7 +42,7 @@ impl RecommendationsRepository {
             .ok_or_else(|| AppError::NotFound("Recommendation not found".to_string()))?;
 
         let mut active_model: recommendations::ActiveModel = recommendation.into();
-        
+
         if let ActiveValue::Set(dimension_id) = recommendation_data.dimension_id {
             active_model.dimension_id = Set(dimension_id);
         }
@@ -55,10 +58,7 @@ impl RecommendationsRepository {
 
         active_model.updated_at = Set(chrono::Utc::now());
 
-        active_model
-            .update(db)
-            .await
-            .map_err(AppError::from)
+        active_model.update(db).await.map_err(AppError::from)
     }
 
     pub async fn delete(db: &DbConn, recommendation_id: Uuid) -> Result<bool, AppError> {
@@ -81,8 +81,10 @@ impl RecommendationsRepository {
             .map_err(AppError::from)
     }
 
-
-    pub async fn find_by_priority(db: &DbConn, priority: crate::entities::recommendations::RecommendationPriority) -> Result<Vec<recommendations::Model>, AppError> {
+    pub async fn find_by_priority(
+        db: &DbConn,
+        priority: crate::entities::recommendations::RecommendationPriority,
+    ) -> Result<Vec<recommendations::Model>, AppError> {
         Recommendations::find()
             .filter(recommendations::Column::Priority.eq(priority))
             .all(db)
@@ -92,12 +94,14 @@ impl RecommendationsRepository {
 
     pub async fn find_high_priority(db: &DbConn) -> Result<Vec<recommendations::Model>, AppError> {
         Recommendations::find()
-            .filter(recommendations::Column::Priority.eq(crate::entities::recommendations::RecommendationPriority::High))
+            .filter(
+                recommendations::Column::Priority
+                    .eq(crate::entities::recommendations::RecommendationPriority::High),
+            )
             .all(db)
             .await
             .map_err(AppError::from)
     }
-
 
     pub async fn update_priority(
         db: &DbConn,
@@ -114,9 +118,6 @@ impl RecommendationsRepository {
         active_model.priority = Set(priority);
         active_model.updated_at = Set(chrono::Utc::now());
 
-        active_model
-            .update(db)
-            .await
-            .map_err(AppError::from)
+        active_model.update(db).await.map_err(AppError::from)
     }
 }

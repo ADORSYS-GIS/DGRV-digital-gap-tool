@@ -1,7 +1,7 @@
+use super::action_items::ActionItemPriority;
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
-use super::action_items::ActionItemPriority;
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
 #[sea_orm(table_name = "action_plans")]
@@ -43,7 +43,7 @@ impl FromStr for ActionPlanStatus {
             "active" => Ok(ActionPlanStatus::Active),
             "completed" => Ok(ActionPlanStatus::Completed),
             "cancelled" => Ok(ActionPlanStatus::Cancelled),
-            _ => Err(format!("Invalid action plan status: {}", s)),
+            _ => Err(format!("Invalid action plan status: {s}")),
         }
     }
 }
