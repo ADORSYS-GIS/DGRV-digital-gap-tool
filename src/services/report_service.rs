@@ -61,7 +61,8 @@ impl ReportService {
             format: sea_orm::ActiveValue::Set(format),
             summary: sea_orm::ActiveValue::Set(None),
             report_data: sea_orm::ActiveValue::Set(None), // Store in object storage instead
-            file_path: sea_orm::ActiveValue::Set(Some(object_name)),
+            file_path: sea_orm::ActiveValue::Set(Some(object_name.clone())),
+            minio_path: sea_orm::ActiveValue::Set(Some(format!("s3://reports/{}", object_name))),
             status: sea_orm::ActiveValue::Set(ReportStatus::Completed),
             generated_at: sea_orm::ActiveValue::Set(chrono::Utc::now()),
             created_at: sea_orm::ActiveValue::Set(chrono::Utc::now()),

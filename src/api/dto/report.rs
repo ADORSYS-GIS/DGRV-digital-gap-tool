@@ -37,6 +37,7 @@ pub struct ReportResponse {
     pub summary: Option<String>,
     pub report_data: Option<serde_json::Value>,
     pub file_path: Option<String>,
+    pub minio_path: Option<String>,
     pub status: ReportStatus,
     pub generated_at: DateTime<Utc>,
     pub created_at: DateTime<Utc>,
@@ -81,7 +82,6 @@ pub enum ReportStatus {
     Generating,
     Completed,
     Failed,
-    Archived,
 }
 
 impl fmt::Display for ReportStatus {
@@ -91,7 +91,6 @@ impl fmt::Display for ReportStatus {
             ReportStatus::Generating => write!(f, "generating"),
             ReportStatus::Completed => write!(f, "completed"),
             ReportStatus::Failed => write!(f, "failed"),
-            ReportStatus::Archived => write!(f, "archived"),
         }
     }
 }
@@ -105,7 +104,6 @@ impl FromStr for ReportStatus {
             "generating" => Ok(ReportStatus::Generating),
             "completed" => Ok(ReportStatus::Completed),
             "failed" => Ok(ReportStatus::Failed),
-            "archived" => Ok(ReportStatus::Archived),
             _ => Err(format!("Invalid report status: {s}")),
         }
     }

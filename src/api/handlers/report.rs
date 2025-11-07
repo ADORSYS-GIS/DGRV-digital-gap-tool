@@ -19,6 +19,25 @@ use crate::api::handlers::common::{
 use crate::error::AppError;
 use crate::repositories::reports::ReportsRepository;
 
+// Helper function to convert entity report to DTO
+fn entity_to_report_response(report: crate::entities::reports::Model) -> ReportResponse {
+    ReportResponse {
+        report_id: report.report_id,
+        assessment_id: report.assessment_id,
+        report_type: convert_entity_report_type_to_dto(report.report_type),
+        title: report.title,
+        format: report.format,
+        summary: report.summary,
+        report_data: report.report_data,
+        file_path: report.file_path,
+        minio_path: report.minio_path,
+        status: convert_entity_report_status_to_dto(report.status),
+        generated_at: report.generated_at,
+        created_at: report.created_at,
+        updated_at: report.updated_at,
+    }
+}
+
 /// Create a new report
 #[utoipa::path(
     post,
@@ -55,20 +74,7 @@ pub async fn create_report(
         .await
         .map_err(crate::api::handlers::common::handle_error)?;
 
-    let response = ReportResponse {
-        report_id: report.report_id,
-        assessment_id: report.assessment_id,
-        report_type: convert_entity_report_type_to_dto(report.report_type),
-        title: report.title,
-        format: convert_entity_report_format_to_dto(report.format),
-        summary: report.summary,
-        report_data: report.report_data,
-        file_path: None, // Will be set when file is actually generated
-        status: convert_entity_report_status_to_dto(report.status),
-        generated_at: report.generated_at,
-        created_at: report.created_at,
-        updated_at: report.updated_at,
-    };
+    let response = entity_to_report_response(report);
 
     Ok(success_response_with_message(
         response,
@@ -166,20 +172,7 @@ pub async fn generate_report(
     // For now, we'll just return the created report
     // In a real implementation, you'd start the report generation process here
 
-    let response = ReportResponse {
-        report_id: report.report_id,
-        assessment_id: report.assessment_id,
-        report_type: convert_entity_report_type_to_dto(report.report_type),
-        title: report.title,
-        format: convert_entity_report_format_to_dto(report.format),
-        summary: report.summary,
-        report_data: report.report_data,
-        file_path: report.file_path,
-        status: convert_entity_report_status_to_dto(report.status),
-        generated_at: report.generated_at,
-        created_at: report.created_at,
-        updated_at: report.updated_at,
-    };
+    let response = entity_to_report_response(report);
 
     Ok(success_response_with_message(
         response,
@@ -210,20 +203,7 @@ pub async fn get_report(
             ))
         })?;
 
-    let response = ReportResponse {
-        report_id: report.report_id,
-        assessment_id: report.assessment_id,
-        report_type: convert_entity_report_type_to_dto(report.report_type),
-        title: report.title,
-        format: convert_entity_report_format_to_dto(report.format),
-        summary: report.summary,
-        report_data: report.report_data,
-        file_path: report.file_path,
-        status: convert_entity_report_status_to_dto(report.status),
-        generated_at: report.generated_at,
-        created_at: report.created_at,
-        updated_at: report.updated_at,
-    };
+    let response = entity_to_report_response(report);
 
     Ok(success_response(response))
 }
@@ -257,7 +237,6 @@ pub async fn get_report_status(
         ReportStatus::Generating => Some(50),
         ReportStatus::Completed => Some(100),
         ReportStatus::Failed => Some(0),
-        ReportStatus::Archived => Some(100),
     };
 
     let response = ReportStatusResponse {
@@ -269,7 +248,6 @@ pub async fn get_report_status(
             ReportStatus::Generating => Some("Report is being generated".to_string()),
             ReportStatus::Completed => Some("Report generation completed".to_string()),
             ReportStatus::Failed => Some("Report generation failed".to_string()),
-            ReportStatus::Archived => Some("Report has been archived".to_string()),
         },
         estimated_completion: match status {
             ReportStatus::Generating => Some(chrono::Utc::now() + chrono::Duration::minutes(5)),
@@ -304,24 +282,11 @@ pub async fn download_report(
         })?;
 
     let format = report.format.clone();
-    let report_response = ReportResponse {
-        report_id: report.report_id,
-        assessment_id: report.assessment_id,
-        report_type: convert_entity_report_type_to_dto(report.report_type),
-        title: report.title,
-        format: convert_entity_report_format_to_dto(format.clone()),
-        summary: report.summary,
-        report_data: report.report_data,
-        file_path: report.file_path.clone(),
-        status: convert_entity_report_status_to_dto(report.status),
-        generated_at: report.generated_at,
-        created_at: report.created_at,
-        updated_at: report.updated_at,
-    };
+    let file_path = report.file_path.clone();
+    let report_response = entity_to_report_response(report);
 
     // Generate a simple download URL based on object key (file_path)
-    let download_url = report
-        .file_path
+    let download_url = file_path
         .as_ref()
         .map(|key| format!("/api/v1/reports/{report_id}/objects/{key}"));
 
@@ -375,20 +340,7 @@ pub async fn list_reports(
         .into_iter()
         .skip(offset as usize)
         .take(limit as usize)
-        .map(|report| ReportResponse {
-            report_id: report.report_id,
-            assessment_id: report.assessment_id,
-            report_type: convert_entity_report_type_to_dto(report.report_type),
-            title: report.title,
-            format: convert_entity_report_format_to_dto(report.format),
-            summary: report.summary,
-            report_data: report.report_data,
-            file_path: report.file_path,
-            status: convert_entity_report_status_to_dto(report.status),
-            generated_at: report.generated_at,
-            created_at: report.created_at,
-            updated_at: report.updated_at,
-        })
+        .map(entity_to_report_response)
         .collect();
 
     let response = PaginatedResponse::new(paginated_reports, total, page, limit);
@@ -424,20 +376,7 @@ pub async fn list_reports_by_assessment(
         .into_iter()
         .skip(offset as usize)
         .take(limit as usize)
-        .map(|report| ReportResponse {
-            report_id: report.report_id,
-            assessment_id: report.assessment_id,
-            report_type: convert_entity_report_type_to_dto(report.report_type),
-            title: report.title,
-            format: convert_entity_report_format_to_dto(report.format),
-            summary: report.summary,
-            report_data: report.report_data,
-            file_path: report.file_path,
-            status: convert_entity_report_status_to_dto(report.status),
-            generated_at: report.generated_at,
-            created_at: report.created_at,
-            updated_at: report.updated_at,
-        })
+        .map(entity_to_report_response)
         .collect();
 
     let response = PaginatedResponse::new(paginated_reports, total, page, limit);
@@ -487,20 +426,7 @@ pub async fn update_report(
         .await
         .map_err(crate::api::handlers::common::handle_error)?;
 
-    let response = ReportResponse {
-        report_id: updated_report.report_id,
-        assessment_id: updated_report.assessment_id,
-        report_type: convert_entity_report_type_to_dto(updated_report.report_type),
-        title: updated_report.title,
-        format: convert_entity_report_format_to_dto(updated_report.format),
-        summary: updated_report.summary,
-        report_data: updated_report.report_data,
-        file_path: updated_report.file_path,
-        status: convert_entity_report_status_to_dto(updated_report.status),
-        generated_at: updated_report.generated_at,
-        created_at: updated_report.created_at,
-        updated_at: updated_report.updated_at,
-    };
+    let response = entity_to_report_response(updated_report);
 
     Ok(success_response_with_message(
         response,

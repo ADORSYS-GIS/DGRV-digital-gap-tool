@@ -34,12 +34,14 @@ pub async fn create_dimension(
     Json(request): Json<CreateDimensionRequest>,
 ) -> Result<Json<ApiResponse<DimensionResponse>>, (StatusCode, Json<serde_json::Value>)> {
     let active_model = crate::entities::dimensions::ActiveModel {
+        dimension_id: sea_orm::Set(uuid::Uuid::new_v4()),
         name: sea_orm::Set(request.name),
         description: sea_orm::Set(request.description),
         weight: sea_orm::Set(Some(request.weight.unwrap_or(1))),
         category: sea_orm::Set(request.category),
         is_active: sea_orm::Set(Some(request.is_active.unwrap_or(true))),
-        ..Default::default()
+        created_at: sea_orm::Set(chrono::Utc::now()),
+        updated_at: sea_orm::Set(chrono::Utc::now()),
     };
 
     let dimension = DimensionsRepository::create(db.as_ref(), active_model)

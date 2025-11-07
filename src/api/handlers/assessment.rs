@@ -192,6 +192,10 @@ pub async fn get_assessment_summary(
             dimension_assessment_id: da.dimension_assessment_id,
             assessment_id: da.assessment_id,
             dimension_id: da.dimension_id,
+            current_state_id: da.current_state_id,
+            desired_state_id: da.desired_state_id,
+            current_score: da.current_score,
+            desired_score: da.desired_score,
             created_at: da.created_at,
             updated_at: da.updated_at,
         })
@@ -373,6 +377,10 @@ pub async fn create_dimension_assessment(
     let active_model = crate::entities::dimension_assessments::ActiveModel {
         assessment_id: sea_orm::Set(assessment_id),
         dimension_id: sea_orm::Set(request.dimension_id),
+        current_state_id: sea_orm::Set(request.current_state_id),
+        desired_state_id: sea_orm::Set(request.desired_state_id),
+        current_score: sea_orm::Set(request.current_score),
+        desired_score: sea_orm::Set(request.desired_score),
         ..Default::default()
     };
 
@@ -384,6 +392,10 @@ pub async fn create_dimension_assessment(
         dimension_assessment_id: dimension_assessment.dimension_assessment_id,
         assessment_id: dimension_assessment.assessment_id,
         dimension_id: dimension_assessment.dimension_id,
+        current_state_id: dimension_assessment.current_state_id,
+        desired_state_id: dimension_assessment.desired_state_id,
+        current_score: dimension_assessment.current_score,
+        desired_score: dimension_assessment.desired_score,
         created_at: dimension_assessment.created_at,
         updated_at: dimension_assessment.updated_at,
     };
@@ -411,7 +423,7 @@ pub async fn create_dimension_assessment(
 pub async fn update_dimension_assessment(
     State(db): State<Arc<DatabaseConnection>>,
     Path((assessment_id, dimension_assessment_id)): Path<(Uuid, Uuid)>,
-    Json(_request): Json<UpdateDimensionAssessmentRequest>,
+    Json(request): Json<UpdateDimensionAssessmentRequest>,
 ) -> Result<Json<ApiResponse<DimensionAssessmentResponse>>, (StatusCode, Json<serde_json::Value>)> {
     let mut dimension_assessment =
         DimensionAssessmentsRepository::find_by_id(db.as_ref(), dimension_assessment_id)
@@ -433,7 +445,18 @@ pub async fn update_dimension_assessment(
     }
 
     // Update fields if provided
-    // No updatable fields on slimmed dimension_assessments for now
+    if let Some(current_state_id) = request.current_state_id {
+        dimension_assessment.current_state_id = Some(current_state_id);
+    }
+    if let Some(desired_state_id) = request.desired_state_id {
+        dimension_assessment.desired_state_id = Some(desired_state_id);
+    }
+    if let Some(current_score) = request.current_score {
+        dimension_assessment.current_score = Some(current_score);
+    }
+    if let Some(desired_score) = request.desired_score {
+        dimension_assessment.desired_score = Some(desired_score);
+    }
 
     dimension_assessment.updated_at = chrono::Utc::now();
 
@@ -448,6 +471,10 @@ pub async fn update_dimension_assessment(
         dimension_assessment_id: updated_dimension_assessment.dimension_assessment_id,
         assessment_id: updated_dimension_assessment.assessment_id,
         dimension_id: updated_dimension_assessment.dimension_id,
+        current_state_id: updated_dimension_assessment.current_state_id,
+        desired_state_id: updated_dimension_assessment.desired_state_id,
+        current_score: updated_dimension_assessment.current_score,
+        desired_score: updated_dimension_assessment.desired_score,
         created_at: updated_dimension_assessment.created_at,
         updated_at: updated_dimension_assessment.updated_at,
     };

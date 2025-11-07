@@ -16,6 +16,7 @@ pub struct Model {
     pub summary: Option<String>,
     pub report_data: Option<JsonValue>,
     pub file_path: Option<String>,
+    pub minio_path: Option<String>,
     pub status: ReportStatus,
     pub generated_at: DateTimeUtc,
     pub created_at: DateTimeUtc,

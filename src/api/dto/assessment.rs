@@ -80,11 +80,20 @@ impl FromStr for AssessmentStatus {
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct CreateDimensionAssessmentRequest {
     pub dimension_id: Uuid,
+    pub current_state_id: Option<Uuid>,
+    pub desired_state_id: Option<Uuid>,
+    pub current_score: Option<i32>,
+    pub desired_score: Option<i32>,
 }
 
 /// Dimension assessment update request
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
-pub struct UpdateDimensionAssessmentRequest {}
+pub struct UpdateDimensionAssessmentRequest {
+    pub current_state_id: Option<Uuid>,
+    pub desired_state_id: Option<Uuid>,
+    pub current_score: Option<i32>,
+    pub desired_score: Option<i32>,
+}
 
 /// Dimension assessment response
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
@@ -92,6 +101,10 @@ pub struct DimensionAssessmentResponse {
     pub dimension_assessment_id: Uuid,
     pub assessment_id: Uuid,
     pub dimension_id: Uuid,
+    pub current_state_id: Option<Uuid>,
+    pub desired_state_id: Option<Uuid>,
+    pub current_score: Option<i32>,
+    pub desired_score: Option<i32>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }

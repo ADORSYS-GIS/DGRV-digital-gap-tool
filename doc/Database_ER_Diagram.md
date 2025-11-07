@@ -5,10 +5,13 @@
 ```mermaid
 erDiagram
     
-    DIMENSIONS {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
+    DIMENSIONS {
         uuid dimension_id PK
         string name UK
         text description
+        integer weight
+        string category
+        boolean is_active
         datetime created_at
         datetime updated_at
     }
@@ -19,6 +22,8 @@ erDiagram
         string title
         text description
         integer score
+        string level
+        string characteristics
         datetime created_at
         datetime updated_at
     }
@@ -29,6 +34,9 @@ erDiagram
         string title
         text description
         integer score
+        string level
+        datetime target_date
+        string success_criteria
         datetime created_at
         datetime updated_at
     }
@@ -37,6 +45,7 @@ erDiagram
         uuid assessment_id PK
         string user_id
         string organization_id
+        string cooperative_id
         string document_title
         string status
         datetime started_at
@@ -101,6 +110,7 @@ erDiagram
         text summary
         json report_data
         string file_path
+        string minio_path
         string status
         datetime generated_at
         datetime created_at
@@ -135,6 +145,33 @@ erDiagram
         datetime created_at
         datetime updated_at
     }
+    
+    ORGANISATION_DIMENSION {
+        uuid organisation_dimension_id PK
+        string organisation_id
+        uuid dimension_id FK
+        datetime created_at
+        datetime updated_at
+    }
+    
+    GAP_SEVERITY_RULES {
+        uuid rule_id PK
+        uuid dimension_id FK
+        integer min_abs_gap
+        integer max_abs_gap
+        string gap_severity
+        datetime created_at
+        datetime updated_at
+    }
+    
+    GAP_DESCRIPTIONS {
+        uuid gap_description_id PK
+        uuid dimension_id FK
+        integer gap_size
+        text description
+        datetime created_at
+        datetime updated_at
+    }
 
     %% Relationships
     DIMENSIONS ||--o{ CURRENT_STATES : contains
@@ -158,6 +195,10 @@ erDiagram
     
     REPORTS ||--o{ ACTION_PLANS : spawns
     ACTION_PLANS ||--o{ ACTION_ITEMS : contains
+    
+    DIMENSIONS ||--o{ ORGANISATION_DIMENSION : enabled_for
+    DIMENSIONS ||--o{ GAP_SEVERITY_RULES : has_rules
+    DIMENSIONS ||--o{ GAP_DESCRIPTIONS : has_descriptions
 ```
 
 ## Entity Descriptions
@@ -168,9 +209,11 @@ erDiagram
 - **Purpose**: Define assessment categories (Technology, Social, etc.)
 - **Key Fields**:
   - `dimension_id`: Primary identifier
-  - `code`: Short unique identifier
-  - `name`: Display name
-  - `category`: Grouping mechanism
+  - `name`: Display name (unique)
+  - `description`: Detailed description of the dimension
+  - `weight`: Optional weight for scoring calculations (0-100)
+  - `category`: Grouping mechanism for related dimensions
+  - `is_active`: Flag to enable/disable dimension in assessments
 
 #### CURRENT_STATES
 - **Purpose**: Define current maturity levels within each dimension (0-6 scale)
@@ -180,6 +223,8 @@ erDiagram
   - `score`: Numerical score (0-6)
   - `title`: Short descriptive name (e.g., "Basic minimal Adoption")
   - `description`: Detailed explanation of this maturity level
+  - `level`: Optional textual level indicator (e.g., "Beginner", "Intermediate")
+  - `characteristics`: Optional detailed characteristics of this state
 
 #### DESIRED_STATES
 - **Purpose**: Define desired/target maturity levels within each dimension (0-6 scale)
@@ -189,6 +234,9 @@ erDiagram
   - `score`: Numerical score (0-6)
   - `title`: Short descriptive name (e.g., "Encouraging Digital Adoption")
   - `description`: Detailed explanation of this maturity level
+  - `level`: Optional textual level indicator
+  - `target_date`: Optional target date for achieving this state
+  - `success_criteria`: Optional measurable criteria for success
 
 ### Assessment Entities
 
@@ -198,9 +246,9 @@ erDiagram
   - `assessment_id`: Primary identifier
   - `user_id`: Keycloak user identifier from JWT token
   - `organization_id`: Keycloak organization identifier from JWT token
+  - `cooperative_id`: Cooperative identifier for multi-cooperative support
   - `document_title`: Title from metadata (e.g., "Digital Gap Analysis Matrix DGRV")
-  - `file_name`: Original file name if imported
-  - `status`: Current state (draft, in_progress, completed)
+  - `status`: Current state (draft, in_progress, completed, archived)
 
 #### DIMENSION_ASSESSMENTS
 - **Purpose**: Store user selections for current and desired states per dimension
@@ -349,5 +397,56 @@ The system relies on JWT tokens from Keycloak containing:
 - User and organization data is extracted from token claims
 - No user/organization data is stored locally
 - Assessment data is linked via token-derived identifiers
+
+## Additional Tables
+
+### ORGANISATION_DIMENSION
+- **Purpose**: Links organizations to enabled dimensions for multi-tenancy support
+- **Key Fields**:
+  - `organisation_dimension_id`: Primary identifier
+  - `organisation_id`: Organization identifier from Keycloak
+  - `dimension_id`: Reference to dimension
+- **Usage**: Allows organizations to enable/disable specific dimensions for their assessments
+
+### GAP_SEVERITY_RULES
+- **Purpose**: Configurable rules for determining gap severity based on gap size
+- **Key Fields**:
+  - `rule_id`: Primary identifier
+  - `dimension_id`: Optional dimension-specific override (NULL for global rules)
+  - `min_abs_gap`: Minimum absolute gap size for this severity
+  - `max_abs_gap`: Maximum absolute gap size for this severity
+  - `gap_severity`: Severity level (LOW, MEDIUM, HIGH)
+- **Usage**: Admins can configure custom severity thresholds per dimension or globally
+
+### GAP_DESCRIPTIONS
+- **Purpose**: Pre-configured descriptions for specific gap sizes per dimension
+- **Key Fields**:
+  - `gap_description_id`: Primary identifier
+  - `dimension_id`: Reference to dimension
+  - `gap_size`: Specific gap size value
+  - `description`: Human-readable description for this gap
+- **Usage**: Provides contextual descriptions for gaps to help users understand the implications
+
+## Field Additions Summary
+
+### DIMENSIONS
+- Added `weight`: For weighted scoring calculations
+- Added `category`: For grouping dimensions
+- Added `is_active`: For enabling/disabling dimensions
+
+### CURRENT_STATES
+- Added `level`: Textual level indicator (e.g., "Beginner", "Advanced")
+- Added `characteristics`: Detailed characteristics of this state
+
+### DESIRED_STATES
+- Added `level`: Textual level indicator
+- Added `target_date`: Target date for achieving this state
+- Added `success_criteria`: Measurable criteria for success
+
+### ASSESSMENTS
+- Added `cooperative_id`: Cooperative identifier for multi-cooperative support
+
+### REPORTS
+- Added `minio_path`: S3-compatible object storage path for report files
 
 This ER diagram provides a robust foundation for the DGAT system, supporting the complete assessment workflow from dimension selection through gap analysis to actionable recommendations and reporting, while leveraging Keycloak for user and organization management.
