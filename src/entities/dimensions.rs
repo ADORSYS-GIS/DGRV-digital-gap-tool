@@ -12,8 +12,8 @@ pub struct Model {
     pub weight: Option<i32>,
     pub category: Option<String>,
     pub is_active: Option<bool>,
-    pub created_at: DateTimeUtc,
-    pub updated_at: DateTimeUtc,
+    pub created_at: DateTime,
+    pub updated_at: DateTime,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

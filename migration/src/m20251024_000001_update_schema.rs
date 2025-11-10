@@ -136,6 +136,7 @@ impl MigrationTrait for Migration {
 }
 
 #[derive(DeriveIden)]
+#[allow(dead_code)]
 enum Assessments {
     Table,
     AssessmentId,
@@ -152,6 +153,7 @@ enum Assessments {
 }
 
 #[derive(DeriveIden)]
+#[allow(dead_code)]
 enum DimensionAssessments {
     Table,
     DimensionAssessmentId,
@@ -165,6 +167,7 @@ enum DimensionAssessments {
 }
 
 #[derive(DeriveIden)]
+#[allow(dead_code)]
 enum Reports {
     Table,
     ReportId,
