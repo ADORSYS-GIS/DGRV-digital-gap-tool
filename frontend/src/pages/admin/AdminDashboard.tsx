@@ -103,14 +103,6 @@ const AdminDashboard: React.FC = () => {
               variant="default"
             />
           </Link>
-          <Link to="/admin/digitalisation-levels">
-            <DashboardCard
-              title="Manage Digitalisation Levels"
-              description="Manage current and to-be digitalisation levels"
-              icon={FileText}
-              variant="default"
-            />
-          </Link>
           <Link to="/admin/dimensions">
             <DashboardCard
               title="Manage Dimensions"
@@ -119,26 +111,38 @@ const AdminDashboard: React.FC = () => {
               variant="default"
             />
           </Link>
-          <Link to="/admin/recommendations">
+          <Link to="/admin/action-plan">
             <DashboardCard
-              title="Manage Recommendations"
-              description="Create, edit, and manage recommendations"
+              title="Manage Action Plan"
+              description="Create, edit, and manage action plans"
               icon={Settings}
               variant="default"
             />
           </Link>
-          <DashboardCard
-            title="Manage Users"
-            description="Create, edit, and manage users"
-            icon={Users}
-            variant="default"
-          />
-          <DashboardCard
-            title="View Reports"
-            description="View system reports"
-            icon={BarChart3}
-            variant="default"
-          />
+          <Link to="/admin/digital-gaps">
+            <DashboardCard
+              title="Manage Digital Gaps"
+              description="Create, edit, and manage digital gaps"
+              icon={Settings}
+              variant="default"
+            />
+          </Link>
+          <Link to="/admin/users">
+            <DashboardCard
+              title="Manage Users"
+              description="Create, edit, and manage users"
+              icon={Users}
+              variant="default"
+            />
+          </Link>
+          <Link to="/admin/reports">
+            <DashboardCard
+              title="View Reports"
+              description="View system reports"
+              icon={BarChart3}
+              variant="default"
+            />
+          </Link>
         </CardContent>
       </Card>
 
