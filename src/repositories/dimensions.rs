@@ -59,7 +59,7 @@ impl DimensionsRepository {
             active_model.weight = dimension_data.weight;
         }
 
-        active_model.updated_at = Set(chrono::Utc::now());
+        active_model.updated_at = Set(chrono::Local::now().naive_local());
 
         active_model.update(db).await.map_err(AppError::from)
     }

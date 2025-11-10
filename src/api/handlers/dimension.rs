@@ -54,8 +54,8 @@ pub async fn create_dimension(
         weight: dimension.weight,
         category: dimension.category,
         is_active: dimension.is_active,
-        created_at: dimension.created_at,
-        updated_at: dimension.updated_at,
+        created_at: chrono::DateTime::from_naive_utc_and_offset(dimension.created_at, chrono::Utc),
+        updated_at: chrono::DateTime::from_naive_utc_and_offset(dimension.updated_at, chrono::Utc),
     };
 
     Ok(success_response_with_message(
@@ -94,8 +94,8 @@ pub async fn get_dimension(
         weight: dimension.weight,
         category: dimension.category,
         is_active: dimension.is_active,
-        created_at: dimension.created_at,
-        updated_at: dimension.updated_at,
+        created_at: chrono::DateTime::from_naive_utc_and_offset(dimension.created_at, chrono::Utc),
+        updated_at: chrono::DateTime::from_naive_utc_and_offset(dimension.updated_at, chrono::Utc),
     };
 
     Ok(success_response(response))
@@ -142,8 +142,8 @@ pub async fn get_dimension_with_states(
         weight: dimension.weight,
         category: dimension.category,
         is_active: dimension.is_active,
-        created_at: dimension.created_at,
-        updated_at: dimension.updated_at,
+        created_at: chrono::DateTime::from_naive_utc_and_offset(dimension.created_at, chrono::Utc),
+        updated_at: chrono::DateTime::from_naive_utc_and_offset(dimension.updated_at, chrono::Utc),
     };
 
     let current_states_response: Vec<CurrentStateResponse> = current_states
@@ -224,8 +224,8 @@ pub async fn list_dimensions(
             weight: dimension.weight,
             category: dimension.category,
             is_active: dimension.is_active,
-            created_at: dimension.created_at,
-            updated_at: dimension.updated_at,
+            created_at: chrono::DateTime::from_naive_utc_and_offset(dimension.created_at, chrono::Utc),
+            updated_at: chrono::DateTime::from_naive_utc_and_offset(dimension.updated_at, chrono::Utc),
         })
         .collect();
 
@@ -275,7 +275,7 @@ pub async fn update_dimension(
         dimension.is_active = Some(is_active);
     }
 
-    dimension.updated_at = chrono::Utc::now();
+    dimension.updated_at = chrono::Local::now().naive_local();
 
     let active_model: crate::entities::dimensions::ActiveModel = dimension.into();
     let updated_dimension = DimensionsRepository::update(db.as_ref(), dimension_id, active_model)
@@ -289,8 +289,8 @@ pub async fn update_dimension(
         weight: updated_dimension.weight,
         category: updated_dimension.category,
         is_active: updated_dimension.is_active,
-        created_at: updated_dimension.created_at,
-        updated_at: updated_dimension.updated_at,
+        created_at: chrono::DateTime::from_naive_utc_and_offset(updated_dimension.created_at, chrono::Utc),
+        updated_at: chrono::DateTime::from_naive_utc_and_offset(updated_dimension.updated_at, chrono::Utc),
     };
 
     Ok(success_response_with_message(
