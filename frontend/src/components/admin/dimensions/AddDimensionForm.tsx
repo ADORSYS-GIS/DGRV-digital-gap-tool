@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -38,22 +39,27 @@ export const AddDimensionForm = ({
     resolver: zodResolver(formSchema),
   });
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const addDimensionMutation = useAddDimension();
 
+  useEffect(() => {
+    if (!isOpen) {
+      reset();
+      setIsSubmitting(false);
+    }
+  }, [isOpen, reset]);
+
   const onSubmit = (data: FormValues) => {
-    console.log("AddDimensionForm onSubmit triggered with data:", data);
+    setIsSubmitting(true);
     const payload = {
       name: data.name,
       ...(data.description && { description: data.description }),
     };
     addDimensionMutation.mutate(payload, {
-      onSuccess: () => {
-        console.log("Dimension added successfully (frontend)");
-        reset();
+      onSettled: () => {
+        // This will be called regardless of success or error, online or offline.
+        // We can safely close the modal and reset the state here.
         onClose();
-      },
-      onError: (error) => {
-        console.error("Failed to add dimension (frontend):", error);
       },
     });
   };
@@ -78,8 +84,8 @@ export const AddDimensionForm = ({
             />
           </div>
           <DialogFooter>
-            <Button type="submit" disabled={addDimensionMutation.isPending}>
-              {addDimensionMutation.isPending ? "Adding..." : "Add Dimension"}
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Adding..." : "Add Dimension"}
             </Button>
           </DialogFooter>
         </form>

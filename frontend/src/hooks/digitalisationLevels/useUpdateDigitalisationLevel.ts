@@ -1,45 +1,80 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
-import { DigitalisationLevel } from "@/types/digitalisationLevel";
-import { db } from "@/services/db";
+import { digitalisationLevelRepository } from "@/services/digitalisationLevels/digitalisationLevelRepository";
+import {
+  ICreateCurrentStateRequest,
+  ICreateDesiredStateRequest,
+  IDigitalisationLevel,
+  LevelType,
+} from "@/types/digitalisationLevel";
+
+interface UpdateDigitalisationLevelVariables {
+  dimensionId: string;
+  levelId: string;
+  levelType: LevelType;
+  changes: Partial<ICreateCurrentStateRequest | ICreateDesiredStateRequest>;
+}
 
 export const useUpdateDigitalisationLevel = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<
+    void,
+    Error,
+    UpdateDigitalisationLevelVariables,
+    { previousLevels: IDigitalisationLevel[] | undefined }
+  >({
     mutationFn: async ({
-      id,
-      level,
-    }: {
-      id: string;
-      level: Partial<DigitalisationLevel>;
-    }) => {
-      const levelToUpdate: Partial<DigitalisationLevel> = {
-        ...level,
-        syncStatus: "pending",
-        lastModified: new Date().toISOString(),
-      };
+      dimensionId,
+      levelId,
+      levelType,
+      changes,
+    }: UpdateDigitalisationLevelVariables) => {
+      if (levelType === "current") {
+        await digitalisationLevelRepository.updateCurrentState(
+          dimensionId,
+          levelId,
+          changes as Partial<ICreateCurrentStateRequest>,
+        );
+      } else {
+        await digitalisationLevelRepository.updateDesiredState(
+          dimensionId,
+          levelId,
+          changes as Partial<ICreateDesiredStateRequest>,
+        );
+      }
+    },
+    onMutate: async (updatedLevel) => {
+      const queryKey = ["digitalisationLevels", updatedLevel.dimensionId];
+      await queryClient.cancelQueries({ queryKey });
 
-      await db.transaction(
-        "rw",
-        db.digitalisationLevels,
-        db.sync_queue,
-        async () => {
-          await db.digitalisationLevels.update(id, levelToUpdate);
-          await db.sync_queue.add({
-            entity: "dimensionLevel",
-            action: "update",
-            payload: { id, ...levelToUpdate },
-          });
-        },
-      );
+      const previousLevels =
+        queryClient.getQueryData<IDigitalisationLevel[]>(queryKey);
+
+      if (previousLevels) {
+        queryClient.setQueryData<IDigitalisationLevel[]>(
+          queryKey,
+          previousLevels.map((level) =>
+            level.id === updatedLevel.levelId
+              ? { ...level, ...updatedLevel.changes }
+              : level,
+          ),
+        );
+      }
+
+      return { previousLevels };
     },
-    onSuccess: () => {
-      toast.success("Digitalisation level updated successfully");
-      queryClient.invalidateQueries({ queryKey: ["digitalisationLevels"] });
+    onError: (err, updatedLevel, context) => {
+      if (context?.previousLevels) {
+        queryClient.setQueryData(
+          ["digitalisationLevels", updatedLevel.dimensionId],
+          context.previousLevels,
+        );
+      }
     },
-    onError: (error: Error) => {
-      toast.error(`Failed to update digitalisation level: ${error.message}`);
+    onSettled: (data, error, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["digitalisationLevels", variables.dimensionId],
+      });
     },
   });
 };

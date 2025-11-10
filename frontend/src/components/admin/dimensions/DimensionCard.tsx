@@ -18,7 +18,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useDeleteDimension } from "@/hooks/dimensions/useDeleteDimension";
-import { Dimension } from "@/types/dimension";
+import { IDimension } from "@/types/dimension";
 import { Layers, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -26,7 +26,7 @@ import { SelectStateDialog } from "../levels/SelectStateDialog";
 import { EditDimensionForm } from "./EditDimensionForm";
 
 interface DimensionCardProps {
-  dimension: Dimension;
+  dimension: IDimension;
 }
 
 export const DimensionCard = ({ dimension }: DimensionCardProps) => {
@@ -79,7 +79,8 @@ export const DimensionCard = ({ dimension }: DimensionCardProps) => {
                   <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                   <AlertDialogDescription>
                     This action cannot be undone. This will permanently delete
-                    the dimension.
+                    the dimension and remove its associated data from our
+                    servers.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
@@ -87,8 +88,9 @@ export const DimensionCard = ({ dimension }: DimensionCardProps) => {
                   <AlertDialogAction
                     onClick={handleDelete}
                     disabled={isDeleting}
+                    className="bg-red-600 hover:bg-red-700"
                   >
-                    {isDeleting ? "Deleting..." : "Delete"}
+                    {isDeleting ? "Deleting..." : "Continue"}
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>

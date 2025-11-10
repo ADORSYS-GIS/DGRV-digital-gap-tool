@@ -1,33 +1,44 @@
-import { useForm } from "react-hook-form";
+import { useEffect } from "react";
+import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useAddDigitalisationLevel } from "@/hooks/digitalisationLevels/useAddDigitalisationLevel";
-import { LevelType, LevelState } from "@/types/digitalisationLevel";
+import {
+  IDigitalisationLevel,
+  LevelType,
+  LevelState,
+} from "@/types/digitalisationLevel";
 
 const formSchema = z.object({
-  state: z.coerce.number().min(1).max(5),
-  scope: z.string().min(1, "Scope is required"),
+  description: z.string().optional(),
+  state: z.coerce.number().min(1, "Please select a state").max(5),
 });
 
 type FormValues = z.infer<typeof formSchema>;
-
-import { toast } from "sonner";
-import { DigitalisationLevel } from "@/types/digitalisationLevel";
 
 interface AddLevelFormProps {
   isOpen: boolean;
   onClose: () => void;
   dimensionId: string;
   levelType: LevelType;
-  existingLevels: DigitalisationLevel[];
+  existingLevels: IDigitalisationLevel[];
 }
 
 export const AddLevelForm = ({
@@ -42,101 +53,90 @@ export const AddLevelForm = ({
     handleSubmit,
     formState: { errors },
     reset,
+    control,
   } = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      state: 1,
-      scope: "",
+      state: 0,
+      description: "",
     },
   });
 
   const addLevelMutation = useAddDigitalisationLevel();
 
-  const onSubmit = (data: FormValues) => {
-    const stateExists = existingLevels.some(
-      (level) => level.state === data.state,
-    );
-
-    if (stateExists) {
-      toast.error("A level with this state already exists.");
-      return;
+  useEffect(() => {
+    if (!isOpen) {
+      reset();
     }
+  }, [isOpen, reset]);
+
+  const onSubmit: SubmitHandler<FormValues> = (data) => {
+    const levelData = {
+      dimension_id: dimensionId,
+      score: data.state as LevelState,
+      description: data.description ?? null,
+      level: `Level ${data.state}`,
+    };
 
     addLevelMutation.mutate(
       {
         dimensionId,
         levelType,
-        state: data.state as LevelState,
-        scope: data.scope,
+        levelData,
       },
       {
         onSuccess: () => {
-          reset();
           onClose();
         },
       },
     );
   };
 
+  const availableStates = [1, 2, 3, 4, 5].filter(
+    (state) => !existingLevels.some((level) => level.state === state),
+  );
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[480px] bg-white dark:bg-gray-900 rounded-lg shadow-2xl">
+      <DialogContent>
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-gray-800 dark:text-gray-200">
-            Add New Level
+          <DialogTitle>
+            Add New {levelType === "current" ? "Current" : "Desired"} Level
           </DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 p-6">
-          <div className="space-y-2">
-            <label
-              htmlFor="state"
-              className="text-sm font-medium text-gray-700 dark:text-gray-300"
-            >
-              State
-            </label>
-            <select
-              id="state"
-              {...register("state")}
-              className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-200 focus:ring-2 focus:ring-blue-500"
-            >
-              {[1, 2, 3, 4, 5].map((s) => (
-                <option key={s} value={s}>
-                  State {s}
-                </option>
-              ))}
-            </select>
-            {errors.state && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.state.message}
-              </p>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <Controller
+            name="state"
+            control={control}
+            render={({ field }) => (
+              <Select
+                onValueChange={(value) => field.onChange(parseInt(value, 10))}
+                defaultValue={field.value ? String(field.value) : ""}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a state" />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableStates.map((state) => (
+                    <SelectItem key={state} value={String(state)}>
+                      State {state}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             )}
-          </div>
-          <div className="space-y-2">
-            <label
-              htmlFor="scope"
-              className="text-sm font-medium text-gray-700 dark:text-gray-300"
-            >
-              Scope
-            </label>
-            <Textarea
-              id="scope"
-              {...register("scope")}
-              placeholder="Enter the scope for this level"
-              className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-200 focus:ring-2 focus:ring-blue-500"
-            />
-            {errors.scope && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.scope.message}
-              </p>
-            )}
-          </div>
-          <Button
-            type="submit"
-            disabled={addLevelMutation.isPending}
-            className="w-full bg-blue-500 text-white hover:bg-blue-600 transition-all duration-300 transform hover:scale-105"
-          >
-            {addLevelMutation.isPending ? "Adding..." : "Add Level"}
-          </Button>
+          />
+          {errors.state && (
+            <p className="text-red-500 text-sm mt-1">{errors.state.message}</p>
+          )}
+
+          <Textarea {...register("description")} placeholder="Description" />
+
+          <DialogFooter>
+            <Button type="submit" disabled={addLevelMutation.isPending}>
+              {addLevelMutation.isPending ? "Adding..." : "Add Level"}
+            </Button>
+          </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>

@@ -43,9 +43,6 @@ impl CurrentStatesRepository {
         if current_state_data.dimension_id.is_set() {
             active_model.dimension_id = current_state_data.dimension_id;
         }
-        if current_state_data.title.is_set() {
-            active_model.title = current_state_data.title;
-        }
         if current_state_data.description.is_set() {
             active_model.description = current_state_data.description;
         }
@@ -53,7 +50,7 @@ impl CurrentStatesRepository {
             active_model.score = current_state_data.score;
         }
 
-        active_model.updated_at = Set(chrono::Utc::now());
+        active_model.updated_at = Set(chrono::Local::now().naive_local());
 
         active_model.update(db).await.map_err(AppError::from)
     }

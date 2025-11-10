@@ -1,32 +1,67 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
-import { db } from "@/services/db";
+import { digitalisationLevelRepository } from "@/services/digitalisationLevels/digitalisationLevelRepository";
+import { IDigitalisationLevel, LevelType } from "@/types/digitalisationLevel";
+
+interface DeleteDigitalisationLevelVariables {
+  dimensionId: string;
+  levelId: string;
+  levelType: LevelType;
+}
 
 export const useDeleteDigitalisationLevel = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: async (id: string) => {
-      await db.transaction(
-        "rw",
-        db.digitalisationLevels,
-        db.sync_queue,
-        async () => {
-          await db.sync_queue.add({
-            entity: "dimensionLevel",
-            action: "delete",
-            payload: { id },
-          });
-          await db.digitalisationLevels.delete(id);
-        },
-      );
+  return useMutation<
+    void,
+    Error,
+    DeleteDigitalisationLevelVariables,
+    { previousLevels: IDigitalisationLevel[] | undefined }
+  >({
+    mutationFn: async ({
+      dimensionId,
+      levelId,
+      levelType,
+    }: DeleteDigitalisationLevelVariables) => {
+      if (levelType === "current") {
+        await digitalisationLevelRepository.deleteCurrentState(
+          dimensionId,
+          levelId,
+        );
+      } else {
+        await digitalisationLevelRepository.deleteDesiredState(
+          dimensionId,
+          levelId,
+        );
+      }
     },
-    onSuccess: () => {
-      toast.success("Digitalisation level deleted successfully");
-      queryClient.invalidateQueries({ queryKey: ["digitalisationLevels"] });
+    onMutate: async (deletedLevel) => {
+      const queryKey = ["digitalisationLevels", deletedLevel.dimensionId];
+      await queryClient.cancelQueries({ queryKey });
+
+      const previousLevels =
+        queryClient.getQueryData<IDigitalisationLevel[]>(queryKey);
+
+      if (previousLevels) {
+        queryClient.setQueryData<IDigitalisationLevel[]>(
+          queryKey,
+          previousLevels.filter((level) => level.id !== deletedLevel.levelId),
+        );
+      }
+
+      return { previousLevels };
     },
-    onError: (error: Error) => {
-      toast.error(`Failed to delete digitalisation level: ${error.message}`);
+    onError: (err, deletedLevel, context) => {
+      if (context?.previousLevels) {
+        queryClient.setQueryData(
+          ["digitalisationLevels", deletedLevel.dimensionId],
+          context.previousLevels,
+        );
+      }
+    },
+    onSettled: (data, error, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["digitalisationLevels", variables.dimensionId],
+      });
     },
   });
 };

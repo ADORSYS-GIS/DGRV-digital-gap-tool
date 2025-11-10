@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -14,7 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useUpdateDimension } from "@/hooks/dimensions/useUpdateDimension";
-import { Dimension } from "@/types/dimension";
+import { IDimension } from "@/types/dimension";
 
 const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -22,12 +22,13 @@ const formSchema = z.object({
 });
 
 type EditDimensionFormProps = {
-  dimension: Dimension;
+  dimension: IDimension;
 };
 
 export const EditDimensionForm = ({ dimension }: EditDimensionFormProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  const { mutate: updateDimension, isPending } = useUpdateDimension();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { mutate: updateDimension } = useUpdateDimension();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -37,19 +38,27 @@ export const EditDimensionForm = ({ dimension }: EditDimensionFormProps) => {
     },
   });
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    const dimensionToUpdate: Partial<Dimension> = {
-      name: values.name,
-    };
-    if (values.description) {
-      dimensionToUpdate.description = values.description;
+  useEffect(() => {
+    if (!isOpen) {
+      form.reset({
+        name: dimension.name,
+        description: dimension.description ?? "",
+      });
+      setIsSubmitting(false);
     }
+  }, [isOpen, form, dimension]);
+
+  const onSubmit = (values: z.infer<typeof formSchema>) => {
+    setIsSubmitting(true);
+    const dimensionToUpdate: Partial<IDimension> = {
+      name: values.name,
+      description: values.description ?? null,
+    };
     updateDimension(
       { id: dimension.id, dimension: dimensionToUpdate },
       {
-        onSuccess: () => {
+        onSettled: () => {
           setIsOpen(false);
-          form.reset();
         },
       },
     );
@@ -85,8 +94,8 @@ export const EditDimensionForm = ({ dimension }: EditDimensionFormProps) => {
               </p>
             )}
           </div>
-          <Button type="submit" disabled={isPending}>
-            {isPending ? "Updating..." : "Update Dimension"}
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "Updating..." : "Update Dimension"}
           </Button>
         </form>
       </DialogContent>

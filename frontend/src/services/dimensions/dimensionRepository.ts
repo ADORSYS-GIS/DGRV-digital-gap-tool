@@ -22,7 +22,9 @@ export const dimensionRepository = {
             lastError: "", // Ensure lastError is a string
           }));
           await db.dimensions.bulkAdd(syncedDimensions);
-          console.log("Dimensions fetched from backend and synced to IndexedDB.");
+          console.log(
+            "Dimensions fetched from backend and synced to IndexedDB.",
+          );
         }
       }
     } catch (error) {
@@ -46,7 +48,9 @@ export const dimensionRepository = {
           };
           await db.dimensions.put(syncedDimension); // Update or add to local DB
           localDimension = syncedDimension; // Use the synced version
-          console.log(`Dimension ${id} fetched from backend and synced to IndexedDB.`);
+          console.log(
+            `Dimension ${id} fetched from backend and synced to IndexedDB.`,
+          );
         }
       }
     } catch (error) {
@@ -62,7 +66,12 @@ export const dimensionRepository = {
       syncStatus: SyncStatus.PENDING, // Initially set to PENDING
     };
     await db.dimensions.add(newDimension);
-    syncService.addToSyncQueue("Dimension", newDimension.id, "CREATE", newDimension);
+    syncService.addToSyncQueue(
+      "Dimension",
+      newDimension.id,
+      "CREATE",
+      newDimension,
+    );
     return newDimension;
   },
   bulkAdd: async (dimensions: IDimension[]) => {
@@ -76,8 +85,14 @@ export const dimensionRepository = {
     }
 
     // Update in IndexedDB with PENDING status
-    await db.dimensions.update(id, { ...changes, syncStatus: SyncStatus.PENDING });
-    syncService.addToSyncQueue("Dimension", id, "UPDATE", { ...existingDimension, ...changes });
+    await db.dimensions.update(id, {
+      ...changes,
+      syncStatus: SyncStatus.PENDING,
+    });
+    syncService.addToSyncQueue("Dimension", id, "UPDATE", {
+      ...existingDimension,
+      ...changes,
+    });
   },
   delete: async (id: string): Promise<void> => {
     const existingDimension = await db.dimensions.get(id);
@@ -98,5 +113,8 @@ export const dimensionRepository = {
     });
   },
   markAsFailed: (id: string, error: string) =>
-    db.dimensions.update(id, { syncStatus: SyncStatus.FAILED, lastError: error }),
+    db.dimensions.update(id, {
+      syncStatus: SyncStatus.FAILED,
+      lastError: error,
+    }),
 };

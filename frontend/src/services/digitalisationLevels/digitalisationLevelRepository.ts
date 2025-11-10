@@ -1,4 +1,10 @@
-import { ICreateCurrentStateRequest, ICreateDesiredStateRequest, IDigitalisationLevel, LevelType, LevelState } from "@/types/digitalisationLevel";
+import {
+  ICreateCurrentStateRequest,
+  ICreateDesiredStateRequest,
+  IDigitalisationLevel,
+  LevelType,
+  LevelState,
+} from "@/types/digitalisationLevel";
 import { SyncStatus } from "@/types/sync/index";
 import { v4 as uuidv4 } from "uuid";
 import { db } from "../db";
@@ -20,7 +26,7 @@ export const digitalisationLevelRepository = {
   // Current State Operations
   addCurrentState: async (
     dimensionId: string,
-    currentState: ICreateCurrentStateRequest
+    currentState: ICreateCurrentStateRequest,
   ): Promise<IDigitalisationLevel> => {
     const newCurrentState: IDigitalisationLevel = {
       id: currentState.id || uuidv4(),
@@ -28,46 +34,74 @@ export const digitalisationLevelRepository = {
       dimensionId: dimensionId,
       levelType: "current",
       state: currentState.score as LevelState,
-      title: currentState.title,
       description: currentState.description ?? null,
       level: currentState.level ?? null,
-      characteristics: currentState.characteristics ?? null,
     };
     await db.digitalisationLevels.add(newCurrentState);
-    syncService.addToSyncQueue("CurrentState", newCurrentState.id, "CREATE", newCurrentState);
+    syncService.addToSyncQueue(
+      "CurrentState",
+      newCurrentState.id,
+      "CREATE",
+      newCurrentState,
+    );
     return newCurrentState;
   },
 
   updateCurrentState: async (
     dimensionId: string,
     currentStateId: string,
-    changes: Partial<ICreateCurrentStateRequest>
+    changes: Partial<ICreateCurrentStateRequest>,
   ): Promise<void> => {
-    const existingCurrentState = await db.digitalisationLevels.get(currentStateId);
+    const existingCurrentState =
+      await db.digitalisationLevels.get(currentStateId);
     if (!existingCurrentState) {
-      console.warn(`CurrentState with ID ${currentStateId} not found in IndexedDB.`);
+      console.warn(
+        `CurrentState with ID ${currentStateId} not found in IndexedDB.`,
+      );
       return;
     }
 
-    await db.digitalisationLevels.update(currentStateId, { ...changes, syncStatus: SyncStatus.PENDING });
-    syncService.addToSyncQueue("CurrentState", currentStateId, "UPDATE", { dimensionId, ...existingCurrentState, ...changes });
+    await db.digitalisationLevels.update(currentStateId, {
+      ...changes,
+      syncStatus: SyncStatus.PENDING,
+    });
+    syncService.addToSyncQueue("CurrentState", currentStateId, "UPDATE", {
+      dimensionId,
+      ...existingCurrentState,
+      ...changes,
+    });
   },
 
-  deleteCurrentState: async (dimensionId: string, currentStateId: string): Promise<void> => {
-    const existingCurrentState = await db.digitalisationLevels.get(currentStateId);
+  deleteCurrentState: async (
+    dimensionId: string,
+    currentStateId: string,
+  ): Promise<void> => {
+    const existingCurrentState =
+      await db.digitalisationLevels.get(currentStateId);
     if (!existingCurrentState) {
-      console.warn(`CurrentState with ID ${currentStateId} not found in IndexedDB.`);
+      console.warn(
+        `CurrentState with ID ${currentStateId} not found in IndexedDB.`,
+      );
       return;
     }
 
-    await db.digitalisationLevels.update(currentStateId, { syncStatus: SyncStatus.PENDING });
-    syncService.addToSyncQueue("CurrentState", currentStateId, "DELETE", { dimensionId, id: currentStateId });
+    // If the item was created offline and not yet synced, just delete it locally
+    if (existingCurrentState.syncStatus === SyncStatus.PENDING) {
+      await db.digitalisationLevels.delete(currentStateId);
+      syncService.removeFromSyncQueue("CurrentState", currentStateId);
+    } else {
+      await db.digitalisationLevels.delete(currentStateId);
+      syncService.addToSyncQueue("CurrentState", currentStateId, "DELETE", {
+        dimensionId,
+        id: currentStateId,
+      });
+    }
   },
 
   // Desired State Operations
   addDesiredState: async (
     dimensionId: string,
-    desiredState: ICreateDesiredStateRequest
+    desiredState: ICreateDesiredStateRequest,
   ): Promise<IDigitalisationLevel> => {
     const newDesiredState: IDigitalisationLevel = {
       id: desiredState.id || uuidv4(),
@@ -75,45 +109,74 @@ export const digitalisationLevelRepository = {
       dimensionId: dimensionId,
       levelType: "desired",
       state: desiredState.score as LevelState,
-      title: desiredState.title,
       description: desiredState.description ?? null,
       level: desiredState.level ?? null,
-      success_criteria: desiredState.success_criteria ?? null,
-      target_date: desiredState.target_date ?? null,
     };
     await db.digitalisationLevels.add(newDesiredState);
-    syncService.addToSyncQueue("DesiredState", newDesiredState.id, "CREATE", newDesiredState);
+    syncService.addToSyncQueue(
+      "DesiredState",
+      newDesiredState.id,
+      "CREATE",
+      newDesiredState,
+    );
     return newDesiredState;
   },
 
   updateDesiredState: async (
     dimensionId: string,
     desiredStateId: string,
-    changes: Partial<ICreateDesiredStateRequest>
+    changes: Partial<ICreateDesiredStateRequest>,
   ): Promise<void> => {
-    const existingDesiredState = await db.digitalisationLevels.get(desiredStateId);
+    const existingDesiredState =
+      await db.digitalisationLevels.get(desiredStateId);
     if (!existingDesiredState) {
-      console.warn(`DesiredState with ID ${desiredStateId} not found in IndexedDB.`);
+      console.warn(
+        `DesiredState with ID ${desiredStateId} not found in IndexedDB.`,
+      );
       return;
     }
 
-    await db.digitalisationLevels.update(desiredStateId, { ...changes, syncStatus: SyncStatus.PENDING });
-    syncService.addToSyncQueue("DesiredState", desiredStateId, "UPDATE", { dimensionId, ...existingDesiredState, ...changes });
+    await db.digitalisationLevels.update(desiredStateId, {
+      ...changes,
+      syncStatus: SyncStatus.PENDING,
+    });
+    syncService.addToSyncQueue("DesiredState", desiredStateId, "UPDATE", {
+      dimensionId,
+      ...existingDesiredState,
+      ...changes,
+    });
   },
 
-  deleteDesiredState: async (dimensionId: string, desiredStateId: string): Promise<void> => {
-    const existingDesiredState = await db.digitalisationLevels.get(desiredStateId);
+  deleteDesiredState: async (
+    dimensionId: string,
+    desiredStateId: string,
+  ): Promise<void> => {
+    const existingDesiredState =
+      await db.digitalisationLevels.get(desiredStateId);
     if (!existingDesiredState) {
-      console.warn(`DesiredState with ID ${desiredStateId} not found in IndexedDB.`);
+      console.warn(
+        `DesiredState with ID ${desiredStateId} not found in IndexedDB.`,
+      );
       return;
     }
 
-    await db.digitalisationLevels.update(desiredStateId, { syncStatus: SyncStatus.PENDING });
-    syncService.addToSyncQueue("DesiredState", desiredStateId, "DELETE", { dimensionId, id: desiredStateId });
+    // If the item was created offline and not yet synced, just delete it locally
+    if (existingDesiredState.syncStatus === SyncStatus.PENDING) {
+      await db.digitalisationLevels.delete(desiredStateId);
+      syncService.removeFromSyncQueue("DesiredState", desiredStateId);
+    } else {
+      await db.digitalisationLevels.delete(desiredStateId);
+      syncService.addToSyncQueue("DesiredState", desiredStateId, "DELETE", {
+        dimensionId,
+        id: desiredStateId,
+      });
+    }
   },
 
   // Read Operations
-  getAllCurrentStates: async (dimensionId: string): Promise<IDigitalisationLevel[]> => {
+  getAllCurrentStates: async (
+    dimensionId: string,
+  ): Promise<IDigitalisationLevel[]> => {
     try {
       if (navigator.onLine) {
         const backendData = await getDimensionWithStates({ id: dimensionId });
@@ -124,31 +187,43 @@ export const digitalisationLevelRepository = {
             dimensionId: dimensionId,
             levelType: "current" as LevelType,
             state: s.score as LevelState,
-            title: s.title,
             description: s.description ?? null,
             level: s.level ?? null,
-            characteristics: s.characteristics ?? null,
             syncStatus: SyncStatus.SYNCED,
             lastError: "",
           }));
           // Clear existing current states for this dimension and add new ones
-          await db.digitalisationLevels.where({ dimensionId, levelType: "current" }).delete();
+          await db.digitalisationLevels
+            .where({ dimensionId, levelType: "current" })
+            .delete();
           await db.digitalisationLevels.bulkAdd(syncedStates);
-          console.log(`Current states for dimension ${dimensionId} fetched from backend and synced.`);
+          console.log(
+            `Current states for dimension ${dimensionId} fetched from backend and synced.`,
+          );
         }
       }
     } catch (error) {
-      console.error(`Failed to sync current states for dimension ${dimensionId} from backend:`, error);
+      console.error(
+        `Failed to sync current states for dimension ${dimensionId} from backend:`,
+        error,
+      );
     }
-    return db.digitalisationLevels.where({ dimensionId, levelType: "current" }).toArray();
+    return db.digitalisationLevels
+      .where({ dimensionId, levelType: "current" })
+      .toArray();
   },
 
-  getCurrentStateById: async (dimensionId: string, id: string): Promise<IDigitalisationLevel | undefined> => {
+  getCurrentStateById: async (
+    dimensionId: string,
+    id: string,
+  ): Promise<IDigitalisationLevel | undefined> => {
     let localState = await db.digitalisationLevels.get(id);
     try {
       if (navigator.onLine) {
         const backendData = await getDimensionWithStates({ id: dimensionId });
-        const backendState = backendData.data?.current_states?.find(s => s.current_state_id === id);
+        const backendState = backendData.data?.current_states?.find(
+          (s) => s.current_state_id === id,
+        );
         if (backendState) {
           const syncedState: IDigitalisationLevel = {
             ...backendState,
@@ -156,25 +231,30 @@ export const digitalisationLevelRepository = {
             dimensionId: dimensionId,
             levelType: "current" as LevelType,
             state: backendState.score as LevelState,
-            title: backendState.title,
             description: backendState.description ?? null,
             level: backendState.level ?? null,
-            characteristics: backendState.characteristics ?? null,
             syncStatus: SyncStatus.SYNCED,
             lastError: "",
           };
           await db.digitalisationLevels.put(syncedState);
           localState = syncedState;
-          console.log(`Current state ${id} for dimension ${dimensionId} fetched from backend and synced.`);
+          console.log(
+            `Current state ${id} for dimension ${dimensionId} fetched from backend and synced.`,
+          );
         }
       }
     } catch (error) {
-      console.error(`Failed to sync current state ${id} for dimension ${dimensionId} from backend:`, error);
+      console.error(
+        `Failed to sync current state ${id} for dimension ${dimensionId} from backend:`,
+        error,
+      );
     }
     return localState;
   },
 
-  getAllDesiredStates: async (dimensionId: string): Promise<IDigitalisationLevel[]> => {
+  getAllDesiredStates: async (
+    dimensionId: string,
+  ): Promise<IDigitalisationLevel[]> => {
     try {
       if (navigator.onLine) {
         const backendData = await getDimensionWithStates({ id: dimensionId });
@@ -185,32 +265,43 @@ export const digitalisationLevelRepository = {
             dimensionId: dimensionId,
             levelType: "desired" as LevelType,
             state: s.score as LevelState,
-            title: s.title,
             description: s.description ?? null,
             level: s.level ?? null,
-            success_criteria: s.success_criteria ?? null,
-            target_date: s.target_date ?? null,
             syncStatus: SyncStatus.SYNCED,
             lastError: "",
           }));
           // Clear existing desired states for this dimension and add new ones
-          await db.digitalisationLevels.where({ dimensionId, levelType: "desired" }).delete();
+          await db.digitalisationLevels
+            .where({ dimensionId, levelType: "desired" })
+            .delete();
           await db.digitalisationLevels.bulkAdd(syncedStates);
-          console.log(`Desired states for dimension ${dimensionId} fetched from backend and synced.`);
+          console.log(
+            `Desired states for dimension ${dimensionId} fetched from backend and synced.`,
+          );
         }
       }
     } catch (error) {
-      console.error(`Failed to sync desired states for dimension ${dimensionId} from backend:`, error);
+      console.error(
+        `Failed to sync desired states for dimension ${dimensionId} from backend:`,
+        error,
+      );
     }
-    return db.digitalisationLevels.where({ dimensionId, levelType: "desired" }).toArray();
+    return db.digitalisationLevels
+      .where({ dimensionId, levelType: "desired" })
+      .toArray();
   },
 
-  getDesiredStateById: async (dimensionId: string, id: string): Promise<IDigitalisationLevel | undefined> => {
+  getDesiredStateById: async (
+    dimensionId: string,
+    id: string,
+  ): Promise<IDigitalisationLevel | undefined> => {
     let localState = await db.digitalisationLevels.get(id);
     try {
       if (navigator.onLine) {
         const backendData = await getDimensionWithStates({ id: dimensionId });
-        const backendState = backendData.data?.desired_states?.find(s => s.desired_state_id === id);
+        const backendState = backendData.data?.desired_states?.find(
+          (s) => s.desired_state_id === id,
+        );
         if (backendState) {
           const syncedState: IDigitalisationLevel = {
             ...backendState,
@@ -218,21 +309,23 @@ export const digitalisationLevelRepository = {
             dimensionId: dimensionId,
             levelType: "desired" as LevelType,
             state: backendState.score as LevelState,
-            title: backendState.title,
             description: backendState.description ?? null,
             level: backendState.level ?? null,
-            success_criteria: backendState.success_criteria ?? null,
-            target_date: backendState.target_date ?? null,
             syncStatus: SyncStatus.SYNCED,
             lastError: "",
           };
           await db.digitalisationLevels.put(syncedState);
           localState = syncedState;
-          console.log(`Desired state ${id} for dimension ${dimensionId} fetched from backend and synced.`);
+          console.log(
+            `Desired state ${id} for dimension ${dimensionId} fetched from backend and synced.`,
+          );
         }
       }
     } catch (error) {
-      console.error(`Failed to sync desired state ${id} for dimension ${dimensionId} from backend:`, error);
+      console.error(
+        `Failed to sync desired state ${id} for dimension ${dimensionId} from backend:`,
+        error,
+      );
     }
     return localState;
   },
@@ -247,5 +340,8 @@ export const digitalisationLevelRepository = {
   },
 
   markAsFailed: (id: string, error: string) =>
-    db.digitalisationLevels.update(id, { syncStatus: SyncStatus.FAILED, lastError: error }),
+    db.digitalisationLevels.update(id, {
+      syncStatus: SyncStatus.FAILED,
+      lastError: error,
+    }),
 };

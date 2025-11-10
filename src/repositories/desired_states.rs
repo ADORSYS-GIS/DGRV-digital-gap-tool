@@ -43,16 +43,13 @@ impl DesiredStatesRepository {
         if let ActiveValue::Set(dimension_id) = desired_state_data.dimension_id {
             active_model.dimension_id = Set(dimension_id);
         }
-        if let ActiveValue::Set(title) = desired_state_data.title {
-            active_model.title = Set(title);
-        }
         if let ActiveValue::Set(description) = desired_state_data.description {
             active_model.description = Set(description);
         }
         if let ActiveValue::Set(score) = desired_state_data.score {
             active_model.score = Set(score);
         }
-        active_model.updated_at = Set(chrono::Utc::now());
+        active_model.updated_at = Set(chrono::Local::now().naive_local());
 
         active_model.update(db).await.map_err(AppError::from)
     }

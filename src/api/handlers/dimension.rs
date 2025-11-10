@@ -6,6 +6,7 @@ use axum::{
 use sea_orm::DatabaseConnection;
 use std::sync::Arc;
 use uuid::Uuid;
+use chrono::{DateTime, Utc};
 
 use crate::api::dto::{
     common::{ApiResponse, PaginatedResponse, PaginationParams},
@@ -54,8 +55,8 @@ pub async fn create_dimension(
         weight: dimension.weight,
         category: dimension.category,
         is_active: dimension.is_active,
-        created_at: chrono::DateTime::from_naive_utc_and_offset(dimension.created_at, chrono::Utc),
-        updated_at: chrono::DateTime::from_naive_utc_and_offset(dimension.updated_at, chrono::Utc),
+        created_at: DateTime::from_naive_utc_and_offset(dimension.created_at, Utc),
+        updated_at: DateTime::from_naive_utc_and_offset(dimension.updated_at, Utc),
     };
 
     Ok(success_response_with_message(
@@ -94,8 +95,8 @@ pub async fn get_dimension(
         weight: dimension.weight,
         category: dimension.category,
         is_active: dimension.is_active,
-        created_at: chrono::DateTime::from_naive_utc_and_offset(dimension.created_at, chrono::Utc),
-        updated_at: chrono::DateTime::from_naive_utc_and_offset(dimension.updated_at, chrono::Utc),
+        created_at: DateTime::from_naive_utc_and_offset(dimension.created_at, Utc),
+        updated_at: DateTime::from_naive_utc_and_offset(dimension.updated_at, Utc),
     };
 
     Ok(success_response(response))
@@ -142,8 +143,8 @@ pub async fn get_dimension_with_states(
         weight: dimension.weight,
         category: dimension.category,
         is_active: dimension.is_active,
-        created_at: chrono::DateTime::from_naive_utc_and_offset(dimension.created_at, chrono::Utc),
-        updated_at: chrono::DateTime::from_naive_utc_and_offset(dimension.updated_at, chrono::Utc),
+        created_at: DateTime::from_naive_utc_and_offset(dimension.created_at, Utc),
+        updated_at: DateTime::from_naive_utc_and_offset(dimension.updated_at, Utc),
     };
 
     let current_states_response: Vec<CurrentStateResponse> = current_states
@@ -151,13 +152,11 @@ pub async fn get_dimension_with_states(
         .map(|cs| CurrentStateResponse {
             current_state_id: cs.current_state_id,
             dimension_id: cs.dimension_id,
-            title: cs.title,
             description: cs.description,
             score: cs.score,
             level: cs.level,
-            characteristics: cs.characteristics,
-            created_at: cs.created_at,
-            updated_at: cs.updated_at,
+            created_at: DateTime::from_naive_utc_and_offset(cs.created_at, Utc),
+            updated_at: DateTime::from_naive_utc_and_offset(cs.updated_at, Utc),
         })
         .collect();
 
@@ -166,14 +165,11 @@ pub async fn get_dimension_with_states(
         .map(|ds| DesiredStateResponse {
             desired_state_id: ds.desired_state_id,
             dimension_id: ds.dimension_id,
-            title: ds.title,
             description: ds.description,
             score: ds.score,
             level: ds.level,
-            target_date: ds.target_date,
-            success_criteria: ds.success_criteria,
-            created_at: ds.created_at,
-            updated_at: ds.updated_at,
+            created_at: DateTime::from_naive_utc_and_offset(ds.created_at, Utc),
+            updated_at: DateTime::from_naive_utc_and_offset(ds.updated_at, Utc),
         })
         .collect();
 
@@ -224,10 +220,10 @@ pub async fn list_dimensions(
             weight: dimension.weight,
             category: dimension.category,
             is_active: dimension.is_active,
-            created_at: chrono::DateTime::from_naive_utc_and_offset(dimension.created_at, chrono::Utc),
-            updated_at: chrono::DateTime::from_naive_utc_and_offset(dimension.updated_at, chrono::Utc),
-        })
-        .collect();
+            created_at: DateTime::from_naive_utc_and_offset(dimension.created_at, Utc),
+            updated_at: DateTime::from_naive_utc_and_offset(dimension.updated_at, Utc),
+            })
+            .collect();
 
     let response = PaginatedResponse::new(paginated_dimensions, total, page, limit);
     Ok(success_response(response))
@@ -289,8 +285,8 @@ pub async fn update_dimension(
         weight: updated_dimension.weight,
         category: updated_dimension.category,
         is_active: updated_dimension.is_active,
-        created_at: chrono::DateTime::from_naive_utc_and_offset(updated_dimension.created_at, chrono::Utc),
-        updated_at: chrono::DateTime::from_naive_utc_and_offset(updated_dimension.updated_at, chrono::Utc),
+        created_at: DateTime::from_naive_utc_and_offset(updated_dimension.created_at, Utc),
+        updated_at: DateTime::from_naive_utc_and_offset(updated_dimension.updated_at, Utc),
     };
 
     Ok(success_response_with_message(
@@ -349,10 +345,11 @@ pub async fn create_current_state(
         })?;
 
     let active_model = crate::entities::current_states::ActiveModel {
+        current_state_id: sea_orm::Set(Uuid::new_v4()),
         dimension_id: sea_orm::Set(dimension_id),
         level: sea_orm::Set(request.level),
         description: sea_orm::Set(request.description),
-        characteristics: sea_orm::Set(request.characteristics),
+        score: sea_orm::Set(request.score),
         ..Default::default()
     };
 
@@ -363,13 +360,11 @@ pub async fn create_current_state(
     let response = CurrentStateResponse {
         current_state_id: current_state.current_state_id,
         dimension_id: current_state.dimension_id,
-        title: current_state.title,
         description: current_state.description,
         score: current_state.score,
         level: current_state.level,
-        characteristics: current_state.characteristics,
-        created_at: current_state.created_at,
-        updated_at: current_state.updated_at,
+        created_at: DateTime::from_naive_utc_and_offset(current_state.created_at, Utc),
+        updated_at: DateTime::from_naive_utc_and_offset(current_state.updated_at, Utc),
     };
 
     Ok(success_response_with_message(
@@ -422,11 +417,8 @@ pub async fn update_current_state(
     if let Some(description) = request.description {
         current_state.description = Some(description);
     }
-    if let Some(characteristics) = request.characteristics {
-        current_state.characteristics = Some(characteristics);
-    }
 
-    current_state.updated_at = chrono::Utc::now();
+    current_state.updated_at = chrono::Local::now().naive_local();
 
     let active_model: crate::entities::current_states::ActiveModel = current_state.into();
     let updated_current_state =
@@ -437,13 +429,11 @@ pub async fn update_current_state(
     let response = CurrentStateResponse {
         current_state_id: updated_current_state.current_state_id,
         dimension_id: updated_current_state.dimension_id,
-        title: updated_current_state.title,
         description: updated_current_state.description,
         score: updated_current_state.score,
         level: updated_current_state.level,
-        characteristics: updated_current_state.characteristics,
-        created_at: updated_current_state.created_at,
-        updated_at: updated_current_state.updated_at,
+        created_at: DateTime::from_naive_utc_and_offset(updated_current_state.created_at, Utc),
+        updated_at: DateTime::from_naive_utc_and_offset(updated_current_state.updated_at, Utc),
     };
 
     Ok(success_response_with_message(
@@ -479,11 +469,11 @@ pub async fn create_desired_state(
         })?;
 
     let active_model = crate::entities::desired_states::ActiveModel {
+        desired_state_id: sea_orm::Set(Uuid::new_v4()),
         dimension_id: sea_orm::Set(dimension_id),
         level: sea_orm::Set(request.level),
         description: sea_orm::Set(request.description),
-        target_date: sea_orm::Set(request.target_date),
-        success_criteria: sea_orm::Set(request.success_criteria),
+        score: sea_orm::Set(request.score),
         ..Default::default()
     };
 
@@ -494,14 +484,11 @@ pub async fn create_desired_state(
     let response = DesiredStateResponse {
         desired_state_id: desired_state.desired_state_id,
         dimension_id: desired_state.dimension_id,
-        title: desired_state.title,
         description: desired_state.description,
         score: desired_state.score,
         level: desired_state.level,
-        target_date: desired_state.target_date,
-        success_criteria: desired_state.success_criteria,
-        created_at: desired_state.created_at,
-        updated_at: desired_state.updated_at,
+        created_at: DateTime::from_naive_utc_and_offset(desired_state.created_at, Utc),
+        updated_at: DateTime::from_naive_utc_and_offset(desired_state.updated_at, Utc),
     };
 
     Ok(success_response_with_message(
@@ -554,14 +541,8 @@ pub async fn update_desired_state(
     if let Some(description) = request.description {
         desired_state.description = Some(description);
     }
-    if let Some(target_date) = request.target_date {
-        desired_state.target_date = Some(target_date);
-    }
-    if let Some(success_criteria) = request.success_criteria {
-        desired_state.success_criteria = Some(success_criteria);
-    }
 
-    desired_state.updated_at = chrono::Utc::now();
+    desired_state.updated_at = chrono::Local::now().naive_local();
 
     let active_model: crate::entities::desired_states::ActiveModel = desired_state.into();
     let updated_desired_state =
@@ -572,14 +553,11 @@ pub async fn update_desired_state(
     let response = DesiredStateResponse {
         desired_state_id: updated_desired_state.desired_state_id,
         dimension_id: updated_desired_state.dimension_id,
-        title: updated_desired_state.title,
         description: updated_desired_state.description,
         score: updated_desired_state.score,
         level: updated_desired_state.level,
-        target_date: updated_desired_state.target_date,
-        success_criteria: updated_desired_state.success_criteria,
-        created_at: updated_desired_state.created_at,
-        updated_at: updated_desired_state.updated_at,
+        created_at: DateTime::from_naive_utc_and_offset(updated_desired_state.created_at, Utc),
+        updated_at: DateTime::from_naive_utc_and_offset(updated_desired_state.updated_at, Utc),
     };
 
     Ok(success_response_with_message(

@@ -21,7 +21,7 @@ export const syncService = {
     entityType: string,
     entityId: string,
     action: "CREATE" | "UPDATE" | "DELETE",
-    payload: unknown
+    payload: unknown,
   ) {
     const item: SyncQueueItem = {
       entityType,
@@ -34,6 +34,13 @@ export const syncService = {
     await db.sync_queue.add(item);
     // Immediately attempt to process the queue after adding an item
     void syncService.processSyncQueue();
+  },
+
+  async removeFromSyncQueue(entityType: string, entityId: string) {
+    const item = await db.sync_queue.where({ entityType, entityId }).first();
+    if (item) {
+      await db.sync_queue.delete(item.id!);
+    }
   },
 
   processSyncQueue: async () => {
@@ -65,8 +72,14 @@ export const syncService = {
         if (updatedRetries >= 3) {
           if (item.entityType === "Dimension") {
             await dimensionRepository.markAsFailed(item.entityId, errorMessage);
-          } else if (item.entityType === "CurrentState" || item.entityType === "DesiredState") {
-            await digitalisationLevelRepository.markAsFailed(item.entityId, errorMessage);
+          } else if (
+            item.entityType === "CurrentState" ||
+            item.entityType === "DesiredState"
+          ) {
+            await digitalisationLevelRepository.markAsFailed(
+              item.entityId,
+              errorMessage,
+            );
           }
         }
       }
@@ -93,7 +106,10 @@ export const syncService = {
               dimensionData.id,
               response.data.dimension_id,
             );
-            console.log("Dimension created and synced successfully:", response.data);
+            console.log(
+              "Dimension created and synced successfully:",
+              response.data,
+            );
           } else {
             throw new Error(
               response.error || "Failed to create dimension on server",
@@ -117,9 +133,14 @@ export const syncService = {
           },
         });
         if (response.data) {
-          await dimensionRepository.markAsSynced(item.entityId, response.data.dimension_id);
+          await dimensionRepository.markAsSynced(
+            item.entityId,
+            response.data.dimension_id,
+          );
         } else {
-          throw new Error(response.error || "Failed to update dimension on server");
+          throw new Error(
+            response.error || "Failed to update dimension on server",
+          );
         }
         break;
       }
@@ -137,17 +158,18 @@ export const syncService = {
 
     switch (item.action) {
       case "CREATE": {
-        console.log("Attempting to create current state on server:", currentStateData);
+        console.log(
+          "Attempting to create current state on server:",
+          currentStateData,
+        );
         try {
           const response = await createCurrentState({
             id: dimensionId,
             requestBody: {
               dimension_id: dimensionId,
               score: currentStateData.state,
-              title: currentStateData.title,
               description: currentStateData.description ?? null,
               level: currentStateData.level ?? null,
-              characteristics: currentStateData.characteristics ?? null,
             },
           });
           if (response.data) {
@@ -155,7 +177,10 @@ export const syncService = {
               currentStateData.id,
               response.data.current_state_id,
             );
-            console.log("Current state created and synced successfully:", response.data);
+            console.log(
+              "Current state created and synced successfully:",
+              response.data,
+            );
           } else {
             throw new Error(
               response.error || "Failed to create current state on server",
@@ -173,22 +198,31 @@ export const syncService = {
           currentStateId: item.entityId,
           requestBody: {
             score: currentStateData.state,
-            title: currentStateData.title,
             description: currentStateData.description ?? null,
             level: currentStateData.level ?? null,
-            characteristics: currentStateData.characteristics ?? null,
           },
         });
         if (response.data) {
-          await digitalisationLevelRepository.markAsSynced(item.entityId, response.data.current_state_id);
+          await digitalisationLevelRepository.markAsSynced(
+            item.entityId,
+            response.data.current_state_id,
+          );
         } else {
-          throw new Error(response.error || "Failed to update current state on server");
+          throw new Error(
+            response.error || "Failed to update current state on server",
+          );
         }
         break;
       }
       case "DELETE": {
-        await deleteCurrentState({ dimensionId: dimensionId, currentStateId: item.entityId });
-        await digitalisationLevelRepository.markAsSynced(item.entityId, item.entityId); // Mark as synced even if deleted
+        await deleteCurrentState({
+          dimensionId: dimensionId,
+          currentStateId: item.entityId,
+        });
+        await digitalisationLevelRepository.markAsSynced(
+          item.entityId,
+          item.entityId,
+        ); // Mark as synced even if deleted
         break;
       }
     }
@@ -200,18 +234,18 @@ export const syncService = {
 
     switch (item.action) {
       case "CREATE": {
-        console.log("Attempting to create desired state on server:", desiredStateData);
+        console.log(
+          "Attempting to create desired state on server:",
+          desiredStateData,
+        );
         try {
           const response = await createDesiredState({
             id: dimensionId,
             requestBody: {
               dimension_id: dimensionId,
               score: desiredStateData.state,
-              title: desiredStateData.title,
               description: desiredStateData.description ?? null,
               level: desiredStateData.level ?? null,
-              success_criteria: desiredStateData.success_criteria ?? null,
-              target_date: desiredStateData.target_date ?? null,
             },
           });
           if (response.data) {
@@ -219,7 +253,10 @@ export const syncService = {
               desiredStateData.id,
               response.data.desired_state_id,
             );
-            console.log("Desired state created and synced successfully:", response.data);
+            console.log(
+              "Desired state created and synced successfully:",
+              response.data,
+            );
           } else {
             throw new Error(
               response.error || "Failed to create desired state on server",
@@ -237,23 +274,31 @@ export const syncService = {
           desiredStateId: item.entityId,
           requestBody: {
             score: desiredStateData.state,
-            title: desiredStateData.title,
             description: desiredStateData.description ?? null,
             level: desiredStateData.level ?? null,
-            success_criteria: desiredStateData.success_criteria ?? null,
-            target_date: desiredStateData.target_date ?? null,
           },
         });
         if (response.data) {
-          await digitalisationLevelRepository.markAsSynced(item.entityId, response.data.desired_state_id);
+          await digitalisationLevelRepository.markAsSynced(
+            item.entityId,
+            response.data.desired_state_id,
+          );
         } else {
-          throw new Error(response.error || "Failed to update desired state on server");
+          throw new Error(
+            response.error || "Failed to update desired state on server",
+          );
         }
         break;
       }
       case "DELETE": {
-        await deleteDesiredState({ dimensionId: dimensionId, desiredStateId: item.entityId });
-        await digitalisationLevelRepository.markAsSynced(item.entityId, item.entityId); // Mark as synced even if deleted
+        await deleteDesiredState({
+          dimensionId: dimensionId,
+          desiredStateId: item.entityId,
+        });
+        await digitalisationLevelRepository.markAsSynced(
+          item.entityId,
+          item.entityId,
+        ); // Mark as synced even if deleted
         break;
       }
     }
