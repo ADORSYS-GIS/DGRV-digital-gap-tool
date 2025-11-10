@@ -245,7 +245,7 @@ pub async fn update_dimension(
     Path(dimension_id): Path<Uuid>,
     Json(request): Json<UpdateDimensionRequest>,
 ) -> Result<Json<ApiResponse<DimensionResponse>>, (StatusCode, Json<serde_json::Value>)> {
-    let mut dimension = DimensionsRepository::find_by_id(db.as_ref(), dimension_id)
+    let _existing = DimensionsRepository::find_by_id(db.as_ref(), dimension_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?
         .ok_or_else(|| {
@@ -253,27 +253,27 @@ pub async fn update_dimension(
                 "Dimension not found".to_string(),
             ))
         })?;
+    // Build a partial ActiveModel with only provided fields set
+    let mut active_model = crate::entities::dimensions::ActiveModel {
+        dimension_id: sea_orm::Set(dimension_id),
+        ..Default::default()
+    };
+    if let Some(name) = request.name.clone() {
+        active_model.name = sea_orm::Set(name);
+    }
+    if let Some(description) = request.description.clone() {
+        active_model.description = sea_orm::Set(Some(description));
+    }
+    if let Some(weight) = request.weight.clone() {
+        active_model.weight = sea_orm::Set(Some(weight));
+    }
+    if let Some(category) = request.category.clone() {
+        active_model.category = sea_orm::Set(Some(category));
+    }
+    if let Some(is_active) = request.is_active.clone() {
+        active_model.is_active = sea_orm::Set(Some(is_active));
+    }
 
-    // Update fields if provided
-    if let Some(name) = request.name {
-        dimension.name = name;
-    }
-    if let Some(description) = request.description {
-        dimension.description = Some(description);
-    }
-    if let Some(weight) = request.weight {
-        dimension.weight = Some(weight);
-    }
-    if let Some(category) = request.category {
-        dimension.category = Some(category);
-    }
-    if let Some(is_active) = request.is_active {
-        dimension.is_active = Some(is_active);
-    }
-
-    dimension.updated_at = chrono::Local::now().naive_local();
-
-    let active_model: crate::entities::dimensions::ActiveModel = dimension.into();
     let updated_dimension = DimensionsRepository::update(db.as_ref(), dimension_id, active_model)
         .await
         .map_err(crate::api::handlers::common::handle_error)?;
