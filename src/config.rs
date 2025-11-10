@@ -26,7 +26,7 @@ pub struct MinioConfig {
 struct ConfigEnv {
     #[envconfig(
         from = "DGAT_DATABASE_URL",
-        default = "postgres://postgres:postgres@localhost:5433/dgat"
+        default = "postgres://postgres:postgres@localhost:5435/dgat"
     )]
     database_url: String,
 
