@@ -11,19 +11,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { PlusCircle } from "lucide-react";
-// TODO: Create and import useAddCooperation
-// import { useAddCooperation } from "@/hooks/cooperations/useAddCooperation";
+import { useAddCooperation } from "@/hooks/cooperations/useAddCooperation";
 
 export const AddCooperationForm: React.FC = () => {
   const [isOpen, setIsOpen] = React.useState(false);
   const [name, setName] = React.useState("");
   const [description, setDescription] = React.useState("");
-  // const addCooperationMutation = useAddCooperation();
+  const addCooperationMutation = useAddCooperation();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // addCooperationMutation.mutate({ name, description });
-    console.log("Adding cooperation:", { name, description });
+    addCooperationMutation.mutate({ name, description });
     setIsOpen(false);
     setName("");
     setDescription("");
@@ -59,9 +57,8 @@ export const AddCooperationForm: React.FC = () => {
               required
             />
           </div>
-          <Button type="submit">
-            {/* {addCooperationMutation.isPending ? "Adding..." : "Add Cooperation"} */}
-            Add Cooperation
+          <Button type="submit" disabled={addCooperationMutation.isPending}>
+            {addCooperationMutation.isPending ? "Adding..." : "Add Cooperation"}
           </Button>
         </form>
       </DialogContent>

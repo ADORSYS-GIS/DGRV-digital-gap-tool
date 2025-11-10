@@ -20,13 +20,26 @@ import {
     TableRow,
 } from "../../ui/table";
 
-import { Gap } from "@/types/gap";
+import { Gap, GapLevel } from "@/types/gap";
 
 interface GapListProps {
   gaps: Gap[];
+  dimensionMap: Record<string, string>;
 }
 
-export const GapList = ({ gaps }: GapListProps) => {
+export const GapList = ({ gaps, dimensionMap }: GapListProps) => {
+  const getGapScoreRange = (level: GapLevel) => {
+    switch (level) {
+      case GapLevel.HIGH:
+        return "0-50";
+      case GapLevel.MEDIUM:
+        return "50-75";
+      case GapLevel.LOW:
+        return "75-100";
+      default:
+        return "";
+    }
+  };
   // TODO: Implement useDeleteGap hook
   const isDeleting = false; // Placeholder
 
@@ -64,7 +77,7 @@ export const GapList = ({ gaps }: GapListProps) => {
         {gaps.map((gap) => (
           <TableRow key={gap.id}>
             <TableCell className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
-              {gap.category}
+              {dimensionMap[gap.category] || gap.category}
             </TableCell>
             <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
               {gap.gap}
@@ -73,7 +86,7 @@ export const GapList = ({ gaps }: GapListProps) => {
               {gap.scope}
             </TableCell>
             <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-900 dark:text-gray-100">
-              {gap.gapScore}
+              {getGapScoreRange(gap.gap)}
             </TableCell>
             <TableCell className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
               {/* TODO: Implement EditGapForm */}

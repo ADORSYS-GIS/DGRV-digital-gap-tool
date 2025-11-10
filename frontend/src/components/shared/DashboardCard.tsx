@@ -6,7 +6,7 @@
  * - Action buttons for user interaction
  * - Flexible content area for various dashboard elements
  */
-import React from "react";
+import * as React from "react";
 import {
   Card,
   CardContent,
@@ -29,7 +29,7 @@ interface DashboardCardProps {
   descriptionClassName?: string;
 }
 
-export const DashboardCard: React.FC<DashboardCardProps> = ({
+export const DashboardCard = ({
   title,
   description,
   icon: Icon,
@@ -39,41 +39,43 @@ export const DashboardCard: React.FC<DashboardCardProps> = ({
   children,
   titleClassName,
   descriptionClassName,
-}) => {
+}: DashboardCardProps) => {
   const variantStyles = {
-    default: "border-blue-200 bg-blue-50",
-    success: "border-green-200 bg-green-50",
-    warning: "border-yellow-200 bg-yellow-50",
-    danger: "border-red-200 bg-red-50",
+    default: "border-l-4 border-blue-500",
+    success: "border-l-4 border-green-500",
+    warning: "border-l-4 border-yellow-500",
+    danger: "border-l-4 border-red-500",
   };
 
   const iconColors = {
-    default: "text-blue-600",
-    success: "text-green-600",
-    warning: "text-yellow-600",
-    danger: "text-red-600",
+    default: "text-blue-500",
+    success: "text-green-500",
+    warning: "text-yellow-500",
+    danger: "text-red-500",
   };
 
   return (
-    <Card className={`border-2 ${variantStyles[variant]} h-full flex flex-col`}>
-      <CardHeader className="flex-grow">
-        <div className="flex items-start space-x-4">
-          <Icon className={`h-8 w-8 ${iconColors[variant]}`} />
+    <Card className={`bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition-shadow duration-300 rounded-lg overflow-hidden h-full flex flex-col ${variantStyles[variant]}`}>
+      <CardHeader>
+        <div className="flex items-center space-x-4">
+          <div className={`p-3 rounded-full bg-gray-100 dark:bg-gray-700 ${iconColors[variant]}`}>
+            <Icon className="h-8 w-8" />
+          </div>
           <div>
-            <CardTitle className={`text-lg font-bold ${titleClassName}`}>
+            <CardTitle className={`text-xl font-bold text-gray-900 dark:text-gray-100 ${titleClassName}`}>
               {title}
             </CardTitle>
-            <CardDescription className={`text-base ${descriptionClassName}`}>
+            <CardDescription className={`text-gray-600 dark:text-gray-400 ${descriptionClassName}`}>
               {description}
             </CardDescription>
           </div>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex-grow">
         {children}
         {actionText && (
           <Button
-            variant="ghost"
+            variant="outline"
             size="sm"
             onClick={onAction}
             className="w-full mt-4"

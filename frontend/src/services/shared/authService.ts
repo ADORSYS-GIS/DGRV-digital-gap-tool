@@ -12,42 +12,6 @@ interface CustomKeycloakTokenParsed extends KeycloakTokenParsed {
  */
 export const authService = {
   /**
-   * Initialize Keycloak authentication
-   */
-  async initialize(): Promise<boolean> {
-    try {
-      if (keycloak.authenticated !== undefined) {
-        return keycloak.authenticated;
-      }
-
-      const authenticated = await keycloak.init(keycloakInitOptions);
-
-      if (authenticated) {
-        await this.storeTokens();
-        console.log("Keycloak initialized successfully - User authenticated");
-      } else {
-        console.log(
-          "Keycloak initialized - User not authenticated (check-sso mode)",
-        );
-      }
-
-      return authenticated;
-    } catch (error) {
-      console.error("Failed to initialize Keycloak:", error);
-      try {
-        keycloak.clearToken();
-        await this.clearStoredTokens();
-      } catch (cleanupError) {
-        console.error(
-          "Failed to cleanup tokens during initialization error:",
-          cleanupError,
-        );
-      }
-      return false;
-    }
-  },
-
-  /**
    * Login user
    */
   async login(redirectUri?: string): Promise<void> {

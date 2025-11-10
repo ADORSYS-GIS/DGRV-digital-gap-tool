@@ -26,6 +26,15 @@ const UserViewActionPlan = React.lazy(
 const UserViewSubmissions = React.lazy(
   () => import("../pages/user/ViewSubmissions.tsx"),
 );
+const UserSubmissionDetailPage = React.lazy(
+  () => import("../pages/user/SubmissionDetailPage.tsx"),
+);
+const UserAnswerDimension = React.lazy(
+  () => import("../pages/user/AnswerDimension.tsx"),
+);
+const UserActionPlan = React.lazy(
+  () => import("@/pages/user/ActionPlan"),
+);
 const ManageOrganizations = React.lazy(
   () => import("../pages/admin/ManageOrganizationsPage"),
 );
@@ -46,6 +55,9 @@ const ManageDigitalisationLevels = React.lazy(
 );
 const SecondAdminDashboard = React.lazy(
   () => import("../pages/second_admin/SecondAdminDashboard"),
+);
+const AdminManageUsers = React.lazy(
+  () => import("../pages/admin/ManageUsers"),
 );
 const ManageCooperations = React.lazy(
   () => import("../pages/second_admin/ManageCooperations.tsx"),
@@ -86,8 +98,17 @@ const AnswerAssessment = React.lazy(
 const ViewActionPlan = React.lazy(
   () => import("../pages/third_admin/ViewActionPlan"),
 );
+const ThirdAdminActionPlan = React.lazy(
+  () => import("../pages/third_admin/ActionPlan"),
+);
 const ViewSubmissions = React.lazy(
   () => import("../pages/third_admin/ViewSubmissions"),
+);
+const ThirdAdminSubmissionDetailPage = React.lazy(
+  () => import("../pages/third_admin/SubmissionDetailPage"),
+);
+const ThirdAdminAnswerDimension = React.lazy(
+  () => import("../pages/third_admin/AnswerDimension"),
 );
 
 const routes = [
@@ -139,6 +160,7 @@ const routes = [
         path: "dimensions/:dimensionId/levels",
         element: React.createElement(ManageDigitalisationLevels),
       },
+      { path: "users", element: React.createElement(AdminManageUsers) },
     ],
   },
   {
@@ -203,8 +225,20 @@ const routes = [
         path: "answer-assessment",
         element: React.createElement(AnswerAssessment),
       },
-      { path: "action-plan", element: React.createElement(ViewActionPlan) },
+      {
+        path: "answer-assessment/:dimensionId",
+        element: React.createElement(ThirdAdminAnswerDimension),
+      },
+      { path: "action-plan", element: React.createElement(ThirdAdminActionPlan) },
+      {
+        path: "action-plan/:assessmentId",
+        element: React.createElement(ViewActionPlan),
+      },
       { path: "submissions", element: React.createElement(ViewSubmissions) },
+      {
+        path: "submissions/:submissionId",
+        element: React.createElement(ThirdAdminSubmissionDetailPage),
+      },
     ],
   },
   {
@@ -216,8 +250,20 @@ const routes = [
     children: [
       { path: "", element: React.createElement(Dashboard) },
       { path: "answer-assessment", element: React.createElement(UserAnswerAssessment) },
-      { path: "action-plan", element: React.createElement(UserViewActionPlan) },
+      {
+        path: "answer-assessment/:dimensionId",
+        element: React.createElement(UserAnswerDimension),
+      },
+      { path: "action-plan", element: React.createElement(UserActionPlan) },
+      {
+        path: "action-plan/:assessmentId",
+        element: React.createElement(UserViewActionPlan),
+      },
       { path: "submissions", element: React.createElement(UserViewSubmissions) },
+      {
+        path: "submissions/:submissionId",
+        element: React.createElement(UserSubmissionDetailPage),
+      },
     ],
   },
   { path: "*", element: React.createElement(NotFound) },

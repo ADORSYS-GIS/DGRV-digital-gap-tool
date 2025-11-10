@@ -1,4 +1,4 @@
-export type SyncStatus = "synced" | "pending" | "error";
+export type SyncStatus = "synced" | "pending" | "error" | "new";
 
 export interface OfflineEntity {
   id: string;

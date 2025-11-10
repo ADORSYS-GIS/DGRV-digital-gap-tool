@@ -1,10 +1,20 @@
-import React from "react";
+import * as React from "react";
 import { Outlet } from "react-router-dom";
 import { Navbar } from "@/components/shared/Navbar";
 import { Sidebar } from "@/components/shared/Sidebar";
-import { FilePenLine, ClipboardList, Inbox } from "lucide-react";
+import {
+  FilePenLine,
+  ClipboardList,
+  Inbox,
+  LayoutDashboard,
+} from "lucide-react";
 
 const userNavigation = [
+  {
+    name: "Dashboard",
+    href: "/dashboard",
+    icon: LayoutDashboard,
+  },
   {
     name: "Answer Assessment",
     href: "/dashboard/answer-assessment",

@@ -16,17 +16,30 @@ import {
 import { Gap } from "@/types/gap";
 
 import { useDigitalisationGaps } from "@/hooks/digitalisationGaps/useDigitalisationGaps";
+import { useDimensions } from "@/hooks/dimensions/useDimensions";
 
 const ManageDigitalisationGap: React.FC = () => {
-  const { data: gaps, isLoading } = useDigitalisationGaps();
+  const { data: gaps, isLoading: gapsLoading } = useDigitalisationGaps();
+  const { data: dimensions, isLoading: dimensionsLoading } = useDimensions();
+
+  const dimensionMap = useMemo(() => {
+    if (!dimensions) return {};
+    return dimensions.reduce((acc, dim) => {
+      acc[dim.id] = dim.name;
+      return acc;
+    }, {} as Record<string, string>);
+  }, [dimensions]);
 
   const groupedGaps = useMemo(() => {
     if (!gaps) return {};
     return gaps.reduce((acc, gap) => {
-      (acc[gap.category] = acc[gap.category] || []).push(gap);
+      const categoryName = dimensionMap[gap.category] || gap.category;
+      (acc[categoryName] = acc[categoryName] || []).push(gap);
       return acc;
     }, {} as Record<string, Gap[]>);
-  }, [gaps]);
+  }, [gaps, dimensionMap]);
+
+  const isLoading = gapsLoading || dimensionsLoading;
 
   return (
     <div>
@@ -54,7 +67,7 @@ const ManageDigitalisationGap: React.FC = () => {
               <CardTitle className="text-2xl font-bold">{category}</CardTitle>
             </CardHeader>
             <CardContent>
-              <GapList gaps={categoryGaps as Gap[]} />
+              <GapList gaps={categoryGaps as Gap[]} dimensionMap={dimensionMap} />
             </CardContent>
           </Card>
         ))}

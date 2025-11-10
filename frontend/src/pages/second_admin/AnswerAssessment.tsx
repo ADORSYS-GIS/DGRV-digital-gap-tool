@@ -3,7 +3,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import {
-  Landmark,
   Cog,
   DollarSign,
   Laptop,
@@ -12,6 +11,12 @@ import {
   Lock,
   Lightbulb,
   CheckCircle2,
+  Cpu,
+  Network,
+  ShieldCheck,
+  BarChart,
+  HeartHandshake,
+  BrainCircuit,
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { Assessment } from "@/types/assessment";
@@ -20,14 +25,16 @@ import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { useSubmissions } from "@/hooks/submissions/useSubmissions";
 
 const iconMap: { [key: string]: React.ReactElement } = {
-  "Governance & Leadership": <Landmark className="h-12 w-12 text-blue-500" />,
-  "Operations & Processes": <Cog className="h-12 w-12 text-blue-500" />,
-  "Financial Management": <DollarSign className="h-12 w-12 text-blue-500" />,
-  "IT Infrastructure": <Laptop className="h-12 w-12 text-blue-500" />,
-  "Human Capacity": <Users className="h-12 w-12 text-blue-500" />,
-  "Member Services": <Handshake className="h-12 w-12 text-blue-500" />,
-  "Security & Compliance": <Lock className="h-12 w-12 text-blue-500" />,
-  "Innovation & Partnerships": <Lightbulb className="h-12 w-12 text-blue-500" />,
+  "Technology": <Cpu className="h-12 w-12 text-blue-500" />,
+  "Digital Culture": <Network className="h-12 w-12 text-blue-500" />,
+  "skill": <BrainCircuit className="h-12 w-12 text-blue-500" />,
+  "Processes": <Cog className="h-12 w-12 text-blue-500" />,
+  "Cyber Security": <ShieldCheck className="h-12 w-12 text-blue-500" />,
+  "Customer Experience": (
+    <HeartHandshake className="h-12 w-12 text-blue-500" />
+  ),
+  "Data & Analytics": <BarChart className="h-12 w-12 text-blue-500" />,
+  "Innovation": <Lightbulb className="h-12 w-12 text-blue-500" />,
 };
 
 const AnswerAssessmentPage: React.FC = () => {

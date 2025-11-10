@@ -1,5 +1,5 @@
 /**
- * Manage Users page for the Second Admin Dashboard.
+ * Manage Users page for the Admin Dashboard.
  * This page allows administrators to view, edit, and delete users.
  */
 import * as React from "react";

@@ -6,6 +6,7 @@
  * - Recent activity tracking
  * - Organization and user management capabilities
  */
+import * as React from "react";
 import { DashboardCard } from "@/components/shared/DashboardCard";
 import {
   Card,
@@ -17,9 +18,20 @@ import {
 import { useAuth } from "@/hooks/shared/useAuth";
 import { BarChart3, Building2, FileText, Settings, Users, ClipboardList } from "lucide-react";
 import { Link } from "react-router-dom";
+import { ExportReportsCard } from "@/components/shared/ExportReportsCard";
+import { ExportReportModal } from "@/components/shared/ExportReportModal";
 
 const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const [exportType, setExportType] = React.useState<"pdf" | "docx" | null>(
+    null,
+  );
+
+  const handleExport = (submissionId: string) => {
+    console.log(`Exporting submission ${submissionId} as ${exportType}`);
+    setIsModalOpen(false);
+  };
 
   return (
     <div className="space-y-6">
@@ -141,22 +153,44 @@ const AdminDashboard: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Recent Activity Placeholder */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Activity</CardTitle>
-          <CardDescription>
-            System notifications and recent events
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center py-8">
-            <p className="text-gray-500">
-              Activity feed will appear here once the system has data.
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Recent Activity and Export Reports */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
+        <div className="lg:col-span-2">
+          <Card>
+            <CardHeader>
+              <CardTitle>Recent Activity</CardTitle>
+              <CardDescription>
+                System notifications and recent events
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-8">
+                <p className="text-gray-500">
+                  Activity feed will appear here once the system has data.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+        <div>
+          <ExportReportsCard
+            onExportPDF={() => {
+              setExportType("pdf");
+              setIsModalOpen(true);
+            }}
+            onExportDOCX={() => {
+              setExportType("docx");
+              setIsModalOpen(true);
+            }}
+          />
+        </div>
+      </div>
+
+      <ExportReportModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onExport={handleExport}
+      />
     </div>
   );
 };

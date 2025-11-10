@@ -49,7 +49,7 @@ const AnswerDimensionPage: React.FC = () => {
 
   React.useEffect(() => {
     if (!assessment) {
-      navigate("/second-admin/create-assessment", {
+      navigate("/third-admin/answer-assessment", {
         state: { error: "Assessment data is missing. Please select an assessment again." },
         replace: true,
       });
@@ -68,8 +68,8 @@ const AnswerDimensionPage: React.FC = () => {
 
   React.useEffect(() => {
     if (existingSubmission) {
-      setCurrentLevel(existingSubmission.currentLevel.toString());
-      setDesiredLevel(existingSubmission.toBeLevel.toString());
+      setCurrentLevel(existingSubmission.currentLevel?.toString());
+      setDesiredLevel(existingSubmission.toBeLevel?.toString());
       setComments(existingSubmission.comments || "");
       setGap(existingSubmission.gap);
       setGapScore(existingSubmission.gapScore);
@@ -158,7 +158,7 @@ const AnswerDimensionPage: React.FC = () => {
       <div className="max-w-4xl mx-auto">
         <header className="mb-8">
           <Link
-            to="/second-admin/answer-assessment"
+            to="/third-admin/answer-assessment"
             state={{ assessment }}
             className="text-blue-600 hover:underline"
           >
@@ -238,7 +238,7 @@ const AnswerDimensionPage: React.FC = () => {
                 <Button
                   onClick={() =>
                     navigate(
-                      `/second-admin/answer-assessment/${nextDimension.id}`,
+                      `/third-admin/answer-assessment/${nextDimension.id}`,
                       { state: { assessment } },
                     )
                   }
@@ -248,7 +248,7 @@ const AnswerDimensionPage: React.FC = () => {
               ) : (
                 <Button
                   onClick={() =>
-                    navigate("/second-admin/answer-assessment", {
+                    navigate("/third-admin/answer-assessment", {
                       state: { assessment },
                     })
                   }

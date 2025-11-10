@@ -22,11 +22,22 @@ import {
   ClipboardCheck,
   History,
 } from "lucide-react";
-import React from "react";
+import * as React from "react";
 import { Link } from "react-router-dom";
+import { ExportReportsCard } from "@/components/shared/ExportReportsCard";
+import { ExportReportModal } from "@/components/shared/ExportReportModal";
 
 const SecondAdminDashboard: React.FC = () => {
   const { user } = useAuth();
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const [exportType, setExportType] = React.useState<"pdf" | "docx" | null>(
+    null,
+  );
+
+  const handleExport = (submissionId: string) => {
+    console.log(`Exporting submission ${submissionId} as ${exportType}`);
+    setIsModalOpen(false);
+  };
 
   return (
     <div className="space-y-8 p-4 sm:p-6 md:p-8">
@@ -96,27 +107,49 @@ const SecondAdminDashboard: React.FC = () => {
         </Link>
       </div>
 
-      {/* Recent History */}
-      <Card className="mt-8">
-        <CardHeader>
-          <div className="flex items-center space-x-3">
-            <History className="h-6 w-6 text-gray-700 dark:text-gray-300" />
-            <div>
-              <CardTitle>Recent History</CardTitle>
-              <CardDescription>
-                A log of recent activities and events in the system.
-              </CardDescription>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center py-12">
-            <p className="text-gray-500 dark:text-gray-400">
-              Recent history will be displayed here.
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Recent History and Export Reports */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
+        <div className="lg:col-span-2">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center space-x-3">
+                <History className="h-6 w-6 text-gray-700 dark:text-gray-300" />
+                <div>
+                  <CardTitle>Recent History</CardTitle>
+                  <CardDescription>
+                    A log of recent activities and events in the system.
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-12">
+                <p className="text-gray-500 dark:text-gray-400">
+                  Recent history will be displayed here.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+        <div>
+          <ExportReportsCard
+            onExportPDF={() => {
+              setExportType("pdf");
+              setIsModalOpen(true);
+            }}
+            onExportDOCX={() => {
+              setExportType("docx");
+              setIsModalOpen(true);
+            }}
+          />
+        </div>
+      </div>
+
+      <ExportReportModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onExport={handleExport}
+      />
     </div>
   );
 };

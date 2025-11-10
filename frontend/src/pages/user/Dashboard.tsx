@@ -6,7 +6,7 @@
  * - Assessment management section
  * - Placeholder for additional content
  */
-import React from "react";
+import * as React from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/shared/useAuth";
 import { DashboardCard } from "@/components/shared/DashboardCard";
@@ -23,79 +23,106 @@ import {
   Inbox,
   History,
 } from "lucide-react";
+import { ExportReportsCard } from "@/components/shared/ExportReportsCard";
+import { ExportReportModal } from "@/components/shared/ExportReportModal";
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const [exportType, setExportType] = React.useState<"pdf" | "docx" | null>(
+    null,
+  );
+
+  const handleExport = (submissionId: string) => {
+    console.log(`Exporting submission ${submissionId} as ${exportType}`);
+    setIsModalOpen(false);
+  };
 
   return (
-    <div className="space-y-8">
+    <div className="container mx-auto p-4 sm:p-6 lg:p-8">
       {/* Welcome Header */}
       <div className="mb-8">
-        <h1 className="text-4xl font-bold tracking-tight text-gray-900 dark:text-gray-100">
+        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-gray-900 dark:text-gray-100">
           User Dashboard
         </h1>
-        <p className="text-lg text-gray-600 dark:text-gray-400 mt-2">
+        <p className="text-md sm:text-lg text-gray-600 dark:text-gray-400 mt-2">
           Welcome back,{" "}
-          {user?.name || user?.preferred_username || "User"}. Here are
-          your tools to manage your assessments and action plans.
+          <span className="font-semibold">{user?.name || user?.preferred_username || "User"}</span>.
+          Here are your tools to manage your assessments and action plans.
         </p>
       </div>
 
       {/* Management Tools Grid */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <Link to="/dashboard/answer-assessment" className="flex">
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <Link to="/dashboard/answer-assessment">
           <DashboardCard
-            title="Answer Assesment"
+            title="Answer Assessment"
             description="Fill out and manage your assessments"
             icon={FilePenLine}
             variant="default"
-            titleClassName="text-xl font-bold"
-            descriptionClassName="text-lg"
           />
         </Link>
-        <Link to="/dashboard/action-plan" className="flex">
+        <Link to="/dashboard/action-plan">
           <DashboardCard
             title="View Action Plan"
             description="Review and track your action plans"
             icon={ClipboardList}
-            variant="default"
-            titleClassName="text-xl font-bold"
-            descriptionClassName="text-lg"
+            variant="success"
           />
         </Link>
-        <Link to="/dashboard/submissions" className="flex">
+        <Link to="/dashboard/submissions">
           <DashboardCard
             title="View Submissions"
             description="Browse and manage your assessment submissions"
             icon={Inbox}
-            variant="default"
-            titleClassName="text-xl font-bold"
-            descriptionClassName="text-lg"
+            variant="warning"
           />
         </Link>
       </div>
 
-      {/* Recent History */}
-      <Card className="mt-8">
-        <CardHeader>
-          <div className="flex items-center space-x-3">
-            <History className="h-6 w-6 text-gray-700 dark:text-gray-300" />
-            <div>
-              <CardTitle>Recent History</CardTitle>
-              <CardDescription>
-                A log of your recent activities and events.
-              </CardDescription>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center py-12">
-            <p className="text-gray-500 dark:text-gray-400">
-              Recent history will be displayed here.
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Recent History and Export Reports */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
+        <div className="lg:col-span-2">
+          <Card className="bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition-shadow duration-300 rounded-lg overflow-hidden h-full flex flex-col border-l-4 border-gray-500">
+            <CardHeader>
+              <div className="flex items-center space-x-4">
+                <div className="p-3 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500">
+                  <History className="h-8 w-8" />
+                </div>
+                <div>
+                  <CardTitle className="text-xl font-bold text-gray-900 dark:text-gray-100">Recent History</CardTitle>
+                  <CardDescription className="text-gray-600 dark:text-gray-400">
+                    A log of your recent activities and events.
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="flex-grow flex items-center justify-center">
+              <p className="text-gray-500 dark:text-gray-400">
+                Recent history will be displayed here.
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+        <div className="w-full">
+          <ExportReportsCard
+            onExportPDF={() => {
+              setExportType("pdf");
+              setIsModalOpen(true);
+            }}
+            onExportDOCX={() => {
+              setExportType("docx");
+              setIsModalOpen(true);
+            }}
+          />
+        </div>
+      </div>
+
+      <ExportReportModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onExport={handleExport}
+      />
     </div>
   );
 };

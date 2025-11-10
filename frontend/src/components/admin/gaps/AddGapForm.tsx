@@ -36,10 +36,23 @@ const formSchema = z.object({
   dimensionId: z.string().min(1, "Category is required"),
   gap: z.nativeEnum(GapLevel),
   scope: z.string().min(1, "Scope is required"),
-  gapScore: z.number(),
+  gapScore: z.string(),
 });
 
 type GapFormValues = z.infer<typeof formSchema>;
+
+const getGapScoreRange = (level: GapLevel) => {
+  switch (level) {
+    case GapLevel.HIGH:
+      return "0-50";
+    case GapLevel.MEDIUM:
+      return "50-75";
+    case GapLevel.LOW:
+      return "75-100";
+    default:
+      return "";
+  }
+};
 
 export const AddGapForm: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -52,22 +65,14 @@ export const AddGapForm: React.FC = () => {
       dimensionId: "",
       gap: GapLevel.LOW,
       scope: "",
-      gapScore: 0,
+      gapScore: getGapScoreRange(GapLevel.LOW),
     },
   });
 
   const watchGap = form.watch("gap");
 
   useEffect(() => {
-    let score = 0;
-    if (watchGap === GapLevel.HIGH) {
-      score = 25;
-    } else if (watchGap === GapLevel.MEDIUM) {
-      score = 62.5;
-    } else if (watchGap === GapLevel.LOW) {
-      score = 87.5;
-    }
-    form.setValue("gapScore", score);
+    form.setValue("gapScore", getGapScoreRange(watchGap));
   }, [watchGap, form]);
 
   const onSubmit = async (values: GapFormValues) => {
@@ -76,7 +81,6 @@ export const AddGapForm: React.FC = () => {
       await addGapMutation.mutateAsync({
         ...rest,
         category: dimensionId,
-        gapScore: values.gapScore.toString(),
       });
       toast.success("Digitalisation Gap added successfully!");
       setIsOpen(false);
@@ -175,7 +179,7 @@ export const AddGapForm: React.FC = () => {
                 <FormItem>
                   <FormLabel>Gap Score</FormLabel>
                   <FormControl>
-                    <Input {...field} disabled type="number" />
+                    <Input {...field} disabled />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
