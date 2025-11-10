@@ -43,8 +43,6 @@ pub struct CreateCurrentStateRequest {
     pub title: String,
     pub description: Option<String>,
     pub score: i32,
-    pub level: Option<String>,
-    pub characteristics: Option<String>,
 }
 
 /// Current state update request
@@ -53,8 +51,6 @@ pub struct UpdateCurrentStateRequest {
     pub title: Option<String>,
     pub description: Option<String>,
     pub score: Option<i32>,
-    pub level: Option<String>,
-    pub characteristics: Option<String>,
 }
 
 /// Current state response
@@ -65,8 +61,6 @@ pub struct CurrentStateResponse {
     pub title: String,
     pub description: Option<String>,
     pub score: i32,
-    pub level: Option<String>,
-    pub characteristics: Option<String>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
@@ -78,9 +72,6 @@ pub struct CreateDesiredStateRequest {
     pub title: String,
     pub description: Option<String>,
     pub score: i32,
-    pub level: Option<String>,
-    pub target_date: Option<DateTime<Utc>>,
-    pub success_criteria: Option<String>,
 }
 
 /// Desired state update request
@@ -89,9 +80,6 @@ pub struct UpdateDesiredStateRequest {
     pub title: Option<String>,
     pub description: Option<String>,
     pub score: Option<i32>,
-    pub level: Option<String>,
-    pub target_date: Option<DateTime<Utc>>,
-    pub success_criteria: Option<String>,
 }
 
 /// Desired state response
@@ -102,9 +90,6 @@ pub struct DesiredStateResponse {
     pub title: String,
     pub description: Option<String>,
     pub score: i32,
-    pub level: Option<String>,
-    pub target_date: Option<DateTime<Utc>>,
-    pub success_criteria: Option<String>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }

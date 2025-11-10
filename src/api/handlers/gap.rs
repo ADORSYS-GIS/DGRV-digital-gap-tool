@@ -10,8 +10,8 @@ use uuid::Uuid;
 use crate::api::dto::{
     common::{ApiResponse, EmptyResponse, PaginatedResponse, PaginationParams},
     gap::{
-        CreateGapRequest, GapResponse, GapSeverity, SetGapDescriptionRequest,
-        SetSeverityRulesRequest,
+        AdminGapConfigRequest, CreateGapRequest, GapResponse, GapSeverity,
+        SetGapDescriptionRequest, SetSeverityRulesRequest, UpdateGapRequest,
     },
 };
 use crate::api::handlers::common::{
@@ -83,6 +83,29 @@ pub async fn set_severity_rules(
 pub async fn set_gap_description(
     Json(_req): Json<SetGapDescriptionRequest>,
 ) -> Result<Json<ApiResponse<EmptyResponse>>, (StatusCode, Json<serde_json::Value>)> {
+    Ok(success_response(EmptyResponse {}))
+}
+
+/// Merge admin gap configuration into a single endpoint
+/// 
+/// Allows administrators to submit severity rules and/or gap descriptions in one request.
+#[utoipa::path(
+    post,
+    path = "/admin/gap-config",
+    tag = "Admin",
+    request_body = AdminGapConfigRequest,
+    responses(
+        (status = 200, description = "Gap configuration applied", body = ApiResponseEmpty),
+        (status = 400, description = "Invalid input data"),
+        (status = 401, description = "Unauthorized"),
+        (status = 403, description = "Forbidden - Admin access required")
+    ),
+    security(("jwt" = []))
+)]
+pub async fn admin_gap_config(
+    Json(_req): Json<AdminGapConfigRequest>,
+) -> Result<Json<ApiResponse<EmptyResponse>>, (StatusCode, Json<serde_json::Value>)> {
+    // TODO: Persist rules/descriptions when storage is defined
     Ok(success_response(EmptyResponse {}))
 }
 /// Create a new gap
@@ -182,6 +205,85 @@ pub async fn get_gap(
     Ok(success_response(to_gap_response(gap)))
 }
 
+/// Update an existing gap
+/// 
+/// Optionally updates gap size (and recalculates severity) and/or description.
+#[utoipa::path(
+    put,
+    path = "/gaps/{id}",
+    tag = "Gaps",
+    params(("id" = Uuid, Path, description = "Gap ID")),
+    request_body = UpdateGapRequest,
+    responses(
+        (status = 200, description = "Gap updated successfully", body = ApiResponseGapResponse),
+        (status = 401, description = "Unauthorized"),
+        (status = 404, description = "Gap not found")
+    ),
+    security(("jwt" = []))
+)]
+pub async fn update_gap(
+    State(db): State<Arc<DatabaseConnection>>,
+    Path(gap_id): Path<Uuid>,
+    Json(req): Json<UpdateGapRequest>,
+) -> Result<Json<ApiResponse<GapResponse>>, (StatusCode, Json<serde_json::Value>)> {
+    // Build partial ActiveModel
+    let mut active = gaps::ActiveModel {
+        gap_id: Set(gap_id),
+        ..Default::default()
+    };
+    let mut new_severity: Option<crate::entities::gaps::GapSeverity> = None;
+    if let Some(size) = req.gap_size {
+        active.gap_size = Set(size);
+        new_severity = Some(match size.abs() {
+            0..=1 => crate::entities::gaps::GapSeverity::Low,
+            2..=3 => crate::entities::gaps::GapSeverity::Medium,
+            _ => crate::entities::gaps::GapSeverity::High,
+        });
+    }
+    if let Some(desc) = req.gap_description {
+        active.gap_description = Set(Some(desc));
+    }
+    if let Some(sev) = new_severity {
+        active.gap_severity = Set(sev);
+    }
+
+    let updated = GapsRepository::update(db.as_ref(), gap_id, active)
+        .await
+        .map_err(crate::api::handlers::common::handle_error)?;
+
+    Ok(success_response_with_message(
+        to_gap_response(updated),
+        "Gap updated successfully".to_string(),
+    ))
+}
+
+/// Delete a gap
+#[utoipa::path(
+    delete,
+    path = "/gaps/{id}",
+    tag = "Gaps",
+    params(("id" = Uuid, Path, description = "Gap ID")),
+    responses(
+        (status = 200, description = "Gap deleted successfully", body = ApiResponseEmpty),
+        (status = 401, description = "Unauthorized"),
+        (status = 404, description = "Gap not found")
+    ),
+    security(("jwt" = []))
+)]
+pub async fn delete_gap(
+    State(db): State<Arc<DatabaseConnection>>,
+    Path(gap_id): Path<Uuid>,
+) -> Result<Json<ApiResponse<EmptyResponse>>, (StatusCode, Json<serde_json::Value>)> {
+    let deleted = GapsRepository::delete(db.as_ref(), gap_id)
+        .await
+        .map_err(crate::api::handlers::common::handle_error)?;
+    if !deleted {
+        return Err(crate::api::handlers::common::handle_error(AppError::NotFound(
+            "Gap not found".to_string(),
+        )));
+    }
+    Ok(success_response(EmptyResponse {}))
+}
 /// List all gaps with pagination
 /// 
 /// Retrieves a paginated list of all gaps in the system.

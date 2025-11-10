@@ -5,7 +5,7 @@
 ```mermaid
 erDiagram
     
-    DIMENSIONS {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
+    DIMENSIONS {                                                                                                                                                                   
         uuid dimension_id PK
         string name UK
         text description

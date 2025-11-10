@@ -126,3 +126,21 @@ pub struct SetGapDescriptionRequest {
     pub gap_size: i32,
     pub description: String,
 }
+
+/// Update gap request
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
+pub struct UpdateGapRequest {
+    /// New gap size; if provided, severity will be recalculated
+    pub gap_size: Option<i32>,
+    /// New human-readable description
+    pub gap_description: Option<String>,
+}
+
+/// Admin configuration payload to merge severity rules and descriptions in a single endpoint
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
+pub struct AdminGapConfigRequest {
+    /// Optional set of severity rules to upsert (global or per-dimension)
+    pub severity_rules: Option<SetSeverityRulesRequest>,
+    /// Optional list of gap descriptions to upsert
+    pub descriptions: Option<Vec<SetGapDescriptionRequest>>,
+}

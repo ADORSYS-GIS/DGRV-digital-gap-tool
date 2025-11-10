@@ -154,8 +154,6 @@ pub async fn get_dimension_with_states(
             title: cs.title,
             description: cs.description,
             score: cs.score,
-            level: cs.level,
-            characteristics: cs.characteristics,
             created_at: cs.created_at,
             updated_at: cs.updated_at,
         })
@@ -169,9 +167,6 @@ pub async fn get_dimension_with_states(
             title: ds.title,
             description: ds.description,
             score: ds.score,
-            level: ds.level,
-            target_date: ds.target_date,
-            success_criteria: ds.success_criteria,
             created_at: ds.created_at,
             updated_at: ds.updated_at,
         })
@@ -349,10 +344,11 @@ pub async fn create_current_state(
         })?;
 
     let active_model = crate::entities::current_states::ActiveModel {
+        current_state_id: sea_orm::Set(Uuid::new_v4()),
         dimension_id: sea_orm::Set(dimension_id),
-        level: sea_orm::Set(request.level),
+        title: sea_orm::Set(request.title),
         description: sea_orm::Set(request.description),
-        characteristics: sea_orm::Set(request.characteristics),
+        score: sea_orm::Set(request.score),
         ..Default::default()
     };
 
@@ -366,8 +362,6 @@ pub async fn create_current_state(
         title: current_state.title,
         description: current_state.description,
         score: current_state.score,
-        level: current_state.level,
-        characteristics: current_state.characteristics,
         created_at: current_state.created_at,
         updated_at: current_state.updated_at,
     };
@@ -416,14 +410,14 @@ pub async fn update_current_state(
     }
 
     // Update fields if provided
-    if let Some(level) = request.level {
-        current_state.level = Some(level);
+    if let Some(title) = request.title {
+        current_state.title = title;
     }
     if let Some(description) = request.description {
         current_state.description = Some(description);
     }
-    if let Some(characteristics) = request.characteristics {
-        current_state.characteristics = Some(characteristics);
+    if let Some(score) = request.score {
+        current_state.score = score;
     }
 
     current_state.updated_at = chrono::Utc::now();
@@ -440,8 +434,6 @@ pub async fn update_current_state(
         title: updated_current_state.title,
         description: updated_current_state.description,
         score: updated_current_state.score,
-        level: updated_current_state.level,
-        characteristics: updated_current_state.characteristics,
         created_at: updated_current_state.created_at,
         updated_at: updated_current_state.updated_at,
     };
@@ -479,11 +471,11 @@ pub async fn create_desired_state(
         })?;
 
     let active_model = crate::entities::desired_states::ActiveModel {
+        desired_state_id: sea_orm::Set(Uuid::new_v4()),
         dimension_id: sea_orm::Set(dimension_id),
-        level: sea_orm::Set(request.level),
+        title: sea_orm::Set(request.title),
         description: sea_orm::Set(request.description),
-        target_date: sea_orm::Set(request.target_date),
-        success_criteria: sea_orm::Set(request.success_criteria),
+        score: sea_orm::Set(request.score),
         ..Default::default()
     };
 
@@ -497,9 +489,6 @@ pub async fn create_desired_state(
         title: desired_state.title,
         description: desired_state.description,
         score: desired_state.score,
-        level: desired_state.level,
-        target_date: desired_state.target_date,
-        success_criteria: desired_state.success_criteria,
         created_at: desired_state.created_at,
         updated_at: desired_state.updated_at,
     };
@@ -548,17 +537,14 @@ pub async fn update_desired_state(
     }
 
     // Update fields if provided
-    if let Some(level) = request.level {
-        desired_state.level = Some(level);
+    if let Some(title) = request.title {
+        desired_state.title = title;
     }
     if let Some(description) = request.description {
         desired_state.description = Some(description);
     }
-    if let Some(target_date) = request.target_date {
-        desired_state.target_date = Some(target_date);
-    }
-    if let Some(success_criteria) = request.success_criteria {
-        desired_state.success_criteria = Some(success_criteria);
+    if let Some(score) = request.score {
+        desired_state.score = score;
     }
 
     desired_state.updated_at = chrono::Utc::now();
@@ -575,9 +561,6 @@ pub async fn update_desired_state(
         title: updated_desired_state.title,
         description: updated_desired_state.description,
         score: updated_desired_state.score,
-        level: updated_desired_state.level,
-        target_date: updated_desired_state.target_date,
-        success_criteria: updated_desired_state.success_criteria,
         created_at: updated_desired_state.created_at,
         updated_at: updated_desired_state.updated_at,
     };

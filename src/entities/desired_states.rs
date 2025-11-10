@@ -10,9 +10,6 @@ pub struct Model {
     pub title: String,
     pub description: Option<String>,
     pub score: i32,
-    pub level: Option<String>,
-    pub target_date: Option<DateTimeUtc>,
-    pub success_criteria: Option<String>,
     pub created_at: DateTimeUtc,
     pub updated_at: DateTimeUtc,
 }
@@ -36,3 +33,4 @@ impl Related<super::dimensions::Entity> for Entity {
 }
 
 impl ActiveModelBehavior for ActiveModel {}
+
