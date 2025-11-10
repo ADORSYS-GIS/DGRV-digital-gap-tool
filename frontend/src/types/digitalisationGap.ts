@@ -1,0 +1,38 @@
+export enum Gap {
+  HIGH = "HIGH",
+  MEDIUM = "MEDIUM",
+  LOW = "LOW",
+}
+
+export const scoreRanges = {
+  [Gap.HIGH]: "0-50",
+  [Gap.MEDIUM]: "50-75",
+  [Gap.LOW]: "75-100",
+};
+
+export interface IDigitalisationGap {
+  id: string;
+  dimensionId: string;
+  gap: Gap;
+  scope: string;
+  scoreRange: string;
+  createdAt?: string;
+  updatedAt?: string;
+  isDeleted?: boolean;
+  isSynced?: boolean;
+}
+
+// For display in lists, including dimension name
+export interface IDigitalisationGapWithDimension extends IDigitalisationGap {
+  dimensionName: string;
+}
+
+export type AddDigitalisationGapPayload = Omit<
+  IDigitalisationGap,
+  "id" | "scoreRange" | "isSynced" | "createdAt" | "updatedAt" | "isDeleted"
+>;
+
+export type UpdateDigitalisationGapPayload =
+  Partial<AddDigitalisationGapPayload> & {
+    id: string;
+  };

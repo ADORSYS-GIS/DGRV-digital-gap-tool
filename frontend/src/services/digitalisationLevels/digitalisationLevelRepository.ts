@@ -66,7 +66,6 @@ export const digitalisationLevelRepository = {
       syncStatus: SyncStatus.PENDING,
     });
     syncService.addToSyncQueue("CurrentState", currentStateId, "UPDATE", {
-      dimensionId,
       ...existingCurrentState,
       ...changes,
     });
@@ -141,7 +140,6 @@ export const digitalisationLevelRepository = {
       syncStatus: SyncStatus.PENDING,
     });
     syncService.addToSyncQueue("DesiredState", desiredStateId, "UPDATE", {
-      dimensionId,
       ...existingDesiredState,
       ...changes,
     });
@@ -335,7 +333,7 @@ export const digitalisationLevelRepository = {
     await db.digitalisationLevels.update(id, {
       id: serverId,
       syncStatus: SyncStatus.SYNCED,
-      lastError: undefined,
+      lastError: "",
     });
   },
 

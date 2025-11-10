@@ -12,7 +12,9 @@ import {
 import { db } from "@/services/db";
 import { dimensionRepository } from "@/services/dimensions/dimensionRepository";
 import { digitalisationLevelRepository } from "@/services/digitalisationLevels/digitalisationLevelRepository";
+import { digitalisationGapRepository } from "@/services/digitalisationGaps/digitalisationGapRepository";
 import { IDigitalisationLevel } from "@/types/digitalisationLevel";
+import { IDigitalisationGap } from "@/types/digitalisationGap";
 import { IDimension } from "@/types/dimension";
 import { SyncQueueItem } from "@/types/sync/index";
 
@@ -57,6 +59,9 @@ export const syncService = {
           case "DesiredState":
             await syncService.syncDesiredState(item);
             break;
+          case "DigitalisationGap":
+            await syncService.syncDigitalisationGap(item);
+            break;
         }
         await db.sync_queue.delete(item.id!);
       } catch (error: unknown) {
@@ -80,6 +85,8 @@ export const syncService = {
               item.entityId,
               errorMessage,
             );
+          } else if (item.entityType === "DigitalisationGap") {
+            // await digitalisationGapRepository.markAsFailed(item.entityId, errorMessage);
           }
         }
       }
@@ -299,6 +306,47 @@ export const syncService = {
           item.entityId,
           item.entityId,
         ); // Mark as synced even if deleted
+        break;
+      }
+    }
+  },
+
+  async syncDigitalisationGap(item: SyncQueueItem) {
+    const gapData = item.payload as IDigitalisationGap;
+    switch (item.action) {
+      case "CREATE": {
+        console.log(
+          "Attempting to create digitalisation gap on server:",
+          gapData,
+        );
+        // const response = await createDigitalisationGap({ requestBody: gapData });
+        // if (response.data) {
+        //   await digitalisationGapRepository.markAsSynced(gapData.id, response.data.id);
+        // } else {
+        //   throw new Error(response.error || "Failed to create digitalisation gap on server");
+        // }
+        break;
+      }
+      case "UPDATE": {
+        console.log(
+          "Attempting to update digitalisation gap on server:",
+          gapData,
+        );
+        // const response = await updateDigitalisationGap({ id: item.entityId, requestBody: gapData });
+        // if (response.data) {
+        //   await digitalisationGapRepository.markAsSynced(item.entityId, response.data.id);
+        // } else {
+        //   throw new Error(response.error || "Failed to update digitalisation gap on server");
+        // }
+        break;
+      }
+      case "DELETE": {
+        console.log(
+          "Attempting to delete digitalisation gap on server:",
+          item.entityId,
+        );
+        // await deleteDigitalisationGap({ id: item.entityId });
+        // await digitalisationGapRepository.markAsSynced(item.entityId, item.entityId);
         break;
       }
     }

@@ -1,22 +1,25 @@
 import Dexie, { Table } from "dexie";
 import { Organization } from "@/types/organization";
-import { Dimension } from "@/types/dimension";
-import { DigitalisationLevel } from "@/types/digitalisationLevel";
+import { IDimension } from "@/types/dimension";
+import { IDigitalisationLevel } from "@/types/digitalisationLevel";
+import { IDigitalisationGap } from "@/types/digitalisationGap";
 import { SyncQueueItem } from "@/types/sync";
 
 export class AppDB extends Dexie {
   organizations!: Table<Organization>;
-  dimensions!: Table<Dimension>;
-  digitalisationLevels!: Table<DigitalisationLevel>;
+  dimensions!: Table<IDimension>;
+  digitalisationLevels!: Table<IDigitalisationLevel>;
+  digitalisationGaps!: Table<IDigitalisationGap>;
   sync_queue!: Table<SyncQueueItem>;
 
   constructor() {
     super("dgatDB");
-    this.version(1).stores({
+    this.version(2).stores({
       organizations: "id, name, domain, syncStatus",
       dimensions: "id, name, syncStatus",
       digitalisationLevels:
         "id, dimensionId, levelType, state, [dimensionId+levelType+state]",
+      digitalisationGaps: "id, dimensionId, isSynced, isDeleted",
       sync_queue: "++id",
     });
   }

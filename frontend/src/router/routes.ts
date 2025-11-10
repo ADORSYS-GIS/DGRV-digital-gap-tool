@@ -32,12 +32,8 @@ const ManageActionPlan = React.lazy(
 const ManageDigitalGaps = React.lazy(
   () => import("../pages/admin/ManageDigitalGaps"),
 );
-const ManageUsers = React.lazy(
-  () => import("../pages/admin/ManageUsers"),
-);
-const ViewReports = React.lazy(
-  () => import("../pages/admin/ViewReports"),
-);
+const ManageUsers = React.lazy(() => import("../pages/admin/ManageUsers"));
+const ViewReports = React.lazy(() => import("../pages/admin/ViewReports"));
 
 const routes = [
   { path: "/", element: React.createElement(HomePage) },
