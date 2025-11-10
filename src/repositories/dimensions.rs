@@ -58,6 +58,12 @@ impl DimensionsRepository {
             }
             active_model.weight = dimension_data.weight;
         }
+        if dimension_data.category.is_set() {
+            active_model.category = dimension_data.category;
+        }
+        if dimension_data.is_active.is_set() {
+            active_model.is_active = dimension_data.is_active;
+        }
 
         active_model.updated_at = Set(chrono::Local::now().naive_local());
 
@@ -84,3 +90,4 @@ impl DimensionsRepository {
             .map_err(AppError::from)
     }
 }
+

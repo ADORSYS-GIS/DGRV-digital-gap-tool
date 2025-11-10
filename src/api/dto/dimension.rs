@@ -14,7 +14,7 @@ pub struct CreateDimensionRequest {
 }
 
 /// Dimension update request
-#[derive(Debug, Serialize, Deserialize, ToSchema)]
+#[derive(Debug, Serialize, Deserialize, ToSchema, Clone)]
 pub struct UpdateDimensionRequest {
     pub name: Option<String>,
     pub description: Option<String>,
