@@ -14,6 +14,7 @@ import NotFound from "../pages/NotFound";
 import Dashboard from "../pages/user/Dashboard";
 import { ProtectedRoute } from "./ProtectedRoute";
 import AdminLayout from "@/layouts/AdminLayout";
+import ThirdAdminLayout from "@/layouts/ThirdAdminLayout";
 const ManageOrganizations = React.lazy(
   () => import("../pages/admin/ManageOrganizationsPage"),
 );
@@ -28,6 +29,21 @@ const ManageDimensions = React.lazy(
 );
 const ManageGapRecommendations = React.lazy(
   () => import("../pages/admin/ManageGapRecommendations"),
+);
+const ThirdAdminDashboard = React.lazy(
+  () => import("../pages/third_admin/ThirdAdminDashboard"),
+);
+const ManageUsers = React.lazy(
+  () => import("../pages/third_admin/ManageUsers"),
+);
+const AnswerAssessment = React.lazy(
+  () => import("../pages/third_admin/AnswerAssessment"),
+);
+const ViewActionPlan = React.lazy(
+  () => import("../pages/third_admin/ViewActionPlan"),
+);
+const ViewSubmissions = React.lazy(
+  () => import("../pages/third_admin/ViewSubmissions"),
 );
 
 const routes = [
@@ -66,6 +82,23 @@ const routes = [
         path: "recommendations",
         element: React.createElement(ManageGapRecommendations),
       },
+    ],
+  },
+  {
+    path: "/third-admin",
+    element: React.createElement(ProtectedRoute, {
+      allowedRoles: [ROLES.ADMIN],
+      children: React.createElement(ThirdAdminLayout),
+    }),
+    children: [
+      { path: "dashboard", element: React.createElement(ThirdAdminDashboard) },
+      { path: "users", element: React.createElement(ManageUsers) },
+      {
+        path: "answer-assessment",
+        element: React.createElement(AnswerAssessment),
+      },
+      { path: "action-plan", element: React.createElement(ViewActionPlan) },
+      { path: "submissions", element: React.createElement(ViewSubmissions) },
     ],
   },
   {

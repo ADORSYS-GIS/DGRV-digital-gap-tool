@@ -25,6 +25,8 @@ interface DashboardCardProps {
   onAction?: () => void;
   variant?: "default" | "success" | "warning" | "danger";
   children?: React.ReactNode;
+  titleClassName?: string;
+  descriptionClassName?: string;
 }
 
 export const DashboardCard: React.FC<DashboardCardProps> = ({
@@ -35,6 +37,8 @@ export const DashboardCard: React.FC<DashboardCardProps> = ({
   onAction,
   variant = "default",
   children,
+  titleClassName,
+  descriptionClassName,
 }) => {
   const variantStyles = {
     default: "border-blue-200 bg-blue-50",
@@ -51,23 +55,32 @@ export const DashboardCard: React.FC<DashboardCardProps> = ({
   };
 
   return (
-    <Card className={`border-2 ${variantStyles[variant]}`}>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <div className="flex items-center space-x-2">
-          <Icon className={`h-5 w-5 ${iconColors[variant]}`} />
-          <CardTitle className="text-sm font-medium">{title}</CardTitle>
+    <Card className={`border-2 ${variantStyles[variant]} h-full flex flex-col`}>
+      <CardHeader className="flex-grow">
+        <div className="flex items-start space-x-4">
+          <Icon className={`h-8 w-8 ${iconColors[variant]}`} />
+          <div>
+            <CardTitle className={`text-lg font-bold ${titleClassName}`}>
+              {title}
+            </CardTitle>
+            <CardDescription className={`text-base ${descriptionClassName}`}>
+              {description}
+            </CardDescription>
+          </div>
         </div>
+      </CardHeader>
+      <CardContent>
+        {children}
         {actionText && (
-          <Button variant="ghost" size="sm" onClick={onAction}>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onAction}
+            className="w-full mt-4"
+          >
             {actionText}
           </Button>
         )}
-      </CardHeader>
-      <CardContent>
-        <CardDescription className="text-xs mb-2">
-          {description}
-        </CardDescription>
-        {children}
       </CardContent>
     </Card>
   );
