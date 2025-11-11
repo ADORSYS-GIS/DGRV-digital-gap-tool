@@ -104,8 +104,7 @@ impl From<GapSeverity> for crate::entities::gaps::GapSeverity {
     }
 }
 
-// Admin-config API DTOs
-
+// Admin create payload (config-style)
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 pub struct SeverityRuleDto {
     pub min_abs_gap: i32,
@@ -114,17 +113,26 @@ pub struct SeverityRuleDto {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
-pub struct SetSeverityRulesRequest {
-    // None (omitted) means global rules, Some for per-dimension overrides
-    pub dimension_id: Option<Uuid>,
+pub struct DescriptionConfig {
+    pub description: String,
+    pub dimension_id: Uuid,
     pub rules: Vec<SeverityRuleDto>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
-pub struct SetGapDescriptionRequest {
-    pub dimension_id: Uuid,
-    pub gap_size: i32,
-    pub description: String,
+#[schema(example = json!({
+  "descriptions": [
+    {
+      "description": "string",
+      "dimension_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+      "rules": [
+        { "gap_severity": "HIGH", "max_abs_gap": 0, "min_abs_gap": 0 }
+      ]
+    }
+  ]
+}))]
+pub struct AdminCreateGapRequest {
+    pub descriptions: Vec<DescriptionConfig>,
 }
 
 /// Update gap request
@@ -134,13 +142,4 @@ pub struct UpdateGapRequest {
     pub gap_size: Option<i32>,
     /// New human-readable description
     pub gap_description: Option<String>,
-}
-
-/// Admin configuration payload to merge severity rules and descriptions in a single endpoint
-#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
-pub struct AdminGapConfigRequest {
-    /// Optional set of severity rules to upsert (global or per-dimension)
-    pub severity_rules: Option<SetSeverityRulesRequest>,
-    /// Optional list of gap descriptions to upsert
-    pub descriptions: Option<Vec<SetGapDescriptionRequest>>,
 }

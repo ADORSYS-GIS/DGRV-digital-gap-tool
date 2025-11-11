@@ -88,7 +88,6 @@ pub fn create_api_routes() -> Router<Arc<DatabaseConnection>> {
             delete(delete_action_item),
         )
         // Gap routes
-        .route("/gaps", post(create_gap))
         .route("/gaps", get(list_gaps))
         .route("/gaps/:id", get(get_gap))
         .route("/gaps/:id", put(update_gap))
@@ -101,6 +100,6 @@ pub fn create_api_routes() -> Router<Arc<DatabaseConnection>> {
             "/assessments/:assessment_id/gaps",
             get(list_gaps_by_assessment),
         )
-        // Admin gap configuration (merged)
-        .route("/admin/gap-config", post(admin_gap_config))
+        // Admin gap creation
+        .route("/admin/gaps", post(admin_create_gap))
 }
