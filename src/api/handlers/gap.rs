@@ -37,13 +37,35 @@ fn to_gap_response(model: gaps::Model) -> GapResponse {
 /// Create a new gap (admin)
 /// 
 /// Accepts configuration-style payload with descriptions and severity rules.
+/// The server derives the target dimension from the provided `dimension_assessment_id`.
+/// 
+/// Required fields:
+/// - `dimension_assessment_id` (UUID)
+/// - `gap_size` (integer)
+/// 
+/// Optional fields:
+/// - `gap_description` (string)
+/// - `descriptions` with `dimension_id`-specific rules to determine severity and default description
+/// 
+/// Minimal example:
+/// {
+///   "dimension_assessment_id": "550e8400-e29b-41d4-a716-446655440001",
+///   "gap_size": 2,
+///   "descriptions": [
+///     {
+///       "description": "Default description",
+///       "dimension_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+///       "rules": [ { "min_abs_gap": 0, "max_abs_gap": 3, "gap_severity": "MEDIUM" } ]
+///     }
+///   ]
+/// }
 #[utoipa::path(
     post,
     path = "/admin/gaps",
     tag = "Admin",
     request_body = AdminCreateGapRequest,
     responses(
-        (status = 200, description = "Payload accepted", body = ApiResponseEmpty),
+        (status = 200, description = "Gap created", body = ApiResponseGapResponse),
         (status = 400, description = "Invalid input data"),
         (status = 401, description = "Unauthorized"),
         (status = 404, description = "Dimension assessment not found")
@@ -51,11 +73,74 @@ fn to_gap_response(model: gaps::Model) -> GapResponse {
     security(("jwt" = []))
 )]
 pub async fn admin_create_gap(
-    State(_db): State<Arc<DatabaseConnection>>,
-    Json(_request): Json<AdminCreateGapRequest>,
-) -> Result<Json<ApiResponse<EmptyResponse>>, (StatusCode, Json<serde_json::Value>)> {
-    // TODO: Implement processing of descriptions and rules, persisting as needed
-    Ok(success_response(EmptyResponse {}))
+    State(db): State<Arc<DatabaseConnection>>,
+    Json(request): Json<AdminCreateGapRequest>,
+) -> Result<Json<ApiResponse<GapResponse>>, (StatusCode, Json<serde_json::Value>)> {
+    // Required fields are present by type
+    let dimension_assessment_id = request.dimension_assessment_id;
+    let gap_size = request.gap_size;
+
+    // Fetch dimension assessment to get dimension_id
+    let da = DimensionAssessmentsRepository::find_by_id(db.as_ref(), dimension_assessment_id)
+        .await
+        .map_err(crate::api::handlers::common::handle_error)?
+        .ok_or_else(|| {
+            crate::api::handlers::common::handle_error(AppError::NotFound(
+                "Dimension assessment not found".to_string(),
+            ))
+        })?;
+
+    // Determine severity using provided rules for the matching dimension if present
+    let mut severity = match gap_size.abs() {
+        0..=1 => crate::entities::gaps::GapSeverity::Low,
+        2..=3 => crate::entities::gaps::GapSeverity::Medium,
+        _ => crate::entities::gaps::GapSeverity::High,
+    };
+    if let Some(desc_cfg) = request
+        .descriptions
+        .iter()
+        .find(|d| d.dimension_id == da.dimension_id)
+    {
+        if let Some(rule) = desc_cfg
+            .rules
+            .iter()
+            .find(|r| gap_size.abs() >= r.min_abs_gap && gap_size.abs() <= r.max_abs_gap)
+        {
+            severity = match rule.gap_severity {
+                GapSeverity::Low => crate::entities::gaps::GapSeverity::Low,
+                GapSeverity::Medium => crate::entities::gaps::GapSeverity::Medium,
+                GapSeverity::High => crate::entities::gaps::GapSeverity::High,
+            };
+        }
+    }
+
+    let description_override = request.gap_description.or_else(|| {
+        request
+            .descriptions
+            .iter()
+            .find(|d| d.dimension_id == da.dimension_id)
+            .map(|d| d.description.clone())
+    });
+
+    let active = gaps::ActiveModel {
+        gap_id: Set(Uuid::new_v4()),
+        dimension_assessment_id: Set(dimension_assessment_id),
+        dimension_id: Set(da.dimension_id),
+        gap_size: Set(gap_size),
+        gap_severity: Set(severity),
+        gap_description: Set(description_override),
+        calculated_at: Set(chrono::Utc::now()),
+        ..Default::default()
+    };
+
+    let created = GapsRepository::create(db.as_ref(), active)
+        .await
+        .map_err(crate::api::handlers::common::handle_error)?;
+
+    Ok(success_response_with_message(
+        to_gap_response(created),
+        "Gap created successfully".to_string(),
+    ))
 }
 
 /// Get a specific gap by ID

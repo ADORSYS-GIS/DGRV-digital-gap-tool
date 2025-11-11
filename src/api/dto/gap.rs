@@ -107,20 +107,27 @@ impl From<GapSeverity> for crate::entities::gaps::GapSeverity {
 // Admin create payload (config-style)
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 pub struct SeverityRuleDto {
+    #[schema(example = 0)]
     pub min_abs_gap: i32,
+    #[schema(example = 0)]
     pub max_abs_gap: i32,
     pub gap_severity: GapSeverity,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 pub struct DescriptionConfig {
+    #[schema(example = "Default description for this dimension")]
     pub description: String,
+    #[schema(example = "3fa85f64-5717-4562-b3fc-2c963f66afa6")]
     pub dimension_id: Uuid,
     pub rules: Vec<SeverityRuleDto>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 #[schema(example = json!({
+  "dimension_assessment_id": "550e8400-e29b-41d4-a716-446655440001",
+  "gap_size": 3,
+  "gap_description": "Significant gap",
   "descriptions": [
     {
       "description": "string",
@@ -132,6 +139,15 @@ pub struct DescriptionConfig {
   ]
 }))]
 pub struct AdminCreateGapRequest {
+    /// Target dimension assessment to create the gap for
+    #[schema(example = "550e8400-e29b-41d4-a716-446655440001")]
+    pub dimension_assessment_id: Uuid,
+    /// The numeric gap size
+    #[schema(example = 3)]
+    pub gap_size: i32,
+    /// Optional: explicit description to override
+    #[schema(example = "Significant gap")]
+    pub gap_description: Option<String>,
     pub descriptions: Vec<DescriptionConfig>,
 }
 
