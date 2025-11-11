@@ -18,13 +18,11 @@ use crate::api::handlers::common::{
 };
 use crate::entities::gaps;
 use crate::error::AppError;
-use crate::repositories::dimension_assessments::DimensionAssessmentsRepository;
 use crate::repositories::gaps::GapsRepository;
 
 fn to_gap_response(model: gaps::Model) -> GapResponse {
     GapResponse {
         gap_id: model.gap_id,
-        dimension_assessment_id: model.dimension_assessment_id,
         dimension_id: model.dimension_id,
         gap_size: model.gap_size,
         gap_severity: GapSeverity::from(model.gap_severity),
@@ -37,24 +35,23 @@ fn to_gap_response(model: gaps::Model) -> GapResponse {
 /// Create a new gap (admin)
 /// 
 /// Accepts configuration-style payload with descriptions and severity rules.
-/// The server derives the target dimension from the provided `dimension_assessment_id`.
+/// The server persists the gap for the provided `dimension_id`.
 /// 
 /// Required fields:
-/// - `dimension_assessment_id` (UUID)
+/// - `dimension_id` (UUID)
 /// - `gap_size` (integer)
 /// 
 /// Optional fields:
 /// - `gap_description` (string)
-/// - `descriptions` with `dimension_id`-specific rules to determine severity and default description
+/// - `descriptions` with rules to determine severity and default description
 /// 
 /// Minimal example:
 /// {
-///   "dimension_assessment_id": "550e8400-e29b-41d4-a716-446655440001",
+///   "dimension_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
 ///   "gap_size": 2,
 ///   "descriptions": [
 ///     {
 ///       "description": "Default description",
-///       "dimension_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
 ///       "rules": [ { "min_abs_gap": 0, "max_abs_gap": 3, "gap_severity": "MEDIUM" } ]
 ///     }
 ///   ]
@@ -77,18 +74,8 @@ pub async fn admin_create_gap(
     Json(request): Json<AdminCreateGapRequest>,
 ) -> Result<Json<ApiResponse<GapResponse>>, (StatusCode, Json<serde_json::Value>)> {
     // Required fields are present by type
-    let dimension_assessment_id = request.dimension_assessment_id;
+    let dimension_id = request.dimension_id;
     let gap_size = request.gap_size;
-
-    // Fetch dimension assessment to get dimension_id
-    let da = DimensionAssessmentsRepository::find_by_id(db.as_ref(), dimension_assessment_id)
-        .await
-        .map_err(crate::api::handlers::common::handle_error)?
-        .ok_or_else(|| {
-            crate::api::handlers::common::handle_error(AppError::NotFound(
-                "Dimension assessment not found".to_string(),
-            ))
-        })?;
 
     // Determine severity using provided rules for the matching dimension if present
     let mut severity = match gap_size.abs() {
@@ -96,11 +83,7 @@ pub async fn admin_create_gap(
         2..=3 => crate::entities::gaps::GapSeverity::Medium,
         _ => crate::entities::gaps::GapSeverity::High,
     };
-    if let Some(desc_cfg) = request
-        .descriptions
-        .iter()
-        .find(|d| d.dimension_id == da.dimension_id)
-    {
+    if let Some(desc_cfg) = request.descriptions.first() {
         if let Some(rule) = desc_cfg
             .rules
             .iter()
@@ -114,18 +97,13 @@ pub async fn admin_create_gap(
         }
     }
 
-    let description_override = request.gap_description.or_else(|| {
-        request
-            .descriptions
-            .iter()
-            .find(|d| d.dimension_id == da.dimension_id)
-            .map(|d| d.description.clone())
-    });
+    let description_override = request
+        .gap_description
+        .or_else(|| request.descriptions.first().map(|d| d.description.clone()));
 
     let active = gaps::ActiveModel {
         gap_id: Set(Uuid::new_v4()),
-        dimension_assessment_id: Set(dimension_assessment_id),
-        dimension_id: Set(da.dimension_id),
+        dimension_id: Set(dimension_id),
         gap_size: Set(gap_size),
         gap_severity: Set(severity),
         gap_description: Set(description_override),

@@ -10,6 +10,7 @@ mod m20240924_000005_add_minio_path_to_reports;
 mod m20251024_000001_update_schema;
 mod m20251103_000001_gap_admin_config;
 mod m20251107_000001_align_schema_with_er_diagram;
+mod m20251111_000001_drop_dimension_assessment_id_from_gaps;
 
 pub struct Migrator;
 
@@ -27,6 +28,7 @@ impl MigratorTrait for Migrator {
             Box::new(m20251024_000001_update_schema::Migration),
             Box::new(m20251103_000001_gap_admin_config::Migration),
             Box::new(m20251107_000001_align_schema_with_er_diagram::Migration),
+            Box::new(m20251111_000001_drop_dimension_assessment_id_from_gaps::Migration),
         ]
     }
 }
