@@ -2,11 +2,10 @@ import { renderHook, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { vi, describe, it, expect, beforeEach, Mock } from "vitest";
 import { useAddDigitalisationLevel } from "../useAddDigitalisationLevel";
-import { DigitalisationLevel } from "@/types/digitalisationLevel";
+import { IDigitalisationLevel } from "@/types/digitalisationLevel";
 import { db } from "@/services/db";
 
 // Mock the db
-vi.mock("@/services/db");
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -20,14 +19,14 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
   <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
 );
 
-const newLevel: Omit<
-  DigitalisationLevel,
-  "id" | "syncStatus" | "lastModified"
-> = {
+const newLevel = {
   dimensionId: "1",
-  levelType: "current",
-  state: 1,
-  scope: "test",
+  levelType: "current" as const,
+  levelData: {
+    dimension_id: "1",
+    score: 1,
+    description: "test",
+  },
 };
 
 describe("useAddDigitalisationLevel", () => {
@@ -35,10 +34,6 @@ describe("useAddDigitalisationLevel", () => {
     vi.clearAllMocks();
     queryClient.clear();
     // Mock the transaction
-    (db.transaction as Mock).mockImplementation(async (...args) => {
-      const tx = args[args.length - 1];
-      return await tx();
-    });
   });
 
   it("should add a digitalisation level successfully", async () => {
@@ -54,7 +49,12 @@ describe("useAddDigitalisationLevel", () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
     expect(db.digitalisationLevels.add).toHaveBeenCalledWith(
-      expect.objectContaining(newLevel),
+      expect.objectContaining({
+        dimensionId: newLevel.dimensionId,
+        levelType: newLevel.levelType,
+        state: newLevel.levelData.score,
+        description: newLevel.levelData.description,
+      }),
     );
     expect(db.sync_queue.add).toHaveBeenCalled();
   });

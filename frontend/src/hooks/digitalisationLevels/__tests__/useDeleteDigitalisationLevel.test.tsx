@@ -6,7 +6,6 @@ import { db } from "@/services/db";
 import { Table } from "dexie";
 
 // Mock the db
-vi.mock("@/services/db");
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -25,13 +24,15 @@ describe("useDeleteDigitalisationLevel", () => {
     vi.clearAllMocks();
     queryClient.clear();
     // Mock the transaction
-    (db.transaction as Mock).mockImplementation(async (...args) => {
-      const tx = args[args.length - 1];
-      return await tx();
-    });
   });
 
   it("should delete a digitalisation level successfully", async () => {
+    (db.digitalisationLevels.get as Mock).mockResolvedValue({
+      id: "1",
+      dimensionId: "1",
+      levelType: "current",
+      state: 1,
+    });
     (db.digitalisationLevels.delete as Mock).mockResolvedValue(1);
     (db.sync_queue.add as Mock).mockResolvedValue("1");
 
@@ -39,7 +40,11 @@ describe("useDeleteDigitalisationLevel", () => {
       wrapper,
     });
 
-    result.current.mutate("1");
+    result.current.mutate({
+      dimensionId: "1",
+      levelId: "1",
+      levelType: "current",
+    });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
@@ -50,6 +55,12 @@ describe("useDeleteDigitalisationLevel", () => {
 
   it("should handle errors when deleting a digitalisation level", async () => {
     const errorMessage = "Failed to delete level";
+    (db.digitalisationLevels.get as Mock).mockResolvedValue({
+      id: "1",
+      dimensionId: "1",
+      levelType: "current",
+      state: 1,
+    });
     (db.digitalisationLevels.delete as Mock).mockRejectedValue(
       new Error(errorMessage),
     );
@@ -58,7 +69,11 @@ describe("useDeleteDigitalisationLevel", () => {
       wrapper,
     });
 
-    result.current.mutate("1");
+    result.current.mutate({
+      dimensionId: "1",
+      levelId: "1",
+      levelType: "current",
+    });
 
     await waitFor(() => expect(result.current.isError).toBe(true));
 
