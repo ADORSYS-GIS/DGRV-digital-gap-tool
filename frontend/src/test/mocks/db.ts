@@ -46,7 +46,7 @@ export const mockDb = {
     add: vi.fn(),
     update: vi.fn(),
     delete: vi.fn(),
-    toArray: vi.fn(),
+    toArray: vi.fn().mockResolvedValue([]),
     bulkAdd: vi.fn(),
     where: vi.fn().mockReturnThis(),
     first: vi.fn(),

@@ -2,11 +2,14 @@ import { renderHook, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { vi, describe, it, expect, beforeEach, Mock } from "vitest";
 import { useAddDimension } from "../useAddDimension";
-import { Dimension } from "@/types/dimension";
+import { ICreateDimensionRequest } from "@/types/dimension";
 import { db } from "@/services/db";
 
 // Mock the db
-vi.mock("@/services/db");
+vi.mock("@/services/db", async () => {
+  const { mockDb } = await import("../../../test/mocks/db");
+  return { db: mockDb };
+});
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -20,7 +23,7 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
   <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
 );
 
-const newDimension: Omit<Dimension, "id" | "syncStatus" | "lastModified"> = {
+const newDimension: ICreateDimensionRequest = {
   name: "New Dimension",
   description: "New Description",
   weight: 0.5,
@@ -30,11 +33,6 @@ describe("useAddDimension", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     queryClient.clear();
-    // Mock the transaction
-    (db.transaction as Mock).mockImplementation(async (...args) => {
-      const tx = args[args.length - 1];
-      return await tx();
-    });
   });
 
   it("should add a dimension successfully", async () => {
