@@ -41,6 +41,7 @@ export function DigitalisationGapList({
   const [selectedGap, setSelectedGap] = useState<
     IDigitalisationGapWithDimension | undefined
   >(undefined);
+  const [deletingGapId, setDeletingGapId] = useState<string | null>(null);
   const deleteMutation = useDeleteDigitalisationGap();
 
   const groupedGaps = useMemo(() => {
@@ -63,7 +64,12 @@ export function DigitalisationGapList({
   };
 
   const handleDelete = (id: string) => {
-    deleteMutation.mutate(id);
+    setDeletingGapId(id);
+    deleteMutation.mutate(id, {
+      onSettled: () => {
+        setDeletingGapId(null);
+      },
+    });
   };
 
   return (
@@ -92,7 +98,9 @@ export function DigitalisationGapList({
                         <TableCell className="max-w-xs truncate">
                           {gap.scope}
                         </TableCell>
-                        <TableCell>{gap.scoreRange}</TableCell>
+                        <TableCell>
+                          {gap.min_score} - {gap.max_score}
+                        </TableCell>
                         <TableCell className="text-right">
                           <Button
                             variant="ghost"
@@ -125,8 +133,15 @@ export function DigitalisationGapList({
                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                                 <AlertDialogAction
                                   onClick={() => handleDelete(gap.id)}
+                                  disabled={
+                                    deleteMutation.isPending &&
+                                    deletingGapId === gap.id
+                                  }
                                 >
-                                  Delete
+                                  {deleteMutation.isPending &&
+                                  deletingGapId === gap.id
+                                    ? "Deleting..."
+                                    : "Delete"}
                                 </AlertDialogAction>
                               </AlertDialogFooter>
                             </AlertDialogContent>

@@ -1,30 +1,77 @@
-import { db } from "../db";
+import { getGap, listGaps } from "@/openapi-client/services.gen";
 import {
-  IDigitalisationGap,
   AddDigitalisationGapPayload,
-  UpdateDigitalisationGapPayload,
+  Gap,
+  IDigitalisationGap,
   IDigitalisationGapWithDimension,
   scoreRanges,
 } from "@/types/digitalisationGap";
 import { IDimension } from "@/types/dimension";
+import { SyncStatus } from "@/types/sync";
+import { v4 as uuidv4 } from "uuid";
+import { db } from "../db";
+import { syncService } from "../sync/syncService";
+
+const parseScoreRange = (gapSeverity: Gap): [number, number] => {
+  const rangeStr = scoreRanges[gapSeverity] || "0-0";
+  const parts = rangeStr.split("-").map((s) => parseInt(s.trim(), 10) || 0);
+  return [parts[0] || 0, parts[1] || 0];
+};
 
 export const digitalisationGapRepository = {
-  async addDigitalisationGap(
-    payload: AddDigitalisationGapPayload,
-  ): Promise<void> {
-    const newGap: IDigitalisationGap = {
-      ...payload,
-      id: crypto.randomUUID(),
-      scoreRange: scoreRanges[payload.gap],
-      isSynced: false,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      isDeleted: false,
-    };
-    await db.digitalisationGaps.add(newGap);
-  },
+  getAll: async (): Promise<IDigitalisationGapWithDimension[]> => {
+    try {
+      if (navigator.onLine) {
+        const backendGapsResponse = await listGaps({});
+        if (backendGapsResponse.data) {
+          const backendGaps = backendGapsResponse.data.items;
+          const backendGapIds = new Set(backendGaps.map((d) => d.gap_id));
 
-  async getDigitalisationGaps(): Promise<IDigitalisationGapWithDimension[]> {
+          const localSyncedGaps = await db.digitalisationGaps
+            .where("syncStatus")
+            .equals(SyncStatus.SYNCED)
+            .toArray();
+          const localSyncedGapIds = new Set(localSyncedGaps.map((g) => g.id));
+
+          const gapsToUpsert = backendGaps.map((d) => {
+            const [min_score, max_score] = parseScoreRange(
+              d.gap_severity as Gap,
+            );
+            return {
+              id: d.gap_id,
+              dimensionId: d.dimension_id,
+              gap: d.gap_severity as Gap,
+              scope: d.gap_description || "",
+              min_score,
+              max_score,
+              gap_size: d.gap_size,
+              syncStatus: SyncStatus.SYNCED,
+              lastError: "",
+              createdAt: d.created_at,
+              updatedAt: d.updated_at,
+            } as IDigitalisationGap;
+          });
+
+          const idsToDelete = [...localSyncedGapIds].filter(
+            (id) => !backendGapIds.has(id),
+          );
+
+          await db.transaction("rw", db.digitalisationGaps, async () => {
+            if (gapsToUpsert.length > 0) {
+              await db.digitalisationGaps.bulkPut(gapsToUpsert);
+            }
+            if (idsToDelete.length > 0) {
+              await db.digitalisationGaps.bulkDelete(idsToDelete);
+            }
+          });
+        }
+      }
+    } catch (error) {
+      console.error(
+        "Failed to sync all digitalisation gaps from backend:",
+        error,
+      );
+    }
     const allGaps = await db.digitalisationGaps.toArray();
     const gaps = allGaps.filter((gap) => !gap.isDeleted);
     const dimensions = await db.dimensions.toArray();
@@ -38,41 +85,109 @@ export const digitalisationGapRepository = {
         dimensionMap.get(gap.dimensionId)?.name || "Unknown Dimension",
     }));
   },
+  getById: async (id: string): Promise<IDigitalisationGap | undefined> => {
+    let localGap = await db.digitalisationGaps.get(id);
 
-  async updateDigitalisationGap(
-    payload: UpdateDigitalisationGapPayload,
-  ): Promise<void> {
-    const updateData: Partial<IDigitalisationGap> = {
+    try {
+      if (navigator.onLine) {
+        const backendGap = await getGap({ id });
+        if (backendGap.data) {
+          const [min_score, max_score] = parseScoreRange(
+            backendGap.data.gap_severity as Gap,
+          );
+          const syncedGap: IDigitalisationGap = {
+            id: backendGap.data.gap_id,
+            dimensionId: backendGap.data.dimension_id,
+            gap: backendGap.data.gap_severity as Gap,
+            scope: backendGap.data.gap_description || "",
+            min_score,
+            max_score,
+            gap_size: backendGap.data.gap_size,
+            syncStatus: SyncStatus.SYNCED,
+            lastError: "",
+            createdAt: backendGap.data.created_at,
+            updatedAt: backendGap.data.updated_at,
+          };
+          await db.digitalisationGaps.put(syncedGap);
+          localGap = syncedGap;
+        }
+      }
+    } catch (error) {
+      console.error(
+        `Failed to sync digitalisation gap ${id} from backend:`,
+        error,
+      );
+    }
+    return localGap;
+  },
+  add: async (
+    payload: AddDigitalisationGapPayload,
+  ): Promise<IDigitalisationGap> => {
+    const newGap: IDigitalisationGap = {
       ...payload,
-      isSynced: false,
+      id: uuidv4(),
+      syncStatus: SyncStatus.PENDING,
+      createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
+      isDeleted: false,
     };
-
-    if (payload.gap) {
-      updateData.scoreRange = scoreRanges[payload.gap];
+    await db.digitalisationGaps.add(newGap);
+    syncService.addToSyncQueue(
+      "DigitalisationGap",
+      newGap.id,
+      "CREATE",
+      newGap,
+    );
+    return newGap;
+  },
+  update: async (
+    id: string,
+    changes: Partial<IDigitalisationGap>,
+  ): Promise<void> => {
+    const existingGap = await db.digitalisationGaps.get(id);
+    if (!existingGap) {
+      console.warn(`Digitalisation gap with ID ${id} not found in IndexedDB.`);
+      return;
     }
 
-    await db.digitalisationGaps.update(payload.id, updateData);
-  },
+    const updatedData = { ...existingGap, ...changes };
 
-  async deleteDigitalisationGap(id: string): Promise<void> {
     await db.digitalisationGaps.update(id, {
-      isDeleted: true,
-      isSynced: false,
+      ...changes,
+      syncStatus: SyncStatus.PENDING,
       updatedAt: new Date().toISOString(),
     });
+    syncService.addToSyncQueue("DigitalisationGap", id, "UPDATE", updatedData);
   },
+  delete: async (id: string): Promise<void> => {
+    const existingGap = await db.digitalisationGaps.get(id);
+    if (!existingGap) {
+      console.warn(`Digitalisation gap with ID ${id} not found in IndexedDB.`);
+      return;
+    }
 
-  async getUnsyncedDigitalisationGaps(): Promise<IDigitalisationGap[]> {
-    return db.digitalisationGaps.where("isSynced").equals(0).toArray();
+    await db.digitalisationGaps.update(id, {
+      isDeleted: true,
+      syncStatus: SyncStatus.PENDING,
+      updatedAt: new Date().toISOString(),
+    });
+    syncService.addToSyncQueue("DigitalisationGap", id, "DELETE", null);
   },
-
-  async markDigitalisationGapsAsSynced(
-    syncedGaps: { id: string; updatedAt: string }[],
-  ): Promise<void> {
-    const updates = syncedGaps.map(({ id, updatedAt }) =>
-      db.digitalisationGaps.update(id, { isSynced: true, updatedAt }),
-    );
-    await Promise.all(updates);
+  markAsSynced: async (offlineId: string, serverId: string): Promise<void> => {
+    const existingGap = await db.digitalisationGaps.get(offlineId);
+    if (existingGap) {
+      await db.digitalisationGaps.delete(offlineId);
+      await db.digitalisationGaps.add({
+        ...existingGap,
+        id: serverId,
+        syncStatus: SyncStatus.SYNCED,
+        lastError: "",
+      });
+    }
   },
+  markAsFailed: (id: string, error: string) =>
+    db.digitalisationGaps.update(id, {
+      syncStatus: SyncStatus.FAILED,
+      lastError: error,
+    }),
 };

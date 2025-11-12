@@ -49,7 +49,7 @@ impl DesiredStatesRepository {
         if let ActiveValue::Set(score) = desired_state_data.score {
             active_model.score = Set(score);
         }
-        active_model.updated_at = Set(chrono::Local::now().naive_local());
+        active_model.updated_at = Set(chrono::Utc::now());
 
         active_model.update(db).await.map_err(AppError::from)
     }

@@ -8,6 +8,9 @@ import {
   createDesiredState,
   updateDesiredState,
   deleteDesiredState,
+  adminCreateGap,
+  deleteGap,
+  updateGap,
 } from "@/openapi-client/services.gen";
 import { db } from "@/services/db";
 import { dimensionRepository } from "@/services/dimensions/dimensionRepository";
@@ -176,7 +179,6 @@ export const syncService = {
               dimension_id: dimensionId,
               score: currentStateData.state,
               description: currentStateData.description ?? null,
-              level: currentStateData.level ?? null,
             },
           });
           if (response.data) {
@@ -206,7 +208,6 @@ export const syncService = {
           requestBody: {
             score: currentStateData.state,
             description: currentStateData.description ?? null,
-            level: currentStateData.level ?? null,
           },
         });
         if (response.data) {
@@ -252,7 +253,6 @@ export const syncService = {
               dimension_id: dimensionId,
               score: desiredStateData.state,
               description: desiredStateData.description ?? null,
-              level: desiredStateData.level ?? null,
             },
           });
           if (response.data) {
@@ -282,7 +282,6 @@ export const syncService = {
           requestBody: {
             score: desiredStateData.state,
             description: desiredStateData.description ?? null,
-            level: desiredStateData.level ?? null,
           },
         });
         if (response.data) {
@@ -315,38 +314,52 @@ export const syncService = {
     const gapData = item.payload as IDigitalisationGap;
     switch (item.action) {
       case "CREATE": {
-        console.log(
-          "Attempting to create digitalisation gap on server:",
-          gapData,
-        );
-        // const response = await createDigitalisationGap({ requestBody: gapData });
-        // if (response.data) {
-        //   await digitalisationGapRepository.markAsSynced(gapData.id, response.data.id);
-        // } else {
-        //   throw new Error(response.error || "Failed to create digitalisation gap on server");
-        // }
+        const response = await adminCreateGap({
+          requestBody: {
+            dimension_id: gapData.dimensionId,
+            gap_size: gapData.gap_size,
+            gap_description: gapData.scope,
+            descriptions: [],
+          },
+        });
+        if (response.data) {
+          await digitalisationGapRepository.markAsSynced(
+            gapData.id,
+            response.data.gap_id,
+          );
+        } else {
+          throw new Error(
+            response.error || "Failed to create digitalisation gap on server",
+          );
+        }
         break;
       }
       case "UPDATE": {
-        console.log(
-          "Attempting to update digitalisation gap on server:",
-          gapData,
-        );
-        // const response = await updateDigitalisationGap({ id: item.entityId, requestBody: gapData });
-        // if (response.data) {
-        //   await digitalisationGapRepository.markAsSynced(item.entityId, response.data.id);
-        // } else {
-        //   throw new Error(response.error || "Failed to update digitalisation gap on server");
-        // }
+        const response = await updateGap({
+          id: item.entityId,
+          requestBody: {
+            gap_description: gapData.scope,
+            gap_size: gapData.gap_size,
+          },
+        });
+        if (response.data) {
+          await digitalisationGapRepository.markAsSynced(
+            item.entityId,
+            response.data.gap_id,
+          );
+        } else {
+          throw new Error(
+            response.error || "Failed to update digitalisation gap on server",
+          );
+        }
         break;
       }
       case "DELETE": {
-        console.log(
-          "Attempting to delete digitalisation gap on server:",
+        await deleteGap({ id: item.entityId });
+        await digitalisationGapRepository.markAsSynced(
+          item.entityId,
           item.entityId,
         );
-        // await deleteDigitalisationGap({ id: item.entityId });
-        // await digitalisationGapRepository.markAsSynced(item.entityId, item.entityId);
         break;
       }
     }

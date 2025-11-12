@@ -42,7 +42,6 @@ pub struct CreateCurrentStateRequest {
     pub dimension_id: Uuid,
     pub description: Option<String>,
     pub score: i32,
-    pub level: Option<String>,
 }
 
 /// Current state update request
@@ -50,7 +49,6 @@ pub struct CreateCurrentStateRequest {
 pub struct UpdateCurrentStateRequest {
     pub description: Option<String>,
     pub score: Option<i32>,
-    pub level: Option<String>,
 }
 
 /// Current state response
@@ -60,7 +58,6 @@ pub struct CurrentStateResponse {
     pub dimension_id: Uuid,
     pub description: Option<String>,
     pub score: i32,
-    pub level: Option<String>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
@@ -71,7 +68,6 @@ pub struct CreateDesiredStateRequest {
     pub dimension_id: Uuid,
     pub description: Option<String>,
     pub score: i32,
-    pub level: Option<String>,
 }
 
 /// Desired state update request
@@ -79,7 +75,6 @@ pub struct CreateDesiredStateRequest {
 pub struct UpdateDesiredStateRequest {
     pub description: Option<String>,
     pub score: Option<i32>,
-    pub level: Option<String>,
 }
 
 /// Desired state response
@@ -89,7 +84,6 @@ pub struct DesiredStateResponse {
     pub dimension_id: Uuid,
     pub description: Option<String>,
     pub score: i32,
-    pub level: Option<String>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }

@@ -1,7 +1,5 @@
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
-use chrono::NaiveDateTime;
-
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
 #[sea_orm(table_name = "desired_states")]
 pub struct Model {
@@ -10,9 +8,8 @@ pub struct Model {
     pub dimension_id: Uuid,
     pub description: Option<String>,
     pub score: i32,
-    pub level: Option<String>,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
+    pub created_at: DateTimeUtc,
+    pub updated_at: DateTimeUtc,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
@@ -34,3 +31,4 @@ impl Related<super::dimensions::Entity> for Entity {
 }
 
 impl ActiveModelBehavior for ActiveModel {}
+

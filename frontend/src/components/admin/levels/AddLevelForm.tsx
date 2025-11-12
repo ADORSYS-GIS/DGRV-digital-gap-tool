@@ -1,17 +1,11 @@
-import { useEffect } from "react";
-import { useForm, Controller, SubmitHandler } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -19,12 +13,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { useAddDigitalisationLevel } from "@/hooks/digitalisationLevels/useAddDigitalisationLevel";
+import { useDimension } from "@/hooks/dimensions/useDimension";
 import {
   IDigitalisationLevel,
-  LevelType,
   LevelState,
+  LevelType,
 } from "@/types/digitalisationLevel";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect } from "react";
+import { Controller, SubmitHandler, useForm } from "react-hook-form";
+import * as z from "zod";
 
 const formSchema = z.object({
   description: z.string().optional(),
@@ -41,6 +41,124 @@ interface AddLevelFormProps {
   existingLevels: IDigitalisationLevel[];
 }
 
+const currentStateDescriptions: Record<string, string[]> = {
+  Technology: [
+    "Legacy Systems",
+    "Basic Digital Tools",
+    "Partial Automation",
+    "Cloud-Enabled",
+    "Highly Scalable & Integrated",
+  ],
+  "Digital Culture": [
+    "Digital Resistance",
+    "Basic minimal Adoption",
+    "Willing but Inconsistent",
+    "Adoption with Leadership Support",
+    "Fully Embedded Digital Culture",
+  ],
+  Skills: [
+    "Insufficient Digital Skills",
+    "Basic Digital Skills",
+    "Moderate Skills, Limited to Certain Areas",
+    "Widespread Digital Proficiency",
+    "Advanced Expertise",
+  ],
+  Processes: [
+    "Manual and inefficient processes.",
+    "Efficient but manual",
+    "Partially Automated",
+    "Fully Automated inefficient",
+    "Fully Automated efficient / integrated",
+  ],
+  Cybersecurity: [
+    "No Cybersecurity Measures",
+    "Basic Security",
+    "Standard Security Protocols",
+    "Proactive Cybersecurity",
+    "Comprehensive Security Framework",
+  ],
+  "Customer Experience": [
+    "No Digital Customer Interaction",
+    "Basic Digital Presence",
+    "Limited Digital Channels",
+    "Multiple Digital Channels",
+    "Seamless Omnichannel Experience",
+  ],
+  "Data & Analytics": [
+    "No Data Collection or Use",
+    "Basic Data Collection",
+    "Data for Operational Reporting",
+    "Advanced Data Analytics",
+    "Data-Driven Organization",
+  ],
+  Innovation: [
+    "No Innovation",
+    "Occasional Innovation",
+    "Innovation with Limited Scope",
+    "Proactive Innovation Culture",
+    "Innovation Leader",
+  ],
+};
+
+const desiredStateDescriptions: Record<string, string[]> = {
+  Technology: [
+    "Legacy Systems",
+    "Basic Digital Tools",
+    "Partial Automation",
+    "Cloud-Enabled",
+    "Highly Scalable & Integrated",
+  ],
+  "Digital Culture": [
+    "Traditional Mindset (Analogue Culture)",
+    "Digital Experimentation (Explorative Digital Culture)",
+    "Digital Collaboration (Engaging Digital Culture)",
+    "Adoption of Member-Centric Digitalization with Leadership Support (Integrative Digital Culture)",
+    "Culture of Continuous Innovation and Digital Leadership (Transformative Digital Culture)",
+  ],
+  Skills: [
+    "Insufficient Digital Literacy",
+    "Basic Digital Literacy",
+    "Functional Digital skills with limitations in certain areas",
+    "Cross-functional and departmental Digital Competency",
+    "Future-Ready Workforce with specialized expertise",
+  ],
+  Processes: [
+    "Fully Manual Processes",
+    "Digitized but Manual",
+    "Partially Automated Processes",
+    "Fully Automated Processes",
+    "Integrated Automation through Digital Transformation",
+  ],
+  Cybersecurity: [
+    "No Cybersecurity Measures",
+    "Basic Security Measures",
+    "Reactive Cybersecurity",
+    "Proactive Cybersecurity",
+    "Comprehensive Security Framework",
+  ],
+  "Customer Experience": [
+    "No Digital Customer Interaction",
+    "Basic Digital Presence",
+    "Limited Digital Channels",
+    "Multi-Channel Engagement",
+    "Omnichannel Excellence",
+  ],
+  "Data & Analytics": [
+    "No Data Collection or Use",
+    "Basic Data Collection & Storage",
+    "Operational Reporting Only",
+    "Advanced Analytics & Insights",
+    "Data-Driven Decision Making Culture",
+  ],
+  Innovation: [
+    "No Focus on Innovation",
+    "Occasional Innovation Efforts",
+    "Focused Innovation Initiatives",
+    "Proactive Innovation Culture",
+    "Continuous Innovation & Disruption Leadership",
+  ],
+};
+
 export const AddLevelForm = ({
   isOpen,
   onClose,
@@ -48,12 +166,15 @@ export const AddLevelForm = ({
   levelType,
   existingLevels,
 }: AddLevelFormProps) => {
+  const { data: dimension } = useDimension(dimensionId);
+
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
     control,
+    setValue,
   } = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -96,6 +217,21 @@ export const AddLevelForm = ({
     (state) => !existingLevels.some((level) => level.state === state),
   );
 
+  const descriptions =
+    dimension && levelType === "current"
+      ? currentStateDescriptions[dimension.name]
+      : dimension
+        ? desiredStateDescriptions[dimension.name]
+        : undefined;
+
+  const handleStateChange = (value: string) => {
+    const state = parseInt(value, 10);
+    setValue("state", state);
+    if (descriptions) {
+      setValue("description", descriptions[state - 1] ?? "");
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
@@ -110,7 +246,7 @@ export const AddLevelForm = ({
             control={control}
             render={({ field }) => (
               <Select
-                onValueChange={(value) => field.onChange(parseInt(value, 10))}
+                onValueChange={handleStateChange}
                 defaultValue={field.value ? String(field.value) : ""}
               >
                 <SelectTrigger>
@@ -119,7 +255,9 @@ export const AddLevelForm = ({
                 <SelectContent>
                   {availableStates.map((state) => (
                     <SelectItem key={state} value={String(state)}>
-                      State {state}
+                      {descriptions
+                        ? `${descriptions[state - 1]}`
+                        : `State ${state}`}
                     </SelectItem>
                   ))}
                 </SelectContent>

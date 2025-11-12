@@ -34,6 +34,19 @@ impl DimensionAssessmentsRepository {
             .map_err(AppError::from)
     }
 
+    pub async fn find_by_assessment_and_dimension(
+        db: &DbConn,
+        assessment_id: Uuid,
+        dimension_id: Uuid,
+    ) -> Result<Option<dimension_assessments::Model>, AppError> {
+        DimensionAssessments::find()
+            .filter(dimension_assessments::Column::AssessmentId.eq(assessment_id))
+            .filter(dimension_assessments::Column::DimensionId.eq(dimension_id))
+            .one(db)
+            .await
+            .map_err(AppError::from)
+    }
+
     pub async fn create(
         db: &DbConn,
         assessment_data: dimension_assessments::ActiveModel,

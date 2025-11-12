@@ -21,7 +21,6 @@ pub struct CreateGapRequest {
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 #[schema(example = json!({
     "gap_id": "550e8400-e29b-41d4-a716-446655440000",
-    "dimension_assessment_id": "550e8400-e29b-41d4-a716-446655440001",
     "dimension_id": "550e8400-e29b-41d4-a716-446655440002",
     "gap_size": 3,
     "gap_severity": "HIGH",
@@ -34,10 +33,6 @@ pub struct GapResponse {
     /// Unique identifier for the gap
     #[schema(example = "550e8400-e29b-41d4-a716-446655440000")]
     pub gap_id: Uuid,
-    
-    /// Reference to the dimension assessment
-    #[schema(example = "550e8400-e29b-41d4-a716-446655440001")]
-    pub dimension_assessment_id: Uuid,
     
     /// Reference to the dimension
     #[schema(example = "550e8400-e29b-41d4-a716-446655440002")]
@@ -104,25 +99,55 @@ impl From<GapSeverity> for crate::entities::gaps::GapSeverity {
     }
 }
 
-// Admin-config API DTOs
-
+// Admin create payload (config-style)
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 pub struct SeverityRuleDto {
+    #[schema(example = 0)]
     pub min_abs_gap: i32,
+    #[schema(example = 0)]
     pub max_abs_gap: i32,
     pub gap_severity: GapSeverity,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
-pub struct SetSeverityRulesRequest {
-    // None (omitted) means global rules, Some for per-dimension overrides
-    pub dimension_id: Option<Uuid>,
+pub struct DescriptionConfig {
+    #[schema(example = "Default description for this dimension")]
+    pub description: String,
     pub rules: Vec<SeverityRuleDto>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
-pub struct SetGapDescriptionRequest {
+#[schema(example = json!({
+  "dimension_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "gap_size": 3,
+  "gap_description": "Significant gap",
+  "descriptions": [
+    {
+      "description": "string",
+      "rules": [
+        { "gap_severity": "HIGH", "max_abs_gap": 0, "min_abs_gap": 0 }
+      ]
+    }
+  ]
+}))]
+pub struct AdminCreateGapRequest {
+    /// Target dimension to create the gap for
+    #[schema(example = "3fa85f64-5717-4562-b3fc-2c963f66afa6")]
     pub dimension_id: Uuid,
+    /// The numeric gap size
+    #[schema(example = 3)]
     pub gap_size: i32,
-    pub description: String,
+    /// Optional: explicit description to override
+    #[schema(example = "Significant gap")]
+    pub gap_description: Option<String>,
+    pub descriptions: Vec<DescriptionConfig>,
+}
+
+/// Update gap request
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
+pub struct UpdateGapRequest {
+    /// New gap size; if provided, severity will be recalculated
+    pub gap_size: Option<i32>,
+    /// New human-readable description
+    pub gap_description: Option<String>,
 }

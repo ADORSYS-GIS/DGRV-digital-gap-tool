@@ -10,16 +10,21 @@ export const scoreRanges = {
   [Gap.LOW]: "75-100",
 };
 
+import { SyncStatus } from "@/types/sync";
+
 export interface IDigitalisationGap {
   id: string;
   dimensionId: string;
   gap: Gap;
   scope: string;
-  scoreRange: string;
+  min_score: number;
+  max_score: number;
+  gap_size: number;
   createdAt?: string;
   updatedAt?: string;
   isDeleted?: boolean;
-  isSynced?: boolean;
+  syncStatus: SyncStatus;
+  lastError?: string;
 }
 
 // For display in lists, including dimension name
@@ -29,7 +34,7 @@ export interface IDigitalisationGapWithDimension extends IDigitalisationGap {
 
 export type AddDigitalisationGapPayload = Omit<
   IDigitalisationGap,
-  "id" | "scoreRange" | "isSynced" | "createdAt" | "updatedAt" | "isDeleted"
+  "id" | "syncStatus" | "createdAt" | "updatedAt" | "isDeleted"
 >;
 
 export type UpdateDigitalisationGapPayload =

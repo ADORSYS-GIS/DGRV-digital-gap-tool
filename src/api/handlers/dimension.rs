@@ -154,9 +154,8 @@ pub async fn get_dimension_with_states(
             dimension_id: cs.dimension_id,
             description: cs.description,
             score: cs.score,
-            level: cs.level,
-            created_at: DateTime::from_naive_utc_and_offset(cs.created_at, Utc),
-            updated_at: DateTime::from_naive_utc_and_offset(cs.updated_at, Utc),
+            created_at: cs.created_at,
+            updated_at: cs.updated_at,
         })
         .collect();
 
@@ -167,9 +166,8 @@ pub async fn get_dimension_with_states(
             dimension_id: ds.dimension_id,
             description: ds.description,
             score: ds.score,
-            level: ds.level,
-            created_at: DateTime::from_naive_utc_and_offset(ds.created_at, Utc),
-            updated_at: DateTime::from_naive_utc_and_offset(ds.updated_at, Utc),
+            created_at: ds.created_at,
+            updated_at: ds.updated_at,
         })
         .collect();
 
@@ -347,7 +345,6 @@ pub async fn create_current_state(
     let active_model = crate::entities::current_states::ActiveModel {
         current_state_id: sea_orm::Set(Uuid::new_v4()),
         dimension_id: sea_orm::Set(dimension_id),
-        level: sea_orm::Set(request.level),
         description: sea_orm::Set(request.description),
         score: sea_orm::Set(request.score),
         ..Default::default()
@@ -362,9 +359,8 @@ pub async fn create_current_state(
         dimension_id: current_state.dimension_id,
         description: current_state.description,
         score: current_state.score,
-        level: current_state.level,
-        created_at: DateTime::from_naive_utc_and_offset(current_state.created_at, Utc),
-        updated_at: DateTime::from_naive_utc_and_offset(current_state.updated_at, Utc),
+        created_at: current_state.created_at,
+        updated_at: current_state.updated_at,
     };
 
     Ok(success_response_with_message(
@@ -411,14 +407,14 @@ pub async fn update_current_state(
     }
 
     // Update fields if provided
-    if let Some(level) = request.level {
-        current_state.level = Some(level);
-    }
     if let Some(description) = request.description {
         current_state.description = Some(description);
     }
+    if let Some(score) = request.score {
+        current_state.score = score;
+    }
 
-    current_state.updated_at = chrono::Local::now().naive_local();
+    current_state.updated_at = chrono::Utc::now();
 
     let active_model: crate::entities::current_states::ActiveModel = current_state.into();
     let updated_current_state =
@@ -431,9 +427,8 @@ pub async fn update_current_state(
         dimension_id: updated_current_state.dimension_id,
         description: updated_current_state.description,
         score: updated_current_state.score,
-        level: updated_current_state.level,
-        created_at: DateTime::from_naive_utc_and_offset(updated_current_state.created_at, Utc),
-        updated_at: DateTime::from_naive_utc_and_offset(updated_current_state.updated_at, Utc),
+        created_at: updated_current_state.created_at,
+        updated_at: updated_current_state.updated_at,
     };
 
     Ok(success_response_with_message(
@@ -471,7 +466,6 @@ pub async fn create_desired_state(
     let active_model = crate::entities::desired_states::ActiveModel {
         desired_state_id: sea_orm::Set(Uuid::new_v4()),
         dimension_id: sea_orm::Set(dimension_id),
-        level: sea_orm::Set(request.level),
         description: sea_orm::Set(request.description),
         score: sea_orm::Set(request.score),
         ..Default::default()
@@ -486,9 +480,8 @@ pub async fn create_desired_state(
         dimension_id: desired_state.dimension_id,
         description: desired_state.description,
         score: desired_state.score,
-        level: desired_state.level,
-        created_at: DateTime::from_naive_utc_and_offset(desired_state.created_at, Utc),
-        updated_at: DateTime::from_naive_utc_and_offset(desired_state.updated_at, Utc),
+        created_at: desired_state.created_at,
+        updated_at: desired_state.updated_at,
     };
 
     Ok(success_response_with_message(
@@ -535,14 +528,14 @@ pub async fn update_desired_state(
     }
 
     // Update fields if provided
-    if let Some(level) = request.level {
-        desired_state.level = Some(level);
-    }
     if let Some(description) = request.description {
         desired_state.description = Some(description);
     }
+    if let Some(score) = request.score {
+        desired_state.score = score;
+    }
 
-    desired_state.updated_at = chrono::Local::now().naive_local();
+    desired_state.updated_at = chrono::Utc::now();
 
     let active_model: crate::entities::desired_states::ActiveModel = desired_state.into();
     let updated_desired_state =
@@ -555,9 +548,8 @@ pub async fn update_desired_state(
         dimension_id: updated_desired_state.dimension_id,
         description: updated_desired_state.description,
         score: updated_desired_state.score,
-        level: updated_desired_state.level,
-        created_at: DateTime::from_naive_utc_and_offset(updated_desired_state.created_at, Utc),
-        updated_at: DateTime::from_naive_utc_and_offset(updated_desired_state.updated_at, Utc),
+        created_at: updated_desired_state.created_at,
+        updated_at: updated_desired_state.updated_at,
     };
 
     Ok(success_response_with_message(

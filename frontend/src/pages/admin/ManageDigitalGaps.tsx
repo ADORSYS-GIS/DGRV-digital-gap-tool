@@ -20,15 +20,19 @@ export default function ManageDigitalGaps() {
         <h1 className="text-3xl font-bold tracking-tight">
           Manage Digitalisation Gaps
         </h1>
-        <Button onClick={() => setAddDialogOpen(true)}>
-          <PlusCircle className="mr-2 h-4 w-4" />
-          Add Digitalisation Gap
-        </Button>
+        <div className="flex items-center space-x-2">
+          <Button onClick={() => setAddDialogOpen(true)}>
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Add Digitalisation Gap
+          </Button>
+        </div>
       </div>
 
       {isLoading && <LoadingSpinner />}
       {error && (
-        <p className="text-red-500">An error occurred: {error.message}</p>
+        <p className="text-red-500">
+          An error occurred: {(error as Error).message}
+        </p>
       )}
       {digitalisationGaps && (
         <DigitalisationGapList digitalisationGaps={digitalisationGaps} />
