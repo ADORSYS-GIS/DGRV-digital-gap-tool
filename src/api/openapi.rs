@@ -53,14 +53,14 @@ use crate::api::dto::report::*;
         crate::api::handlers::action_plan::update_action_item,
         crate::api::handlers::action_plan::delete_action_item,
         // Gaps
-        crate::api::handlers::gap::create_gap,
         crate::api::handlers::gap::get_gap,
         crate::api::handlers::gap::list_gaps,
         crate::api::handlers::gap::list_gaps_by_dimension_assessment,
         crate::api::handlers::gap::list_gaps_by_assessment,
-        // Admin config for gaps
-        crate::api::handlers::gap::set_severity_rules,
-        crate::api::handlers::gap::set_gap_description,
+        crate::api::handlers::gap::update_gap,
+        crate::api::handlers::gap::delete_gap,
+        // Admin gap creation
+        crate::api::handlers::gap::admin_create_gap,
     ),
     components(
         schemas(
@@ -143,12 +143,13 @@ use crate::api::dto::report::*;
             ActionItemListResponse,
             // Gaps
             CreateGapRequest,
+            UpdateGapRequest,
             GapResponse,
             GapSeverity,
-            // Admin DTOs
+            // Admin create payload
             SeverityRuleDto,
-            SetSeverityRulesRequest,
-            SetGapDescriptionRequest
+            DescriptionConfig,
+            AdminCreateGapRequest,
         )
     ),
     tags(

@@ -1,18 +1,13 @@
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
-
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
 #[sea_orm(table_name = "desired_states")]
 pub struct Model {
     #[sea_orm(primary_key, auto_generate = false)]
     pub desired_state_id: Uuid,
     pub dimension_id: Uuid,
-    pub title: String,
     pub description: Option<String>,
     pub score: i32,
-    pub level: Option<String>,
-    pub target_date: Option<DateTimeUtc>,
-    pub success_criteria: Option<String>,
     pub created_at: DateTimeUtc,
     pub updated_at: DateTimeUtc,
 }
@@ -36,3 +31,4 @@ impl Related<super::dimensions::Entity> for Entity {
 }
 
 impl ActiveModelBehavior for ActiveModel {}
+

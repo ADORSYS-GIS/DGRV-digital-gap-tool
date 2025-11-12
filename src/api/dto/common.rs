@@ -27,12 +27,12 @@ use uuid::Uuid;
     ApiResponsePaginatedReportResponse = ApiResponse<PaginatedResponse<crate::api::dto::report::ReportResponse>>,
     ApiResponseGapResponse = ApiResponse<crate::api::dto::gap::GapResponse>,
     ApiResponsePaginatedGapResponse = ApiResponse<PaginatedResponse<crate::api::dto::gap::GapResponse>>,
-    ApiResponseEmpty = ApiResponse<EmptyResponse>
+    ApiResponseEmpty = ApiResponse<EmptyResponse>,
+    ApiResponseAdminCreateGapRequest = ApiResponse<crate::api::dto::gap::AdminCreateGapRequest>
 )]
 pub struct ApiResponse<T>
 where
-    T: for<'a> ToSchema<'a>,
-{
+    T: for<'a> ToSchema<'a>, {
     pub success: bool,
     #[schema(inline)]
     pub data: Option<T>,

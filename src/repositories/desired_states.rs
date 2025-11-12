@@ -43,9 +43,6 @@ impl DesiredStatesRepository {
         if let ActiveValue::Set(dimension_id) = desired_state_data.dimension_id {
             active_model.dimension_id = Set(dimension_id);
         }
-        if let ActiveValue::Set(title) = desired_state_data.title {
-            active_model.title = Set(title);
-        }
         if let ActiveValue::Set(description) = desired_state_data.description {
             active_model.description = Set(description);
         }

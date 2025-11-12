@@ -26,9 +26,14 @@ const ManageDigitalisationLevels = React.lazy(
 const ManageDimensions = React.lazy(
   () => import("../pages/admin/ManageDimensions"),
 );
-const ManageGapRecommendations = React.lazy(
-  () => import("../pages/admin/ManageGapRecommendations"),
+const ManageActionPlan = React.lazy(
+  () => import("../pages/admin/ManageActionPlan"),
 );
+const ManageDigitalGaps = React.lazy(
+  () => import("../pages/admin/ManageDigitalGaps"),
+);
+const ManageUsers = React.lazy(() => import("../pages/admin/ManageUsers"));
+const ViewReports = React.lazy(() => import("../pages/admin/ViewReports"));
 
 const routes = [
   { path: "/", element: React.createElement(HomePage) },
@@ -63,8 +68,24 @@ const routes = [
       },
       { path: "dimensions", element: React.createElement(ManageDimensions) },
       {
-        path: "recommendations",
-        element: React.createElement(ManageGapRecommendations),
+        path: "action-plan",
+        element: React.createElement(ManageActionPlan),
+      },
+      {
+        path: "digital-gaps",
+        element: React.createElement(ManageDigitalGaps),
+      },
+      {
+        path: "manage-levels/:dimensionId",
+        element: React.createElement(ManageDigitalisationLevels),
+      },
+      {
+        path: "users",
+        element: React.createElement(ManageUsers),
+      },
+      {
+        path: "reports",
+        element: React.createElement(ViewReports),
       },
     ],
   },
