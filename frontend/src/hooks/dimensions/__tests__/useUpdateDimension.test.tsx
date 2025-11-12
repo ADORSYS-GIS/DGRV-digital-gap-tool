@@ -6,7 +6,6 @@ import { IDimension } from "@/types/dimension";
 import { db } from "@/services/db";
 import { Table } from "dexie";
 
-
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
