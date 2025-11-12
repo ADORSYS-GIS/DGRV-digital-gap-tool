@@ -8,20 +8,18 @@ use std::str::FromStr;
 pub struct Model {
     #[sea_orm(primary_key, auto_generate = false)]
     pub assessment_id: Uuid,
-    pub user_id: String,
     pub organization_id: String,
-    pub cooperative_id: String,
     pub document_title: String,
     pub status: AssessmentStatus,
     pub started_at: Option<DateTimeUtc>,
     pub completed_at: Option<DateTimeUtc>,
     pub created_at: DateTimeUtc,
     pub updated_at: DateTimeUtc,
-    pub metadata: Option<JsonValue>,
+    pub dimensions_id: Option<JsonValue>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize)]
-#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "assessment_status")]
+#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "assessment_status_enum")]
 pub enum AssessmentStatus {
     #[sea_orm(string_value = "draft")]
     Draft,
