@@ -124,9 +124,9 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(Gaps::GapSize).integer().not_null())
                     .col(ColumnDef::new(Gaps::GapSeverity).string().not_null())
                     .col(ColumnDef::new(Gaps::GapDescription).text())
-                    .col(ColumnDef::new(Gaps::CalculatedAt).timestamp().not_null().default(Expr::current_timestamp()))
-                    .col(ColumnDef::new(Gaps::CreatedAt).timestamp().not_null().default(Expr::current_timestamp()))
-                    .col(ColumnDef::new(Gaps::UpdatedAt).timestamp().not_null().default(Expr::current_timestamp()))
+                    .col(ColumnDef::new(Gaps::CalculatedAt).timestamp_with_time_zone().not_null().default(Expr::current_timestamp()))
+                    .col(ColumnDef::new(Gaps::CreatedAt).timestamp_with_time_zone().not_null().default(Expr::current_timestamp()))
+                    .col(ColumnDef::new(Gaps::UpdatedAt).timestamp_with_time_zone().not_null().default(Expr::current_timestamp()))
                     .to_owned(),
             )
             .await?;

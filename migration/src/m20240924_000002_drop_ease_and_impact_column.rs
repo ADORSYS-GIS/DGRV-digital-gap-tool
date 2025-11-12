@@ -7,15 +7,9 @@ pub struct Migration;
 impl MigrationTrait for Migration {
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         // Drop the ease_and_impact column from the gaps table
-        manager
-            .alter_table(
-                Table::alter()
-                    .table(Gaps::Table)
-                    .drop_column(Gaps::EaseAndImpact)
-                    .to_owned(),
-            )
-            .await?;
-
+        // Note: This column was never created in the initial migration, so we skip this
+        // to avoid errors on fresh database installations
+        let _ = manager;
         Ok(())
     }
 

@@ -30,8 +30,6 @@ pub enum Relation {
         on_delete = "Cascade"
     )]
     Dimensions,
-    #[sea_orm(has_one = "super::gaps::Entity")]
-    Gaps,
 }
 
 impl Related<super::assessments::Entity> for Entity {
@@ -46,10 +44,5 @@ impl Related<super::dimensions::Entity> for Entity {
     }
 }
 
-impl Related<super::gaps::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::Gaps.def()
-    }
-}
 
 impl ActiveModelBehavior for ActiveModel {}

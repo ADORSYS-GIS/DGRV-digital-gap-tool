@@ -7,15 +7,9 @@ pub struct Migration;
 impl MigrationTrait for Migration {
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         // Drop the is_selected column from the assessment_recommendations table
-        manager
-            .alter_table(
-                Table::alter()
-                    .table(AssessmentRecommendations::Table)
-                    .drop_column(AssessmentRecommendations::IsSelected)
-                    .to_owned(),
-            )
-            .await?;
-
+        // Note: This column was never created in the initial migration, so we skip this
+        // to avoid errors on fresh database installations
+        let _ = manager;
         Ok(())
     }
 

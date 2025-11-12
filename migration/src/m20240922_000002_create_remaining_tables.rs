@@ -116,6 +116,7 @@ impl MigrationTrait for Migration {
 }
 
 #[derive(DeriveIden)]
+#[allow(dead_code)]
 enum Reports {
     Table,
     ReportId,
@@ -170,12 +171,6 @@ enum ActionItems {
 enum Assessments {
     Table,
     AssessmentId,
-}
-
-#[derive(DeriveIden)]
-enum Reports {
-    Table,
-    ReportId,
 }
 
 #[derive(DeriveIden)]

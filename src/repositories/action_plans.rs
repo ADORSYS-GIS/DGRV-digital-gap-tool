@@ -1,30 +1,30 @@
-use sea_orm::*;
 use crate::entities::action_plans::{self, Entity as ActionPlans};
 use crate::error::AppError;
+use sea_orm::*;
 use uuid::Uuid;
 
 pub struct ActionPlansRepository;
 
 impl ActionPlansRepository {
     pub async fn find_all(db: &DbConn) -> Result<Vec<action_plans::Model>, AppError> {
-        ActionPlans::find()
-            .all(db)
-            .await
-            .map_err(AppError::from)
+        ActionPlans::find().all(db).await.map_err(AppError::from)
     }
 
-    pub async fn find_by_id(db: &DbConn, action_plan_id: Uuid) -> Result<Option<action_plans::Model>, AppError> {
+    pub async fn find_by_id(
+        db: &DbConn,
+        action_plan_id: Uuid,
+    ) -> Result<Option<action_plans::Model>, AppError> {
         ActionPlans::find_by_id(action_plan_id)
             .one(db)
             .await
             .map_err(AppError::from)
     }
 
-    pub async fn create(db: &DbConn, action_plan_data: action_plans::ActiveModel) -> Result<action_plans::Model, AppError> {
-        action_plan_data
-            .insert(db)
-            .await
-            .map_err(AppError::from)
+    pub async fn create(
+        db: &DbConn,
+        action_plan_data: action_plans::ActiveModel,
+    ) -> Result<action_plans::Model, AppError> {
+        action_plan_data.insert(db).await.map_err(AppError::from)
     }
 
     pub async fn update(
@@ -39,7 +39,7 @@ impl ActionPlansRepository {
             .ok_or_else(|| AppError::NotFound("Action plan not found".to_string()))?;
 
         let mut active_model: action_plans::ActiveModel = action_plan.into();
-        
+
         if let ActiveValue::Set(assessment_id) = action_plan_data.assessment_id {
             active_model.assessment_id = Set(assessment_id);
         }
@@ -61,10 +61,7 @@ impl ActionPlansRepository {
 
         active_model.updated_at = Set(chrono::Utc::now());
 
-        active_model
-            .update(db)
-            .await
-            .map_err(AppError::from)
+        active_model.update(db).await.map_err(AppError::from)
     }
 
     pub async fn delete(db: &DbConn, action_plan_id: Uuid) -> Result<bool, AppError> {
@@ -98,7 +95,10 @@ impl ActionPlansRepository {
             .map_err(AppError::from)
     }
 
-    pub async fn find_by_status(db: &DbConn, status: crate::entities::action_plans::ActionPlanStatus) -> Result<Vec<action_plans::Model>, AppError> {
+    pub async fn find_by_status(
+        db: &DbConn,
+        status: crate::entities::action_plans::ActionPlanStatus,
+    ) -> Result<Vec<action_plans::Model>, AppError> {
         ActionPlans::find()
             .filter(action_plans::Column::Status.eq(status))
             .all(db)
@@ -112,7 +112,10 @@ impl ActionPlansRepository {
             .filter(
                 Condition::all()
                     .add(action_plans::Column::TargetCompletionDate.lt(now))
-                    .add(action_plans::Column::Status.ne(crate::entities::action_plans::ActionPlanStatus::Completed))
+                    .add(
+                        action_plans::Column::Status
+                            .ne(crate::entities::action_plans::ActionPlanStatus::Completed),
+                    ),
             )
             .all(db)
             .await
@@ -134,10 +137,7 @@ impl ActionPlansRepository {
         active_model.status = Set(status);
         active_model.updated_at = Set(chrono::Utc::now());
 
-        active_model
-            .update(db)
-            .await
-            .map_err(AppError::from)
+        active_model.update(db).await.map_err(AppError::from)
     }
 
     pub async fn update_target_date(
@@ -155,9 +155,6 @@ impl ActionPlansRepository {
         active_model.target_completion_date = Set(Some(target_date));
         active_model.updated_at = Set(chrono::Utc::now());
 
-        active_model
-            .update(db)
-            .await
-            .map_err(AppError::from)
+        active_model.update(db).await.map_err(AppError::from)
     }
 }

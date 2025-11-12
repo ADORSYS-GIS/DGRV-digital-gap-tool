@@ -1,12 +1,35 @@
-import React from "react";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { PlusCircle } from "lucide-react";
+import { useDimensions } from "@/hooks/dimensions/useDimensions";
+import { AddDimensionForm } from "@/components/admin/dimensions/AddDimensionForm";
+import { DimensionList } from "@/components/admin/dimensions/DimensionList";
+import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 
-const ManageDimensions: React.FC = () => {
+export default function ManageDimensions() {
+  const [isAddDialogOpen, setAddDialogOpen] = useState(false);
+  const { data: dimensions, isLoading, error } = useDimensions();
+
   return (
-    <div>
-      <h1 className="text-2xl font-bold">Manage Dimensions</h1>
-      <p>Dimensions management page.</p>
+    <div className="container mx-auto p-4 md:p-6 lg:p-8">
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-3xl font-bold tracking-tight">Manage Dimensions</h1>
+        <Button onClick={() => setAddDialogOpen(true)}>
+          <PlusCircle className="mr-2 h-4 w-4" />
+          Add Dimension
+        </Button>
+      </div>
+
+      {isLoading && <LoadingSpinner />}
+      {error && (
+        <p className="text-red-500">An error occurred: {error.message}</p>
+      )}
+      {dimensions && <DimensionList dimensions={dimensions} />}
+
+      <AddDimensionForm
+        isOpen={isAddDialogOpen}
+        onClose={() => setAddDialogOpen(false)}
+      />
     </div>
   );
-};
-
-export default ManageDimensions;
+}

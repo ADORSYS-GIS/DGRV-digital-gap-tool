@@ -7,6 +7,7 @@ import {
   Settings,
   ChevronLeft,
   Menu,
+  Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -21,13 +22,11 @@ const AdminLayout: React.FC = () => {
   const navLinks = [
     { to: "/admin/dashboard", icon: BarChart3, text: "Dashboard" },
     { to: "/admin/organizations", icon: Building2, text: "Organizations" },
-    {
-      to: "/admin/digitalisation-levels",
-      icon: FileText,
-      text: "Digitalisation Levels",
-    },
     { to: "/admin/dimensions", icon: Settings, text: "Dimensions" },
-    { to: "/admin/recommendations", icon: Settings, text: "Recommendations" },
+    { to: "/admin/action-plan", icon: Settings, text: "Action Plan" },
+    { to: "/admin/digital-gaps", icon: Settings, text: "Digital Gaps" },
+    { to: "/admin/users", icon: Users, text: "Manage Users" },
+    { to: "/admin/reports", icon: BarChart3, text: "View Reports" },
   ];
 
   return (

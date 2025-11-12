@@ -1,30 +1,30 @@
-use sea_orm::*;
 use crate::entities::dimensions::{self, Entity as Dimensions};
 use crate::error::AppError;
+use sea_orm::*;
 use uuid::Uuid;
 
 pub struct DimensionsRepository;
 
 impl DimensionsRepository {
     pub async fn find_all(db: &DbConn) -> Result<Vec<dimensions::Model>, AppError> {
-        Dimensions::find()
-            .all(db)
-            .await
-            .map_err(AppError::from)
+        Dimensions::find().all(db).await.map_err(AppError::from)
     }
 
-    pub async fn find_by_id(db: &DbConn, dimension_id: Uuid) -> Result<Option<dimensions::Model>, AppError> {
+    pub async fn find_by_id(
+        db: &DbConn,
+        dimension_id: Uuid,
+    ) -> Result<Option<dimensions::Model>, AppError> {
         Dimensions::find_by_id(dimension_id)
             .one(db)
             .await
             .map_err(AppError::from)
     }
 
-    pub async fn create(db: &DbConn, dimension_data: dimensions::ActiveModel) -> Result<dimensions::Model, AppError> {
-        dimension_data
-            .insert(db)
-            .await
-            .map_err(AppError::from)
+    pub async fn create(
+        db: &DbConn,
+        dimension_data: dimensions::ActiveModel,
+    ) -> Result<dimensions::Model, AppError> {
+        dimension_data.insert(db).await.map_err(AppError::from)
     }
 
     pub async fn update(
@@ -39,7 +39,7 @@ impl DimensionsRepository {
             .ok_or_else(|| AppError::NotFound("Dimension not found".to_string()))?;
 
         let mut active_model: dimensions::ActiveModel = dimension.into();
-        
+
         // Check if fields are set in the input data
         if dimension_data.name.is_set() {
             active_model.name = dimension_data.name;
@@ -51,18 +51,23 @@ impl DimensionsRepository {
             // Validate weight is between 0 and 100
             if let Some(weight) = dimension_data.weight.as_ref() {
                 if *weight < 0 || *weight > 100 {
-                    return Err(AppError::ValidationError("Weight must be between 0 and 100".to_string()));
+                    return Err(AppError::ValidationError(
+                        "Weight must be between 0 and 100".to_string(),
+                    ));
                 }
             }
             active_model.weight = dimension_data.weight;
         }
+        if dimension_data.category.is_set() {
+            active_model.category = dimension_data.category;
+        }
+        if dimension_data.is_active.is_set() {
+            active_model.is_active = dimension_data.is_active;
+        }
 
-        active_model.updated_at = Set(chrono::Utc::now());
+        active_model.updated_at = Set(chrono::Local::now().naive_local());
 
-        active_model
-            .update(db)
-            .await
-            .map_err(AppError::from)
+        active_model.update(db).await.map_err(AppError::from)
     }
 
     pub async fn delete(db: &DbConn, dimension_id: Uuid) -> Result<bool, AppError> {
@@ -74,7 +79,10 @@ impl DimensionsRepository {
         Ok(result.rows_affected > 0)
     }
 
-    pub async fn find_by_name(db: &DbConn, name: &str) -> Result<Option<dimensions::Model>, AppError> {
+    pub async fn find_by_name(
+        db: &DbConn,
+        name: &str,
+    ) -> Result<Option<dimensions::Model>, AppError> {
         Dimensions::find()
             .filter(dimensions::Column::Name.eq(name))
             .one(db)
@@ -82,3 +90,4 @@ impl DimensionsRepository {
             .map_err(AppError::from)
     }
 }
+

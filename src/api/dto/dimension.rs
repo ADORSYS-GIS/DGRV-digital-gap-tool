@@ -1,7 +1,7 @@
-use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
+use uuid::Uuid;
 
 /// Dimension creation request
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
@@ -14,7 +14,7 @@ pub struct CreateDimensionRequest {
 }
 
 /// Dimension update request
-#[derive(Debug, Serialize, Deserialize, ToSchema)]
+#[derive(Debug, Serialize, Deserialize, ToSchema, Clone)]
 pub struct UpdateDimensionRequest {
     pub name: Option<String>,
     pub description: Option<String>,
@@ -40,21 +40,15 @@ pub struct DimensionResponse {
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct CreateCurrentStateRequest {
     pub dimension_id: Uuid,
-    pub title: String,
     pub description: Option<String>,
     pub score: i32,
-    pub level: Option<String>,
-    pub characteristics: Option<String>,
 }
 
 /// Current state update request
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct UpdateCurrentStateRequest {
-    pub title: Option<String>,
     pub description: Option<String>,
     pub score: Option<i32>,
-    pub level: Option<String>,
-    pub characteristics: Option<String>,
 }
 
 /// Current state response
@@ -62,11 +56,8 @@ pub struct UpdateCurrentStateRequest {
 pub struct CurrentStateResponse {
     pub current_state_id: Uuid,
     pub dimension_id: Uuid,
-    pub title: String,
     pub description: Option<String>,
     pub score: i32,
-    pub level: Option<String>,
-    pub characteristics: Option<String>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
@@ -75,23 +66,15 @@ pub struct CurrentStateResponse {
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct CreateDesiredStateRequest {
     pub dimension_id: Uuid,
-    pub title: String,
     pub description: Option<String>,
     pub score: i32,
-    pub level: Option<String>,
-    pub target_date: Option<DateTime<Utc>>,
-    pub success_criteria: Option<String>,
 }
 
 /// Desired state update request
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct UpdateDesiredStateRequest {
-    pub title: Option<String>,
     pub description: Option<String>,
     pub score: Option<i32>,
-    pub level: Option<String>,
-    pub target_date: Option<DateTime<Utc>>,
-    pub success_criteria: Option<String>,
 }
 
 /// Desired state response
@@ -99,12 +82,8 @@ pub struct UpdateDesiredStateRequest {
 pub struct DesiredStateResponse {
     pub desired_state_id: Uuid,
     pub dimension_id: Uuid,
-    pub title: String,
     pub description: Option<String>,
     pub score: i32,
-    pub level: Option<String>,
-    pub target_date: Option<DateTime<Utc>>,
-    pub success_criteria: Option<String>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }

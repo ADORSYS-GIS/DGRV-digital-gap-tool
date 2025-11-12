@@ -18,8 +18,6 @@ impl MigrationTrait for Migration {
                             .not_null(),
                     )
                     .drop_column(Assessments::FileName)
-                    .drop_column(Assessments::OverallScore)
-                    .drop_column(Assessments::ExpectedCompletionDate)
                     .to_owned(),
             )
             .await?;
@@ -33,7 +31,6 @@ impl MigrationTrait for Migration {
                     .drop_column(DimensionAssessments::DesiredStateId)
                     .drop_column(DimensionAssessments::CurrentScore)
                     .drop_column(DimensionAssessments::DesiredScore)
-                    .drop_column(DimensionAssessments::Notes)
                     .to_owned(),
             )
             .await?;
@@ -139,6 +136,7 @@ impl MigrationTrait for Migration {
 }
 
 #[derive(DeriveIden)]
+#[allow(dead_code)]
 enum Assessments {
     Table,
     AssessmentId,
@@ -155,6 +153,7 @@ enum Assessments {
 }
 
 #[derive(DeriveIden)]
+#[allow(dead_code)]
 enum DimensionAssessments {
     Table,
     DimensionAssessmentId,
@@ -168,6 +167,7 @@ enum DimensionAssessments {
 }
 
 #[derive(DeriveIden)]
+#[allow(dead_code)]
 enum Reports {
     Table,
     ReportId,

@@ -1,6 +1,6 @@
-use sea_orm::*;
 use crate::entities::organisation_dimension::{self, Entity as OrganisationDimension};
 use crate::error::AppError;
+use sea_orm::*;
 use uuid::Uuid;
 
 pub struct OrganisationDimensionRepository;
