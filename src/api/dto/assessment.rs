@@ -8,38 +8,33 @@ use uuid::Uuid;
 /// Assessment creation request
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct CreateAssessmentRequest {
-    pub user_id: String,
     pub organization_id: String,
-    pub cooperative_id: String,
-    pub document_title: String,
-    pub metadata: Option<serde_json::Value>,
+    pub assessment_name: String,
+    pub dimensions_id: Vec<String>,
 }
 
 /// Assessment update request
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct UpdateAssessmentRequest {
-    pub document_title: Option<String>,
-    pub cooperative_id: Option<String>,
+    pub assessment_name: Option<String>,
+    pub dimensions_id: Option<Vec<String>>,
     pub status: Option<AssessmentStatus>,
     pub started_at: Option<DateTime<Utc>>,
     pub completed_at: Option<DateTime<Utc>>,
-    pub metadata: Option<serde_json::Value>,
 }
 
 /// Assessment response
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct AssessmentResponse {
     pub assessment_id: Uuid,
-    pub user_id: String,
     pub organization_id: String,
-    pub cooperative_id: String,
     pub document_title: String,
     pub status: AssessmentStatus,
     pub started_at: Option<DateTime<Utc>>,
     pub completed_at: Option<DateTime<Utc>>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
-    pub metadata: Option<serde_json::Value>,
+    pub dimensions_id: Option<serde_json::Value>,
 }
 
 /// Assessment status enumeration
@@ -80,6 +75,9 @@ impl FromStr for AssessmentStatus {
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct CreateDimensionAssessmentRequest {
     pub dimension_id: Uuid,
+    pub current_state_id: Uuid,
+    pub desired_state_id: Uuid,
+    pub gap_score: i32,
 }
 
 /// Dimension assessment update request
@@ -92,6 +90,9 @@ pub struct DimensionAssessmentResponse {
     pub dimension_assessment_id: Uuid,
     pub assessment_id: Uuid,
     pub dimension_id: Uuid,
+    pub current_state_id: Uuid,
+    pub desired_state_id: Uuid,
+    pub gap_score: i32,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }

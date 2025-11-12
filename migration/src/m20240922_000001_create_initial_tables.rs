@@ -1,5 +1,6 @@
 
 use sea_orm_migration::prelude::*;
+use sea_orm_migration::prelude::extension::postgres::Type;
 
 #[derive(DeriveMigrationName)]
 pub struct Migration;
@@ -72,6 +73,20 @@ impl MigrationTrait for Migration {
             )
             .await?;
 
+        // Create assessment_status enum
+        manager
+            .create_type(
+                Type::create()
+                    .as_enum(AssessmentStatus::Enum)
+                    .values([
+                        AssessmentStatus::Draft,
+                        AssessmentStatus::InProgress,
+                        AssessmentStatus::Completed,
+                        AssessmentStatus::Archived,
+                    ])
+                    .to_owned(),
+            )
+            .await?;
         // Create assessments table
         manager
             .create_table(
@@ -79,11 +94,23 @@ impl MigrationTrait for Migration {
                     .table(Assessments::Table)
                     .if_not_exists()
                     .col(ColumnDef::new(Assessments::AssessmentId).uuid().not_null().primary_key())
-                    .col(ColumnDef::new(Assessments::UserId).string().not_null())
+                    .col(ColumnDef::new(Assessments::UserId).string())
                     .col(ColumnDef::new(Assessments::OrganizationId).string().not_null())
-                    .col(ColumnDef::new(Assessments::DocumentTitle).string())
-                    .col(ColumnDef::new(Assessments::FileName).string())
-                    .col(ColumnDef::new(Assessments::Status).string().not_null().default("draft"))
+                    .col(ColumnDef::new(Assessments::DocumentTitle).string().not_null())
+                    .col(
+                        ColumnDef::new(Assessments::Status)
+                            .enumeration(
+                                AssessmentStatus::Enum,
+                                [
+                                    AssessmentStatus::Draft,
+                                    AssessmentStatus::InProgress,
+                                    AssessmentStatus::Completed,
+                                    AssessmentStatus::Archived,
+                                ],
+                            )
+                            .not_null()
+                            .default("draft"),
+                    )
                     .col(ColumnDef::new(Assessments::StartedAt).timestamp())
                     .col(ColumnDef::new(Assessments::CompletedAt).timestamp())
                     .col(ColumnDef::new(Assessments::CreatedAt).timestamp().not_null().default(Expr::current_timestamp()))
@@ -389,13 +416,21 @@ enum Assessments {
     UserId,
     OrganizationId,
     DocumentTitle,
-    FileName,
     Status,
     StartedAt,
     CompletedAt,
     CreatedAt,
     UpdatedAt,
     Metadata,
+}
+
+#[derive(DeriveIden)]
+enum AssessmentStatus {
+    Enum,
+    Draft,
+    InProgress,
+    Completed,
+    Archived,
 }
 
 #[derive(DeriveIden)]
