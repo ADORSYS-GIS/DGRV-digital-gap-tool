@@ -14,6 +14,13 @@ mod m20251111_000001_drop_dimension_assessment_id_from_gaps;
 mod m20251112_000001_use_timestamptz_for_timestamps;
 mod m20251110_110855_drop_state_fields;
 mod m20251112_104100_alter_states_timestamps_to_timestamptz;
+mod m20251112_135000_add_dimensions_id_to_assessments;
+mod m20251112_140000_alter_assessments_status_column;
+mod m20251112_141000_remove_user_coop_metadata_from_assessments;
+mod m20251112_141500_alter_assessments_timestamps_to_timestamptz;
+mod m20251112_142500_update_dimension_assessments_table;
+mod m20251112_145500_alter_dimension_assessments_timestamps_to_timestamptz;
+mod m20251112_151500_alter_assessments_timestamps_to_timestamptz;
 
 pub struct Migrator;
 
@@ -35,6 +42,17 @@ impl MigratorTrait for Migrator {
             Box::new(m20251111_000001_drop_dimension_assessment_id_from_gaps::Migration),
             Box::new(m20251112_000001_use_timestamptz_for_timestamps::Migration),
             Box::new(m20251112_104100_alter_states_timestamps_to_timestamptz::Migration),
+            Box::new(m20251112_135000_add_dimensions_id_to_assessments::Migration),
+            Box::new(m20251112_140000_alter_assessments_status_column::Migration),
+            Box::new(
+                m20251112_141000_remove_user_coop_metadata_from_assessments::Migration,
+            ),
+            Box::new(
+                m20251112_141500_alter_assessments_timestamps_to_timestamptz::Migration,
+            ),
+            Box::new(m20251112_142500_update_dimension_assessments_table::Migration),
+            Box::new(m20251112_145500_alter_dimension_assessments_timestamps_to_timestamptz::Migration),
+            Box::new(m20251112_151500_alter_assessments_timestamps_to_timestamptz::Migration),
         ]
     }
 }

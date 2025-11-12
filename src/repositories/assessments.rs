@@ -40,14 +40,8 @@ impl AssessmentsRepository {
 
         let mut active_model: assessments::ActiveModel = assessment.into();
 
-        if assessment_data.user_id.is_set() {
-            active_model.user_id = assessment_data.user_id;
-        }
         if assessment_data.organization_id.is_set() {
             active_model.organization_id = assessment_data.organization_id;
-        }
-        if assessment_data.cooperative_id.is_set() {
-            active_model.cooperative_id = assessment_data.cooperative_id;
         }
         if assessment_data.document_title.is_set() {
             active_model.document_title = assessment_data.document_title;
@@ -61,8 +55,8 @@ impl AssessmentsRepository {
         if assessment_data.completed_at.is_set() {
             active_model.completed_at = assessment_data.completed_at;
         }
-        if assessment_data.metadata.is_set() {
-            active_model.metadata = assessment_data.metadata;
+        if assessment_data.dimensions_id.is_set() {
+            active_model.dimensions_id = assessment_data.dimensions_id;
         }
 
         active_model.updated_at = Set(chrono::Utc::now());
@@ -101,16 +95,6 @@ impl AssessmentsRepository {
             .map_err(AppError::from)
     }
 
-    pub async fn find_by_assessor_email(
-        db: &DbConn,
-        email: &str,
-    ) -> Result<Vec<assessments::Model>, AppError> {
-        Assessments::find()
-            .filter(assessments::Column::UserId.eq(email))
-            .all(db)
-            .await
-            .map_err(AppError::from)
-    }
 
     pub async fn update_status(
         db: &DbConn,
