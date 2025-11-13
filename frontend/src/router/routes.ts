@@ -39,7 +39,13 @@ const SecondAdminDashboard = React.lazy(
   () => import("../pages/second_admin/SecondAdminDashboard"),
 );
 const ManageCooperations = React.lazy(
-  () => import("../pages/second_admin/ManageCooperations.tsx"),
+  () => import("../pages/second_admin/ManageCooperations"),
+);
+const ManageAssessments = React.lazy(
+  () => import("../pages/second_admin/ManageAssessments"),
+);
+const AssessmentDetailPage = React.lazy(
+  () => import("../pages/second_admin/AssessmentDetailPage"),
 );
 
 const routes = [
@@ -110,6 +116,14 @@ const routes = [
       {
         path: "cooperations",
         element: React.createElement(ManageCooperations),
+      },
+      {
+        path: "assessments",
+        element: React.createElement(ManageAssessments),
+      },
+      {
+        path: "assessment/:assessmentId",
+        element: React.createElement(AssessmentDetailPage),
       },
     ],
   },

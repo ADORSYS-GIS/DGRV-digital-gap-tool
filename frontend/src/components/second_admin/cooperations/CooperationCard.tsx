@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { EditCooperationForm } from "./EditCooperationForm";
 import { DeleteCooperationDialog } from "./DeleteCooperationDialog";
-import { AssignDimensionDialog } from "./AssignDimensionDialog";
+// import { AssignDimensionDialog } from "./AssignDimensionDialog";
 import { ListTree } from "lucide-react";
 
 interface CooperationCardProps {
@@ -25,7 +25,7 @@ export const CooperationCard: React.FC<CooperationCardProps> = ({
         </div>
         <div className="grid grid-cols-2 gap-2">
           <EditCooperationForm cooperation={cooperation} />
-          <DeleteCooperationDialog cooperationId={cooperation.id} />
+          {/* <DeleteCooperationDialog cooperationId={cooperation.id} /> */}
         </div>
         <Button variant="outline" size="sm" className="mt-2 w-full">
           <ListTree className="mr-2 h-4 w-4" /> Assign Dimensions

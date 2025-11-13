@@ -7,7 +7,7 @@ export enum SyncStatus {
 export type OfflineEntity = {
   id: string;
   syncStatus: SyncStatus;
-  lastError?: string; // Added for failed syncs
+  lastError?: string | null; // Added for failed syncs
 };
 
 export type SyncQueueItem = {

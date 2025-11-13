@@ -11,14 +11,19 @@ import {
   adminCreateGap,
   deleteGap,
   updateGap,
+  createAssessment,
+  updateAssessment,
+  deleteAssessment,
 } from "@/openapi-client/services.gen";
 import { db } from "@/services/db";
 import { dimensionRepository } from "@/services/dimensions/dimensionRepository";
 import { digitalisationLevelRepository } from "@/services/digitalisationLevels/digitalisationLevelRepository";
 import { digitalisationGapRepository } from "@/services/digitalisationGaps/digitalisationGapRepository";
+import { assessmentRepository } from "@/services/assessments/assessmentRepository";
 import { IDigitalisationLevel } from "@/types/digitalisationLevel";
 import { IDigitalisationGap } from "@/types/digitalisationGap";
 import { IDimension } from "@/types/dimension";
+import { Assessment } from "@/types/assessment";
 import { SyncQueueItem } from "@/types/sync/index";
 
 export const syncService = {
@@ -65,6 +70,9 @@ export const syncService = {
           case "DigitalisationGap":
             await syncService.syncDigitalisationGap(item);
             break;
+          case "Assessment":
+            await syncService.syncAssessment(item);
+            break;
         }
         await db.sync_queue.delete(item.id!);
       } catch (error: unknown) {
@@ -90,6 +98,11 @@ export const syncService = {
             );
           } else if (item.entityType === "DigitalisationGap") {
             // await digitalisationGapRepository.markAsFailed(item.entityId, errorMessage);
+          } else if (item.entityType === "Assessment") {
+            await assessmentRepository.markAsFailed(
+              item.entityId,
+              errorMessage,
+            );
           }
         }
       }
@@ -360,6 +373,56 @@ export const syncService = {
           item.entityId,
           item.entityId,
         );
+        break;
+      }
+    }
+  },
+  async syncAssessment(item: SyncQueueItem) {
+    const assessmentData = item.payload as Assessment;
+    switch (item.action) {
+      case "CREATE": {
+        const response = await createAssessment({
+          requestBody: {
+            assessment_name: assessmentData.name,
+            dimensions_id: assessmentData.dimensionIds || [],
+            organization_id: "123", // Replace with actual organization ID
+          },
+        });
+        if (response.data) {
+          await assessmentRepository.markAsSynced(
+            assessmentData.id,
+            response.data.assessment_id,
+          );
+        } else {
+          throw new Error(
+            response.error || "Failed to create assessment on server",
+          );
+        }
+        break;
+      }
+      case "UPDATE": {
+        const response = await updateAssessment({
+          id: item.entityId,
+          requestBody: {
+            assessment_name: assessmentData.name,
+            dimensions_id: assessmentData.dimensionIds || [],
+          },
+        });
+        if (response.data) {
+          await assessmentRepository.markAsSynced(
+            item.entityId,
+            response.data.assessment_id,
+          );
+        } else {
+          throw new Error(
+            response.error || "Failed to update assessment on server",
+          );
+        }
+        break;
+      }
+      case "DELETE": {
+        await deleteAssessment({ id: item.entityId });
+        await assessmentRepository.markAsSynced(item.entityId, item.entityId);
         break;
       }
     }

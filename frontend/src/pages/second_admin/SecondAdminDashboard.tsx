@@ -60,7 +60,7 @@ const SecondAdminDashboard: React.FC = () => {
             variant="default"
           />
         </Link>
-        <Link to="/second-admin/create-assessment">
+        <Link to="/second-admin/assessments">
           <DashboardCard
             title="Create Assesment"
             description="Design and deploy new assessments"
