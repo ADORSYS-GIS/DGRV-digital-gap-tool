@@ -7,22 +7,10 @@ pub struct Model {
     #[sea_orm(primary_key, auto_generate = false)]
     pub recommendation_id: Uuid,
     pub dimension_id: Uuid,
-    pub gap_severity: GapSeverity,
     pub priority: RecommendationPriority,
     pub description: String,
     pub created_at: DateTimeUtc,
     pub updated_at: DateTimeUtc,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize)]
-#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "gap_severity")]
-pub enum GapSeverity {
-    #[sea_orm(string_value = "LOW")]
-    Low,
-    #[sea_orm(string_value = "MEDIUM")]
-    Medium,
-    #[sea_orm(string_value = "HIGH")]
-    High,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize)]
@@ -32,14 +20,12 @@ pub enum GapSeverity {
     enum_name = "recommendation_priority"
 )]
 pub enum RecommendationPriority {
-    #[sea_orm(string_value = "URGENT")]
-    Urgent,
-    #[sea_orm(string_value = "HIGH")]
-    High,
-    #[sea_orm(string_value = "MEDIUM")]
-    Medium,
     #[sea_orm(string_value = "LOW")]
     Low,
+    #[sea_orm(string_value = "MEDIUM")]
+    Medium,
+    #[sea_orm(string_value = "HIGH")]
+    High,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

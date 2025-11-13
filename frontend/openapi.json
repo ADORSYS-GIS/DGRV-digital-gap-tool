@@ -1116,6 +1116,50 @@
         }
       }
     },
+    "/dimensions/{id}/recommendations": {
+      "get": {
+        "tags": ["recommendations"],
+        "summary": "List recommendations by dimension",
+        "description": "Retrieves a paginated list of recommendations for a specific dimension.",
+        "operationId": "list_recommendations_by_dimension",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Dimension ID",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number (starts from 1)",
+            "required": false,
+            "schema": { "type": "integer", "format": "int64", "nullable": true }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "description": "Number of items per page (default: 10, max: 100)",
+            "required": false,
+            "schema": { "type": "integer", "format": "int64", "nullable": true }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of recommendations for the dimension",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponsePaginatedRecommendationResponse"
+                }
+              }
+            }
+          },
+          "500": { "description": "Internal server error" }
+        }
+      }
+    },
     "/dimensions/{id}/with-states": {
       "get": {
         "tags": ["crate::api::handlers::dimension"],
@@ -1278,6 +1322,171 @@
           "404": { "description": "Gap not found" }
         },
         "security": [{ "jwt": [] }]
+      }
+    },
+    "/recommendations": {
+      "get": {
+        "tags": ["recommendations"],
+        "summary": "List all recommendations with pagination",
+        "description": "Retrieves a paginated list of all recommendations in the system.",
+        "operationId": "list_recommendations",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number (starts from 1)",
+            "required": false,
+            "schema": { "type": "integer", "format": "int64", "nullable": true }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "description": "Number of items per page (default: 10, max: 100)",
+            "required": false,
+            "schema": { "type": "integer", "format": "int64", "nullable": true }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of recommendations",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponsePaginatedRecommendationResponse"
+                }
+              }
+            }
+          },
+          "500": { "description": "Internal server error" }
+        }
+      },
+      "post": {
+        "tags": ["recommendations"],
+        "summary": "Create a new recommendation",
+        "description": "Creates a new recommendation with the provided details.",
+        "operationId": "create_recommendation",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateRecommendationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Recommendation created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseRecommendationResponse"
+                }
+              }
+            }
+          },
+          "400": { "description": "Invalid input data" },
+          "500": { "description": "Internal server error" }
+        }
+      }
+    },
+    "/recommendations/{id}": {
+      "get": {
+        "tags": ["recommendations"],
+        "summary": "Get a specific recommendation by ID",
+        "description": "Retrieves the details of a specific recommendation using its unique identifier.",
+        "operationId": "get_recommendation",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Recommendation ID",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Recommendation found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseRecommendationResponse"
+                }
+              }
+            }
+          },
+          "404": { "description": "Recommendation not found" },
+          "500": { "description": "Internal server error" }
+        }
+      },
+      "put": {
+        "tags": ["recommendations"],
+        "summary": "Update an existing recommendation",
+        "description": "Updates the priority and/or description of an existing recommendation.",
+        "operationId": "update_recommendation",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Recommendation ID",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateRecommendationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Recommendation updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseRecommendationResponse"
+                }
+              }
+            }
+          },
+          "400": { "description": "Invalid input data" },
+          "404": { "description": "Recommendation not found" },
+          "500": { "description": "Internal server error" }
+        }
+      },
+      "delete": {
+        "tags": ["recommendations"],
+        "summary": "Delete a recommendation",
+        "description": "Deletes a recommendation by its ID.",
+        "operationId": "delete_recommendation",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Recommendation ID",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Recommendation deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ApiResponseEmpty" }
+              }
+            }
+          },
+          "404": { "description": "Recommendation not found" },
+          "500": { "description": "Internal server error" }
+        }
       }
     },
     "/reports": {
@@ -1944,9 +2153,7 @@
                 "description": "Assessment response",
                 "required": [
                   "assessment_id",
-                  "user_id",
                   "organization_id",
-                  "cooperative_id",
                   "document_title",
                   "status",
                   "created_at",
@@ -1959,10 +2166,9 @@
                     "format": "date-time",
                     "nullable": true
                   },
-                  "cooperative_id": { "type": "string" },
                   "created_at": { "type": "string", "format": "date-time" },
+                  "dimensions_id": { "nullable": true },
                   "document_title": { "type": "string" },
-                  "metadata": { "nullable": true },
                   "organization_id": { "type": "string" },
                   "started_at": {
                     "type": "string",
@@ -1970,8 +2176,7 @@
                     "nullable": true
                   },
                   "status": { "$ref": "#/components/schemas/AssessmentStatus" },
-                  "updated_at": { "type": "string", "format": "date-time" },
-                  "user_id": { "type": "string" }
+                  "updated_at": { "type": "string", "format": "date-time" }
                 }
               }
             ],
@@ -2023,6 +2228,46 @@
                     "format": "int32",
                     "minimum": 0
                   }
+                }
+              }
+            ],
+            "nullable": true
+          },
+          "error": { "type": "string", "nullable": true },
+          "message": { "type": "string", "nullable": true },
+          "success": { "type": "boolean" }
+        }
+      },
+      "ApiResponseCreateRecommendationRequest": {
+        "type": "object",
+        "description": "Standard API response wrapper",
+        "required": ["success"],
+        "properties": {
+          "data": {
+            "allOf": [
+              {
+                "type": "object",
+                "required": ["dimension_id", "priority", "description"],
+                "properties": {
+                  "description": {
+                    "type": "string",
+                    "description": "Detailed description of the recommendation",
+                    "example": "Implement automated testing for critical components"
+                  },
+                  "dimension_id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Unique identifier of the dimension this recommendation is for",
+                    "example": "550e8400-e29b-41d4-a716-446655440000"
+                  },
+                  "priority": {
+                    "$ref": "#/components/schemas/RecommendationPriority"
+                  }
+                },
+                "example": {
+                  "description": "Implement automated testing for critical components",
+                  "dimension_id": "550e8400-e29b-41d4-a716-446655440000",
+                  "priority": "HIGH"
                 }
               }
             ],
@@ -2115,17 +2360,23 @@
                   "dimension_assessment_id",
                   "assessment_id",
                   "dimension_id",
+                  "current_state_id",
+                  "desired_state_id",
+                  "gap_score",
                   "created_at",
                   "updated_at"
                 ],
                 "properties": {
                   "assessment_id": { "type": "string", "format": "uuid" },
                   "created_at": { "type": "string", "format": "date-time" },
+                  "current_state_id": { "type": "string", "format": "uuid" },
+                  "desired_state_id": { "type": "string", "format": "uuid" },
                   "dimension_assessment_id": {
                     "type": "string",
                     "format": "uuid"
                   },
                   "dimension_id": { "type": "string", "format": "uuid" },
+                  "gap_score": { "type": "integer", "format": "int32" },
                   "updated_at": { "type": "string", "format": "date-time" }
                 }
               }
@@ -2434,9 +2685,7 @@
                       "description": "Assessment response",
                       "required": [
                         "assessment_id",
-                        "user_id",
                         "organization_id",
-                        "cooperative_id",
                         "document_title",
                         "status",
                         "created_at",
@@ -2449,13 +2698,12 @@
                           "format": "date-time",
                           "nullable": true
                         },
-                        "cooperative_id": { "type": "string" },
                         "created_at": {
                           "type": "string",
                           "format": "date-time"
                         },
+                        "dimensions_id": { "nullable": true },
                         "document_title": { "type": "string" },
-                        "metadata": { "nullable": true },
                         "organization_id": { "type": "string" },
                         "started_at": {
                           "type": "string",
@@ -2468,8 +2716,7 @@
                         "updated_at": {
                           "type": "string",
                           "format": "date-time"
-                        },
-                        "user_id": { "type": "string" }
+                        }
                       }
                     }
                   },
@@ -2692,6 +2939,104 @@
           "success": { "type": "boolean" }
         }
       },
+      "ApiResponsePaginatedRecommendationResponse": {
+        "type": "object",
+        "description": "Standard API response wrapper",
+        "required": ["success"],
+        "properties": {
+          "data": {
+            "allOf": [
+              {
+                "type": "object",
+                "description": "Paginated response",
+                "required": ["items", "total", "page", "limit", "total_pages"],
+                "properties": {
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "recommendation_id",
+                        "dimension_id",
+                        "priority",
+                        "description",
+                        "created_at",
+                        "updated_at"
+                      ],
+                      "properties": {
+                        "created_at": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "When the recommendation was created",
+                          "example": "2023-01-01T00:00:00Z"
+                        },
+                        "description": {
+                          "type": "string",
+                          "description": "Detailed description of the recommendation",
+                          "example": "Implement automated testing for critical components"
+                        },
+                        "dimension_id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "description": "Reference to the dimension",
+                          "example": "550e8400-e29b-41d4-a716-446655440002"
+                        },
+                        "priority": {
+                          "$ref": "#/components/schemas/RecommendationPriority"
+                        },
+                        "recommendation_id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "description": "Unique identifier for the recommendation",
+                          "example": "550e8400-e29b-41d4-a716-446655440000"
+                        },
+                        "updated_at": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "When the recommendation was last updated",
+                          "example": "2023-01-01T00:00:00Z"
+                        }
+                      },
+                      "example": {
+                        "created_at": "2023-01-01T00:00:00Z",
+                        "description": "Implement automated testing for critical components",
+                        "dimension_id": "550e8400-e29b-41d4-a716-446655440002",
+                        "priority": "HIGH",
+                        "recommendation_id": "550e8400-e29b-41d4-a716-446655440000",
+                        "updated_at": "2023-01-01T00:00:00Z"
+                      }
+                    }
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "format": "int32",
+                    "minimum": 0
+                  },
+                  "page": {
+                    "type": "integer",
+                    "format": "int32",
+                    "minimum": 0
+                  },
+                  "total": {
+                    "type": "integer",
+                    "format": "int64",
+                    "minimum": 0
+                  },
+                  "total_pages": {
+                    "type": "integer",
+                    "format": "int32",
+                    "minimum": 0
+                  }
+                }
+              }
+            ],
+            "nullable": true
+          },
+          "error": { "type": "string", "nullable": true },
+          "message": { "type": "string", "nullable": true },
+          "success": { "type": "boolean" }
+        }
+      },
       "ApiResponsePaginatedReportResponse": {
         "type": "object",
         "description": "Standard API response wrapper",
@@ -2771,6 +3116,74 @@
                     "format": "int32",
                     "minimum": 0
                   }
+                }
+              }
+            ],
+            "nullable": true
+          },
+          "error": { "type": "string", "nullable": true },
+          "message": { "type": "string", "nullable": true },
+          "success": { "type": "boolean" }
+        }
+      },
+      "ApiResponseRecommendationResponse": {
+        "type": "object",
+        "description": "Standard API response wrapper",
+        "required": ["success"],
+        "properties": {
+          "data": {
+            "allOf": [
+              {
+                "type": "object",
+                "required": [
+                  "recommendation_id",
+                  "dimension_id",
+                  "priority",
+                  "description",
+                  "created_at",
+                  "updated_at"
+                ],
+                "properties": {
+                  "created_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "When the recommendation was created",
+                    "example": "2023-01-01T00:00:00Z"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Detailed description of the recommendation",
+                    "example": "Implement automated testing for critical components"
+                  },
+                  "dimension_id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Reference to the dimension",
+                    "example": "550e8400-e29b-41d4-a716-446655440002"
+                  },
+                  "priority": {
+                    "$ref": "#/components/schemas/RecommendationPriority"
+                  },
+                  "recommendation_id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Unique identifier for the recommendation",
+                    "example": "550e8400-e29b-41d4-a716-446655440000"
+                  },
+                  "updated_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "When the recommendation was last updated",
+                    "example": "2023-01-01T00:00:00Z"
+                  }
+                },
+                "example": {
+                  "created_at": "2023-01-01T00:00:00Z",
+                  "description": "Implement automated testing for critical components",
+                  "dimension_id": "550e8400-e29b-41d4-a716-446655440002",
+                  "priority": "HIGH",
+                  "recommendation_id": "550e8400-e29b-41d4-a716-446655440000",
+                  "updated_at": "2023-01-01T00:00:00Z"
                 }
               }
             ],
@@ -2892,14 +3305,44 @@
           "success": { "type": "boolean" }
         }
       },
+      "ApiResponseUpdateRecommendationRequest": {
+        "type": "object",
+        "description": "Standard API response wrapper",
+        "required": ["success"],
+        "properties": {
+          "data": {
+            "allOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "description": {
+                    "type": "string",
+                    "description": "New description (optional)",
+                    "example": "Updated recommendation with more details",
+                    "nullable": true
+                  },
+                  "priority": {
+                    "allOf": [
+                      { "$ref": "#/components/schemas/RecommendationPriority" }
+                    ],
+                    "nullable": true
+                  }
+                }
+              }
+            ],
+            "nullable": true
+          },
+          "error": { "type": "string", "nullable": true },
+          "message": { "type": "string", "nullable": true },
+          "success": { "type": "boolean" }
+        }
+      },
       "AssessmentResponse": {
         "type": "object",
         "description": "Assessment response",
         "required": [
           "assessment_id",
-          "user_id",
           "organization_id",
-          "cooperative_id",
           "document_title",
           "status",
           "created_at",
@@ -2912,10 +3355,9 @@
             "format": "date-time",
             "nullable": true
           },
-          "cooperative_id": { "type": "string" },
           "created_at": { "type": "string", "format": "date-time" },
+          "dimensions_id": { "nullable": true },
           "document_title": { "type": "string" },
-          "metadata": { "nullable": true },
           "organization_id": { "type": "string" },
           "started_at": {
             "type": "string",
@@ -2923,8 +3365,7 @@
             "nullable": true
           },
           "status": { "$ref": "#/components/schemas/AssessmentStatus" },
-          "updated_at": { "type": "string", "format": "date-time" },
-          "user_id": { "type": "string" }
+          "updated_at": { "type": "string", "format": "date-time" }
         }
       },
       "AssessmentStatus": {
@@ -3020,18 +3461,11 @@
       "CreateAssessmentRequest": {
         "type": "object",
         "description": "Assessment creation request",
-        "required": [
-          "user_id",
-          "organization_id",
-          "cooperative_id",
-          "document_title"
-        ],
+        "required": ["organization_id", "assessment_name", "dimensions_id"],
         "properties": {
-          "cooperative_id": { "type": "string" },
-          "document_title": { "type": "string" },
-          "metadata": { "nullable": true },
-          "organization_id": { "type": "string" },
-          "user_id": { "type": "string" }
+          "assessment_name": { "type": "string" },
+          "dimensions_id": { "type": "array", "items": { "type": "string" } },
+          "organization_id": { "type": "string" }
         }
       },
       "CreateCurrentStateRequest": {
@@ -3057,8 +3491,18 @@
       "CreateDimensionAssessmentRequest": {
         "type": "object",
         "description": "Dimension assessment creation request",
-        "required": ["dimension_id"],
-        "properties": { "dimension_id": { "type": "string", "format": "uuid" } }
+        "required": [
+          "dimension_id",
+          "current_state_id",
+          "desired_state_id",
+          "gap_score"
+        ],
+        "properties": {
+          "current_state_id": { "type": "string", "format": "uuid" },
+          "desired_state_id": { "type": "string", "format": "uuid" },
+          "dimension_id": { "type": "string", "format": "uuid" },
+          "gap_score": { "type": "integer", "format": "int32" }
+        }
       },
       "CreateDimensionRequest": {
         "type": "object",
@@ -3098,6 +3542,29 @@
           "dimension_assessment_id": "550e8400-e29b-41d4-a716-446655440000",
           "gap_description": "Significant gap in digital transformation",
           "gap_size": 3
+        }
+      },
+      "CreateRecommendationRequest": {
+        "type": "object",
+        "required": ["dimension_id", "priority", "description"],
+        "properties": {
+          "description": {
+            "type": "string",
+            "description": "Detailed description of the recommendation",
+            "example": "Implement automated testing for critical components"
+          },
+          "dimension_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique identifier of the dimension this recommendation is for",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          },
+          "priority": { "$ref": "#/components/schemas/RecommendationPriority" }
+        },
+        "example": {
+          "description": "Implement automated testing for critical components",
+          "dimension_id": "550e8400-e29b-41d4-a716-446655440000",
+          "priority": "HIGH"
         }
       },
       "CurrentStateResponse": {
@@ -3159,14 +3626,20 @@
           "dimension_assessment_id",
           "assessment_id",
           "dimension_id",
+          "current_state_id",
+          "desired_state_id",
+          "gap_score",
           "created_at",
           "updated_at"
         ],
         "properties": {
           "assessment_id": { "type": "string", "format": "uuid" },
           "created_at": { "type": "string", "format": "date-time" },
+          "current_state_id": { "type": "string", "format": "uuid" },
+          "desired_state_id": { "type": "string", "format": "uuid" },
           "dimension_assessment_id": { "type": "string", "format": "uuid" },
           "dimension_id": { "type": "string", "format": "uuid" },
+          "gap_score": { "type": "integer", "format": "int32" },
           "updated_at": { "type": "string", "format": "date-time" }
         }
       },
@@ -3373,9 +3846,7 @@
               "description": "Assessment response",
               "required": [
                 "assessment_id",
-                "user_id",
                 "organization_id",
-                "cooperative_id",
                 "document_title",
                 "status",
                 "created_at",
@@ -3388,10 +3859,9 @@
                   "format": "date-time",
                   "nullable": true
                 },
-                "cooperative_id": { "type": "string" },
                 "created_at": { "type": "string", "format": "date-time" },
+                "dimensions_id": { "nullable": true },
                 "document_title": { "type": "string" },
-                "metadata": { "nullable": true },
                 "organization_id": { "type": "string" },
                 "started_at": {
                   "type": "string",
@@ -3399,8 +3869,7 @@
                   "nullable": true
                 },
                 "status": { "$ref": "#/components/schemas/AssessmentStatus" },
-                "updated_at": { "type": "string", "format": "date-time" },
-                "user_id": { "type": "string" }
+                "updated_at": { "type": "string", "format": "date-time" }
               }
             }
           },
@@ -3524,6 +3993,73 @@
           "total_pages": { "type": "integer", "format": "int32", "minimum": 0 }
         }
       },
+      "PaginatedRecommendationResponse": {
+        "type": "object",
+        "description": "Paginated response",
+        "required": ["items", "total", "page", "limit", "total_pages"],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "recommendation_id",
+                "dimension_id",
+                "priority",
+                "description",
+                "created_at",
+                "updated_at"
+              ],
+              "properties": {
+                "created_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "When the recommendation was created",
+                  "example": "2023-01-01T00:00:00Z"
+                },
+                "description": {
+                  "type": "string",
+                  "description": "Detailed description of the recommendation",
+                  "example": "Implement automated testing for critical components"
+                },
+                "dimension_id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "description": "Reference to the dimension",
+                  "example": "550e8400-e29b-41d4-a716-446655440002"
+                },
+                "priority": {
+                  "$ref": "#/components/schemas/RecommendationPriority"
+                },
+                "recommendation_id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "description": "Unique identifier for the recommendation",
+                  "example": "550e8400-e29b-41d4-a716-446655440000"
+                },
+                "updated_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "When the recommendation was last updated",
+                  "example": "2023-01-01T00:00:00Z"
+                }
+              },
+              "example": {
+                "created_at": "2023-01-01T00:00:00Z",
+                "description": "Implement automated testing for critical components",
+                "dimension_id": "550e8400-e29b-41d4-a716-446655440002",
+                "priority": "HIGH",
+                "recommendation_id": "550e8400-e29b-41d4-a716-446655440000",
+                "updated_at": "2023-01-01T00:00:00Z"
+              }
+            }
+          },
+          "limit": { "type": "integer", "format": "int32", "minimum": 0 },
+          "page": { "type": "integer", "format": "int32", "minimum": 0 },
+          "total": { "type": "integer", "format": "int64", "minimum": 0 },
+          "total_pages": { "type": "integer", "format": "int32", "minimum": 0 }
+        }
+      },
       "PaginatedReportResponse": {
         "type": "object",
         "description": "Paginated response",
@@ -3588,6 +4124,62 @@
             "allOf": [{ "$ref": "#/components/schemas/SortOrder" }],
             "nullable": true
           }
+        }
+      },
+      "RecommendationPriority": {
+        "type": "string",
+        "enum": ["LOW", "MEDIUM", "HIGH"],
+        "example": "HIGH"
+      },
+      "RecommendationResponse": {
+        "type": "object",
+        "required": [
+          "recommendation_id",
+          "dimension_id",
+          "priority",
+          "description",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the recommendation was created",
+            "example": "2023-01-01T00:00:00Z"
+          },
+          "description": {
+            "type": "string",
+            "description": "Detailed description of the recommendation",
+            "example": "Implement automated testing for critical components"
+          },
+          "dimension_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Reference to the dimension",
+            "example": "550e8400-e29b-41d4-a716-446655440002"
+          },
+          "priority": { "$ref": "#/components/schemas/RecommendationPriority" },
+          "recommendation_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique identifier for the recommendation",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the recommendation was last updated",
+            "example": "2023-01-01T00:00:00Z"
+          }
+        },
+        "example": {
+          "created_at": "2023-01-01T00:00:00Z",
+          "description": "Implement automated testing for critical components",
+          "dimension_id": "550e8400-e29b-41d4-a716-446655440002",
+          "priority": "HIGH",
+          "recommendation_id": "550e8400-e29b-41d4-a716-446655440000",
+          "updated_at": "2023-01-01T00:00:00Z"
         }
       },
       "ReportDownloadResponse": {
@@ -3756,14 +4348,17 @@
         "type": "object",
         "description": "Assessment update request",
         "properties": {
+          "assessment_name": { "type": "string", "nullable": true },
           "completed_at": {
             "type": "string",
             "format": "date-time",
             "nullable": true
           },
-          "cooperative_id": { "type": "string", "nullable": true },
-          "document_title": { "type": "string", "nullable": true },
-          "metadata": { "nullable": true },
+          "dimensions_id": {
+            "type": "array",
+            "items": { "type": "string" },
+            "nullable": true
+          },
           "started_at": {
             "type": "string",
             "format": "date-time",
@@ -3819,6 +4414,23 @@
             "type": "integer",
             "format": "int32",
             "description": "New gap size; if provided, severity will be recalculated",
+            "nullable": true
+          }
+        }
+      },
+      "UpdateRecommendationRequest": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "description": "New description (optional)",
+            "example": "Updated recommendation with more details",
+            "nullable": true
+          },
+          "priority": {
+            "allOf": [
+              { "$ref": "#/components/schemas/RecommendationPriority" }
+            ],
             "nullable": true
           }
         }

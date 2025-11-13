@@ -51,11 +51,21 @@ async fn main() -> anyhow::Result<()> {
     Ok(())
 }
 
+use api::routes;
+
 fn create_app(db: DatabaseConnection) -> Router {
-    let db = Arc::new(db);
-    api::routes::api::create_api_routes()
+    let cors = CorsLayer::very_permissive();
+    let db_arc = Arc::new(db);
+    
+    // Create API router with all routes
+    let api_router = routes::api::create_api_routes();
+    
+    // Combine all routers without the /api prefix
+    Router::new()
+        .merge(api_router)
         .merge(api::openapi::docs_routes())
-        .with_state(db)
+        .with_state(db_arc)
+        .layer(cors)
         .layer(CorsLayer::permissive())
 }
 

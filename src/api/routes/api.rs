@@ -5,7 +5,10 @@ use axum::{
 use sea_orm::DatabaseConnection;
 use std::sync::Arc;
 
-use crate::api::handlers::{action_plan::*, assessment::*, dimension::*, gap::*, report::*};
+use crate::api::handlers::{
+    action_plan::*, assessment::*, dimension::*, gap::*, recommendation::*, report::*,
+};
+use crate::api::routes::recommendation::create_recommendation_router;
 
 /// Create the main API routes
 pub fn create_api_routes() -> Router<Arc<DatabaseConnection>> {
@@ -102,4 +105,16 @@ pub fn create_api_routes() -> Router<Arc<DatabaseConnection>> {
         )
         // Admin gap creation
         .route("/admin/gaps", post(admin_create_gap))
+        // Recommendation routes
+        .route("/recommendations", post(create_recommendation).get(list_recommendations))
+        .route(
+            "/recommendations/:id",
+            get(get_recommendation)
+                .put(update_recommendation)
+                .delete(delete_recommendation),
+        )
+        .route(
+            "/dimensions/:dimension_id/recommendations",
+            get(list_recommendations_by_dimension),
+        )
 }
