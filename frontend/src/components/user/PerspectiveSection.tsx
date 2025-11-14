@@ -1,12 +1,23 @@
-import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import DigitalizationLevelSelector from './DigitalizationLevelSelector';
+import React from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import DigitalizationLevelSelector from "./DigitalizationLevelSelector";
 
 interface PerspectiveSectionProps {
   title: string;
   description: string;
   children?: React.ReactNode;
-  onValueChange: (perspective: string, current: string, tobe: string, comment: string) => void;
+  onValueChange: (
+    perspective: string,
+    current: string,
+    tobe: string,
+    comment: string,
+  ) => void;
   initialCurrent: string | undefined;
   initialToBe: string | undefined;
   initialComment: string | undefined;
@@ -21,7 +32,11 @@ const PerspectiveSection: React.FC<PerspectiveSectionProps> = ({
   initialToBe,
   initialComment,
 }) => {
-  const handleDigitalizationLevelChange = (current: string, tobe: string, comment: string) => {
+  const handleDigitalizationLevelChange = (
+    current: string,
+    tobe: string,
+    comment: string,
+  ) => {
     onValueChange(title, current, tobe, comment);
   };
 

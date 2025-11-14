@@ -1,11 +1,13 @@
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import React from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface RecommendationDisplayProps {
   recommendations: string[];
 }
 
-const RecommendationDisplay: React.FC<RecommendationDisplayProps> = ({ recommendations }) => {
+const RecommendationDisplay: React.FC<RecommendationDisplayProps> = ({
+  recommendations,
+}) => {
   return (
     <Card className="w-full">
       <CardHeader>

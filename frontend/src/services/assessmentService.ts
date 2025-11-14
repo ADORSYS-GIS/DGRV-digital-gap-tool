@@ -1,14 +1,14 @@
-import { AssessmentInput, SubmitAssessmentResponse } from '@/types/assessment';
+import { AssessmentInput, SubmitAssessmentResponse } from "@/types/assessment";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
 
 export const submitAssessment = async (
   assessmentData: AssessmentInput[],
 ): Promise<SubmitAssessmentResponse> => {
   const response = await fetch(`${API_BASE_URL}/assessments`, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
       // Add authorization header if needed, e.g., 'Authorization': `Bearer ${token}`
     },
     body: JSON.stringify(assessmentData),
@@ -16,7 +16,7 @@ export const submitAssessment = async (
 
   if (!response.ok) {
     const errorData = await response.json();
-    throw new Error(errorData.message || 'Failed to submit assessment');
+    throw new Error(errorData.message || "Failed to submit assessment");
   }
 
   return response.json();

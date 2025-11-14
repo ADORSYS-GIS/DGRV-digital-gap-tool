@@ -1,6 +1,6 @@
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge'; // Assuming badge can be used for traffic light colors
+import React from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge"; // Assuming badge can be used for traffic light colors
 
 interface GapVisualizationProps {
   perspective: string;
@@ -9,13 +9,17 @@ interface GapVisualizationProps {
 }
 
 const getTrafficLightColor = (severity: number) => {
-  if (severity === 0) return 'bg-green-500';
-  if (severity >= 1 && severity <= 2) return 'bg-yellow-500';
-  if (severity >= 3) return 'bg-red-500';
-  return 'bg-gray-400'; // Default for unknown severity
+  if (severity === 0) return "bg-green-500";
+  if (severity >= 1 && severity <= 2) return "bg-yellow-500";
+  if (severity >= 3) return "bg-red-500";
+  return "bg-gray-400"; // Default for unknown severity
 };
 
-const GapVisualization: React.FC<GapVisualizationProps> = ({ perspective, gapSeverity, recommendations }) => {
+const GapVisualization: React.FC<GapVisualizationProps> = ({
+  perspective,
+  gapSeverity,
+  recommendations,
+}) => {
   const trafficLightColor = getTrafficLightColor(gapSeverity);
 
   return (
@@ -27,7 +31,7 @@ const GapVisualization: React.FC<GapVisualizationProps> = ({ perspective, gapSev
         <div className="flex items-center space-x-4 mb-4">
           <span className="font-semibold">Gap Severity:</span>
           <Badge className={`h-6 w-6 rounded-full ${trafficLightColor}`} />
-          <span>{gapSeverity === 0 ? 'No Gap' : `Level ${gapSeverity}`} </span>
+          <span>{gapSeverity === 0 ? "No Gap" : `Level ${gapSeverity}`} </span>
         </div>
 
         <div className="mb-4">
@@ -46,7 +50,10 @@ const GapVisualization: React.FC<GapVisualizationProps> = ({ perspective, gapSev
         {/* Placeholder for a more complex chart */}
         <div className="mt-6 p-4 border rounded-md bg-gray-50 text-gray-600">
           <p>[Future Bar Chart Visualization Here]</p>
-          <p className="text-sm">A bar chart could visually represent the current vs. to-be states and the calculated gap.</p>
+          <p className="text-sm">
+            A bar chart could visually represent the current vs. to-be states
+            and the calculated gap.
+          </p>
         </div>
       </CardContent>
     </Card>
