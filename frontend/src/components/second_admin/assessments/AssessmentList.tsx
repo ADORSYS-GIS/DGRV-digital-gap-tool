@@ -15,9 +15,8 @@ interface AssessmentListProps {
 
 export function AssessmentList({ assessments }: AssessmentListProps) {
   const [isEditDialogOpen, setEditDialogOpen] = useState(false);
-  const [selectedAssessment, setSelectedAssessment] = useState<Assessment | null>(
-    null,
-  );
+  const [selectedAssessment, setSelectedAssessment] =
+    useState<Assessment | null>(null);
   const { mutate: deleteAssessment } = useDeleteAssessment();
   const { mutate: updateAssessment } = useUpdateAssessment();
   const { data: dimensions, isLoading: isLoadingDimensions } = useDimensions();

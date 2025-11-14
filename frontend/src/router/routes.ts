@@ -27,6 +27,9 @@ const ManageDigitalisationLevels = React.lazy(
 const ManageDimensions = React.lazy(
   () => import("../pages/admin/ManageDimensions"),
 );
+const ManageRecommendations = React.lazy(
+  () => import("../pages/admin/ManageRecommendations"),
+);
 const ManageActionPlan = React.lazy(
   () => import("../pages/admin/ManageActionPlan"),
 );
@@ -47,6 +50,7 @@ const ManageAssessments = React.lazy(
 const AssessmentDetailPage = React.lazy(
   () => import("../pages/second_admin/AssessmentDetailPage"),
 );
+import AnswerDimensionAssessmentPage from "@/pages/assessments/AnswerDimensionAssessmentPage";
 
 const routes = [
   { path: "/", element: React.createElement(HomePage) },
@@ -80,6 +84,10 @@ const routes = [
         element: React.createElement(ManageDigitalisationLevels),
       },
       { path: "dimensions", element: React.createElement(ManageDimensions) },
+      {
+        path: "recommendations",
+        element: React.createElement(ManageRecommendations),
+      },
       {
         path: "action-plan",
         element: React.createElement(ManageActionPlan),
@@ -124,6 +132,10 @@ const routes = [
       {
         path: "assessment/:assessmentId",
         element: React.createElement(AssessmentDetailPage),
+      },
+      {
+        path: "assessment/:assessmentId/dimension/:dimensionId",
+        element: React.createElement(AnswerDimensionAssessmentPage),
       },
     ],
   },

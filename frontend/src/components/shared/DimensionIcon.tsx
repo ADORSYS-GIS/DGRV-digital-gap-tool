@@ -30,7 +30,10 @@ export const DimensionIcon: React.FC<DimensionIconProps> = ({
     if (lowerCaseName.includes("digital culture")) return Users;
     if (lowerCaseName.includes("skills")) return GraduationCap;
     if (lowerCaseName.includes("processes")) return Cog;
-    if (lowerCaseName.includes("cybersecurity") || lowerCaseName.includes("security"))
+    if (
+      lowerCaseName.includes("cybersecurity") ||
+      lowerCaseName.includes("security")
+    )
       return Shield;
     if (lowerCaseName.includes("customer experience")) return Heart;
     if (lowerCaseName.includes("data & analytics")) return Database;

@@ -1,16 +1,17 @@
-import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { DimensionCard } from "@/components/shared/DimensionCard";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 import { assessmentRepository } from "@/services/assessments/assessmentRepository";
 import { dimensionRepository } from "@/services/dimensions/dimensionRepository";
 import { Assessment } from "@/types/assessment";
 import { IDimension } from "@/types/dimension";
-import { DimensionCard } from "@/components/shared/DimensionCard";
-import { Progress } from "@/components/ui/progress";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
 
 const AssessmentDetailPage: React.FC = () => {
   const { assessmentId } = useParams<{ assessmentId: string }>();
+  const navigate = useNavigate();
   const [assessment, setAssessment] = useState<Assessment | null>(null);
   const [dimensions, setDimensions] = useState<IDimension[]>([]);
   const [loading, setLoading] = useState(true);
@@ -23,9 +24,8 @@ const AssessmentDetailPage: React.FC = () => {
 
       try {
         setLoading(true);
-        const fetchedAssessment = await assessmentRepository.getById(
-          assessmentId,
-        );
+        const fetchedAssessment =
+          await assessmentRepository.getById(assessmentId);
         if (fetchedAssessment) {
           setAssessment(fetchedAssessment);
           if (
@@ -52,9 +52,13 @@ const AssessmentDetailPage: React.FC = () => {
   }, [assessmentId]);
 
   const handleStartDimensionAssessment = (dimensionId: string) => {
-    toast.info(
-      `Starting assessment for dimension ${dimensionId}. This feature is not yet implemented.`,
-    );
+    if (assessmentId) {
+      navigate(
+        `/second-admin/assessment/${assessmentId}/dimension/${dimensionId}`,
+      );
+    } else {
+      toast.error("Assessment ID not found.");
+    }
   };
 
   if (loading) {
@@ -117,7 +121,7 @@ const AssessmentDetailPage: React.FC = () => {
             <DimensionCard
               key={dimension.id}
               dimension={dimension}
-              onStart={handleStartDimensionAssessment}
+              onClick={handleStartDimensionAssessment}
             />
           ))}
         </div>

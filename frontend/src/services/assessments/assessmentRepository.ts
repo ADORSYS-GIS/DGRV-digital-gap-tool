@@ -1,4 +1,7 @@
-import { getAssessment, listAssessments } from "../../openapi-client/services.gen";
+import {
+  getAssessment,
+  listAssessments,
+} from "../../openapi-client/services.gen";
 import { Assessment } from "../../types/assessment";
 import { SyncStatus } from "../../types/sync/index";
 import { v4 as uuidv4 } from "uuid";
@@ -52,7 +55,10 @@ export const assessmentRepository = {
     }
     return localAssessment;
   },
-  add: async (assessment: { name: string, dimensionIds: string[] }): Promise<Assessment> => {
+  add: async (assessment: {
+    name: string;
+    dimensionIds: string[];
+  }): Promise<Assessment> => {
     const newAssessment: Assessment = {
       ...assessment,
       id: uuidv4(),
@@ -63,7 +69,7 @@ export const assessmentRepository = {
       "Assessment",
       newAssessment.id,
       "CREATE",
-      newAssessment
+      newAssessment,
     );
     return newAssessment;
   },

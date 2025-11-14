@@ -5,7 +5,7 @@ export const useAddAssessment = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (assessment: { name: string, dimensionIds: string[] }) =>
+    mutationFn: (assessment: { name: string; dimensionIds: string[] }) =>
       assessmentRepository.add(assessment),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["assessments"] });

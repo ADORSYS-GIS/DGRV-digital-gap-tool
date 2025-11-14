@@ -8,6 +8,7 @@ use crate::api::dto::assessment::*;
 use crate::api::dto::common::*;
 use crate::api::dto::dimension::*;
 use crate::api::dto::gap::*;
+use crate::api::dto::recommendation::*;
 use crate::api::dto::report::*;
 
 #[derive(OpenApi)]
@@ -48,6 +49,13 @@ use crate::api::dto::report::*;
         crate::api::handlers::action_plan::list_action_plans_by_assessment,
         crate::api::handlers::action_plan::update_action_plan,
         crate::api::handlers::action_plan::delete_action_plan,
+        // Recommendation endpoints
+        crate::api::handlers::recommendation::create_recommendation,
+        crate::api::handlers::recommendation::get_recommendation,
+        crate::api::handlers::recommendation::update_recommendation,
+        crate::api::handlers::recommendation::delete_recommendation,
+        crate::api::handlers::recommendation::list_recommendations,
+        crate::api::handlers::recommendation::list_recommendations_by_dimension,
         crate::api::handlers::action_plan::create_action_item,
         crate::api::handlers::action_plan::get_action_item,
         crate::api::handlers::action_plan::update_action_item,
@@ -68,7 +76,18 @@ use crate::api::dto::report::*;
             PaginationParams,
             SortOrder,
             EmptyResponse,
+            // Include the generic ApiResponse with EmptyResponse as a concrete type
             ApiResponseEmpty,
+            // Include the specific response types for the recommendations endpoints
+            ApiResponseRecommendationResponse,
+            ApiResponsePaginatedRecommendationResponse,
+            // Base ApiResponse type (using EmptyResponse as the generic type)
+            // This is a workaround since we can't directly expose the generic ApiResponse<T>
+            // in the OpenAPI components. All concrete ApiResponse types are already included
+            // in the aliases below.
+            //
+            // The actual ApiResponse type is exposed through the aliases like ApiResponseEmpty,
+            // ApiResponseRecommendationResponse, etc.
             // ApiResponse aliases for Action Plans
             ApiResponseActionPlanResponse,
             ApiResponseActionPlanWithItemsResponse,
@@ -79,6 +98,12 @@ use crate::api::dto::report::*;
             ApiResponseReportDownloadResponse,
             ApiResponseReportStatusResponse,
             ApiResponsePaginatedReportResponse,
+            
+            // Report related schemas
+            ReportType,
+            ReportFormat,
+            ReportStatus,
+            UpdateReportRequest,
             // ApiResponse aliases for Assessments & Dimensions
             ApiResponseAssessmentResponse,
             ApiResponsePaginatedAssessmentResponse,
@@ -92,11 +117,18 @@ use crate::api::dto::report::*;
             // ApiResponse aliases for Gaps
             ApiResponseGapResponse,
             ApiResponsePaginatedGapResponse,
+            ApiResponseAdminCreateGapRequest,
+            // ApiResponse aliases for Recommendations
+            ApiResponseRecommendationResponse,
+            ApiResponsePaginatedRecommendationResponse,
+            ApiResponseCreateRecommendationRequest,
+            ApiResponseUpdateRecommendationRequest,
             // Paginated alias types
             PaginatedActionPlanResponse,
             PaginatedReportResponse,
             PaginatedAssessmentResponse,
             PaginatedGapResponse,
+            PaginatedRecommendationResponse,
             // Assessments
             CreateAssessmentRequest,
             UpdateAssessmentRequest,
@@ -120,11 +152,14 @@ use crate::api::dto::report::*;
             DimensionListResponse,
             // Reports
             GenerateReportRequest,
-            UpdateReportRequest,
-            ReportResponse,
-            ReportType,
             ReportFormat,
+            ReportResponse,
             ReportStatus,
+            // Recommendations
+            CreateRecommendationRequest,
+            UpdateRecommendationRequest,
+            RecommendationResponse,
+            RecommendationPriority,
             ReportDownloadResponse,
             ReportListResponse,
             ReportStatusResponse,

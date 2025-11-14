@@ -6,12 +6,12 @@ import { ArrowRight } from "lucide-react";
 
 interface DimensionCardProps {
   dimension: IDimension;
-  onStart: (dimensionId: string) => void;
+  onClick: (dimensionId: string) => void;
 }
 
 export const DimensionCard: React.FC<DimensionCardProps> = ({
   dimension,
-  onStart,
+  onClick,
 }) => {
   return (
     <div className="bg-white p-6 rounded-lg border border-gray-200 hover:shadow-lg hover:border-blue-500 transition-all duration-300 flex flex-col items-center text-center h-full">
@@ -26,7 +26,7 @@ export const DimensionCard: React.FC<DimensionCardProps> = ({
       <Button
         variant="link"
         className="text-blue-500 font-semibold"
-        onClick={() => onStart(dimension.id)}
+        onClick={() => onClick(dimension.id)}
       >
         Start Assessment <ArrowRight className="h-4 w-4 ml-2" />
       </Button>
