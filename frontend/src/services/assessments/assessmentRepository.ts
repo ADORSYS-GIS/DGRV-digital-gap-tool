@@ -63,6 +63,8 @@ export const assessmentRepository = {
       ...assessment,
       id: uuidv4(),
       syncStatus: SyncStatus.PENDING,
+      created_at: new Date().toISOString(),
+      status: "Draft",
     };
     await db.assessments.add(newAssessment);
     syncService.addToSyncQueue(
@@ -104,7 +106,7 @@ export const assessmentRepository = {
     await db.assessments.update(offlineId, {
       id: serverId,
       syncStatus: SyncStatus.SYNCED,
-      lastError: null,
+      lastError: "",
     });
   },
   markAsFailed: (id: string, error: string) =>

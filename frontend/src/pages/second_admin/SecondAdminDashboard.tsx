@@ -24,9 +24,14 @@ import {
 } from "lucide-react";
 import React from "react";
 import { Link } from "react-router-dom";
+import { useSubmissions } from "@/hooks/submissions/useSubmissions";
+import { SubmissionList } from "@/components/second_admin/submissions/SubmissionList";
+import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
+import { Button } from "@/components/ui/button";
 
 const SecondAdminDashboard: React.FC = () => {
   const { user } = useAuth();
+  const { data: submissions, isLoading, error } = useSubmissions();
 
   return (
     <div className="space-y-6">
@@ -86,23 +91,30 @@ const SecondAdminDashboard: React.FC = () => {
         </Link>
       </div>
 
-      {/* Recent History */}
+      {/* Recent Submissions */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <History className="mr-2 h-5 w-5" />
-            Recent History
-          </CardTitle>
-          <CardDescription>
-            A log of recent activities and system events.
-          </CardDescription>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div>
+            <CardTitle className="flex items-center">
+              <History className="mr-2 h-5 w-5" />
+              Recent Submissions
+            </CardTitle>
+            <CardDescription>
+              A log of recent activities and system events.
+            </CardDescription>
+          </div>
+          <Link to="/second-admin/submissions">
+            <Button variant="outline">View All</Button>
+          </Link>
         </CardHeader>
         <CardContent>
-          <div className="text-center py-8">
-            <p className="text-gray-500">
-              Recent history will be displayed here.
-            </p>
-          </div>
+          {isLoading && <LoadingSpinner />}
+          {error && (
+            <p className="text-red-500">An error occurred: {error.message}</p>
+          )}
+          {submissions && (
+            <SubmissionList submissions={submissions} limit={5} />
+          )}
         </CardContent>
       </Card>
     </div>

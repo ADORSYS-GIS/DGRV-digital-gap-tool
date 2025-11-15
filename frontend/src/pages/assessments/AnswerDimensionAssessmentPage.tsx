@@ -1,12 +1,19 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { calculateGapScore } from "@/utils/gapCalculation";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 // Core React and routing
 // Material-UI components
 import { DimensionAssessmentAnswer } from "@/components/assessment/answering/DimensionAssessmentAnswer";
+import { GapDescriptionDisplay } from "@/components/assessment/answering/GapDescriptionDisplay";
 import { DimensionIcon } from "@/components/shared/DimensionIcon";
+import { useAssessment } from "@/hooks/assessments/useAssessment";
 import { useDimensionWithStates } from "@/hooks/assessments/useDimensionWithStates";
 import { useSubmitDimensionAssessment } from "@/hooks/assessments/useSubmitDimensionAssessment";
-import { IDimensionState, IDimensionWithStates } from "@/types/dimension";
+import {
+  IDimensionAssessment,
+  IDimensionState,
+  IDimensionWithStates,
+} from "@/types/dimension";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import {
   Alert,
@@ -45,6 +52,13 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showResult, setShowResult] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [gapId, setGapId] = useState<string | null>(null);
+  const [submittedData, setSubmittedData] = useState<{
+    currentLevel: number;
+    desiredLevel: number;
+    currentLevelDescription?: string;
+    desiredLevelDescription?: string;
+  } | null>(null);
 
   // Check if we're coming from the assessment detail page to handle back navigation
   const locationState = location.state as LocationState | undefined;
@@ -60,13 +74,35 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
     error: Error | null;
   };
 
+  const { data: assessment } = useAssessment(assessmentId || "");
+
   const dimensionStates = useMemo<IDimensionState[]>(() => {
     return dimension?.states || [];
   }, [dimension]);
 
+  const isLastDimension = useMemo(() => {
+    if (assessment?.dimensionIds && dimensionId) {
+      const currentIndex = assessment.dimensionIds.indexOf(dimensionId);
+      return currentIndex === assessment.dimensionIds.length - 1;
+    }
+    return false;
+  }, [assessment, dimensionId]);
+
+  useEffect(() => {
+    // Reset state when dimension changes
+    setShowResult(false);
+    setError(null);
+    setGapId(null);
+    setSubmittedData(null);
+    setIsSubmitting(false);
+  }, [dimensionId]);
+
   const { mutateAsync: submitAssessment } = useSubmitDimensionAssessment();
 
-  const handleSuccess = () => {
+  const handleSuccess = (data: IDimensionAssessment) => {
+    if (data.gap_id) {
+      setGapId(data.gap_id);
+    }
     setShowResult(true);
     setIsSubmitting(false);
     setError(null);
@@ -100,12 +136,19 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
         setIsSubmitting(true);
         setError(null);
 
+        setSubmittedData({
+          currentLevel,
+          desiredLevel,
+          currentLevelDescription: currentState.description,
+          desiredLevelDescription: desiredState.description,
+        });
+
         const payload = {
           assessmentId,
           dimensionId,
           currentStateId: currentState.id,
           desiredStateId: desiredState.id,
-          gapScore: desiredLevel - currentLevel,
+          gapScore: calculateGapScore(currentLevel, desiredLevel),
           currentLevel,
           desiredLevel,
         };
@@ -135,11 +178,29 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
     if (fromAssessmentDetail) {
       navigate(-1);
     } else if (assessmentId) {
-      navigate(`/assessments/${assessmentId}`);
+      navigate(`/second-admin/assessment/${assessmentId}`);
     } else {
-      navigate("/assessments");
+      navigate("/second-admin/assessments");
     }
   }, [navigate, fromAssessmentDetail, assessmentId]);
+
+  const handleContinue = useCallback(() => {
+    if (assessment && assessment.dimensionIds && dimensionId) {
+      const currentIndex = assessment.dimensionIds.indexOf(dimensionId);
+      if (
+        currentIndex !== -1 &&
+        currentIndex < assessment.dimensionIds.length - 1
+      ) {
+        const nextDimensionId = assessment.dimensionIds[currentIndex + 1];
+        navigate(
+          `/second-admin/assessment/${assessmentId}/dimension/${nextDimensionId}`,
+        );
+      } else {
+        // Last dimension, navigate back to the assessment detail page
+        navigate(`/second-admin/assessment/${assessmentId}`);
+      }
+    }
+  }, [assessment, dimensionId, assessmentId, navigate]);
 
   const handleCloseError = useCallback(() => {
     setError(null);
@@ -223,37 +284,28 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
         error={error || null}
       />
 
-      {showResult && dimension.currentState && dimension.desiredState && (
-        <Box
-          sx={{
-            p: 3,
-            mt: 3,
-            bgcolor: "background.paper",
-            borderRadius: 1,
-            boxShadow: 1,
-          }}
-        >
-          <Typography variant="h6" gutterBottom>
-            Assessment Submitted Successfully
-          </Typography>
-          <Box mt={2}>
-            <Typography variant="subtitle1">
-              Current Level: {dimension.currentState.level}
-            </Typography>
-            <Typography variant="subtitle1">
-              Desired Level: {dimension.desiredState.level}
-            </Typography>
-          </Box>
-          <Box mt={3} display="flex" justifyContent="flex-end">
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleEdit}
-              disabled={isSubmitting}
-            >
-              Edit Assessment
-            </Button>
-          </Box>
+      {showResult && gapId && submittedData && (
+        <GapDescriptionDisplay
+          gapId={gapId}
+          currentLevel={submittedData.currentLevel}
+          desiredLevel={submittedData.desiredLevel}
+          currentLevelDescription={submittedData.currentLevelDescription || ""}
+          desiredLevelDescription={submittedData.desiredLevelDescription || ""}
+        />
+      )}
+
+      {showResult && (
+        <Box mt={4} display="flex" justifyContent="center">
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleContinue}
+            data-testid="continue-button"
+          >
+            {isLastDimension
+              ? "Finish Assessment"
+              : "Continue to Next Assessment"}
+          </Button>
         </Box>
       )}
     </Container>

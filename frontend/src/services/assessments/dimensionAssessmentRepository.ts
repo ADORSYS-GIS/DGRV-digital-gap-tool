@@ -134,6 +134,7 @@ interface DimensionAssessmentData {
   updatedAt?: string;
   syncStatus?: SyncStatus;
   lastError?: string;
+  gap_id?: string;
 }
 
 const mapToDimensionAssessment = (
@@ -195,7 +196,7 @@ const mapToDimensionAssessment = (
         updatedAt: data.desiredState?.updatedAt || new Date().toISOString(),
       };
 
-  return {
+  const assessment: IDimensionAssessment = {
     id,
     dimensionId,
     assessmentId,
@@ -206,6 +207,12 @@ const mapToDimensionAssessment = (
     syncStatus: data.syncStatus || SyncStatus.SYNCED,
     lastError: data.lastError || "",
   };
+
+  if (data.gap_id) {
+    assessment.gap_id = data.gap_id;
+  }
+
+  return assessment;
 };
 
 export const dimensionAssessmentRepository = {
@@ -344,12 +351,22 @@ export const dimensionAssessmentRepository = {
           });
 
           if (response.data) {
-            const serverAssessment = mapToDimensionAssessment(response.data);
+            const serverAssessment = mapToDimensionAssessment(
+              response.data as unknown as DimensionAssessmentData,
+            );
             await dimensionAssessmentRepository.markAsSynced(
               newAssessment.id,
+              serverAssessment,
+            );
+            const syncedAssessment = await db.dimensionAssessments.get(
               serverAssessment.id,
             );
-            return serverAssessment;
+            if (!syncedAssessment) {
+              throw new Error(
+                "Failed to retrieve synced assessment from local DB",
+              );
+            }
+            return syncedAssessment;
           }
         } catch (error) {
           console.error("Error submitting assessment:", error);
@@ -444,12 +461,22 @@ export const dimensionAssessmentRepository = {
           });
 
           if (response.data) {
-            const serverAssessment = mapToDimensionAssessment(response.data);
+            const serverAssessment = mapToDimensionAssessment(
+              response.data as unknown as DimensionAssessmentData,
+            );
             await dimensionAssessmentRepository.markAsSynced(
               assessmentId,
+              serverAssessment,
+            );
+            const syncedAssessment = await db.dimensionAssessments.get(
               serverAssessment.id,
             );
-            return serverAssessment;
+            if (!syncedAssessment) {
+              throw new Error(
+                "Failed to retrieve synced assessment from local DB",
+              );
+            }
+            return syncedAssessment;
           }
         } catch (error) {
           console.error("Error updating assessment:", error);
@@ -511,16 +538,26 @@ export const dimensionAssessmentRepository = {
    * @param localId - The local ID of the assessment
    * @param serverId - The server ID of the assessment
    */
-  markAsSynced: async (localId: string, serverId: string): Promise<void> => {
+  markAsSynced: async (
+    localId: string,
+    serverAssessment: IDimensionAssessment,
+  ): Promise<void> => {
     try {
-      const assessment = await db.dimensionAssessments.get(localId);
-      if (assessment) {
-        await db.dimensionAssessments.update(localId, {
-          id: serverId,
+      const localAssessment = await db.dimensionAssessments.get(localId);
+      if (localAssessment) {
+        await db.dimensionAssessments.delete(localId);
+        const newLocalAssessment: IDimensionAssessment = {
+          ...localAssessment,
+          id: serverAssessment.id,
           syncStatus: SyncStatus.SYNCED,
           lastError: "",
-          updatedAt: new Date().toISOString(),
-        });
+          createdAt: serverAssessment.createdAt,
+          updatedAt: serverAssessment.updatedAt,
+        };
+        if (serverAssessment.gap_id) {
+          newLocalAssessment.gap_id = serverAssessment.gap_id;
+        }
+        await db.dimensionAssessments.add(newLocalAssessment);
       }
     } catch (error) {
       console.error(`Error marking assessment ${localId} as synced:`, error);

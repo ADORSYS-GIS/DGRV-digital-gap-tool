@@ -30,7 +30,7 @@ const SecondAdminLayout: React.FC = () => {
     },
     { to: "/second-admin/users", icon: Users, text: "Users" },
     {
-      to: "/second-admin/create-assessment",
+      to: "/second-admin/assessments",
       icon: FilePlus2,
       text: "Create Assesment",
     },

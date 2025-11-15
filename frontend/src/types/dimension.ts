@@ -49,11 +49,13 @@ export interface IDimensionAssessmentResponse {
   desiredState: IDimensionState;
   createdAt: string;
   updatedAt: string;
+  gap_id?: string;
 }
 
 export interface IDimensionAssessment
   extends Omit<IDimensionAssessmentResponse, "id"> {
   id: string;
-  syncStatus?: string;
+  syncStatus: string;
   lastError?: string;
+  gap_id?: string;
 }

@@ -50,6 +50,12 @@ const ManageAssessments = React.lazy(
 const AssessmentDetailPage = React.lazy(
   () => import("../pages/second_admin/AssessmentDetailPage"),
 );
+const ManageSubmissionsPage = React.lazy(
+  () => import("../pages/second_admin/ManageSubmissionsPage"),
+);
+const SubmissionDetailPage = React.lazy(
+  () => import("../pages/second_admin/SubmissionDetailPage"),
+);
 import AnswerDimensionAssessmentPage from "@/pages/assessments/AnswerDimensionAssessmentPage";
 
 const routes = [
@@ -136,6 +142,14 @@ const routes = [
       {
         path: "assessment/:assessmentId/dimension/:dimensionId",
         element: React.createElement(AnswerDimensionAssessmentPage),
+      },
+      {
+        path: "submissions",
+        element: React.createElement(ManageSubmissionsPage),
+      },
+      {
+        path: "submissions/:submissionId",
+        element: React.createElement(SubmissionDetailPage),
       },
     ],
   },
