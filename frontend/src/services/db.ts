@@ -4,6 +4,10 @@ import { IDimension } from "@/types/dimension";
 import { IDigitalisationLevel } from "@/types/digitalisationLevel";
 import { IDigitalisationGap } from "@/types/digitalisationGap";
 import { SyncQueueItem } from "@/types/sync";
+import { Cooperation } from "@/types/cooperation";
+import { Assessment, AssessmentSummary } from "@/types/assessment";
+import { IRecommendation } from "@/types/recommendation";
+import { IDimensionAssessment } from "@/types/dimension";
 
 export class AppDB extends Dexie {
   organizations!: Table<Organization>;
@@ -11,16 +15,30 @@ export class AppDB extends Dexie {
   digitalisationLevels!: Table<IDigitalisationLevel>;
   digitalisationGaps!: Table<IDigitalisationGap>;
   sync_queue!: Table<SyncQueueItem>;
+  cooperations!: Table<Cooperation>;
+  assessments!: Table<Assessment>;
+  recommendations!: Table<IRecommendation>;
+  dimensionAssessments!: Table<
+    IDimensionAssessment & { syncStatus: string; lastError?: string }
+  >;
+  assessmentSummaries!: Table<AssessmentSummary>;
 
   constructor() {
     super("dgatDB");
-    this.version(2).stores({
+    this.version(4).stores({
       organizations: "id, name, domain, syncStatus",
       dimensions: "id, name, syncStatus",
       digitalisationLevels:
         "id, dimensionId, levelType, state, [dimensionId+levelType+state]",
       digitalisationGaps: "id, dimensionId, isSynced, isDeleted",
       sync_queue: "++id",
+      cooperations: "++id, name, description, syncStatus",
+      assessments: "id, name, is_synced, syncStatus",
+      recommendations:
+        "id, recommendation_id, title, category, priority, syncStatus, [syncStatus+priority]",
+      dimensionAssessments:
+        "id, dimensionId, assessmentId, [dimensionId+assessmentId], syncStatus",
+      assessmentSummaries: "id, syncStatus",
     });
   }
 }

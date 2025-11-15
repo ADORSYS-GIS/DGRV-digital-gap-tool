@@ -88,6 +88,19 @@ impl GapsRepository {
             .await
             .map_err(AppError::from)
     }
+    pub async fn find_by_dimension_and_severity(
+        db: &DbConn,
+        dimension_id: Uuid,
+        severity: crate::entities::gaps::GapSeverity,
+    ) -> Result<Option<gaps::Model>, AppError> {
+        Gaps::find()
+            .filter(gaps::Column::DimensionId.eq(dimension_id))
+            .filter(gaps::Column::GapSeverity.eq(severity))
+            .one(db)
+            .await
+            .map_err(AppError::from)
+    }
+
 
     pub async fn find_high_impact_gaps(
         db: &DbConn,

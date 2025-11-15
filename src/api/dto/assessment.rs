@@ -93,6 +93,7 @@ pub struct DimensionAssessmentResponse {
     pub current_state_id: Uuid,
     pub desired_state_id: Uuid,
     pub gap_score: i32,
+    pub gap_id: Uuid,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }

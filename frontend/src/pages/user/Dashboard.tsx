@@ -11,12 +11,17 @@ import { useAuth } from "@/hooks/shared/useAuth";
 import { UserStats } from "@/components/user/UserStats";
 import { AssessmentSection } from "@/components/user/AssessmentSection";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   const handleStartAssessment = () => {
+    // In a real app, you'd likely create a new assessment and get an ID from the backend
+    const newAssessmentId = 1;
     toast.success("Assessment started successfully!");
+    navigate(`/dashboard/assessment/${newAssessmentId}`);
   };
 
   const handleContinueAssessment = () => {

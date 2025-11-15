@@ -59,6 +59,9 @@ export const dimensionRepository = {
     }
     return localDimension; // Always read from local DB
   },
+  getByIds: async (ids: string[]): Promise<IDimension[]> => {
+    return db.dimensions.where("id").anyOf(ids).toArray();
+  },
   add: async (dimension: ICreateDimensionRequest): Promise<IDimension> => {
     const newDimension: IDimension = {
       ...dimension,
@@ -109,7 +112,7 @@ export const dimensionRepository = {
     await db.dimensions.update(offlineId, {
       id: serverId,
       syncStatus: SyncStatus.SYNCED,
-      lastError: undefined,
+      lastError: null,
     });
   },
   markAsFailed: (id: string, error: string) =>

@@ -2363,6 +2363,7 @@
                   "current_state_id",
                   "desired_state_id",
                   "gap_score",
+                  "gap_id",
                   "created_at",
                   "updated_at"
                 ],
@@ -2376,6 +2377,7 @@
                     "format": "uuid"
                   },
                   "dimension_id": { "type": "string", "format": "uuid" },
+                  "gap_id": { "type": "string", "format": "uuid" },
                   "gap_score": { "type": "integer", "format": "int32" },
                   "updated_at": { "type": "string", "format": "date-time" }
                 }
@@ -3629,6 +3631,7 @@
           "current_state_id",
           "desired_state_id",
           "gap_score",
+          "gap_id",
           "created_at",
           "updated_at"
         ],
@@ -3639,6 +3642,7 @@
           "desired_state_id": { "type": "string", "format": "uuid" },
           "dimension_assessment_id": { "type": "string", "format": "uuid" },
           "dimension_id": { "type": "string", "format": "uuid" },
+          "gap_id": { "type": "string", "format": "uuid" },
           "gap_score": { "type": "integer", "format": "int32" },
           "updated_at": { "type": "string", "format": "date-time" }
         }

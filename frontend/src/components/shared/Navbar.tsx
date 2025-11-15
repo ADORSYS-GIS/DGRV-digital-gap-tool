@@ -15,7 +15,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { User, LogOut, Home, Menu, X } from "lucide-react";
+import { User, LogOut, Home, Menu, X, Building2 } from "lucide-react";
 import { useAuth } from "@/hooks/shared/useAuth";
 import { useNavigate } from "react-router-dom";
 import { ROLES } from "@/constants/roles";
@@ -24,6 +24,15 @@ export const Navbar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { isAuthenticated, user, login, logout } = useAuth();
   const navigate = useNavigate();
+
+  const roles =
+    isAuthenticated && user
+      ? [...(user.roles || []), ...(user.realm_access?.roles || [])].map((r) =>
+          r.toLowerCase(),
+        )
+      : [];
+
+  const hasAdminRole = roles.includes(ROLES.ADMIN);
 
   // Helper to get user display name
   const getUserDisplay = () => {
@@ -86,6 +95,18 @@ export const Navbar = () => {
                 <Home className="w-5 h-5" />
                 <span>Home</span>
               </Button>
+              {hasAdminRole && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="ml-4 hidden md:flex items-center space-x-2"
+                  onClick={() => navigate("/second-admin/dashboard")}
+                  aria-label="Cooperative Dashboard"
+                >
+                  <Building2 className="w-5 h-5" />
+                  <span>Cooperative Dashboard</span>
+                </Button>
+              )}
             </div>
 
             {/* Right side */}
@@ -218,6 +239,20 @@ export const Navbar = () => {
                 <Home className="w-5 h-5" />
                 <span className="font-medium">Home</span>
               </Button>
+              {hasAdminRole && (
+                <Button
+                  variant="ghost"
+                  size="lg"
+                  className="w-full justify-start items-center space-x-4 h-12 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-lg"
+                  onClick={() => {
+                    navigate("/second-admin/dashboard");
+                    closeSidebar();
+                  }}
+                >
+                  <Building2 className="w-5 h-5" />
+                  <span className="font-medium">Cooperative Dashboard</span>
+                </Button>
+              )}
             </div>
 
             {/* Auth Section */}

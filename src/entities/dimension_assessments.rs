@@ -11,6 +11,7 @@ pub struct Model {
     pub current_state_id: Uuid,
     pub desired_state_id: Uuid,
     pub gap_score: i32,
+    pub gap_id: Uuid,
     pub created_at: DateTimeUtc,
     pub updated_at: DateTimeUtc,
 }
@@ -33,6 +34,14 @@ pub enum Relation {
         on_delete = "Cascade"
     )]
     Dimensions,
+    #[sea_orm(
+        belongs_to = "super::gaps::Entity",
+        from = "Column::GapId",
+        to = "super::gaps::Column::GapId",
+        on_update = "Cascade",
+        on_delete = "Cascade"
+    )]
+    Gaps,
 }
 
 impl Related<super::assessments::Entity> for Entity {
@@ -44,6 +53,12 @@ impl Related<super::assessments::Entity> for Entity {
 impl Related<super::dimensions::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Dimensions.def()
+    }
+}
+
+impl Related<super::gaps::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Gaps.def()
     }
 }
 

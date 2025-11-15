@@ -17,6 +17,7 @@ use crate::api::handlers::common::{
 use crate::error::AppError;
 use crate::repositories::{
     assessments::AssessmentsRepository, dimension_assessments::DimensionAssessmentsRepository,
+    gaps::GapsRepository,
 };
 
 // Conversion functions between entity and DTO types
@@ -190,6 +191,7 @@ pub async fn get_assessment_summary(
             current_state_id: da.current_state_id,
             desired_state_id: da.desired_state_id,
             gap_score: da.gap_score,
+            gap_id: da.gap_id,
         })
         .collect();
 
@@ -357,6 +359,30 @@ pub async fn create_dimension_assessment(
     Path(assessment_id): Path<Uuid>,
     Json(request): Json<CreateDimensionAssessmentRequest>,
 ) -> Result<Json<ApiResponse<DimensionAssessmentResponse>>, (StatusCode, Json<serde_json::Value>)> {
+    let gap_severity = match request.gap_score {
+        1 => crate::entities::gaps::GapSeverity::Low,
+        2 => crate::entities::gaps::GapSeverity::Medium,
+        3 => crate::entities::gaps::GapSeverity::High,
+        _ => {
+            return Err(crate::api::handlers::common::handle_error(
+                AppError::ValidationError("Invalid gap_score. Must be 1, 2, or 3.".to_string()),
+            ));
+        }
+    };
+
+    let gap = GapsRepository::find_by_dimension_and_severity(
+        db.as_ref(),
+        request.dimension_id,
+        gap_severity,
+    )
+    .await
+    .map_err(crate::api::handlers::common::handle_error)?
+    .ok_or_else(|| {
+        crate::api::handlers::common::handle_error(AppError::NotFound(
+            "Corresponding gap not found for the given dimension and severity".to_string(),
+        ))
+    })?;
+
     let active_model = crate::entities::dimension_assessments::ActiveModel {
         dimension_assessment_id: sea_orm::Set(Uuid::new_v4()),
         assessment_id: sea_orm::Set(assessment_id),
@@ -364,6 +390,7 @@ pub async fn create_dimension_assessment(
         current_state_id: sea_orm::Set(request.current_state_id),
         desired_state_id: sea_orm::Set(request.desired_state_id),
         gap_score: sea_orm::Set(request.gap_score),
+        gap_id: sea_orm::Set(gap.gap_id),
         ..Default::default()
     };
 
@@ -378,6 +405,7 @@ pub async fn create_dimension_assessment(
         current_state_id: dimension_assessment.current_state_id,
         desired_state_id: dimension_assessment.desired_state_id,
         gap_score: dimension_assessment.gap_score,
+        gap_id: dimension_assessment.gap_id,
         created_at: dimension_assessment.created_at,
         updated_at: dimension_assessment.updated_at,
     };
@@ -445,6 +473,7 @@ pub async fn update_dimension_assessment(
         current_state_id: updated_dimension_assessment.current_state_id,
         desired_state_id: updated_dimension_assessment.desired_state_id,
         gap_score: updated_dimension_assessment.gap_score,
+        gap_id: updated_dimension_assessment.gap_id,
         created_at: updated_dimension_assessment.created_at,
         updated_at: updated_dimension_assessment.updated_at,
     };

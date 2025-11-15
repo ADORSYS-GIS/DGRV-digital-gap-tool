@@ -24,6 +24,7 @@ mod m20251112_151500_alter_assessments_timestamps_to_timestamptz;
 mod m20251113_105117_add_recommendation_priority_enum;
 mod m20251113_113510_drop_gap_severity_column;
 mod m20251113_124851_update_recommendations_timestamps;
+mod m20251114_190500_add_gap_id_to_dimension_assessments;
 
 pub struct Migrator;
 
@@ -55,6 +56,7 @@ impl MigratorTrait for Migrator {
             Box::new(m20251113_105117_add_recommendation_priority_enum::Migration),
             Box::new(m20251113_113510_drop_gap_severity_column::Migration),
             Box::new(m20251113_124851_update_recommendations_timestamps::Migration),
+            Box::new(m20251114_190500_add_gap_id_to_dimension_assessments::Migration),
         ]
     }
 }
