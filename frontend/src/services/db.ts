@@ -8,10 +8,11 @@ import { Cooperation } from "@/types/cooperation";
 import { IDigitalisationGap } from "@/types/digitalisationGap";
 import { ActionPlan } from "@/types/actionPlan";
 import { SyncQueueItem } from "@/types/sync";
-import { IDimension } from "@/types/dimension";
+import { IDimension, IDimensionAssessment } from "@/types/dimension";
 import { IRecommendation } from "@/types/recommendation";
 
 export class AppDB extends Dexie {
+  dimensionAssessments!: Table<IDimensionAssessment, string>;
   assessments!: Table<Assessment, string>;
   submissions!: Table<Submission, string>;
   organizations!: Table<Organization, string>;
@@ -34,6 +35,7 @@ export class AppDB extends Dexie {
       sync_queue: "++id",
       dimensions: "id",
       recommendations: "id",
+      dimensionAssessments: "id, [dimensionId+assessmentId]",
     });
   }
 }
