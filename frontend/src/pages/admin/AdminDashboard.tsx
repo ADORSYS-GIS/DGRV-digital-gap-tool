@@ -22,10 +22,14 @@ import { useSubmissions } from "@/hooks/submissions/useSubmissions";
 import { Building2, FileText, History, Settings, Users } from "lucide-react";
 import React from "react";
 import { Link } from "react-router-dom";
+import { useDimensions } from "@/hooks/dimensions/useDimensions";
+import { useAssessments } from "@/hooks/assessments/useAssessments";
 
 const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
   const { data: submissions, isLoading, error } = useSubmissions();
+  const { data: dimensions } = useDimensions();
+  const { data: assessments } = useAssessments();
 
   return (
     <div className="space-y-6">
@@ -73,7 +77,9 @@ const AdminDashboard: React.FC = () => {
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">0</div>
+            <div className="text-2xl font-bold">
+              {assessments ? assessments.length : 0}
+            </div>
             <p className="text-xs text-muted-foreground">+0% from last month</p>
           </CardContent>
         </Card>
@@ -85,7 +91,9 @@ const AdminDashboard: React.FC = () => {
             <Settings className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">0</div>
+            <div className="text-2xl font-bold">
+              {dimensions ? dimensions.length : 0}
+            </div>
             <p className="text-xs text-muted-foreground">+0% from last month</p>
           </CardContent>
         </Card>
