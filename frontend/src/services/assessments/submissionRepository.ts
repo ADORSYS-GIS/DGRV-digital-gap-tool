@@ -11,12 +11,13 @@ import {
 import { SyncManager } from "@/services/syncManager";
 import { AssessmentResponse } from "@/openapi-client/types.gen";
 import { SyncStatus } from "@/types/sync";
+import { Table } from "dexie";
 
 const syncManager = new SyncManager<AssessmentSummary, AssessmentSummaryData>(
-  "assessmentSummaries",
+  db.submissions,
 );
 const assessmentsSyncManager = new SyncManager<Assessment, AssessmentResponse>(
-  "assessments",
+  db.assessments,
 );
 
 export const submissionRepository = {
@@ -52,6 +53,6 @@ export const submissionRepository = {
         syncStatus: SyncStatus.SYNCED,
       }),
     );
-    return await db.assessmentSummaries.get(assessmentId);
+    return await db.submissions.get(assessmentId);
   },
 };

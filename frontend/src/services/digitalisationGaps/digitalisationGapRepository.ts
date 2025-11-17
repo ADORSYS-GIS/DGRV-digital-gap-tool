@@ -4,19 +4,12 @@ import {
   Gap,
   IDigitalisationGap,
   IDigitalisationGapWithDimension,
-  scoreRanges,
 } from "@/types/digitalisationGap";
 import { IDimension } from "@/types/dimension";
 import { SyncStatus } from "@/types/sync";
 import { v4 as uuidv4 } from "uuid";
 import { db } from "../db";
 import { syncService } from "../sync/syncService";
-
-const parseScoreRange = (gapSeverity: Gap): [number, number] => {
-  const rangeStr = scoreRanges[gapSeverity] || "0-0";
-  const parts = rangeStr.split("-").map((s) => parseInt(s.trim(), 10) || 0);
-  return [parts[0] || 0, parts[1] || 0];
-};
 
 export const digitalisationGapRepository = {
   getAll: async (): Promise<IDigitalisationGapWithDimension[]> => {
@@ -34,17 +27,11 @@ export const digitalisationGapRepository = {
           const localSyncedGapIds = new Set(localSyncedGaps.map((g) => g.id));
 
           const gapsToUpsert = backendGaps.map((d) => {
-            const [min_score, max_score] = parseScoreRange(
-              d.gap_severity as Gap,
-            );
             return {
               id: d.gap_id,
               dimensionId: d.dimension_id,
-              gap: d.gap_severity as Gap,
+              gap_severity: d.gap_severity as Gap,
               scope: d.gap_description || "",
-              min_score,
-              max_score,
-              gap_size: d.gap_size,
               syncStatus: SyncStatus.SYNCED,
               lastError: "",
               createdAt: d.created_at,
@@ -92,17 +79,11 @@ export const digitalisationGapRepository = {
       if (navigator.onLine) {
         const backendGap = await getGap({ id });
         if (backendGap.data) {
-          const [min_score, max_score] = parseScoreRange(
-            backendGap.data.gap_severity as Gap,
-          );
           const syncedGap: IDigitalisationGap = {
             id: backendGap.data.gap_id,
             dimensionId: backendGap.data.dimension_id,
-            gap: backendGap.data.gap_severity as Gap,
+            gap_severity: backendGap.data.gap_severity as Gap,
             scope: backendGap.data.gap_description || "",
-            min_score,
-            max_score,
-            gap_size: backendGap.data.gap_size,
             syncStatus: SyncStatus.SYNCED,
             lastError: "",
             createdAt: backendGap.data.created_at,

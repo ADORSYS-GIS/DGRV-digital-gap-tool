@@ -73,7 +73,7 @@ const SecondAdminDashboard: React.FC = () => {
             variant="default"
           />
         </Link>
-        <Link to="/second-admin/action-plan">
+        <Link to="/second-admin/action-plans">
           <DashboardCard
             title="View Action Plan"
             description="Review and monitor strategic action plans"

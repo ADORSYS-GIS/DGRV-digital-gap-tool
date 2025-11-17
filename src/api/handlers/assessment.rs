@@ -19,6 +19,10 @@ use crate::repositories::{
     assessments::AssessmentsRepository, dimension_assessments::DimensionAssessmentsRepository,
     gaps::GapsRepository,
 };
+use crate::repositories::{
+    action_items::ActionItemsRepository, action_plans::ActionPlansRepository,
+    recommendations::RecommendationsRepository,
+};
 
 // Conversion functions between entity and DTO types
 fn convert_entity_assessment_status_to_dto(
@@ -359,21 +363,20 @@ pub async fn create_dimension_assessment(
     Path(assessment_id): Path<Uuid>,
     Json(request): Json<CreateDimensionAssessmentRequest>,
 ) -> Result<Json<ApiResponse<DimensionAssessmentResponse>>, (StatusCode, Json<serde_json::Value>)> {
-    let gap_severity = match request.gap_score {
-        1 => crate::entities::gaps::GapSeverity::Low,
-        2 => crate::entities::gaps::GapSeverity::Medium,
-        3 => crate::entities::gaps::GapSeverity::High,
-        _ => {
-            return Err(crate::api::handlers::common::handle_error(
-                AppError::ValidationError("Invalid gap_score. Must be 1, 2, or 3.".to_string()),
-            ));
-        }
-    };
-
+    // 1. Create the Dimension Assessment
     let gap = GapsRepository::find_by_dimension_and_severity(
         db.as_ref(),
         request.dimension_id,
-        gap_severity,
+        match request.gap_score {
+            1 => crate::entities::gaps::GapSeverity::Low,
+            2 => crate::entities::gaps::GapSeverity::Medium,
+            3 => crate::entities::gaps::GapSeverity::High,
+            _ => {
+                return Err(crate::api::handlers::common::handle_error(
+                    AppError::ValidationError("Invalid gap_score. Must be 1, 2, or 3.".to_string()),
+                ));
+            }
+        },
     )
     .await
     .map_err(crate::api::handlers::common::handle_error)?
@@ -383,21 +386,58 @@ pub async fn create_dimension_assessment(
         ))
     })?;
 
-    let active_model = crate::entities::dimension_assessments::ActiveModel {
-        dimension_assessment_id: sea_orm::Set(Uuid::new_v4()),
-        assessment_id: sea_orm::Set(assessment_id),
-        dimension_id: sea_orm::Set(request.dimension_id),
-        current_state_id: sea_orm::Set(request.current_state_id),
-        desired_state_id: sea_orm::Set(request.desired_state_id),
-        gap_score: sea_orm::Set(request.gap_score),
-        gap_id: sea_orm::Set(gap.gap_id),
-        ..Default::default()
+    let dimension_assessment_active_model =
+        crate::entities::dimension_assessments::ActiveModel {
+            dimension_assessment_id: sea_orm::Set(Uuid::new_v4()),
+            assessment_id: sea_orm::Set(assessment_id),
+            dimension_id: sea_orm::Set(request.dimension_id),
+            current_state_id: sea_orm::Set(request.current_state_id),
+            desired_state_id: sea_orm::Set(request.desired_state_id),
+            gap_score: sea_orm::Set(request.gap_score),
+            gap_id: sea_orm::Set(gap.gap_id),
+            ..Default::default()
+        };
+
+    let dimension_assessment =
+        DimensionAssessmentsRepository::create(db.as_ref(), dimension_assessment_active_model)
+            .await
+            .map_err(crate::api::handlers::common::handle_error)?;
+
+    // 2. Find or create an Action Plan
+    let action_plan =
+        ActionPlansRepository::find_or_create(db.as_ref(), dimension_assessment.assessment_id)
+            .await
+            .map_err(crate::api::handlers::common::handle_error)?;
+
+    // 3. Create an Action Item
+    let recommendation_priority = match request.gap_score {
+        1 => "Low",
+        2 => "Medium",
+        3 => "High",
+        _ => "Medium", // Should not happen
     };
+    if let Some(recommendation) = RecommendationsRepository::find_by_dimension_and_priority(
+        db.as_ref(),
+        request.dimension_id,
+        recommendation_priority,
+    )
+    .await
+    .map_err(crate::api::handlers::common::handle_error)?
+    {
+        let action_item_active_model = crate::entities::action_items::ActiveModel {
+            id: sea_orm::Set(Uuid::new_v4()),
+            action_plan_id: sea_orm::Set(action_plan.id),
+            dimension_assessment_id: sea_orm::Set(dimension_assessment.dimension_assessment_id),
+            recommendation_id: sea_orm::Set(recommendation.recommendation_id),
+            ..Default::default()
+        };
 
-    let dimension_assessment = DimensionAssessmentsRepository::create(db.as_ref(), active_model)
-        .await
-        .map_err(crate::api::handlers::common::handle_error)?;
+        ActionItemsRepository::create(db.as_ref(), action_item_active_model)
+            .await
+            .map_err(crate::api::handlers::common::handle_error)?;
+    }
 
+    // 4. Prepare and return the response
     let response = DimensionAssessmentResponse {
         dimension_assessment_id: dimension_assessment.dimension_assessment_id,
         assessment_id: dimension_assessment.assessment_id,
@@ -412,7 +452,7 @@ pub async fn create_dimension_assessment(
 
     Ok(success_response_with_message(
         response,
-        "Dimension assessment created successfully".to_string(),
+        "Dimension assessment created and action plan generated successfully".to_string(),
     ))
 }
 
@@ -432,10 +472,10 @@ pub async fn create_dimension_assessment(
 /// Update dimension assessment
 pub async fn update_dimension_assessment(
     State(db): State<Arc<DatabaseConnection>>,
-    Path((assessment_id, dimension_assessment_id)): Path<(Uuid, Uuid)>,
-    Json(_request): Json<UpdateDimensionAssessmentRequest>,
+    Path((_assessment_id, dimension_assessment_id)): Path<(Uuid, Uuid)>,
+    Json(request): Json<UpdateDimensionAssessmentRequest>,
 ) -> Result<Json<ApiResponse<DimensionAssessmentResponse>>, (StatusCode, Json<serde_json::Value>)> {
-    let mut dimension_assessment =
+    let dimension_assessment =
         DimensionAssessmentsRepository::find_by_id(db.as_ref(), dimension_assessment_id)
             .await
             .map_err(crate::api::handlers::common::handle_error)?
@@ -445,22 +485,13 @@ pub async fn update_dimension_assessment(
                 ))
             })?;
 
-    // Verify it belongs to the assessment
-    if dimension_assessment.assessment_id != assessment_id {
-        return Err(crate::api::handlers::common::handle_error(
-            AppError::ValidationError(
-                "Dimension assessment does not belong to this assessment".to_string(),
-            ),
-        ));
+    let mut active_model: crate::entities::dimension_assessments::ActiveModel =
+        dimension_assessment.into();
+
+    if let Some(gap_score) = request.gap_score {
+        active_model.gap_score = sea_orm::Set(gap_score);
     }
 
-    // Update fields if provided
-    // No updatable fields on slimmed dimension_assessments for now
-
-    dimension_assessment.updated_at = chrono::Utc::now();
-
-    let active_model: crate::entities::dimension_assessments::ActiveModel =
-        dimension_assessment.into();
     let updated_dimension_assessment =
         DimensionAssessmentsRepository::update(db.as_ref(), dimension_assessment_id, active_model)
             .await

@@ -3,14 +3,10 @@ import { Table } from "dexie";
 import { OfflineEntity } from "@/types/sync";
 
 export class SyncManager<T extends OfflineEntity, U> {
-  private tableName: keyof typeof db;
+  private table: Table<T>;
 
-  constructor(tableName: keyof typeof db) {
-    this.tableName = tableName;
-  }
-
-  private get table(): Table<T> {
-    return db[this.tableName] as Table<T>;
+  constructor(table: Table<T>) {
+    this.table = table;
   }
 
   async syncWithServer(
@@ -22,7 +18,7 @@ export class SyncManager<T extends OfflineEntity, U> {
       const transformedData = serverData.map(transform);
       await this.table.bulkPut(transformedData);
     } catch (error) {
-      console.error(`Failed to sync ${this.tableName}:`, error);
+      console.error(`Failed to sync table:`, error);
     }
   }
 }

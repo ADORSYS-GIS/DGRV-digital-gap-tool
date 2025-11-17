@@ -6,13 +6,14 @@ use sea_orm::DatabaseConnection;
 use std::sync::Arc;
 
 use crate::api::handlers::{
-    action_plan::*, assessment::*, dimension::*, gap::*, recommendation::*, report::*,
+    assessment::*, dimension::*, gap::*, recommendation::*, report::*,
 };
-use crate::api::routes::recommendation::create_recommendation_router;
+use crate::api::routes::action_plan::create_action_plan_routes;
 
 /// Create the main API routes
 pub fn create_api_routes() -> Router<Arc<DatabaseConnection>> {
     Router::new()
+        .nest("/action-plans", create_action_plan_routes())
         // Assessment routes
         .route("/assessments", post(create_assessment))
         .route("/assessments", get(list_assessments))
@@ -68,28 +69,6 @@ pub fn create_api_routes() -> Router<Arc<DatabaseConnection>> {
         .route("/reports/:id", get(get_report))
         .route("/reports/:id", put(update_report))
         .route("/reports/:id", delete(delete_report))
-        // Action plan routes
-        .route("/action-plans", post(create_action_plan))
-        .route("/action-plans", get(list_action_plans))
-        .route("/action-plans/:id", get(get_action_plan))
-        .route("/action-plans/:id", put(update_action_plan))
-        .route("/action-plans/:id", delete(delete_action_plan))
-        .route(
-            "/action-plans/:id/with-items",
-            get(get_action_plan_with_items),
-        )
-        .route(
-            "/action-plans/:action_plan_id/action-items",
-            post(create_action_item),
-        )
-        .route(
-            "/action-plans/:action_plan_id/action-items/:action_item_id",
-            put(update_action_item),
-        )
-        .route(
-            "/action-plans/:action_plan_id/action-items/:action_item_id",
-            delete(delete_action_item),
-        )
         // Gap routes
         .route("/gaps", get(list_gaps))
         .route("/gaps/:id", get(get_gap))

@@ -77,6 +77,25 @@ impl RecommendationsRepository {
             .await
             .map_err(AppError::from)
     }
+    pub async fn find_by_dimension_and_priority(
+        db: &DbConn,
+        dimension_id: Uuid,
+        priority: &str,
+    ) -> Result<Option<recommendations::Model>, AppError> {
+        let priority_enum = match priority {
+            "Low" => crate::entities::recommendations::RecommendationPriority::Low,
+            "Medium" => crate::entities::recommendations::RecommendationPriority::Medium,
+            "High" => crate::entities::recommendations::RecommendationPriority::High,
+            _ => return Err(AppError::ValidationError("Invalid priority".to_string())),
+        };
+
+        Recommendations::find()
+            .filter(recommendations::Column::DimensionId.eq(dimension_id))
+            .filter(recommendations::Column::Priority.eq(priority_enum))
+            .one(db)
+            .await
+            .map_err(AppError::from)
+    }
 
     pub async fn find_by_priority(
         db: &DbConn,
@@ -105,7 +124,7 @@ impl RecommendationsRepository {
         recommendation_id: Uuid,
         priority: crate::entities::recommendations::RecommendationPriority,
     ) -> Result<recommendations::Model, AppError> {
-        let mut recommendation = Self::find_by_id(db, recommendation_id)
+        let recommendation = Self::find_by_id(db, recommendation_id)
             .await?
             .ok_or_else(|| AppError::NotFound("Recommendation not found".to_string()))?;
 

@@ -454,8 +454,7 @@ export const dimensionAssessmentRepository = {
               payload.assessmentId || existingAssessment.assessmentId,
             dimensionAssessmentId: assessmentId,
             requestBody: {
-              current_state_id: payload.currentStateId,
-              desired_state_id: payload.desiredStateId,
+              dimension_id: payload.dimensionId,
               gap_score: payload.gapScore,
             },
           });

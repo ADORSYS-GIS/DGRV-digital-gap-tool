@@ -15,11 +15,8 @@ import { SyncStatus } from "@/types/sync";
 export interface IDigitalisationGap {
   id: string;
   dimensionId: string;
-  gap: Gap;
+  gap_severity: Gap;
   scope: string;
-  min_score: number;
-  max_score: number;
-  gap_size: number;
   createdAt?: string;
   updatedAt?: string;
   isDeleted?: boolean;

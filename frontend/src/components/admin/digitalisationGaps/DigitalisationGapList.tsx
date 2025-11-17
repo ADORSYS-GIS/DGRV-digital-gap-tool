@@ -85,22 +85,18 @@ export function DigitalisationGapList({
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Gap</TableHead>
-                      <TableHead>Scope</TableHead>
-                      <TableHead>Score Range</TableHead>
+                      <TableHead>Description</TableHead>
+                      <TableHead>Severity</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {gaps.map((gap) => (
                       <TableRow key={gap.id}>
-                        <TableCell>{gap.gap}</TableCell>
                         <TableCell className="max-w-xs truncate">
                           {gap.scope}
                         </TableCell>
-                        <TableCell>
-                          {gap.min_score} - {gap.max_score}
-                        </TableCell>
+                        <TableCell>{gap.gap_severity}</TableCell>
                         <TableCell className="text-right">
                           <Button
                             variant="ghost"

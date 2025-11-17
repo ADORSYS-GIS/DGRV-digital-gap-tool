@@ -83,7 +83,7 @@ impl GapsRepository {
         severity: crate::entities::gaps::GapSeverity,
     ) -> Result<Vec<gaps::Model>, AppError> {
         Gaps::find()
-            .filter(gaps::Column::GapSeverity.eq(severity))
+            .filter(gaps::Column::GapSeverity.eq(severity.to_value()))
             .all(db)
             .await
             .map_err(AppError::from)
@@ -95,7 +95,7 @@ impl GapsRepository {
     ) -> Result<Option<gaps::Model>, AppError> {
         Gaps::find()
             .filter(gaps::Column::DimensionId.eq(dimension_id))
-            .filter(gaps::Column::GapSeverity.eq(severity))
+            .filter(gaps::Column::GapSeverity.eq(severity.to_value()))
             .one(db)
             .await
             .map_err(AppError::from)

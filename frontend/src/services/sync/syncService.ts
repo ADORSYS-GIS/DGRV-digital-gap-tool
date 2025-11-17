@@ -343,9 +343,8 @@ export const syncService = {
         const response = await adminCreateGap({
           requestBody: {
             dimension_id: gapData.dimensionId,
-            gap_size: gapData.gap_size,
             gap_description: gapData.scope,
-            descriptions: [],
+            gap_severity: gapData.gap_severity,
           },
         });
         if (response.data) {
@@ -365,7 +364,7 @@ export const syncService = {
           id: item.entityId,
           requestBody: {
             gap_description: gapData.scope,
-            gap_size: gapData.gap_size,
+            gap_severity: gapData.gap_severity,
           },
         });
         if (response.data) {

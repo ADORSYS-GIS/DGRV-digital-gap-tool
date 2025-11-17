@@ -12,8 +12,11 @@ export interface OfflineEntity {
 
 export interface SyncQueueItem {
   id?: number;
-  url: string;
-  method: "POST" | "PUT" | "DELETE";
+  entityType: string;
+  entityId: string;
+  action: "CREATE" | "UPDATE" | "DELETE";
   payload: unknown;
-  timestamp: number;
+  timestamp: string;
+  retries: number;
+  lastError?: string;
 }

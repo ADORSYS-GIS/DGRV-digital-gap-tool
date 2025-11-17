@@ -35,7 +35,7 @@ const SecondAdminLayout: React.FC = () => {
       text: "Create Assesment",
     },
     {
-      to: "/second-admin/action-plan",
+      to: "/second-admin/action-plans",
       icon: ClipboardList,
       text: "Action Plan",
     },

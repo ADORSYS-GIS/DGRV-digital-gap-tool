@@ -1,6 +1,6 @@
 use axum::{
     extract::{Path, Query, State},
-    Json, Router,
+    Json,
 };
 use uuid::Uuid;
 
@@ -67,7 +67,7 @@ pub async fn list_by_dimension_route(
 
 /// Create the recommendation router
 pub fn create_recommendation_router() -> axum::Router<Arc<DatabaseConnection>> {
-    use axum::routing::{get, post, put, delete};
+    use axum::routing::{get, post};
 
     axum::Router::new()
         .route("/", post(create_route).get(list_route))

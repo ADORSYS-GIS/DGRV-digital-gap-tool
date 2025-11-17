@@ -82,7 +82,10 @@ pub struct CreateDimensionAssessmentRequest {
 
 /// Dimension assessment update request
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
-pub struct UpdateDimensionAssessmentRequest {}
+pub struct UpdateDimensionAssessmentRequest {
+    pub dimension_id: Uuid,
+    pub gap_score: Option<i32>,
+}
 
 /// Dimension assessment response
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
