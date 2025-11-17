@@ -77,19 +77,11 @@ pub enum Relation {
         on_delete = "Cascade"
     )]
     Assessments,
-    #[sea_orm(has_many = "super::action_plans::Entity")]
-    ActionPlans,
 }
 
 impl Related<super::assessments::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Assessments.def()
-    }
-}
-
-impl Related<super::action_plans::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::ActionPlans.def()
     }
 }
 

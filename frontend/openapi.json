@@ -10,7 +10,6 @@
     "/action-plans": {
       "get": {
         "tags": ["crate::api::handlers::action_plan"],
-        "summary": "List action plans with pagination",
         "operationId": "list_action_plans",
         "parameters": [
           {
@@ -40,38 +39,11 @@
         ],
         "responses": {
           "200": {
-            "description": "Action plans list",
+            "description": "Action plans fetched successfully",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponsePaginatedActionPlanResponse"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "tags": ["crate::api::handlers::action_plan"],
-        "summary": "Create a new action plan",
-        "operationId": "create_action_plan",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateActionPlanRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Action plan created",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseActionPlanResponse"
                 }
               }
             }
@@ -82,8 +54,8 @@
     "/action-plans/assessment/{assessment_id}": {
       "get": {
         "tags": ["crate::api::handlers::action_plan"],
-        "summary": "List action plans by assessment",
-        "operationId": "list_action_plans_by_assessment",
+        "summary": "Get action plan by assessment ID",
+        "operationId": "get_action_plan_by_assessment_id",
         "parameters": [
           {
             "name": "assessment_id",
@@ -95,261 +67,11 @@
         ],
         "responses": {
           "200": {
-            "description": "Action plans list by assessment",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponsePaginatedActionPlanResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/action-plans/{id}": {
-      "get": {
-        "tags": ["crate::api::handlers::action_plan"],
-        "summary": "Get action plan by ID",
-        "operationId": "get_action_plan",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "Action plan ID",
-            "required": true,
-            "schema": { "type": "string", "format": "uuid" }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Action plan fetched",
+            "description": "Action plan fetched successfully",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponseActionPlanResponse"
-                }
-              }
-            }
-          },
-          "404": { "description": "Action plan not found" }
-        }
-      },
-      "put": {
-        "tags": ["crate::api::handlers::action_plan"],
-        "summary": "Update action plan",
-        "operationId": "update_action_plan",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "Action plan ID",
-            "required": true,
-            "schema": { "type": "string", "format": "uuid" }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateActionPlanRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Action plan updated",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseActionPlanResponse"
-                }
-              }
-            }
-          },
-          "404": { "description": "Action plan not found" }
-        }
-      },
-      "delete": {
-        "tags": ["crate::api::handlers::action_plan"],
-        "summary": "Delete action plan",
-        "operationId": "delete_action_plan",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "Action plan ID",
-            "required": true,
-            "schema": { "type": "string", "format": "uuid" }
-          }
-        ],
-        "responses": { "200": { "description": "Action plan deleted" } }
-      }
-    },
-    "/action-plans/{id}/action-items": {
-      "post": {
-        "tags": ["crate::api::handlers::action_plan"],
-        "summary": "Create action item",
-        "operationId": "create_action_item",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "Action plan ID",
-            "required": true,
-            "schema": { "type": "string", "format": "uuid" }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateActionItemRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Action item created",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseActionItemResponse"
-                }
-              }
-            }
-          },
-          "404": { "description": "Action plan not found" }
-        }
-      }
-    },
-    "/action-plans/{id}/action-items/{action_item_id}": {
-      "get": {
-        "tags": ["crate::api::handlers::action_plan"],
-        "summary": "Get action item by ID",
-        "operationId": "get_action_item",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "Action plan ID",
-            "required": true,
-            "schema": { "type": "string", "format": "uuid" }
-          },
-          {
-            "name": "action_item_id",
-            "in": "path",
-            "description": "Action item ID",
-            "required": true,
-            "schema": { "type": "string", "format": "uuid" }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Action item fetched",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseActionItemResponse"
-                }
-              }
-            }
-          },
-          "404": { "description": "Action item not found" }
-        }
-      },
-      "put": {
-        "tags": ["crate::api::handlers::action_plan"],
-        "summary": "Update action item",
-        "operationId": "update_action_item",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "Action plan ID",
-            "required": true,
-            "schema": { "type": "string", "format": "uuid" }
-          },
-          {
-            "name": "action_item_id",
-            "in": "path",
-            "description": "Action item ID",
-            "required": true,
-            "schema": { "type": "string", "format": "uuid" }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateActionItemRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Action item updated",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseActionItemResponse"
-                }
-              }
-            }
-          },
-          "404": { "description": "Action item not found" }
-        }
-      },
-      "delete": {
-        "tags": ["crate::api::handlers::action_plan"],
-        "summary": "Delete action item",
-        "operationId": "delete_action_item",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "Action plan ID",
-            "required": true,
-            "schema": { "type": "string", "format": "uuid" }
-          },
-          {
-            "name": "action_item_id",
-            "in": "path",
-            "description": "Action item ID",
-            "required": true,
-            "schema": { "type": "string", "format": "uuid" }
-          }
-        ],
-        "responses": { "200": { "description": "Action item deleted" } }
-      }
-    },
-    "/action-plans/{id}/with-items": {
-      "get": {
-        "tags": ["crate::api::handlers::action_plan"],
-        "summary": "Get action plan with items",
-        "operationId": "get_action_plan_with_items",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "Action plan ID",
-            "required": true,
-            "schema": { "type": "string", "format": "uuid" }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Action plan with items",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseActionPlanWithItemsResponse"
                 }
               }
             }
@@ -362,7 +84,7 @@
       "post": {
         "tags": ["Admin"],
         "summary": "Create a new gap (admin)",
-        "description": "Accepts configuration-style payload with descriptions and severity rules.\nThe server persists the gap for the provided `dimension_id`.\n\nRequired fields:\n- `dimension_id` (UUID)\n- `gap_size` (integer)\n\nOptional fields:\n- `gap_description` (string)\n- `descriptions` with rules to determine severity and default description\n\nMinimal example:\n{\n\"dimension_id\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n\"gap_size\": 2,\n\"descriptions\": [\n{\n\"description\": \"Default description\",\n\"rules\": [ { \"min_abs_gap\": 0, \"max_abs_gap\": 3, \"gap_severity\": \"MEDIUM\" } ]\n}\n]\n}",
+        "description": "Creates a new gap with a specified severity and description.\nThis endpoint requires a direct severity level and does not use rule-based calculations.\n\nRequired fields:\n- `dimension_id` (UUID)\n- `gap_description` (string)\n- `gap_severity` (enum: \"LOW\", \"MEDIUM\", \"HIGH\")\n\nExample:\n{\n\"dimension_id\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n\"gap_description\": \"A significant gap in the marketing dimension.\",\n\"gap_severity\": \"HIGH\"\n}",
         "operationId": "admin_create_gap",
         "requestBody": {
           "content": {
@@ -1727,160 +1449,47 @@
   },
   "components": {
     "schemas": {
-      "ActionItemListResponse": {
-        "type": "object",
-        "description": "Action item list response with pagination",
-        "required": ["action_items", "total", "page", "limit", "total_pages"],
-        "properties": {
-          "action_items": {
-            "type": "array",
-            "items": { "$ref": "#/components/schemas/ActionItemResponse" }
-          },
-          "limit": { "type": "integer", "format": "int32", "minimum": 0 },
-          "page": { "type": "integer", "format": "int32", "minimum": 0 },
-          "total": { "type": "integer", "format": "int64", "minimum": 0 },
-          "total_pages": { "type": "integer", "format": "int32", "minimum": 0 }
-        }
-      },
-      "ActionItemPriority": {
-        "type": "string",
-        "description": "Action item priority enumeration",
-        "enum": ["Low", "Medium", "High", "Urgent"]
-      },
       "ActionItemResponse": {
         "type": "object",
-        "description": "Action item response",
         "required": [
           "action_item_id",
-          "action_plan_id",
-          "title",
+          "dimension_assessment_id",
           "status",
           "priority",
-          "created_at",
-          "updated_at"
+          "title",
+          "description"
         ],
         "properties": {
           "action_item_id": { "type": "string", "format": "uuid" },
-          "action_plan_id": { "type": "string", "format": "uuid" },
-          "assigned_to": { "type": "string", "nullable": true },
-          "completed_date": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "created_at": { "type": "string", "format": "date-time" },
-          "description": { "type": "string", "nullable": true },
-          "estimated_cost": { "type": "string", "nullable": true },
-          "estimated_effort_hours": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "priority": { "$ref": "#/components/schemas/ActionItemPriority" },
-          "recommendation_id": {
-            "type": "string",
-            "format": "uuid",
-            "nullable": true
-          },
-          "status": { "$ref": "#/components/schemas/ActionItemStatus" },
-          "target_date": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "title": { "type": "string" },
-          "updated_at": { "type": "string", "format": "date-time" }
-        }
-      },
-      "ActionItemStatus": {
-        "type": "string",
-        "description": "Action item status enumeration",
-        "enum": ["Pending", "InProgress", "Completed", "Cancelled"]
-      },
-      "ActionPlanListResponse": {
-        "type": "object",
-        "description": "Action plan list response with pagination",
-        "required": ["action_plans", "total", "page", "limit", "total_pages"],
-        "properties": {
-          "action_plans": {
-            "type": "array",
-            "items": { "$ref": "#/components/schemas/ActionPlanResponse" }
-          },
-          "limit": { "type": "integer", "format": "int32", "minimum": 0 },
-          "page": { "type": "integer", "format": "int32", "minimum": 0 },
-          "total": { "type": "integer", "format": "int64", "minimum": 0 },
-          "total_pages": { "type": "integer", "format": "int32", "minimum": 0 }
+          "description": { "type": "string" },
+          "dimension_assessment_id": { "type": "string", "format": "uuid" },
+          "priority": { "type": "string" },
+          "status": { "type": "string" },
+          "title": { "type": "string" }
         }
       },
       "ActionPlanResponse": {
         "type": "object",
-        "description": "Action plan response",
         "required": [
           "action_plan_id",
           "assessment_id",
-          "title",
-          "status",
-          "priority",
           "created_at",
-          "updated_at"
-        ],
-        "properties": {
-          "action_plan_id": { "type": "string", "format": "uuid" },
-          "assessment_id": { "type": "string", "format": "uuid" },
-          "created_at": { "type": "string", "format": "date-time" },
-          "description": { "type": "string", "nullable": true },
-          "estimated_budget": { "type": "string", "nullable": true },
-          "priority": { "$ref": "#/components/schemas/ActionItemPriority" },
-          "report_id": { "type": "string", "format": "uuid", "nullable": true },
-          "responsible_person": { "type": "string", "nullable": true },
-          "status": { "$ref": "#/components/schemas/ActionPlanStatus" },
-          "target_completion_date": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "title": { "type": "string" },
-          "updated_at": { "type": "string", "format": "date-time" }
-        }
-      },
-      "ActionPlanStatus": {
-        "type": "string",
-        "description": "Action plan status enumeration",
-        "enum": ["Draft", "Active", "Completed", "Cancelled"]
-      },
-      "ActionPlanWithItemsResponse": {
-        "type": "object",
-        "description": "Action plan with items response",
-        "required": [
-          "action_plan",
-          "action_items",
-          "total_items",
-          "completed_items",
-          "progress_percentage"
+          "action_items"
         ],
         "properties": {
           "action_items": {
             "type": "array",
             "items": { "$ref": "#/components/schemas/ActionItemResponse" }
           },
-          "action_plan": { "$ref": "#/components/schemas/ActionPlanResponse" },
-          "completed_items": {
-            "type": "integer",
-            "format": "int32",
-            "minimum": 0
-          },
-          "progress_percentage": { "type": "number", "format": "double" },
-          "total_items": { "type": "integer", "format": "int32", "minimum": 0 }
+          "action_plan_id": { "type": "string", "format": "uuid" },
+          "assessment_id": { "type": "string", "format": "uuid" },
+          "created_at": { "type": "string", "format": "date-time" }
         }
       },
       "AdminCreateGapRequest": {
         "type": "object",
-        "required": ["dimension_id", "gap_size", "descriptions"],
+        "required": ["dimension_id", "gap_description", "gap_severity"],
         "properties": {
-          "descriptions": {
-            "type": "array",
-            "items": { "$ref": "#/components/schemas/DescriptionConfig" }
-          },
           "dimension_id": {
             "type": "string",
             "format": "uuid",
@@ -1889,29 +1498,15 @@
           },
           "gap_description": {
             "type": "string",
-            "description": "Optional: explicit description to override",
-            "example": "Significant gap",
-            "nullable": true
+            "description": "explicit description to override",
+            "example": "Significant gap"
           },
-          "gap_size": {
-            "type": "integer",
-            "format": "int32",
-            "description": "The numeric gap size",
-            "example": 3
-          }
+          "gap_severity": { "$ref": "#/components/schemas/GapSeverity" }
         },
         "example": {
-          "descriptions": [
-            {
-              "description": "string",
-              "rules": [
-                { "gap_severity": "HIGH", "max_abs_gap": 0, "min_abs_gap": 0 }
-              ]
-            }
-          ],
           "dimension_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-          "gap_description": "Significant gap",
-          "gap_size": 3
+          "gap_description": "A significant gap in the marketing dimension.",
+          "gap_severity": "HIGH"
         }
       },
       "ApiResponseActionItemResponse": {
@@ -1923,49 +1518,24 @@
             "allOf": [
               {
                 "type": "object",
-                "description": "Action item response",
                 "required": [
                   "action_item_id",
-                  "action_plan_id",
-                  "title",
+                  "dimension_assessment_id",
                   "status",
                   "priority",
-                  "created_at",
-                  "updated_at"
+                  "title",
+                  "description"
                 ],
                 "properties": {
                   "action_item_id": { "type": "string", "format": "uuid" },
-                  "action_plan_id": { "type": "string", "format": "uuid" },
-                  "assigned_to": { "type": "string", "nullable": true },
-                  "completed_date": {
+                  "description": { "type": "string" },
+                  "dimension_assessment_id": {
                     "type": "string",
-                    "format": "date-time",
-                    "nullable": true
+                    "format": "uuid"
                   },
-                  "created_at": { "type": "string", "format": "date-time" },
-                  "description": { "type": "string", "nullable": true },
-                  "estimated_cost": { "type": "string", "nullable": true },
-                  "estimated_effort_hours": {
-                    "type": "integer",
-                    "format": "int32",
-                    "nullable": true
-                  },
-                  "priority": {
-                    "$ref": "#/components/schemas/ActionItemPriority"
-                  },
-                  "recommendation_id": {
-                    "type": "string",
-                    "format": "uuid",
-                    "nullable": true
-                  },
-                  "status": { "$ref": "#/components/schemas/ActionItemStatus" },
-                  "target_date": {
-                    "type": "string",
-                    "format": "date-time",
-                    "nullable": true
-                  },
-                  "title": { "type": "string" },
-                  "updated_at": { "type": "string", "format": "date-time" }
+                  "priority": { "type": "string" },
+                  "status": { "type": "string" },
+                  "title": { "type": "string" }
                 }
               }
             ],
@@ -1985,39 +1555,22 @@
             "allOf": [
               {
                 "type": "object",
-                "description": "Action plan response",
                 "required": [
                   "action_plan_id",
                   "assessment_id",
-                  "title",
-                  "status",
-                  "priority",
                   "created_at",
-                  "updated_at"
+                  "action_items"
                 ],
                 "properties": {
+                  "action_items": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/ActionItemResponse"
+                    }
+                  },
                   "action_plan_id": { "type": "string", "format": "uuid" },
                   "assessment_id": { "type": "string", "format": "uuid" },
-                  "created_at": { "type": "string", "format": "date-time" },
-                  "description": { "type": "string", "nullable": true },
-                  "estimated_budget": { "type": "string", "nullable": true },
-                  "priority": {
-                    "$ref": "#/components/schemas/ActionItemPriority"
-                  },
-                  "report_id": {
-                    "type": "string",
-                    "format": "uuid",
-                    "nullable": true
-                  },
-                  "responsible_person": { "type": "string", "nullable": true },
-                  "status": { "$ref": "#/components/schemas/ActionPlanStatus" },
-                  "target_completion_date": {
-                    "type": "string",
-                    "format": "date-time",
-                    "nullable": true
-                  },
-                  "title": { "type": "string" },
-                  "updated_at": { "type": "string", "format": "date-time" }
+                  "created_at": { "type": "string", "format": "date-time" }
                 }
               }
             ],
@@ -2037,13 +1590,11 @@
             "allOf": [
               {
                 "type": "object",
-                "description": "Action plan with items response",
                 "required": [
-                  "action_plan",
-                  "action_items",
-                  "total_items",
-                  "completed_items",
-                  "progress_percentage"
+                  "action_plan_id",
+                  "assessment_id",
+                  "created_at",
+                  "action_items"
                 ],
                 "properties": {
                   "action_items": {
@@ -2052,23 +1603,9 @@
                       "$ref": "#/components/schemas/ActionItemResponse"
                     }
                   },
-                  "action_plan": {
-                    "$ref": "#/components/schemas/ActionPlanResponse"
-                  },
-                  "completed_items": {
-                    "type": "integer",
-                    "format": "int32",
-                    "minimum": 0
-                  },
-                  "progress_percentage": {
-                    "type": "number",
-                    "format": "double"
-                  },
-                  "total_items": {
-                    "type": "integer",
-                    "format": "int32",
-                    "minimum": 0
-                  }
+                  "action_plan_id": { "type": "string", "format": "uuid" },
+                  "assessment_id": { "type": "string", "format": "uuid" },
+                  "created_at": { "type": "string", "format": "date-time" }
                 }
               }
             ],
@@ -2088,14 +1625,8 @@
             "allOf": [
               {
                 "type": "object",
-                "required": ["dimension_id", "gap_size", "descriptions"],
+                "required": ["dimension_id", "gap_description", "gap_severity"],
                 "properties": {
-                  "descriptions": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/DescriptionConfig"
-                    }
-                  },
                   "dimension_id": {
                     "type": "string",
                     "format": "uuid",
@@ -2104,33 +1635,15 @@
                   },
                   "gap_description": {
                     "type": "string",
-                    "description": "Optional: explicit description to override",
-                    "example": "Significant gap",
-                    "nullable": true
+                    "description": "explicit description to override",
+                    "example": "Significant gap"
                   },
-                  "gap_size": {
-                    "type": "integer",
-                    "format": "int32",
-                    "description": "The numeric gap size",
-                    "example": 3
-                  }
+                  "gap_severity": { "$ref": "#/components/schemas/GapSeverity" }
                 },
                 "example": {
-                  "descriptions": [
-                    {
-                      "description": "string",
-                      "rules": [
-                        {
-                          "gap_severity": "HIGH",
-                          "max_abs_gap": 0,
-                          "min_abs_gap": 0
-                        }
-                      ]
-                    }
-                  ],
                   "dimension_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-                  "gap_description": "Significant gap",
-                  "gap_size": 3
+                  "gap_description": "A significant gap in the marketing dimension.",
+                  "gap_severity": "HIGH"
                 }
               }
             ],
@@ -2363,6 +1876,7 @@
                   "current_state_id",
                   "desired_state_id",
                   "gap_score",
+                  "gap_id",
                   "created_at",
                   "updated_at"
                 ],
@@ -2376,6 +1890,7 @@
                     "format": "uuid"
                   },
                   "dimension_id": { "type": "string", "format": "uuid" },
+                  "gap_id": { "type": "string", "format": "uuid" },
                   "gap_score": { "type": "integer", "format": "int32" },
                   "updated_at": { "type": "string", "format": "date-time" }
                 }
@@ -2583,53 +2098,25 @@
                     "type": "array",
                     "items": {
                       "type": "object",
-                      "description": "Action plan response",
                       "required": [
                         "action_plan_id",
                         "assessment_id",
-                        "title",
-                        "status",
-                        "priority",
                         "created_at",
-                        "updated_at"
+                        "action_items"
                       ],
                       "properties": {
+                        "action_items": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/ActionItemResponse"
+                          }
+                        },
                         "action_plan_id": {
                           "type": "string",
                           "format": "uuid"
                         },
                         "assessment_id": { "type": "string", "format": "uuid" },
                         "created_at": {
-                          "type": "string",
-                          "format": "date-time"
-                        },
-                        "description": { "type": "string", "nullable": true },
-                        "estimated_budget": {
-                          "type": "string",
-                          "nullable": true
-                        },
-                        "priority": {
-                          "$ref": "#/components/schemas/ActionItemPriority"
-                        },
-                        "report_id": {
-                          "type": "string",
-                          "format": "uuid",
-                          "nullable": true
-                        },
-                        "responsible_person": {
-                          "type": "string",
-                          "nullable": true
-                        },
-                        "status": {
-                          "$ref": "#/components/schemas/ActionPlanStatus"
-                        },
-                        "target_completion_date": {
-                          "type": "string",
-                          "format": "date-time",
-                          "nullable": true
-                        },
-                        "title": { "type": "string" },
-                        "updated_at": {
                           "type": "string",
                           "format": "date-time"
                         }
@@ -3403,61 +2890,6 @@
           }
         }
       },
-      "CreateActionItemRequest": {
-        "type": "object",
-        "description": "Action item creation request",
-        "required": ["action_plan_id", "title", "status", "priority"],
-        "properties": {
-          "action_plan_id": { "type": "string", "format": "uuid" },
-          "assigned_to": { "type": "string", "nullable": true },
-          "description": { "type": "string", "nullable": true },
-          "estimated_cost": { "type": "string", "nullable": true },
-          "estimated_effort_hours": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "priority": { "$ref": "#/components/schemas/ActionItemPriority" },
-          "recommendation_id": {
-            "type": "string",
-            "format": "uuid",
-            "nullable": true
-          },
-          "status": { "$ref": "#/components/schemas/ActionItemStatus" },
-          "target_date": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "title": { "type": "string" }
-        }
-      },
-      "CreateActionPlanRequest": {
-        "type": "object",
-        "description": "Action plan creation request",
-        "required": ["assessment_id", "title"],
-        "properties": {
-          "assessment_id": { "type": "string", "format": "uuid" },
-          "description": { "type": "string", "nullable": true },
-          "estimated_budget": { "type": "string", "nullable": true },
-          "priority": {
-            "allOf": [{ "$ref": "#/components/schemas/ActionItemPriority" }],
-            "nullable": true
-          },
-          "report_id": { "type": "string", "format": "uuid", "nullable": true },
-          "responsible_person": { "type": "string", "nullable": true },
-          "status": {
-            "allOf": [{ "$ref": "#/components/schemas/ActionPlanStatus" }],
-            "nullable": true
-          },
-          "target_completion_date": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "title": { "type": "string" }
-        }
-      },
       "CreateAssessmentRequest": {
         "type": "object",
         "description": "Assessment creation request",
@@ -3629,6 +3061,7 @@
           "current_state_id",
           "desired_state_id",
           "gap_score",
+          "gap_id",
           "created_at",
           "updated_at"
         ],
@@ -3639,6 +3072,7 @@
           "desired_state_id": { "type": "string", "format": "uuid" },
           "dimension_assessment_id": { "type": "string", "format": "uuid" },
           "dimension_id": { "type": "string", "format": "uuid" },
+          "gap_id": { "type": "string", "format": "uuid" },
           "gap_score": { "type": "integer", "format": "int32" },
           "updated_at": { "type": "string", "format": "date-time" }
         }
@@ -3792,39 +3226,20 @@
             "type": "array",
             "items": {
               "type": "object",
-              "description": "Action plan response",
               "required": [
                 "action_plan_id",
                 "assessment_id",
-                "title",
-                "status",
-                "priority",
                 "created_at",
-                "updated_at"
+                "action_items"
               ],
               "properties": {
+                "action_items": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/ActionItemResponse" }
+                },
                 "action_plan_id": { "type": "string", "format": "uuid" },
                 "assessment_id": { "type": "string", "format": "uuid" },
-                "created_at": { "type": "string", "format": "date-time" },
-                "description": { "type": "string", "nullable": true },
-                "estimated_budget": { "type": "string", "nullable": true },
-                "priority": {
-                  "$ref": "#/components/schemas/ActionItemPriority"
-                },
-                "report_id": {
-                  "type": "string",
-                  "format": "uuid",
-                  "nullable": true
-                },
-                "responsible_person": { "type": "string", "nullable": true },
-                "status": { "$ref": "#/components/schemas/ActionPlanStatus" },
-                "target_completion_date": {
-                  "type": "string",
-                  "format": "date-time",
-                  "nullable": true
-                },
-                "title": { "type": "string" },
-                "updated_at": { "type": "string", "format": "date-time" }
+                "created_at": { "type": "string", "format": "date-time" }
               }
             }
           },
@@ -4288,62 +3703,6 @@
         "description": "Sort order enumeration",
         "enum": ["Asc", "Desc"]
       },
-      "UpdateActionItemRequest": {
-        "type": "object",
-        "description": "Action item update request",
-        "properties": {
-          "assigned_to": { "type": "string", "nullable": true },
-          "completed_date": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "description": { "type": "string", "nullable": true },
-          "estimated_cost": { "type": "string", "nullable": true },
-          "estimated_effort_hours": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "priority": {
-            "allOf": [{ "$ref": "#/components/schemas/ActionItemPriority" }],
-            "nullable": true
-          },
-          "status": {
-            "allOf": [{ "$ref": "#/components/schemas/ActionItemStatus" }],
-            "nullable": true
-          },
-          "target_date": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "title": { "type": "string", "nullable": true }
-        }
-      },
-      "UpdateActionPlanRequest": {
-        "type": "object",
-        "description": "Action plan update request",
-        "properties": {
-          "description": { "type": "string", "nullable": true },
-          "estimated_budget": { "type": "string", "nullable": true },
-          "priority": {
-            "allOf": [{ "$ref": "#/components/schemas/ActionItemPriority" }],
-            "nullable": true
-          },
-          "responsible_person": { "type": "string", "nullable": true },
-          "status": {
-            "allOf": [{ "$ref": "#/components/schemas/ActionPlanStatus" }],
-            "nullable": true
-          },
-          "target_completion_date": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "title": { "type": "string", "nullable": true }
-        }
-      },
       "UpdateAssessmentRequest": {
         "type": "object",
         "description": "Assessment update request",
@@ -4388,7 +3747,16 @@
       },
       "UpdateDimensionAssessmentRequest": {
         "type": "object",
-        "description": "Dimension assessment update request"
+        "description": "Dimension assessment update request",
+        "required": ["dimension_id"],
+        "properties": {
+          "dimension_id": { "type": "string", "format": "uuid" },
+          "gap_score": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        }
       },
       "UpdateDimensionRequest": {
         "type": "object",
@@ -4408,6 +3776,10 @@
           "gap_description": {
             "type": "string",
             "description": "New human-readable description",
+            "nullable": true
+          },
+          "gap_severity": {
+            "allOf": [{ "$ref": "#/components/schemas/GapSeverity" }],
             "nullable": true
           },
           "gap_size": {

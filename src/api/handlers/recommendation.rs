@@ -250,7 +250,7 @@ pub async fn list_recommendations(
     State(db): State<Arc<DatabaseConnection>>,
     Query(params): Query<PaginationParams>,
 ) -> Result<Json<ApiResponse<PaginatedResponse<RecommendationResponse>>>, (StatusCode, Json<serde_json::Value>)> {
-    let (page, limit, sort_by, sort_order) = extract_pagination(Query(params));
+    let (page, limit, _sort_by, _sort_order) = extract_pagination(Query(params));
     
     let (recommendations, total) = RecommendationsRepository::find_all_paginated(&db, page as u64, limit as u64)
         .await
@@ -295,7 +295,7 @@ pub async fn list_recommendations_by_dimension(
     Path(dimension_id): Path<Uuid>,
     Query(params): Query<PaginationParams>,
 ) -> Result<Json<ApiResponse<PaginatedResponse<RecommendationResponse>>>, (StatusCode, Json<serde_json::Value>)> {
-    let (page, limit, sort_by, sort_order) = extract_pagination(Query(params));
+    let (page, limit, _sort_by, _sort_order) = extract_pagination(Query(params));
     
     let (recommendations, total) = RecommendationsRepository::find_by_dimension_paginated(
         &db, dimension_id, page as u64, limit as u64

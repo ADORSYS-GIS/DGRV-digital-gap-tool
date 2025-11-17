@@ -24,6 +24,12 @@ mod m20251112_151500_alter_assessments_timestamps_to_timestamptz;
 mod m20251113_105117_add_recommendation_priority_enum;
 mod m20251113_113510_drop_gap_severity_column;
 mod m20251113_124851_update_recommendations_timestamps;
+mod m20251114_190500_add_gap_id_to_dimension_assessments;
+mod m20251115_084723_drop_action_plan_tables;
+mod m20251115_084826_create_new_action_plan_tables;
+// mod m20251115_083637_add_dimension_assessment_id_to_action_items;
+mod m20251115_112421_create_gap_severity_enum;
+mod m20251115_113323_alter_gap_severity_column_type;
 
 pub struct Migrator;
 
@@ -55,6 +61,12 @@ impl MigratorTrait for Migrator {
             Box::new(m20251113_105117_add_recommendation_priority_enum::Migration),
             Box::new(m20251113_113510_drop_gap_severity_column::Migration),
             Box::new(m20251113_124851_update_recommendations_timestamps::Migration),
+            Box::new(m20251114_190500_add_gap_id_to_dimension_assessments::Migration),
+            Box::new(m20251115_084723_drop_action_plan_tables::Migration),
+            Box::new(m20251115_084826_create_new_action_plan_tables::Migration),
+            // Box::new(m20251115_083637_add_dimension_assessment_id_to_action_items::Migration),
+            Box::new(m20251115_112421_create_gap_severity_enum::Migration),
+            Box::new(m20251115_113323_alter_gap_severity_column_type::Migration),
         ]
     }
 }

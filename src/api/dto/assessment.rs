@@ -82,7 +82,10 @@ pub struct CreateDimensionAssessmentRequest {
 
 /// Dimension assessment update request
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
-pub struct UpdateDimensionAssessmentRequest {}
+pub struct UpdateDimensionAssessmentRequest {
+    pub dimension_id: Uuid,
+    pub gap_score: Option<i32>,
+}
 
 /// Dimension assessment response
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
@@ -93,6 +96,7 @@ pub struct DimensionAssessmentResponse {
     pub current_state_id: Uuid,
     pub desired_state_id: Uuid,
     pub gap_score: i32,
+    pub gap_id: Uuid,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }

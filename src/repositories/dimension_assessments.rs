@@ -74,6 +74,9 @@ impl DimensionAssessmentsRepository {
         if assessment_data.dimension_id.is_set() {
             active_model.dimension_id = assessment_data.dimension_id;
         }
+        if assessment_data.gap_id.is_set() {
+            active_model.gap_id = assessment_data.gap_id;
+        }
 
         active_model.updated_at = Set(chrono::Utc::now());
 

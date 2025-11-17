@@ -1,24 +1,34 @@
 import {
-  createDimension,
-  deleteDimension,
-  updateDimension,
-  createCurrentState,
-  updateCurrentState,
-  deleteCurrentState,
-  createDesiredState,
-  updateDesiredState,
-  deleteDesiredState,
   adminCreateGap,
+  createAssessment,
+  createCurrentState,
+  createDesiredState,
+  createDimension,
+  createRecommendation,
+  deleteAssessment,
+  deleteCurrentState,
+  deleteDesiredState,
+  deleteDimension,
   deleteGap,
+  deleteRecommendation,
+  updateAssessment,
+  updateCurrentState,
+  updateDesiredState,
+  updateDimension,
   updateGap,
+  updateRecommendation,
 } from "@/openapi-client/services.gen";
+import { assessmentRepository } from "@/services/assessments/assessmentRepository";
 import { db } from "@/services/db";
-import { dimensionRepository } from "@/services/dimensions/dimensionRepository";
-import { digitalisationLevelRepository } from "@/services/digitalisationLevels/digitalisationLevelRepository";
 import { digitalisationGapRepository } from "@/services/digitalisationGaps/digitalisationGapRepository";
-import { IDigitalisationLevel } from "@/types/digitalisationLevel";
+import { digitalisationLevelRepository } from "@/services/digitalisationLevels/digitalisationLevelRepository";
+import { dimensionRepository } from "@/services/dimensions/dimensionRepository";
+import { recommendationRepository } from "@/services/recommendations/recommendationRepository";
+import { Assessment } from "@/types/assessment";
 import { IDigitalisationGap } from "@/types/digitalisationGap";
+import { IDigitalisationLevel } from "@/types/digitalisationLevel";
 import { IDimension } from "@/types/dimension";
+import { IRecommendation } from "@/types/recommendation";
 import { SyncQueueItem } from "@/types/sync/index";
 
 export const syncService = {
@@ -48,7 +58,7 @@ export const syncService = {
     }
   },
 
-  processSyncQueue: async () => {
+  async processSyncQueue() {
     const items = await db.sync_queue.toArray();
     for (const item of items) {
       try {
@@ -64,6 +74,12 @@ export const syncService = {
             break;
           case "DigitalisationGap":
             await syncService.syncDigitalisationGap(item);
+            break;
+          case "Assessment":
+            await syncService.syncAssessment(item);
+            break;
+          case "Recommendation":
+            await syncService.syncRecommendation(item);
             break;
         }
         await db.sync_queue.delete(item.id!);
@@ -90,6 +106,16 @@ export const syncService = {
             );
           } else if (item.entityType === "DigitalisationGap") {
             // await digitalisationGapRepository.markAsFailed(item.entityId, errorMessage);
+          } else if (item.entityType === "Assessment") {
+            await assessmentRepository.markAsFailed(
+              item.entityId,
+              errorMessage,
+            );
+          } else if (item.entityType === "Recommendation") {
+            await recommendationRepository.markAsFailed(
+              item.entityId,
+              errorMessage,
+            );
           }
         }
       }
@@ -317,9 +343,8 @@ export const syncService = {
         const response = await adminCreateGap({
           requestBody: {
             dimension_id: gapData.dimensionId,
-            gap_size: gapData.gap_size,
             gap_description: gapData.scope,
-            descriptions: [],
+            gap_severity: gapData.gap_severity,
           },
         });
         if (response.data) {
@@ -339,7 +364,7 @@ export const syncService = {
           id: item.entityId,
           requestBody: {
             gap_description: gapData.scope,
-            gap_size: gapData.gap_size,
+            gap_severity: gapData.gap_severity,
           },
         });
         if (response.data) {
@@ -362,6 +387,231 @@ export const syncService = {
         );
         break;
       }
+    }
+  },
+  async syncAssessment(item: SyncQueueItem) {
+    const assessmentData = item.payload as Assessment;
+    switch (item.action) {
+      case "CREATE": {
+        const response = await createAssessment({
+          requestBody: {
+            assessment_name: assessmentData.name,
+            dimensions_id: assessmentData.dimensionIds || [],
+            organization_id: "123", // Replace with actual organization ID
+          },
+        });
+        if (response.data) {
+          await assessmentRepository.markAsSynced(
+            assessmentData.id,
+            response.data.assessment_id,
+          );
+        } else {
+          throw new Error(
+            response.error || "Failed to create assessment on server",
+          );
+        }
+        break;
+      }
+      case "UPDATE": {
+        const response = await updateAssessment({
+          id: item.entityId,
+          requestBody: {
+            assessment_name: assessmentData.name,
+            dimensions_id: assessmentData.dimensionIds || [],
+          },
+        });
+        if (response.data) {
+          await assessmentRepository.markAsSynced(
+            item.entityId,
+            response.data.assessment_id,
+          );
+        } else {
+          throw new Error(
+            response.error || "Failed to update assessment on server",
+          );
+        }
+        break;
+      }
+      case "DELETE": {
+        await deleteAssessment({ id: item.entityId });
+        await assessmentRepository.markAsSynced(item.entityId, item.entityId);
+        break;
+      }
+    }
+  },
+
+  async syncRecommendation(item: SyncQueueItem) {
+    const recommendationData = item.payload as IRecommendation;
+
+    try {
+      switch (item.action) {
+        case "CREATE": {
+          console.log(
+            "Attempting to create recommendation on server:",
+            recommendationData,
+          );
+
+          if (!recommendationData.dimension_id) {
+            throw new Error(
+              "Cannot create recommendation without dimension_id",
+            );
+          }
+
+          // Map priority to the expected enum values (uppercase)
+          const mapPriority = (
+            priority?: string,
+          ): "LOW" | "MEDIUM" | "HIGH" => {
+            if (!priority) return "MEDIUM";
+            const upper = priority.toUpperCase();
+            return upper === "LOW" || upper === "MEDIUM" || upper === "HIGH"
+              ? (upper as "LOW" | "MEDIUM" | "HIGH")
+              : "MEDIUM";
+          };
+
+          // Create the request body according to the OpenAPI contract
+          const requestBody = {
+            title: recommendationData.title,
+            description: recommendationData.description || "",
+            dimension_id: recommendationData.dimension_id,
+            ...(recommendationData.category && {
+              category: recommendationData.category,
+            }),
+            priority: mapPriority(recommendationData.priority),
+            ...(recommendationData.effort !== undefined && {
+              effort: recommendationData.effort,
+            }),
+            ...(recommendationData.cost !== undefined && {
+              cost: recommendationData.cost,
+            }),
+            ...(recommendationData.impact !== undefined && {
+              impact: recommendationData.impact,
+            }),
+          };
+
+          const createResponse = await createRecommendation({
+            requestBody,
+          });
+
+          if (createResponse.data) {
+            await recommendationRepository.markAsSynced(
+              recommendationData.id,
+              createResponse.data.recommendation_id,
+            );
+            console.log(
+              "Recommendation created and synced successfully:",
+              createResponse.data,
+            );
+          } else {
+            throw new Error(
+              createResponse.error ||
+                "Failed to create recommendation on server",
+            );
+          }
+          break;
+        }
+
+        case "UPDATE": {
+          if (!recommendationData.recommendation_id) {
+            throw new Error("Cannot update recommendation without server ID");
+          }
+
+          console.log(
+            "Attempting to update recommendation on server:",
+            recommendationData,
+          );
+
+          // Map priority to the expected enum values (uppercase)
+          const mapPriority = (
+            priority?: string,
+          ): "LOW" | "MEDIUM" | "HIGH" => {
+            if (!priority) return "MEDIUM";
+            const upper = priority.toUpperCase();
+            return upper === "LOW" || upper === "MEDIUM" || upper === "HIGH"
+              ? (upper as "LOW" | "MEDIUM" | "HIGH")
+              : "MEDIUM";
+          };
+
+          // Create the request body according to the OpenAPI contract
+          const requestBody = {
+            title: recommendationData.title,
+            description: recommendationData.description || "",
+            ...(recommendationData.dimension_id && {
+              dimension_id: recommendationData.dimension_id,
+            }),
+            ...(recommendationData.category && {
+              category: recommendationData.category,
+            }),
+            priority: mapPriority(recommendationData.priority),
+            ...(recommendationData.effort !== undefined && {
+              effort: recommendationData.effort,
+            }),
+            ...(recommendationData.cost !== undefined && {
+              cost: recommendationData.cost,
+            }),
+            ...(recommendationData.impact !== undefined && {
+              impact: recommendationData.impact,
+            }),
+          };
+
+          const updateResponse = await updateRecommendation({
+            id: recommendationData.recommendation_id,
+            requestBody,
+          });
+
+          if (!updateResponse.data) {
+            throw new Error(
+              updateResponse.error ||
+                "Failed to update recommendation on server",
+            );
+          }
+
+          // Update the local record with the server response
+          await recommendationRepository.markAsSynced(
+            recommendationData.id,
+            updateResponse.data.recommendation_id,
+          );
+
+          console.log(
+            "Recommendation updated successfully:",
+            updateResponse.data,
+          );
+          break;
+        }
+
+        case "DELETE": {
+          if (!recommendationData.recommendation_id) {
+            // If we don't have a server ID, just remove from local DB
+            console.log(
+              "Deleting local recommendation without server ID:",
+              recommendationData.id,
+            );
+            await db.recommendations.delete(item.entityId);
+            return;
+          }
+
+          console.log(
+            "Deleting recommendation from server:",
+            recommendationData.recommendation_id,
+          );
+          await deleteRecommendation({
+            id: recommendationData.recommendation_id,
+          });
+          console.log(
+            "Recommendation deleted from server, removing from local DB:",
+            item.entityId,
+          );
+          await db.recommendations.delete(item.entityId);
+          break;
+        }
+      }
+    } catch (error) {
+      console.error("Error syncing recommendation:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+
+      // Mark as failed in the repository
+      await recommendationRepository.markAsFailed(item.entityId, errorMessage);
+      throw error; // Re-throw to be caught by processSyncQueue's error handling
     }
   },
 };

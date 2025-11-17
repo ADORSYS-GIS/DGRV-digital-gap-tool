@@ -6,7 +6,10 @@
  * - Recent activity tracking
  * - Organization and user management capabilities
  */
+import { SubmissionList } from "@/components/second_admin/submissions/SubmissionList";
 import { DashboardCard } from "@/components/shared/DashboardCard";
+import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -15,12 +18,18 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useAuth } from "@/hooks/shared/useAuth";
-import { BarChart3, Building2, FileText, Settings, Users } from "lucide-react";
+import { useSubmissions } from "@/hooks/submissions/useSubmissions";
+import { Building2, FileText, History, Settings, Users } from "lucide-react";
 import React from "react";
 import { Link } from "react-router-dom";
+import { useDimensions } from "@/hooks/dimensions/useDimensions";
+import { useAssessments } from "@/hooks/assessments/useAssessments";
 
 const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
+  const { data: submissions, isLoading, error } = useSubmissions();
+  const { data: dimensions } = useDimensions();
+  const { data: assessments } = useAssessments();
 
   return (
     <div className="space-y-6">
@@ -68,7 +77,9 @@ const AdminDashboard: React.FC = () => {
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">0</div>
+            <div className="text-2xl font-bold">
+              {assessments ? assessments.length : 0}
+            </div>
             <p className="text-xs text-muted-foreground">+0% from last month</p>
           </CardContent>
         </Card>
@@ -80,7 +91,9 @@ const AdminDashboard: React.FC = () => {
             <Settings className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">0</div>
+            <div className="text-2xl font-bold">
+              {dimensions ? dimensions.length : 0}
+            </div>
             <p className="text-xs text-muted-foreground">+0% from last month</p>
           </CardContent>
         </Card>
@@ -135,31 +148,49 @@ const AdminDashboard: React.FC = () => {
               variant="default"
             />
           </Link>
-          <Link to="/admin/reports">
+          <Link to="/admin/recommendations">
+            <DashboardCard
+              title="Manage Recommendations"
+              description="Create, edit, and manage recommendations"
+              icon={FileText}
+              variant="default"
+            />
+          </Link>
+          {/* <Link to="/admin/reports">
             <DashboardCard
               title="View Reports"
               description="View system reports"
               icon={BarChart3}
               variant="default"
             />
-          </Link>
+          </Link> */}
         </CardContent>
       </Card>
 
       {/* Recent Activity Placeholder */}
       <Card>
-        <CardHeader>
-          <CardTitle>Recent Activity</CardTitle>
-          <CardDescription>
-            System notifications and recent events
-          </CardDescription>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div>
+            <CardTitle className="flex items-center">
+              <History className="mr-2 h-5 w-5" />
+              Recent Submissions
+            </CardTitle>
+            <CardDescription>
+              A log of recent activities and system events.
+            </CardDescription>
+          </div>
+          <Link to="/second-admin/submissions">
+            <Button variant="outline">View All</Button>
+          </Link>
         </CardHeader>
         <CardContent>
-          <div className="text-center py-8">
-            <p className="text-gray-500">
-              Activity feed will appear here once the system has data.
-            </p>
-          </div>
+          {isLoading && <LoadingSpinner />}
+          {error && (
+            <p className="text-red-500">An error occurred: {error.message}</p>
+          )}
+          {submissions && (
+            <SubmissionList submissions={submissions} limit={5} />
+          )}
         </CardContent>
       </Card>
     </div>

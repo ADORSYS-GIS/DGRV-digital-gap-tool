@@ -43,7 +43,7 @@ describe("useDeleteDimension", () => {
 
     expect(db.dimensions.update).toHaveBeenCalledTimes(1);
     expect(db.dimensions.update).toHaveBeenCalledWith("1", {
-      syncStatus: "PENDING",
+      syncStatus: "pending",
     });
     expect(db.sync_queue.add).toHaveBeenCalledTimes(1);
   });

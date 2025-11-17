@@ -1,16 +1,16 @@
 export enum SyncStatus {
-  SYNCED = "SYNCED",
-  PENDING = "PENDING",
-  FAILED = "FAILED",
+  SYNCED = "synced",
+  PENDING = "pending",
+  FAILED = "failed",
 }
 
-export type OfflineEntity = {
+export interface OfflineEntity {
   id: string;
   syncStatus: SyncStatus;
-  lastError?: string; // Added for failed syncs
-};
+  lastError?: string;
+}
 
-export type SyncQueueItem = {
+export interface SyncQueueItem {
   id?: number;
   entityType: string;
   entityId: string;
@@ -19,4 +19,4 @@ export type SyncQueueItem = {
   timestamp: string;
   retries: number;
   lastError?: string;
-};
+}

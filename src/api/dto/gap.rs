@@ -119,28 +119,18 @@ pub struct DescriptionConfig {
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 #[schema(example = json!({
   "dimension_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-  "gap_size": 3,
-  "gap_description": "Significant gap",
-  "descriptions": [
-    {
-      "description": "string",
-      "rules": [
-        { "gap_severity": "HIGH", "max_abs_gap": 0, "min_abs_gap": 0 }
-      ]
-    }
-  ]
+  "gap_description": "A significant gap in the marketing dimension.",
+  "gap_severity": "HIGH"
 }))]
 pub struct AdminCreateGapRequest {
     /// Target dimension to create the gap for
     #[schema(example = "3fa85f64-5717-4562-b3fc-2c963f66afa6")]
     pub dimension_id: Uuid,
-    /// The numeric gap size
-    #[schema(example = 3)]
-    pub gap_size: i32,
-    /// Optional: explicit description to override
+    /// explicit description to override
     #[schema(example = "Significant gap")]
-    pub gap_description: Option<String>,
-    pub descriptions: Vec<DescriptionConfig>,
+    pub gap_description: String,
+    /// explicit severity to override rule-based calculation.
+    pub gap_severity: GapSeverity,
 }
 
 /// Update gap request
@@ -150,4 +140,6 @@ pub struct UpdateGapRequest {
     pub gap_size: Option<i32>,
     /// New human-readable description
     pub gap_description: Option<String>,
+    /// Optional: explicit severity to override rule-based calculation.
+    pub gap_severity: Option<GapSeverity>,
 }
