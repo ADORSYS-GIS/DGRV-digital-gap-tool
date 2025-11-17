@@ -1,10 +1,10 @@
+use crate::AppState;
 use axum::{
     extract::{Path, Query, State},
     http::StatusCode,
     response::Json,
 };
-use sea_orm::{DatabaseConnection, ActiveValue::Set};
-use std::sync::Arc;
+use sea_orm::{ActiveValue::Set};
 use uuid::Uuid;
 
 use crate::api::dto::{
@@ -43,9 +43,10 @@ fn to_recommendation_response(model: recommendations::Model) -> RecommendationRe
     tag = "recommendations"
 )]
 pub async fn create_recommendation(
-    State(db): State<Arc<DatabaseConnection>>,
+    State(state): State<AppState>,
     Json(payload): Json<CreateRecommendationRequest>,
 ) -> Result<Json<ApiResponse<RecommendationResponse>>, (StatusCode, Json<serde_json::Value>)> {
+    let db = &state.db;
     let recommendation = recommendations::ActiveModel {
         recommendation_id: Set(Uuid::new_v4()),
         dimension_id: Set(payload.dimension_id),
@@ -87,9 +88,10 @@ pub async fn create_recommendation(
     tag = "recommendations"
 )]
 pub async fn get_recommendation(
-    State(db): State<Arc<DatabaseConnection>>,
+    State(state): State<AppState>,
     Path(recommendation_id): Path<Uuid>,
 ) -> Result<Json<ApiResponse<RecommendationResponse>>, (StatusCode, Json<serde_json::Value>)> {
+    let db = &state.db;
     let recommendation = RecommendationsRepository::find_by_id(&db, recommendation_id)
         .await
         .map_err(|e| {
@@ -135,10 +137,11 @@ pub async fn get_recommendation(
     tag = "recommendations"
 )]
 pub async fn update_recommendation(
-    State(db): State<Arc<DatabaseConnection>>,
+    State(state): State<AppState>,
     Path(recommendation_id): Path<Uuid>,
     Json(payload): Json<UpdateRecommendationRequest>,
 ) -> Result<Json<ApiResponse<RecommendationResponse>>, (StatusCode, Json<serde_json::Value>)> {
+    let db = &state.db;
     // First, fetch the existing recommendation
     let existing = RecommendationsRepository::find_by_id(&db, recommendation_id)
         .await
@@ -204,9 +207,10 @@ pub async fn update_recommendation(
     tag = "recommendations"
 )]
 pub async fn delete_recommendation(
-    State(db): State<Arc<DatabaseConnection>>,
+    State(state): State<AppState>,
     Path(recommendation_id): Path<Uuid>,
 ) -> Result<Json<ApiResponse<EmptyResponse>>, (StatusCode, Json<serde_json::Value>)> {
+    let db = &state.db;
     let deleted = RecommendationsRepository::delete(&db, recommendation_id)
         .await
         .map_err(|e| {
@@ -247,9 +251,10 @@ pub async fn delete_recommendation(
     tag = "recommendations"
 )]
 pub async fn list_recommendations(
-    State(db): State<Arc<DatabaseConnection>>,
+    State(state): State<AppState>,
     Query(params): Query<PaginationParams>,
 ) -> Result<Json<ApiResponse<PaginatedResponse<RecommendationResponse>>>, (StatusCode, Json<serde_json::Value>)> {
+    let db = &state.db;
     let (page, limit, _sort_by, _sort_order) = extract_pagination(Query(params));
     
     let (recommendations, total) = RecommendationsRepository::find_all_paginated(&db, page as u64, limit as u64)
@@ -291,10 +296,11 @@ pub async fn list_recommendations(
     tag = "recommendations"
 )]
 pub async fn list_recommendations_by_dimension(
-    State(db): State<Arc<DatabaseConnection>>,
+    State(state): State<AppState>,
     Path(dimension_id): Path<Uuid>,
     Query(params): Query<PaginationParams>,
 ) -> Result<Json<ApiResponse<PaginatedResponse<RecommendationResponse>>>, (StatusCode, Json<serde_json::Value>)> {
+    let db = &state.db;
     let (page, limit, _sort_by, _sort_order) = extract_pagination(Query(params));
     
     let (recommendations, total) = RecommendationsRepository::find_by_dimension_paginated(

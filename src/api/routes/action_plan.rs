@@ -1,13 +1,9 @@
 use axum::{routing::get, Router};
-use sea_orm::DatabaseConnection;
-use std::sync::Arc;
-
-use crate::api::handlers::action_plan::{
-    get_action_plan_by_assessment_id, list_action_plans,
-};
+use crate::AppState;
+use crate::api::handlers::action_plan::*;
 
 /// Create action plan routes
-pub fn create_action_plan_routes() -> Router<Arc<DatabaseConnection>> {
+pub fn create_action_plan_routes() -> Router<AppState> {
     Router::new()
         .route("/", get(list_action_plans))
         .route(

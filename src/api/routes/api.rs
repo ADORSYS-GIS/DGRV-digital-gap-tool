@@ -2,18 +2,21 @@ use axum::{
     routing::{delete, get, post, put},
     Router,
 };
-use sea_orm::DatabaseConnection;
-use std::sync::Arc;
+use crate::AppState;
 
 use crate::api::handlers::{
-    assessment::*, dimension::*, gap::*, recommendation::*, report::*,
+    assessment::*, dimension::*, gap::*, report::*,
 };
-use crate::api::routes::action_plan::create_action_plan_routes;
+use crate::api::routes::{
+    action_plan::create_action_plan_routes, organization::create_organization_routes, recommendation::create_recommendation_routes,
+};
 
 /// Create the main API routes
-pub fn create_api_routes() -> Router<Arc<DatabaseConnection>> {
+pub fn create_api_routes() -> Router<AppState> {
     Router::new()
         .nest("/action-plans", create_action_plan_routes())
+        .nest("/admin/organizations", create_organization_routes())
+        .nest("/recommendations", create_recommendation_routes())
         // Assessment routes
         .route("/assessments", post(create_assessment))
         .route("/assessments", get(list_assessments))
@@ -84,16 +87,4 @@ pub fn create_api_routes() -> Router<Arc<DatabaseConnection>> {
         )
         // Admin gap creation
         .route("/admin/gaps", post(admin_create_gap))
-        // Recommendation routes
-        .route("/recommendations", post(create_recommendation).get(list_recommendations))
-        .route(
-            "/recommendations/:id",
-            get(get_recommendation)
-                .put(update_recommendation)
-                .delete(delete_recommendation),
-        )
-        .route(
-            "/dimensions/:dimension_id/recommendations",
-            get(list_recommendations_by_dimension),
-        )
 }

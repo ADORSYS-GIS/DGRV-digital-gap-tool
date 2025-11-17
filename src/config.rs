@@ -1,7 +1,7 @@
 use envconfig::Envconfig;
 use serde::Deserialize;
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct Config {
     pub database_url: String,
     pub port: u16,
@@ -10,10 +10,11 @@ pub struct Config {
     pub keycloak_client_id: String,
     pub keycloak_client_secret: String,
     pub jwt_secret: String,
+    pub keycloak_admin_token: String,
     pub minio: MinioConfig,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct MinioConfig {
     pub endpoint: String,
     pub access_key: String,
@@ -33,13 +34,13 @@ struct ConfigEnv {
     #[envconfig(from = "DGAT_PORT", default = "8080")]
     port: u16,
 
-    #[envconfig(from = "DGAT_KEYCLOAK_URL", default = "http://localhost:8081")]
+    #[envconfig(from = "DGAT_KEYCLOAK_URL", default = "http://localhost:8080")]
     keycloak_url: String,
 
-    #[envconfig(from = "DGAT_KEYCLOAK_REALM", default = "dgat")]
+    #[envconfig(from = "DGAT_KEYCLOAK_REALM", default = "sustainability-realm")]
     keycloak_realm: String,
 
-    #[envconfig(from = "DGAT_KEYCLOAK_CLIENT_ID", default = "dgat-backend")]
+    #[envconfig(from = "DGAT_KEYCLOAK_CLIENT_ID", default = "dgat-client")]
     keycloak_client_id: String,
 
     #[envconfig(from = "DGAT_KEYCLOAK_CLIENT_SECRET", default = "dev-secret")]
@@ -47,6 +48,9 @@ struct ConfigEnv {
 
     #[envconfig(from = "DGAT_JWT_SECRET", default = "dev-secret")]
     jwt_secret: String,
+
+    #[envconfig(from = "DGAT_KEYCLOAK_ADMIN_TOKEN", default = "your_admin_token")]
+    keycloak_admin_token: String,
 
     // MinIO
     #[envconfig(from = "DGAT_MINIO_ENDPOINT", default = "http://localhost:9000")]
@@ -79,6 +83,7 @@ impl Config {
             keycloak_client_id: e.keycloak_client_id,
             keycloak_client_secret: e.keycloak_client_secret,
             jwt_secret: e.jwt_secret,
+            keycloak_admin_token: e.keycloak_admin_token,
             minio: MinioConfig {
                 endpoint: e.minio_endpoint,
                 access_key: e.minio_access_key,

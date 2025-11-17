@@ -1,10 +1,10 @@
+use crate::AppState;
 use axum::{
     extract::{Path, Query, State},
     http::StatusCode,
     response::Json,
 };
-use sea_orm::{DatabaseConnection, Set};
-use std::sync::Arc;
+use sea_orm::Set;
 use uuid::Uuid;
 
 use crate::api::dto::{
@@ -62,9 +62,10 @@ fn to_gap_response(model: gaps::Model) -> GapResponse {
     security(("jwt" = []))
 )]
 pub async fn admin_create_gap(
-    State(db): State<Arc<DatabaseConnection>>,
+    State(state): State<AppState>,
     Json(request): Json<AdminCreateGapRequest>,
 ) -> Result<Json<ApiResponse<GapResponse>>, (StatusCode, Json<serde_json::Value>)> {
+    let db = &state.db;
     let dimension_id = request.dimension_id;
     let severity = request.gap_severity.into();
     let description = request.gap_description;
@@ -109,9 +110,10 @@ pub async fn admin_create_gap(
     )
 )]
 pub async fn get_gap(
-    State(db): State<Arc<DatabaseConnection>>,
+    State(state): State<AppState>,
     Path(gap_id): Path<Uuid>,
 ) -> Result<Json<ApiResponse<GapResponse>>, (StatusCode, Json<serde_json::Value>)> {
+    let db = &state.db;
     let gap = GapsRepository::find_by_id(db.as_ref(), gap_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?
@@ -141,10 +143,11 @@ pub async fn get_gap(
     security(("jwt" = []))
 )]
 pub async fn update_gap(
-    State(db): State<Arc<DatabaseConnection>>,
+    State(state): State<AppState>,
     Path(gap_id): Path<Uuid>,
     Json(req): Json<UpdateGapRequest>,
 ) -> Result<Json<ApiResponse<GapResponse>>, (StatusCode, Json<serde_json::Value>)> {
+    let db = &state.db;
     // Build partial ActiveModel
     let mut active = gaps::ActiveModel {
         gap_id: Set(gap_id),
@@ -193,9 +196,10 @@ pub async fn update_gap(
     security(("jwt" = []))
 )]
 pub async fn delete_gap(
-    State(db): State<Arc<DatabaseConnection>>,
+    State(state): State<AppState>,
     Path(gap_id): Path<Uuid>,
 ) -> Result<Json<ApiResponse<EmptyResponse>>, (StatusCode, Json<serde_json::Value>)> {
+    let db = &state.db;
     let deleted = GapsRepository::delete(db.as_ref(), gap_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?;
@@ -226,13 +230,14 @@ pub async fn delete_gap(
     )
 )]
 pub async fn list_gaps(
-    State(db): State<Arc<DatabaseConnection>>,
+    State(state): State<AppState>,
     Query(params): Query<PaginationParams>,
 ) -> Result<Json<ApiResponse<PaginatedResponse<GapResponse>>>, (StatusCode, Json<serde_json::Value>)>
 {
     let (page, limit, _sort_by, _sort_order) = extract_pagination(Query(params));
     let offset = ((page - 1) * limit) as u64;
 
+    let db = &state.db;
     let gaps = GapsRepository::find_all(db.as_ref())
         .await
         .map_err(crate::api::handlers::common::handle_error)?;
@@ -272,10 +277,11 @@ pub async fn list_gaps(
     )
 )]
 pub async fn list_gaps_by_dimension_assessment(
-    State(db): State<Arc<DatabaseConnection>>,
+    State(state): State<AppState>,
     Path(dimension_assessment_id): Path<Uuid>,
     Query(params): Query<PaginationParams>,
 ) -> Result<Json<ApiResponse<PaginatedResponse<GapResponse>>>, (StatusCode, Json<serde_json::Value>)> {
+    let db = &state.db;
     let (page, limit, _sort_by, _sort_order) = extract_pagination(Query(params));
     let offset = ((page - 1) * limit) as u64;
 
@@ -318,10 +324,11 @@ pub async fn list_gaps_by_dimension_assessment(
     )
 )]
 pub async fn list_gaps_by_assessment(
-    State(db): State<Arc<DatabaseConnection>>,
+    State(state): State<AppState>,
     Path(assessment_id): Path<Uuid>,
     Query(params): Query<PaginationParams>,
 ) -> Result<Json<ApiResponse<PaginatedResponse<GapResponse>>>, (StatusCode, Json<serde_json::Value>)> {
+    let db = &state.db;
     let (page, limit, _sort_by, _sort_order) = extract_pagination(Query(params));
     let offset = ((page - 1) * limit) as u64;
 
