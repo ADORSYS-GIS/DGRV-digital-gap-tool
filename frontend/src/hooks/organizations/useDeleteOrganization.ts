@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { organizationRepository } from "@/services/organizations/organizationRepository";
 import { Organization } from "@/types/organization";
+import { toast } from "sonner";
 
 export const useDeleteOrganization = () => {
   const queryClient = useQueryClient();
@@ -11,32 +12,25 @@ export const useDeleteOrganization = () => {
     },
     onMutate: async (id) => {
       await queryClient.cancelQueries({ queryKey: ["organizations"] });
-
       const previousOrganizations =
         queryClient.getQueryData<Organization[]>(["organizations"]) || [];
 
-      queryClient.setQueryData<Organization[]>(
-        ["organizations"],
-        (oldQueryData) => {
-          if (!oldQueryData) {
-            return [];
-          }
-          return oldQueryData.filter((org) => org.id !== id);
-        },
+      queryClient.setQueryData<Organization[]>(["organizations"], (old = []) =>
+        old.filter((org) => org.id !== id),
       );
 
       return { previousOrganizations };
     },
-    onError: (err, id, context) => {
-      if (context?.previousOrganizations) {
-        queryClient.setQueryData(
-          ["organizations"],
-          context.previousOrganizations,
-        );
-      }
+    onSuccess: () => {
+      toast.success("Organization deleted successfully");
+      void queryClient.invalidateQueries({ queryKey: ["organizations"] });
     },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["organizations"] });
+    onError: (error: Error, _, context) => {
+      queryClient.setQueryData(
+        ["organizations"],
+        context?.previousOrganizations,
+      );
+      toast.error(`Failed to delete organization: ${error.message}`);
     },
   });
 };

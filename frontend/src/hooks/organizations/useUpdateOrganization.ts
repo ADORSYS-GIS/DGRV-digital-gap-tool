@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { organizationRepository } from "@/services/organizations/organizationRepository";
 import { Organization } from "@/types/organization";
+import { toast } from "sonner";
 
 export const useUpdateOrganization = () => {
   const queryClient = useQueryClient();
@@ -11,34 +12,29 @@ export const useUpdateOrganization = () => {
     },
     onMutate: async (updatedOrganization) => {
       await queryClient.cancelQueries({ queryKey: ["organizations"] });
-
       const previousOrganizations =
         queryClient.getQueryData<Organization[]>(["organizations"]) || [];
 
-      queryClient.setQueryData<Organization[]>(
-        ["organizations"],
-        (oldQueryData) => {
-          if (!oldQueryData) {
-            return [];
-          }
-          return oldQueryData.map((org) =>
-            org.id === updatedOrganization.id ? updatedOrganization : org,
-          );
-        },
+      queryClient.setQueryData<Organization[]>(["organizations"], (old = []) =>
+        old.map((org) =>
+          org.id === updatedOrganization.id
+            ? { ...org, ...updatedOrganization, syncStatus: "updated" }
+            : org,
+        ),
       );
 
       return { previousOrganizations };
     },
-    onError: (err, updatedOrganization, context) => {
-      if (context?.previousOrganizations) {
-        queryClient.setQueryData(
-          ["organizations"],
-          context.previousOrganizations,
-        );
-      }
+    onSuccess: () => {
+      toast.success("Organization updated successfully");
+      void queryClient.invalidateQueries({ queryKey: ["organizations"] });
     },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["organizations"] });
+    onError: (error: Error, _, context) => {
+      queryClient.setQueryData(
+        ["organizations"],
+        context?.previousOrganizations,
+      );
+      toast.error(`Failed to update organization: ${error.message}`);
     },
   });
 };

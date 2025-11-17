@@ -1,9 +1,8 @@
-import React from "react";
-import { EditOrganizationForm } from "./EditOrganizationForm";
+import React, { useState } from "react";
 import { Organization } from "@/types/organization";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FilePenLine, Trash2, ListTree } from "lucide-react";
+import { FilePenLine, Trash2 } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,7 +14,15 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { useDeleteOrganization } from "@/hooks/organizations/useDeleteOrganization";
+import { EditOrganizationForm } from "./EditOrganizationForm";
 
 interface OrganizationCardProps {
   organization: Organization;
@@ -24,6 +31,7 @@ interface OrganizationCardProps {
 export const OrganizationCard: React.FC<OrganizationCardProps> = ({
   organization,
 }) => {
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const deleteMutation = useDeleteOrganization();
 
   const handleDelete = () => {
@@ -37,10 +45,26 @@ export const OrganizationCard: React.FC<OrganizationCardProps> = ({
       </CardHeader>
       <CardContent>
         <div className="text-sm text-muted-foreground mb-4">
-          <span className="font-semibold">Domains:</span> {organization.domain}
+          <p><span className="font-semibold">Domain:</span> {organization.domain}</p>
+          <p><span className="font-semibold">Status:</span> {organization.syncStatus}</p>
         </div>
         <div className="grid grid-cols-2 gap-2">
-          <EditOrganizationForm organization={organization} />
+          <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="sm">
+                <FilePenLine className="mr-2 h-4 w-4" /> Edit
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Edit Organization</DialogTitle>
+              </DialogHeader>
+              <EditOrganizationForm
+                organization={organization}
+                onSuccess={() => setIsEditDialogOpen(false)}
+              />
+            </DialogContent>
+          </Dialog>
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button variant="destructive" size="sm">
@@ -64,9 +88,6 @@ export const OrganizationCard: React.FC<OrganizationCardProps> = ({
             </AlertDialogContent>
           </AlertDialog>
         </div>
-        <Button variant="outline" size="sm" className="mt-2 w-full">
-          <ListTree className="mr-2 h-4 w-4" /> Assign Categories
-        </Button>
       </CardContent>
     </Card>
   );

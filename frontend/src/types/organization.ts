@@ -1,15 +1,11 @@
-export type SyncStatus =
-  | "new"
-  | "synced"
-  | "updated"
-  | "deleted"
-  | "sync_error";
+export type SyncStatus = "synced" | "new" | "updated" | "deleted" | "failed";
 
 export interface Organization {
-  id: string; // Can be a client-generated UUID for new items
+  id: string;
   name: string;
   domain: string;
   syncStatus: SyncStatus;
-  createdAt?: string;
-  updatedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+  syncError?: string;
 }
