@@ -1,10 +1,9 @@
+use crate::AppState;
 use axum::{
     extract::{Path, Query, State},
     http::StatusCode,
     response::Json,
 };
-use sea_orm::DatabaseConnection;
-use std::sync::Arc;
 use uuid::Uuid;
 
 use crate::api::dto::{
@@ -26,9 +25,10 @@ use crate::repositories::action_plans::ActionPlansRepository;
     )
 )]
 pub async fn get_action_plan_by_assessment_id(
-    State(db): State<Arc<DatabaseConnection>>,
+    State(state): State<AppState>,
     Path(assessment_id): Path<Uuid>,
 ) -> Result<Json<ApiResponse<ActionPlanResponse>>, (StatusCode, Json<serde_json::Value>)> {
+    let db = &state.db;
     let action_plan =
         ActionPlansRepository::find_action_plan_with_items_by_assessment_id(db.as_ref(), assessment_id)
             .await
@@ -56,9 +56,10 @@ pub async fn get_action_plan_by_assessment_id(
     )
 )]
 pub async fn list_action_plans(
-    State(db): State<Arc<DatabaseConnection>>,
+    State(state): State<AppState>,
     Query(params): Query<PaginationParams>,
 ) -> Result<Json<ApiResponse<PaginatedResponse<ActionPlanResponse>>>, (StatusCode, Json<serde_json::Value>)> {
+    let db = &state.db;
     let (page, limit, _sort_by, _sort_order) = extract_pagination(Query(params));
 
     let action_plans = ActionPlansRepository::find_all(db.as_ref())

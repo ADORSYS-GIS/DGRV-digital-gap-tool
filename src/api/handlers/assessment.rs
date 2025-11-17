@@ -1,10 +1,9 @@
+use crate::AppState;
 use axum::{
     extract::{Path, Query, State},
     http::StatusCode,
     response::Json,
 };
-use sea_orm::DatabaseConnection;
-use std::sync::Arc;
 use uuid::Uuid;
 
 use crate::api::dto::{
@@ -57,9 +56,10 @@ fn convert_dto_assessment_status_to_entity(
 )]
 /// Create a new assessment
 pub async fn create_assessment(
-    State(db): State<Arc<DatabaseConnection>>,
+    State(state): State<AppState>,
     Json(request): Json<CreateAssessmentRequest>,
 ) -> Result<Json<ApiResponse<AssessmentResponse>>, (StatusCode, Json<serde_json::Value>)> {
+    let db = &state.db;
     // Convert request to active model
     let active_model = crate::entities::assessments::ActiveModel {
         assessment_id: sea_orm::Set(Uuid::new_v4()),
@@ -103,9 +103,10 @@ pub async fn create_assessment(
 )]
 /// Get assessment by ID
 pub async fn get_assessment(
-    State(db): State<Arc<DatabaseConnection>>,
+    State(state): State<AppState>,
     Path(assessment_id): Path<Uuid>,
 ) -> Result<Json<ApiResponse<AssessmentResponse>>, (StatusCode, Json<serde_json::Value>)> {
+    let db = &state.db;
     let assessment = AssessmentsRepository::find_by_id(db.as_ref(), assessment_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?
@@ -141,9 +142,10 @@ pub async fn get_assessment(
 )]
 /// Get assessment summary with related data
 pub async fn get_assessment_summary(
-    State(db): State<Arc<DatabaseConnection>>,
+    State(state): State<AppState>,
     Path(assessment_id): Path<Uuid>,
 ) -> Result<Json<ApiResponse<AssessmentSummaryResponse>>, (StatusCode, Json<serde_json::Value>)> {
+    let db = &state.db;
     // Get assessment
     let assessment = AssessmentsRepository::find_by_id(db.as_ref(), assessment_id)
         .await
@@ -223,7 +225,7 @@ pub async fn get_assessment_summary(
 )]
 /// List assessments with pagination
 pub async fn list_assessments(
-    State(db): State<Arc<DatabaseConnection>>,
+    State(state): State<AppState>,
     Query(params): Query<PaginationParams>,
 ) -> Result<
     Json<ApiResponse<PaginatedResponse<AssessmentResponse>>>,
@@ -232,6 +234,7 @@ pub async fn list_assessments(
     let (page, limit, _sort_by, _sort_order) = extract_pagination(Query(params));
     let offset = ((page - 1) * limit) as u64;
 
+    let db = &state.db;
     let assessments = AssessmentsRepository::find_all(db.as_ref())
         .await
         .map_err(crate::api::handlers::common::handle_error)?;
@@ -270,10 +273,11 @@ pub async fn list_assessments(
 )]
 /// Update assessment
 pub async fn update_assessment(
-    State(db): State<Arc<DatabaseConnection>>,
+    State(state): State<AppState>,
     Path(assessment_id): Path<Uuid>,
     Json(request): Json<UpdateAssessmentRequest>,
 ) -> Result<Json<ApiResponse<AssessmentResponse>>, (StatusCode, Json<serde_json::Value>)> {
+    let db = &state.db;
     let assessment = AssessmentsRepository::find_by_id(db.as_ref(), assessment_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?
@@ -334,9 +338,10 @@ pub async fn update_assessment(
 )]
 /// Delete assessment
 pub async fn delete_assessment(
-    State(db): State<Arc<DatabaseConnection>>,
+    State(state): State<AppState>,
     Path(assessment_id): Path<Uuid>,
 ) -> Result<Json<ApiResponse<()>>, (StatusCode, Json<serde_json::Value>)> {
+    let db = &state.db;
     AssessmentsRepository::delete(db.as_ref(), assessment_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?;
@@ -359,10 +364,11 @@ pub async fn delete_assessment(
 )]
 /// Create dimension assessment
 pub async fn create_dimension_assessment(
-    State(db): State<Arc<DatabaseConnection>>,
+    State(state): State<AppState>,
     Path(assessment_id): Path<Uuid>,
     Json(request): Json<CreateDimensionAssessmentRequest>,
 ) -> Result<Json<ApiResponse<DimensionAssessmentResponse>>, (StatusCode, Json<serde_json::Value>)> {
+    let db = &state.db;
     // 1. Create the Dimension Assessment
     let gap = GapsRepository::find_by_dimension_and_severity(
         db.as_ref(),
@@ -471,10 +477,11 @@ pub async fn create_dimension_assessment(
 )]
 /// Update dimension assessment
 pub async fn update_dimension_assessment(
-    State(db): State<Arc<DatabaseConnection>>,
+    State(state): State<AppState>,
     Path((_assessment_id, dimension_assessment_id)): Path<(Uuid, Uuid)>,
     Json(request): Json<UpdateDimensionAssessmentRequest>,
 ) -> Result<Json<ApiResponse<DimensionAssessmentResponse>>, (StatusCode, Json<serde_json::Value>)> {
+    let db = &state.db;
     let dimension_assessment =
         DimensionAssessmentsRepository::find_by_id(db.as_ref(), dimension_assessment_id)
             .await

@@ -1,12 +1,11 @@
+use crate::AppState;
 use axum::{
     extract::{Path, Query, State},
     http::StatusCode,
     response::Json,
 };
-use sea_orm::DatabaseConnection;
-use std::sync::Arc;
-use uuid::Uuid;
 use chrono::{DateTime, Utc};
+use uuid::Uuid;
 
 use crate::api::dto::{
     common::{ApiResponse, PaginatedResponse, PaginationParams},
@@ -31,9 +30,10 @@ use crate::repositories::{
     )
 )]
 pub async fn create_dimension(
-    State(db): State<Arc<DatabaseConnection>>,
+    State(state): State<AppState>,
     Json(request): Json<CreateDimensionRequest>,
 ) -> Result<Json<ApiResponse<DimensionResponse>>, (StatusCode, Json<serde_json::Value>)> {
+    let db = &state.db;
     let active_model = crate::entities::dimensions::ActiveModel {
         dimension_id: sea_orm::Set(Uuid::new_v4()),
         name: sea_orm::Set(request.name),
@@ -76,9 +76,10 @@ pub async fn create_dimension(
     )
 )]
 pub async fn get_dimension(
-    State(db): State<Arc<DatabaseConnection>>,
+    State(state): State<AppState>,
     Path(dimension_id): Path<Uuid>,
 ) -> Result<Json<ApiResponse<DimensionResponse>>, (StatusCode, Json<serde_json::Value>)> {
+    let db = &state.db;
     let dimension = DimensionsRepository::find_by_id(db.as_ref(), dimension_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?
@@ -113,9 +114,10 @@ pub async fn get_dimension(
     )
 )]
 pub async fn get_dimension_with_states(
-    State(db): State<Arc<DatabaseConnection>>,
+    State(state): State<AppState>,
     Path(dimension_id): Path<Uuid>,
 ) -> Result<Json<ApiResponse<DimensionWithStatesResponse>>, (StatusCode, Json<serde_json::Value>)> {
+    let db = &state.db;
     // Get dimension
     let dimension = DimensionsRepository::find_by_id(db.as_ref(), dimension_id)
         .await
@@ -193,7 +195,7 @@ pub async fn get_dimension_with_states(
     )
 )]
 pub async fn list_dimensions(
-    State(db): State<Arc<DatabaseConnection>>,
+    State(state): State<AppState>,
     Query(params): Query<PaginationParams>,
 ) -> Result<
     Json<ApiResponse<PaginatedResponse<DimensionResponse>>>,
@@ -202,6 +204,7 @@ pub async fn list_dimensions(
     let (page, limit, _sort_by, _sort_order) = extract_pagination(Query(params));
     let offset = ((page - 1) * limit) as u64;
 
+    let db = &state.db;
     let dimensions = DimensionsRepository::find_all(db.as_ref())
         .await
         .map_err(crate::api::handlers::common::handle_error)?;
@@ -239,10 +242,11 @@ pub async fn list_dimensions(
     )
 )]
 pub async fn update_dimension(
-    State(db): State<Arc<DatabaseConnection>>,
+    State(state): State<AppState>,
     Path(dimension_id): Path<Uuid>,
     Json(request): Json<UpdateDimensionRequest>,
 ) -> Result<Json<ApiResponse<DimensionResponse>>, (StatusCode, Json<serde_json::Value>)> {
+    let db = &state.db;
     let _existing = DimensionsRepository::find_by_id(db.as_ref(), dimension_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?
@@ -303,9 +307,10 @@ pub async fn update_dimension(
     )
 )]
 pub async fn delete_dimension(
-    State(db): State<Arc<DatabaseConnection>>,
+    State(state): State<AppState>,
     Path(dimension_id): Path<Uuid>,
 ) -> Result<Json<ApiResponse<()>>, (StatusCode, Json<serde_json::Value>)> {
+    let db = &state.db;
     DimensionsRepository::delete(db.as_ref(), dimension_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?;
@@ -328,10 +333,11 @@ pub async fn delete_dimension(
     )
 )]
 pub async fn create_current_state(
-    State(db): State<Arc<DatabaseConnection>>,
+    State(state): State<AppState>,
     Path(dimension_id): Path<Uuid>,
     Json(request): Json<CreateCurrentStateRequest>,
 ) -> Result<Json<ApiResponse<CurrentStateResponse>>, (StatusCode, Json<serde_json::Value>)> {
+    let db = &state.db;
     // Verify dimension exists
     DimensionsRepository::find_by_id(db.as_ref(), dimension_id)
         .await
@@ -384,10 +390,11 @@ pub async fn create_current_state(
     )
 )]
 pub async fn update_current_state(
-    State(db): State<Arc<DatabaseConnection>>,
+    State(state): State<AppState>,
     Path((dimension_id, current_state_id)): Path<(Uuid, Uuid)>,
     Json(request): Json<UpdateCurrentStateRequest>,
 ) -> Result<Json<ApiResponse<CurrentStateResponse>>, (StatusCode, Json<serde_json::Value>)> {
+    let db = &state.db;
     let mut current_state = CurrentStatesRepository::find_by_id(db.as_ref(), current_state_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?
@@ -449,10 +456,11 @@ pub async fn update_current_state(
     )
 )]
 pub async fn create_desired_state(
-    State(db): State<Arc<DatabaseConnection>>,
+    State(state): State<AppState>,
     Path(dimension_id): Path<Uuid>,
     Json(request): Json<CreateDesiredStateRequest>,
 ) -> Result<Json<ApiResponse<DesiredStateResponse>>, (StatusCode, Json<serde_json::Value>)> {
+    let db = &state.db;
     // Verify dimension exists
     DimensionsRepository::find_by_id(db.as_ref(), dimension_id)
         .await
@@ -505,10 +513,11 @@ pub async fn create_desired_state(
     )
 )]
 pub async fn update_desired_state(
-    State(db): State<Arc<DatabaseConnection>>,
+    State(state): State<AppState>,
     Path((dimension_id, desired_state_id)): Path<(Uuid, Uuid)>,
     Json(request): Json<UpdateDesiredStateRequest>,
 ) -> Result<Json<ApiResponse<DesiredStateResponse>>, (StatusCode, Json<serde_json::Value>)> {
+    let db = &state.db;
     let mut desired_state = DesiredStatesRepository::find_by_id(db.as_ref(), desired_state_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?
@@ -571,9 +580,10 @@ pub async fn update_desired_state(
     )
 )]
 pub async fn delete_current_state(
-    State(db): State<Arc<DatabaseConnection>>,
+    State(state): State<AppState>,
     Path((dimension_id, current_state_id)): Path<(Uuid, Uuid)>,
 ) -> Result<Json<ApiResponse<()>>, (StatusCode, Json<serde_json::Value>)> {
+    let db = &state.db;
     // Verify current state exists and belongs to dimension
     let current_state = CurrentStatesRepository::find_by_id(db.as_ref(), current_state_id)
         .await
@@ -615,9 +625,10 @@ pub async fn delete_current_state(
     )
 )]
 pub async fn delete_desired_state(
-    State(db): State<Arc<DatabaseConnection>>,
+    State(state): State<AppState>,
     Path((dimension_id, desired_state_id)): Path<(Uuid, Uuid)>,
 ) -> Result<Json<ApiResponse<()>>, (StatusCode, Json<serde_json::Value>)> {
+    let db = &state.db;
     // Verify desired state exists and belongs to dimension
     let desired_state = DesiredStatesRepository::find_by_id(db.as_ref(), desired_state_id)
         .await

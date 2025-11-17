@@ -10,10 +10,16 @@ use crate::api::dto::dimension::*;
 use crate::api::dto::gap::*;
 use crate::api::dto::recommendation::*;
 use crate::api::dto::report::*;
+use crate::api::dto::organization::*;
 
 #[derive(OpenApi)]
 #[openapi(
     paths(
+        crate::api::handlers::organization::create_organization,
+        crate::api::handlers::organization::get_organizations,
+        crate::api::handlers::organization::get_organization,
+        crate::api::handlers::organization::update_organization,
+        crate::api::handlers::organization::delete_organization,
         crate::api::handlers::assessment::create_assessment,
         crate::api::handlers::assessment::list_assessments,
         crate::api::handlers::assessment::get_assessment,
@@ -166,9 +172,16 @@ use crate::api::dto::report::*;
             SeverityRuleDto,
             DescriptionConfig,
             AdminCreateGapRequest,
+            // Organizations
+            OrganizationDomainRequest,
+            OrganizationCreateRequest,
+            OrganizationUpdateRequest,
+            OrganizationDomain,
+            KeycloakOrganization,
         )
     ),
     tags(
+        (name = "Organization", description = "Organization endpoints"),
         (name = "Assessments", description = "Assessment endpoints"),
         (name = "Dimensions", description = "Dimension endpoints"),
         (name = "Reports", description = "Report endpoints"),
