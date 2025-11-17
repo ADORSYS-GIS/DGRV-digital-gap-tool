@@ -11,6 +11,7 @@ import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../hooks/shared/useAuth";
 import { LoadingSpinner } from "../components/shared/LoadingSpinner";
 import React from "react";
+import { ROLES } from "@/constants/roles";
 
 interface ProtectedRouteProps {
   allowedRoles?: string[];
@@ -22,33 +23,41 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   allowedRoles,
   children,
 }) => {
-  // For testing purposes, all routes are accessible.
-  // const { isAuthenticated, user, loading } = useAuth();
-  // const location = useLocation();
+  const { isAuthenticated, user, loading } = useAuth();
+  const location = useLocation();
 
-  // const hasRequiredRole = React.useMemo(() => {
-  //   if (!allowedRoles || allowedRoles.length === 0) return true;
-  //   if (!user) return false;
+  const userRoles = React.useMemo(() => {
+    if (!user) return [];
+    return [
+      ...(user.roles || []),
+      ...(user.realm_access?.roles || []),
+    ].map((r) => r.toLowerCase());
+  }, [user]);
 
-  //   const userRoles = [
-  //     ...(user.roles || []),
-  //     ...(user.realm_access?.roles || []),
-  //   ].map((r) => r.toLowerCase());
+  const hasRequiredRole = React.useMemo(() => {
+    if (!allowedRoles || allowedRoles.length === 0) return true;
+    return allowedRoles.some((role) =>
+      userRoles.includes(role.toLowerCase()),
+    );
+  }, [userRoles, allowedRoles]);
 
-  //   return allowedRoles.some((role) => userRoles.includes(role.toLowerCase()));
-  // }, [user, allowedRoles]);
+  if (loading) {
+    return <LoadingSpinner />;
+  }
 
-  // if (loading) {
-  //   return <LoadingSpinner />;
-  // }
+  if (!isAuthenticated) {
+    return <Navigate to="/" replace state={{ from: location }} />;
+  }
 
-  // if (!isAuthenticated) {
-  //   return <Navigate to="/" replace state={{ from: location }} />;
-  // }
+  const isAdmin = userRoles.includes(ROLES.ADMIN.toLowerCase());
 
-  // if (allowedRoles && allowedRoles.length > 0 && !hasRequiredRole) {
-  //   return <Navigate to="/unauthorized" replace />;
-  // }
+  if (isAdmin && location.pathname === "/dashboard") {
+    return <Navigate to="/admin/dashboard" replace />;
+  }
+
+  if (allowedRoles && allowedRoles.length > 0 && !hasRequiredRole) {
+    return <Navigate to="/unauthorized" replace />;
+  }
 
   return children ? <>{children}</> : <Outlet />;
 };

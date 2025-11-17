@@ -7,6 +7,7 @@ pub mod entities;
 pub mod error;
 pub mod repositories;
 pub mod services;
+pub mod auth;
 
 use crate::api::routes;
 use crate::config::Config;
@@ -18,11 +19,13 @@ use std::sync::Arc;
 use tower_http::cors::CorsLayer;
 use tracing::{info, warn, Level};
 use tracing_subscriber::FmtSubscriber;
+use crate::auth::jwt_validator::JwtValidator;
 
 #[derive(Clone)]
 pub struct AppState {
     pub db: Arc<DatabaseConnection>,
     pub keycloak_service: Arc<KeycloakService>,
+    pub jwt_validator: Arc<JwtValidator>,
 }
 
 pub async fn run() -> anyhow::Result<()> {
@@ -64,11 +67,13 @@ fn create_app(db: DatabaseConnection, config: Config) -> Router {
 
     let state = AppState {
         db: Arc::new(db),
-        keycloak_service: Arc::new(KeycloakService::new(config)),
+        keycloak_service: Arc::new(KeycloakService::new(config.clone())),
+        jwt_validator: Arc::new(JwtValidator::new(config.keycloak)),
     };
 
     // Create API router with all routes
-    let api_router = routes::api::create_api_routes();
+    let api_router = routes::api::create_api_routes()
+        .layer(axum::middleware::from_fn_with_state(state.clone(), crate::auth::middleware::auth_middleware));
 
     // Combine all routers without the /api prefix
     Router::new()
