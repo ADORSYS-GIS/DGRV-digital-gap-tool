@@ -1,17 +1,16 @@
-import { db } from "@/services/db";
 import {
   getAssessmentSummary,
   listAssessments,
 } from "@/openapi-client/services.gen";
+import { AssessmentResponse } from "@/openapi-client/types.gen";
+import { db } from "@/services/db";
+import { SyncManager } from "@/services/syncManager";
 import {
-  AssessmentSummary,
   Assessment,
+  AssessmentSummary,
   AssessmentSummaryData,
 } from "@/types/assessment";
-import { SyncManager } from "@/services/syncManager";
-import { AssessmentResponse } from "@/openapi-client/types.gen";
 import { SyncStatus } from "@/types/sync";
-import { Table } from "dexie";
 
 const syncManager = new SyncManager<AssessmentSummary, AssessmentSummaryData>(
   db.submissions,

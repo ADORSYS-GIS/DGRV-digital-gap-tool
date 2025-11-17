@@ -1,6 +1,5 @@
-import { db } from "@/services/db";
-import { Table } from "dexie";
 import { OfflineEntity } from "@/types/sync";
+import { Table } from "dexie";
 
 export class SyncManager<T extends OfflineEntity, U> {
   private table: Table<T>;
