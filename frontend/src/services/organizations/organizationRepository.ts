@@ -47,7 +47,12 @@ export const organizationRepository = {
       updatedAt: new Date().toISOString(),
     };
     await db.organizations.add(newOrg);
-    await syncService.addToSyncQueue("Organization", newOrg.id, "CREATE", newOrg);
+    await syncService.addToSyncQueue(
+      "Organization",
+      newOrg.id,
+      "CREATE",
+      newOrg,
+    );
     return newOrg;
   },
 
@@ -82,14 +87,17 @@ export const organizationRepository = {
     const item = await db.organizations.get(localId);
     if (!item) return;
 
-    console.log(`Syncing organization: localId=${localId}, serverId=${serverId}`);
+    console.log(
+      `Syncing organization: localId=${localId}, serverId=${serverId}`,
+    );
 
     // Prepare the synced data, ensuring syncError is removed
-    const syncedData: Partial<Organization> & { syncError?: string | undefined } =
-      {
-        syncStatus: "synced",
-        updatedAt: new Date().toISOString(),
-      };
+    const syncedData: Partial<Organization> & {
+      syncError?: string | undefined;
+    } = {
+      syncStatus: "synced",
+      updatedAt: new Date().toISOString(),
+    };
     delete syncedData.syncError;
 
     if (localId !== serverId) {
@@ -101,7 +109,9 @@ export const organizationRepository = {
         ...syncedData,
       };
       await db.organizations.add(newItem);
-      console.log(`Organization ${localId} synced and replaced with ${serverId}`);
+      console.log(
+        `Organization ${localId} synced and replaced with ${serverId}`,
+      );
     } else {
       // The item already has the correct ID, just update its sync status
       await db.organizations.update(localId, syncedData);

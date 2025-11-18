@@ -22,16 +22,18 @@ describe("EditOrganizationForm", () => {
       name: "Test Organization",
       domain: "test.com",
       syncStatus: "synced",
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
 
-    render(<EditOrganizationForm organization={organization} />);
-
-    fireEvent.click(screen.getByText("Edit"));
+    render(
+      <EditOrganizationForm organization={organization} onSuccess={vi.fn()} />,
+    );
 
     fireEvent.change(screen.getByLabelText("Organization Name"), {
       target: { value: "Updated Organization" },
     });
-    fireEvent.change(screen.getByLabelText("Domain"), {
+    fireEvent.change(screen.getByLabelText("Organization Domain"), {
       target: { value: "updated.com" },
     });
 

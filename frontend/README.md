@@ -6,37 +6,38 @@ This is the frontend for the DGAT Assessment Tool, a comprehensive platform for 
 
 ## 2. Features
 
--   **Modern UI:** A responsive and intuitive user interface built with Tailwind CSS and shadcn-ui.
--   **Authentication:** Secure authentication and authorization using Keycloak.
--   **Offline Support:** IndexedDB integration for offline data access and synchronization.
--   **Role-Based Access:** Different views and permissions for different user roles (Admin, User, etc.).
--   **Component-Based:** A modular and reusable component library.
--   **Type-Safe:** Fully written in TypeScript for improved code quality and maintainability.
+- **Modern UI:** A responsive and intuitive user interface built with Tailwind CSS and shadcn-ui.
+- **Authentication:** Secure authentication and authorization using Keycloak.
+- **Offline Support:** IndexedDB integration for offline data access and synchronization.
+- **Role-Based Access:** Different views and permissions for different user roles (Admin, User, etc.).
+- **Component-Based:** A modular and reusable component library.
+- **Type-Safe:** Fully written in TypeScript for improved code quality and maintainability.
 
 ## 3. Tech Stack
 
--   **Framework:** [React](https://react.dev/)
--   **Build Tool:** [Vite](https://vitejs.dev/)
--   **Language:** [TypeScript](https://www.typescriptlang.org/)
--   **Styling:** [Tailwind CSS](https://tailwindcss.com/)
--   **UI Components:** [shadcn-ui](https://ui.shadcn.com/)
--   **State Management:** [React Query](https://tanstack.com/query/latest)
--   **Routing:** [React Router](https://reactrouter.com/)
--   **Offline Storage:** [Dexie.js](https://dexie.org/) (IndexedDB wrapper)
--   **Authentication:** [Keycloak](https://www.keycloak.org/)
+- **Framework:** [React](https://react.dev/)
+- **Build Tool:** [Vite](https://vitejs.dev/)
+- **Language:** [TypeScript](https://www.typescriptlang.org/)
+- **Styling:** [Tailwind CSS](https://tailwindcss.com/)
+- **UI Components:** [shadcn-ui](https://ui.shadcn.com/)
+- **State Management:** [React Query](https://tanstack.com/query/latest)
+- **Routing:** [React Router](https://reactrouter.com/)
+- **Offline Storage:** [Dexie.js](https://dexie.org/) (IndexedDB wrapper)
+- **Authentication:** [Keycloak](https://www.keycloak.org/)
 
 ## 4. Getting Started
 
 ### 4.1. Prerequisites
 
--   Node.js (v18+ recommended)
--   npm (v9+ recommended)
--   A running instance of the backend service.
--   A running and configured Keycloak instance.
+- Node.js (v18+ recommended)
+- npm (v9+ recommended)
+- A running instance of the backend service.
+- A running and configured Keycloak instance.
 
 ### 4.2. Installation
 
 1.  **Clone the repository:**
+
     ```sh
     git clone git@github.com:ADORSYS-GIS/DGRV-digital-gap-tool.git
     cd DGRV-digital-gap-tool/frontend
@@ -86,9 +87,9 @@ The OpenAPI client is generated from the backend's OpenAPI specification. To upd
 
 ### 5.2. Linting and Formatting
 
--   **Lint:** `npm run lint`
--   **Format Check:** `npm run prettier:check`
--   **Format Fix:** `npm run prettier:fix`
+- **Lint:** `npm run lint`
+- **Format Check:** `npm run prettier:check`
+- **Format Fix:** `npm run prettier:fix`
 
 ### 5.3. Type Checking
 

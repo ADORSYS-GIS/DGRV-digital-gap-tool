@@ -657,10 +657,7 @@ export const syncService = {
             domains: [{ name: organizationData.domain }],
           },
         });
-        await organizationRepository.markAsSynced(
-          item.entityId,
-          item.entityId,
-        );
+        await organizationRepository.markAsSynced(item.entityId, item.entityId);
         break;
       }
       case "DELETE": {

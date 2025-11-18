@@ -9,7 +9,6 @@ describe("authService", () => {
 
   it("should have expected methods", () => {
     // Check that the service has the expected methods
-    expect(typeof authService.initialize).toBe("function");
     expect(typeof authService.login).toBe("function");
     expect(typeof authService.logout).toBe("function");
     expect(typeof authService.getAccessToken).toBe("function");

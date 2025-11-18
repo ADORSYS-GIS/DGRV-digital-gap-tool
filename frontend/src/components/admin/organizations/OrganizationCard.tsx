@@ -10,11 +10,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardTitle
-} from "@/components/ui/card";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -97,8 +93,8 @@ export const OrganizationCard: React.FC<OrganizationCardProps> = ({
                 <AlertDialogHeader>
                   <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    This action cannot be undone. This will permanently delete the
-                    organization and remove its data from our servers.
+                    This action cannot be undone. This will permanently delete
+                    the organization and remove its data from our servers.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>

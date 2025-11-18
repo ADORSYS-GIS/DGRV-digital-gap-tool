@@ -2,7 +2,10 @@ import { createRoot } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import App from "./App";
 import "./index.css";
-import { keycloak, keycloakInitOptions } from "./services/shared/keycloakConfig";
+import {
+  keycloak,
+  keycloakInitOptions,
+} from "./services/shared/keycloakConfig";
 import { authService } from "./services/shared/authService";
 import { OpenAPI } from "./openapi-client/core/OpenAPI";
 

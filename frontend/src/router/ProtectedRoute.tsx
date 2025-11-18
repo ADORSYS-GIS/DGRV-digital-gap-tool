@@ -28,17 +28,14 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   const userRoles = React.useMemo(() => {
     if (!user) return [];
-    return [
-      ...(user.roles || []),
-      ...(user.realm_access?.roles || []),
-    ].map((r) => r.toLowerCase());
+    return [...(user.roles || []), ...(user.realm_access?.roles || [])].map(
+      (r) => r.toLowerCase(),
+    );
   }, [user]);
 
   const hasRequiredRole = React.useMemo(() => {
     if (!allowedRoles || allowedRoles.length === 0) return true;
-    return allowedRoles.some((role) =>
-      userRoles.includes(role.toLowerCase()),
-    );
+    return allowedRoles.some((role) => userRoles.includes(role.toLowerCase()));
   }, [userRoles, allowedRoles]);
 
   if (loading) {
