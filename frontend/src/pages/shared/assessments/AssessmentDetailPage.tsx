@@ -6,12 +6,13 @@ import { dimensionRepository } from "@/services/dimensions/dimensionRepository";
 import { Assessment } from "@/types/assessment";
 import { IDimension } from "@/types/dimension";
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 
 const AssessmentDetailPage: React.FC = () => {
   const { assessmentId } = useParams<{ assessmentId: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const [assessment, setAssessment] = useState<Assessment | null>(null);
   const [dimensions, setDimensions] = useState<IDimension[]>([]);
   const [loading, setLoading] = useState(true);
@@ -53,8 +54,9 @@ const AssessmentDetailPage: React.FC = () => {
 
   const handleStartDimensionAssessment = (dimensionId: string) => {
     if (assessmentId) {
+      const basePath = location.pathname.split("/")[1];
       navigate(
-        `/second-admin/assessment/${assessmentId}/dimension/${dimensionId}`,
+        `/${basePath}/assessment/${assessmentId}/dimension/${dimensionId}`,
       );
     } else {
       toast.error("Assessment ID not found.");

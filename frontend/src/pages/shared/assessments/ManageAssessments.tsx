@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { Button } from "../../components/ui/button";
+import { Button } from "../../../components/ui/button";
 import { PlusCircle } from "lucide-react";
-import { AddAssessmentForm } from "../../components/second_admin/assessments/AddAssessmentForm";
-import { AssessmentList } from "../../components/second_admin/assessments/AssessmentList";
-import { LoadingSpinner } from "../../components/shared/LoadingSpinner";
-import { useAssessments } from "../../hooks/assessments/useAssessments";
+import { AddAssessmentForm } from "../../../components/shared/assessments/AddAssessmentForm";
+import { AssessmentList } from "../../../components/shared/assessments/AssessmentList";
+import { LoadingSpinner } from "../../../components/shared/LoadingSpinner";
+import { useAssessments } from "../../../hooks/assessments/useAssessments";
 
 export default function ManageAssessments() {
   const [isAddDialogOpen, setAddDialogOpen] = useState(false);

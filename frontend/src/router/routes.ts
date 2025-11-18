@@ -45,22 +45,22 @@ const ManageCooperations = React.lazy(
   () => import("../pages/second_admin/ManageCooperations"),
 );
 const ManageAssessments = React.lazy(
-  () => import("../pages/second_admin/ManageAssessments"),
+  () => import("../pages/shared/assessments/ManageAssessments"),
 );
 const AssessmentDetailPage = React.lazy(
-  () => import("../pages/second_admin/AssessmentDetailPage"),
+  () => import("../pages/shared/assessments/AssessmentDetailPage"),
 );
 const ManageSubmissionsPage = React.lazy(
-  () => import("../pages/second_admin/ManageSubmissionsPage"),
+  () => import("../pages/shared/submissions/ManageSubmissionsPage"),
 );
 const SubmissionDetailPage = React.lazy(
-  () => import("../pages/second_admin/SubmissionDetailPage"),
+  () => import("../pages/shared/submissions/SubmissionDetailPage"),
 );
 const ActionPlansListPage = React.lazy(
-  () => import("../pages/second_admin/action_plans/ActionPlansListPage"),
+  () => import("../pages/shared/action_plans/ActionPlansListPage"),
 );
 const ActionPlanPage = React.lazy(
-  () => import("../pages/second_admin/action_plans/ActionPlanPage"),
+  () => import("../pages/shared/action_plans/ActionPlanPage"),
 );
 import AnswerDimensionAssessmentPage from "@/pages/assessments/AnswerDimensionAssessmentPage";
 const ThirdAdminDashboard = React.lazy(
@@ -68,15 +68,6 @@ const ThirdAdminDashboard = React.lazy(
 );
 const ManageUsers = React.lazy(
   () => import("../pages/third_admin/ManageUsers"),
-);
-const AnswerAssessment = React.lazy(
-  () => import("../pages/third_admin/AnswerAssessment"),
-);
-const ViewActionPlan = React.lazy(
-  () => import("../pages/third_admin/ViewActionPlan"),
-);
-const ViewSubmissions = React.lazy(
-  () => import("../pages/third_admin/ViewSubmissions"),
 );
 
 const routes = [
@@ -192,11 +183,33 @@ const routes = [
       { path: "dashboard", element: React.createElement(ThirdAdminDashboard) },
       { path: "users", element: React.createElement(ManageUsers) },
       {
-        path: "answer-assessment",
-        element: React.createElement(AnswerAssessment),
+        path: "assessments",
+        element: React.createElement(ManageAssessments),
       },
-      { path: "action-plan", element: React.createElement(ViewActionPlan) },
-      { path: "submissions", element: React.createElement(ViewSubmissions) },
+      {
+        path: "assessment/:assessmentId",
+        element: React.createElement(AssessmentDetailPage),
+      },
+      {
+        path: "assessment/:assessmentId/dimension/:dimensionId",
+        element: React.createElement(AnswerDimensionAssessmentPage),
+      },
+      {
+        path: "submissions",
+        element: React.createElement(ManageSubmissionsPage),
+      },
+      {
+        path: "submissions/:submissionId",
+        element: React.createElement(SubmissionDetailPage),
+      },
+      {
+        path: "action-plans",
+        element: React.createElement(ActionPlansListPage),
+      },
+      {
+        path: "action-plans/:assessmentId",
+        element: React.createElement(ActionPlanPage),
+      },
     ],
   },
   {

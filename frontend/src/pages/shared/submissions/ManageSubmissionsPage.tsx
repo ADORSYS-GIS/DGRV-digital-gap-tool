@@ -1,5 +1,5 @@
 import { useSubmissions } from "@/hooks/submissions/useSubmissions";
-import { SubmissionList } from "@/components/second_admin/submissions/SubmissionList";
+import { SubmissionList } from "@/components/shared/submissions/SubmissionList";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 
 export default function ManageSubmissionsPage() {

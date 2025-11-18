@@ -6,7 +6,7 @@
  * - Recent activity tracking
  * - Organization and user management capabilities
  */
-import { SubmissionList } from "@/components/second_admin/submissions/SubmissionList";
+import { SubmissionList } from "@/components/shared/submissions/SubmissionList";
 import { DashboardCard } from "@/components/shared/DashboardCard";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { Button } from "@/components/ui/button";
@@ -189,7 +189,11 @@ const AdminDashboard: React.FC = () => {
             <p className="text-red-500">An error occurred: {error.message}</p>
           )}
           {submissions && (
-            <SubmissionList submissions={submissions} limit={5} />
+            <SubmissionList
+              submissions={submissions}
+              limit={5}
+              basePath="admin"
+            />
           )}
         </CardContent>
       </Card>

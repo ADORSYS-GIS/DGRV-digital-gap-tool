@@ -6,6 +6,7 @@ import { Leaf } from "lucide-react";
 interface SubmissionListProps {
   submissions: Assessment[];
   limit?: number;
+  basePath: string;
 }
 
 const getStatusVariant = (status: string) => {
@@ -19,14 +20,18 @@ const getStatusVariant = (status: string) => {
   }
 };
 
-export const SubmissionList = ({ submissions, limit }: SubmissionListProps) => {
+export const SubmissionList = ({
+  submissions,
+  limit,
+  basePath,
+}: SubmissionListProps) => {
   const items = limit ? submissions.slice(0, limit) : submissions;
 
   return (
     <div className="space-y-3">
       {items.map((submission) => (
         <Link
-          to={`/second-admin/submissions/${submission.id}`}
+          to={`/${basePath}/submissions/${submission.id}`}
           key={submission.id}
           className="block"
         >

@@ -24,9 +24,14 @@ import {
 } from "lucide-react";
 import React from "react";
 import { Link } from "react-router-dom";
+import { useSubmissions } from "@/hooks/submissions/useSubmissions";
+import { SubmissionList } from "@/components/shared/submissions/SubmissionList";
+import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
+import { Button } from "@/components/ui/button";
 
 const ThirdAdminDashboard: React.FC = () => {
   const { user } = useAuth();
+  const { data: submissions, isLoading, error } = useSubmissions();
 
   return (
     <div className="space-y-8 p-4 sm:p-6 md:p-8">
@@ -54,7 +59,7 @@ const ThirdAdminDashboard: React.FC = () => {
             descriptionClassName="text-lg"
           />
         </Link>
-        <Link to="/third-admin/answer-assessment" className="flex">
+        <Link to="/third-admin/assessments" className="flex">
           <DashboardCard
             title="Answer Assesment"
             description="Fill out and manage assessments"
@@ -64,7 +69,7 @@ const ThirdAdminDashboard: React.FC = () => {
             descriptionClassName="text-lg"
           />
         </Link>
-        <Link to="/third-admin/action-plan" className="flex">
+        <Link to="/third-admin/action-plans" className="flex">
           <DashboardCard
             title="View Action Plan"
             description="Review and track action plans"
@@ -88,23 +93,32 @@ const ThirdAdminDashboard: React.FC = () => {
 
       {/* Recent History */}
       <Card className="mt-8">
-        <CardHeader>
-          <div className="flex items-center space-x-3">
-            <History className="h-6 w-6 text-gray-700 dark:text-gray-300" />
-            <div>
-              <CardTitle>Recent History</CardTitle>
-              <CardDescription>
-                A log of recent activities and events in the system.
-              </CardDescription>
-            </div>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div>
+            <CardTitle className="flex items-center">
+              <History className="mr-2 h-5 w-5" />
+              Recent Submissions
+            </CardTitle>
+            <CardDescription>
+              A log of recent activities and system events.
+            </CardDescription>
           </div>
+          <Link to="/third-admin/submissions">
+            <Button variant="outline">View All</Button>
+          </Link>
         </CardHeader>
         <CardContent>
-          <div className="text-center py-12">
-            <p className="text-gray-500 dark:text-gray-400">
-              Recent history will be displayed here.
-            </p>
-          </div>
+          {isLoading && <LoadingSpinner />}
+          {error && (
+            <p className="text-red-500">An error occurred: {error.message}</p>
+          )}
+          {submissions && (
+            <SubmissionList
+              submissions={submissions}
+              limit={5}
+              basePath="third-admin"
+            />
+          )}
         </CardContent>
       </Card>
     </div>

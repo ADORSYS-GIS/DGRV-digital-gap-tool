@@ -25,7 +25,7 @@ import {
 import React from "react";
 import { Link } from "react-router-dom";
 import { useSubmissions } from "@/hooks/submissions/useSubmissions";
-import { SubmissionList } from "@/components/second_admin/submissions/SubmissionList";
+import { SubmissionList } from "@/components/shared/submissions/SubmissionList";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { Button } from "@/components/ui/button";
 
@@ -113,7 +113,11 @@ const SecondAdminDashboard: React.FC = () => {
             <p className="text-red-500">An error occurred: {error.message}</p>
           )}
           {submissions && (
-            <SubmissionList submissions={submissions} limit={5} />
+            <SubmissionList
+              submissions={submissions}
+              limit={5}
+              basePath="second-admin"
+            />
           )}
         </CardContent>
       </Card>

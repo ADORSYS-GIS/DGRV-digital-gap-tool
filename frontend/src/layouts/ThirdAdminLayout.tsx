@@ -23,12 +23,12 @@ const ThirdAdminLayout: React.FC = () => {
     { to: "/third-admin/dashboard", icon: BarChart3, text: "Dashboard" },
     { to: "/third-admin/users", icon: Users, text: "Manage Users" },
     {
-      to: "/third-admin/answer-assessment",
+      to: "/third-admin/assessments",
       icon: FilePenLine,
       text: "Answer Assessment",
     },
     {
-      to: "/third-admin/action-plan",
+      to: "/third-admin/action-plans",
       icon: ClipboardList,
       text: "View Action Plan",
     },
