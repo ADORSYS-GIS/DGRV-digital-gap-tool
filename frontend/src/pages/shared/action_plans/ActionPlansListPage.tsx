@@ -1,5 +1,5 @@
 import { useActionPlans } from "@/hooks/action_plans/useActionPlans";
-import { ActionPlanList } from "@/components/second_admin/action_plans/ActionPlanList";
+import { ActionPlanList } from "@/components/shared/action_plans/ActionPlanList";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { useSubmissions } from "@/hooks/submissions/useSubmissions";
 

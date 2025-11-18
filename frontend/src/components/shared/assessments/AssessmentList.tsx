@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Assessment } from "../../../types/assessment";
 import { Badge } from "../../../components/ui/badge";
 import { Button } from "../../../components/ui/button";
@@ -21,6 +21,7 @@ export function AssessmentList({ assessments }: AssessmentListProps) {
   const { mutate: updateAssessment } = useUpdateAssessment();
   const { data: dimensions, isLoading: isLoadingDimensions } = useDimensions();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleEdit = (assessment: Assessment) => {
     setSelectedAssessment(assessment);
@@ -32,7 +33,8 @@ export function AssessmentList({ assessments }: AssessmentListProps) {
   };
 
   const handleAnswer = (id: string) => {
-    navigate(`/second-admin/assessment/${id}`);
+    const basePath = location.pathname.split("/")[1];
+    navigate(`/${basePath}/assessment/${id}`);
   };
 
   return (

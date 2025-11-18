@@ -1,9 +1,10 @@
 /**
- * Second admin dashboard page for cooperative management.
+ * Third Admin dashboard page for managing specific administrative tasks.
  * This page provides:
- * - Cooperative and user management tools
- * - Assessment creation and submission tracking
- * - Action plan overview
+ * - User management access
+ * - Assessment answering interface
+ * - Action plan viewing
+ * - Submission tracking
  */
 import { DashboardCard } from "@/components/shared/DashboardCard";
 import {
@@ -15,11 +16,10 @@ import {
 } from "@/components/ui/card";
 import { useAuth } from "@/hooks/shared/useAuth";
 import {
-  Building2,
   Users,
-  FilePlus2,
+  FilePenLine,
   ClipboardList,
-  ClipboardCheck,
+  Inbox,
   History,
 } from "lucide-react";
 import React from "react";
@@ -29,70 +29,70 @@ import { SubmissionList } from "@/components/shared/submissions/SubmissionList";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { Button } from "@/components/ui/button";
 
-const SecondAdminDashboard: React.FC = () => {
+const ThirdAdminDashboard: React.FC = () => {
   const { user } = useAuth();
   const { data: submissions, isLoading, error } = useSubmissions();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 p-4 sm:p-6 md:p-8">
       {/* Welcome Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Cooperative Management Dashboard
+        <h1 className="text-4xl font-bold tracking-tight text-gray-900 dark:text-gray-100">
+          Third Admin Dashboard
         </h1>
-        <p className="text-gray-600">
+        <p className="text-lg text-gray-600 dark:text-gray-400 mt-2">
           Welcome back,{" "}
-          {user?.name || user?.preferred_username || "Administrator"}. Manage
-          cooperatives and their assessments.
+          {user?.name || user?.preferred_username || "Administrator"}. Here are
+          your tools to manage assessments and users.
         </p>
       </div>
 
       {/* Management Tools Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <Link to="/second-admin/cooperations">
-          <DashboardCard
-            title="Manage Cooperations"
-            description="Administer cooperative profiles and data"
-            icon={Building2}
-            variant="default"
-          />
-        </Link>
-        <Link to="/second-admin/users">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <Link to="/third-admin/users" className="flex">
           <DashboardCard
             title="Manage Users"
-            description="Oversee user accounts and permissions"
+            description="Administer user accounts and permissions"
             icon={Users}
             variant="default"
+            titleClassName="text-xl font-bold"
+            descriptionClassName="text-lg"
           />
         </Link>
-        <Link to="/second-admin/assessments">
+        <Link to="/third-admin/assessments" className="flex">
           <DashboardCard
-            title="Create Assesment"
-            description="Design and deploy new assessments"
-            icon={FilePlus2}
+            title="Answer Assesment"
+            description="Fill out and manage assessments"
+            icon={FilePenLine}
             variant="default"
+            titleClassName="text-xl font-bold"
+            descriptionClassName="text-lg"
           />
         </Link>
-        <Link to="/second-admin/action-plans">
+        <Link to="/third-admin/action-plans" className="flex">
           <DashboardCard
             title="View Action Plan"
-            description="Review and monitor strategic action plans"
+            description="Review and track action plans"
             icon={ClipboardList}
             variant="default"
+            titleClassName="text-xl font-bold"
+            descriptionClassName="text-lg"
           />
         </Link>
-        <Link to="/second-admin/submissions">
+        <Link to="/third-admin/submissions" className="flex">
           <DashboardCard
             title="View Submissions"
-            description="Track and evaluate assessment submissions"
-            icon={ClipboardCheck}
+            description="Browse and manage all submissions"
+            icon={Inbox}
             variant="default"
+            titleClassName="text-xl font-bold"
+            descriptionClassName="text-lg"
           />
         </Link>
       </div>
 
-      {/* Recent Submissions */}
-      <Card>
+      {/* Recent History */}
+      <Card className="mt-8">
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
             <CardTitle className="flex items-center">
@@ -103,7 +103,7 @@ const SecondAdminDashboard: React.FC = () => {
               A log of recent activities and system events.
             </CardDescription>
           </div>
-          <Link to="/second-admin/submissions">
+          <Link to="/third-admin/submissions">
             <Button variant="outline">View All</Button>
           </Link>
         </CardHeader>
@@ -116,7 +116,7 @@ const SecondAdminDashboard: React.FC = () => {
             <SubmissionList
               submissions={submissions}
               limit={5}
-              basePath="second-admin"
+              basePath="third-admin"
             />
           )}
         </CardContent>
@@ -125,4 +125,4 @@ const SecondAdminDashboard: React.FC = () => {
   );
 };
 
-export default SecondAdminDashboard;
+export default ThirdAdminDashboard;

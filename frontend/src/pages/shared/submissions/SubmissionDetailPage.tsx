@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import { useSubmissionSummary } from "@/hooks/submissions/useSubmissionSummary";
-import { SubmissionDetail } from "@/components/second_admin/submissions/SubmissionDetail";
+import { SubmissionDetail } from "@/components/shared/submissions/SubmissionDetail";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 
 export default function SubmissionDetailPage() {

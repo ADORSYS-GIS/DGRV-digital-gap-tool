@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useActionPlan } from "@/hooks/action_plans/useActionPlan";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
-import { KanbanBoard } from "@/components/second_admin/action_plans/KanbanBoard";
+import { KanbanBoard } from "@/components/shared/action_plans/KanbanBoard";
 import { useSubmissions } from "@/hooks/submissions/useSubmissions";
 
 export default function ActionPlanPage() {
