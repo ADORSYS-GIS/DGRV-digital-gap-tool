@@ -1,10 +1,9 @@
+use crate::AppState;
 use axum::{
     extract::{Path, Query, State},
     http::StatusCode,
     response::Json,
 };
-use sea_orm::DatabaseConnection;
-use std::sync::Arc;
 use uuid::Uuid;
 
 use crate::api::dto::{
@@ -17,6 +16,11 @@ use crate::api::handlers::common::{
 use crate::error::AppError;
 use crate::repositories::{
     assessments::AssessmentsRepository, dimension_assessments::DimensionAssessmentsRepository,
+    gaps::GapsRepository,
+};
+use crate::repositories::{
+    action_items::ActionItemsRepository, action_plans::ActionPlansRepository,
+    recommendations::RecommendationsRepository,
 };
 
 // Conversion functions between entity and DTO types
@@ -52,17 +56,17 @@ fn convert_dto_assessment_status_to_entity(
 )]
 /// Create a new assessment
 pub async fn create_assessment(
-    State(db): State<Arc<DatabaseConnection>>,
+    State(state): State<AppState>,
     Json(request): Json<CreateAssessmentRequest>,
 ) -> Result<Json<ApiResponse<AssessmentResponse>>, (StatusCode, Json<serde_json::Value>)> {
+    let db = &state.db;
     // Convert request to active model
     let active_model = crate::entities::assessments::ActiveModel {
-        user_id: sea_orm::Set(request.user_id),
+        assessment_id: sea_orm::Set(Uuid::new_v4()),
         organization_id: sea_orm::Set(request.organization_id),
-        cooperative_id: sea_orm::Set(request.cooperative_id),
-        document_title: sea_orm::Set(request.document_title),
+        document_title: sea_orm::Set(request.assessment_name),
+        dimensions_id: sea_orm::Set(Some(serde_json::json!(request.dimensions_id))),
         status: sea_orm::Set(crate::entities::assessments::AssessmentStatus::Draft),
-        metadata: sea_orm::Set(request.metadata),
         ..Default::default()
     };
 
@@ -72,16 +76,14 @@ pub async fn create_assessment(
 
     let response = AssessmentResponse {
         assessment_id: assessment.assessment_id,
-        user_id: assessment.user_id,
         organization_id: assessment.organization_id,
-        cooperative_id: assessment.cooperative_id,
         document_title: assessment.document_title,
         status: convert_entity_assessment_status_to_dto(assessment.status),
         started_at: assessment.started_at,
         completed_at: assessment.completed_at,
         created_at: assessment.created_at,
         updated_at: assessment.updated_at,
-        metadata: assessment.metadata,
+        dimensions_id: assessment.dimensions_id,
     };
 
     Ok(success_response_with_message(
@@ -101,9 +103,10 @@ pub async fn create_assessment(
 )]
 /// Get assessment by ID
 pub async fn get_assessment(
-    State(db): State<Arc<DatabaseConnection>>,
+    State(state): State<AppState>,
     Path(assessment_id): Path<Uuid>,
 ) -> Result<Json<ApiResponse<AssessmentResponse>>, (StatusCode, Json<serde_json::Value>)> {
+    let db = &state.db;
     let assessment = AssessmentsRepository::find_by_id(db.as_ref(), assessment_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?
@@ -115,16 +118,14 @@ pub async fn get_assessment(
 
     let response = AssessmentResponse {
         assessment_id: assessment.assessment_id,
-        user_id: assessment.user_id,
         organization_id: assessment.organization_id,
-        cooperative_id: assessment.cooperative_id,
         document_title: assessment.document_title,
         status: convert_entity_assessment_status_to_dto(assessment.status),
         started_at: assessment.started_at,
         completed_at: assessment.completed_at,
         created_at: assessment.created_at,
         updated_at: assessment.updated_at,
-        metadata: assessment.metadata,
+        dimensions_id: assessment.dimensions_id,
     };
 
     Ok(success_response(response))
@@ -141,9 +142,10 @@ pub async fn get_assessment(
 )]
 /// Get assessment summary with related data
 pub async fn get_assessment_summary(
-    State(db): State<Arc<DatabaseConnection>>,
+    State(state): State<AppState>,
     Path(assessment_id): Path<Uuid>,
 ) -> Result<Json<ApiResponse<AssessmentSummaryResponse>>, (StatusCode, Json<serde_json::Value>)> {
+    let db = &state.db;
     // Get assessment
     let assessment = AssessmentsRepository::find_by_id(db.as_ref(), assessment_id)
         .await
@@ -174,16 +176,14 @@ pub async fn get_assessment_summary(
 
     let assessment_response = AssessmentResponse {
         assessment_id: assessment.assessment_id,
-        user_id: assessment.user_id,
         organization_id: assessment.organization_id,
-        cooperative_id: assessment.cooperative_id,
         document_title: assessment.document_title,
         status: convert_entity_assessment_status_to_dto(assessment.status),
         started_at: assessment.started_at,
         completed_at: assessment.completed_at,
         created_at: assessment.created_at,
         updated_at: assessment.updated_at,
-        metadata: assessment.metadata,
+        dimensions_id: assessment.dimensions_id,
     };
 
     let dimension_assessments_response: Vec<DimensionAssessmentResponse> = dimension_assessments
@@ -194,6 +194,10 @@ pub async fn get_assessment_summary(
             dimension_id: da.dimension_id,
             created_at: da.created_at,
             updated_at: da.updated_at,
+            current_state_id: da.current_state_id,
+            desired_state_id: da.desired_state_id,
+            gap_score: da.gap_score,
+            gap_id: da.gap_id,
         })
         .collect();
 
@@ -221,7 +225,7 @@ pub async fn get_assessment_summary(
 )]
 /// List assessments with pagination
 pub async fn list_assessments(
-    State(db): State<Arc<DatabaseConnection>>,
+    State(state): State<AppState>,
     Query(params): Query<PaginationParams>,
 ) -> Result<
     Json<ApiResponse<PaginatedResponse<AssessmentResponse>>>,
@@ -230,6 +234,7 @@ pub async fn list_assessments(
     let (page, limit, _sort_by, _sort_order) = extract_pagination(Query(params));
     let offset = ((page - 1) * limit) as u64;
 
+    let db = &state.db;
     let assessments = AssessmentsRepository::find_all(db.as_ref())
         .await
         .map_err(crate::api::handlers::common::handle_error)?;
@@ -241,16 +246,14 @@ pub async fn list_assessments(
         .take(limit as usize)
         .map(|assessment| AssessmentResponse {
             assessment_id: assessment.assessment_id,
-            user_id: assessment.user_id,
             organization_id: assessment.organization_id,
-            cooperative_id: assessment.cooperative_id,
             document_title: assessment.document_title,
             status: convert_entity_assessment_status_to_dto(assessment.status),
             started_at: assessment.started_at,
             completed_at: assessment.completed_at,
             created_at: assessment.created_at,
             updated_at: assessment.updated_at,
-            metadata: assessment.metadata,
+            dimensions_id: assessment.dimensions_id,
         })
         .collect();
 
@@ -270,11 +273,12 @@ pub async fn list_assessments(
 )]
 /// Update assessment
 pub async fn update_assessment(
-    State(db): State<Arc<DatabaseConnection>>,
+    State(state): State<AppState>,
     Path(assessment_id): Path<Uuid>,
     Json(request): Json<UpdateAssessmentRequest>,
 ) -> Result<Json<ApiResponse<AssessmentResponse>>, (StatusCode, Json<serde_json::Value>)> {
-    let mut assessment = AssessmentsRepository::find_by_id(db.as_ref(), assessment_id)
+    let db = &state.db;
+    let assessment = AssessmentsRepository::find_by_id(db.as_ref(), assessment_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?
         .ok_or_else(|| {
@@ -283,29 +287,24 @@ pub async fn update_assessment(
             ))
         })?;
 
+    let mut active_model: crate::entities::assessments::ActiveModel = assessment.into();
+
     // Update fields if provided
-    if let Some(document_title) = request.document_title {
-        assessment.document_title = document_title;
+    if let Some(assessment_name) = request.assessment_name {
+        active_model.document_title = sea_orm::Set(assessment_name);
     }
-    if let Some(cooperative_id) = request.cooperative_id {
-        assessment.cooperative_id = cooperative_id;
+    if let Some(dimensions_id) = request.dimensions_id {
+        active_model.dimensions_id = sea_orm::Set(Some(serde_json::json!(dimensions_id)));
     }
     if let Some(status) = request.status {
-        assessment.status = convert_dto_assessment_status_to_entity(status);
+        active_model.status = sea_orm::Set(convert_dto_assessment_status_to_entity(status));
     }
     if let Some(started_at) = request.started_at {
-        assessment.started_at = Some(started_at);
+        active_model.started_at = sea_orm::Set(Some(started_at));
     }
     if let Some(completed_at) = request.completed_at {
-        assessment.completed_at = Some(completed_at);
+        active_model.completed_at = sea_orm::Set(Some(completed_at));
     }
-    if let Some(metadata) = request.metadata {
-        assessment.metadata = Some(metadata);
-    }
-
-    assessment.updated_at = chrono::Utc::now();
-
-    let active_model: crate::entities::assessments::ActiveModel = assessment.into();
     let updated_assessment =
         AssessmentsRepository::update(db.as_ref(), assessment_id, active_model)
             .await
@@ -313,16 +312,14 @@ pub async fn update_assessment(
 
     let response = AssessmentResponse {
         assessment_id: updated_assessment.assessment_id,
-        user_id: updated_assessment.user_id,
         organization_id: updated_assessment.organization_id,
-        cooperative_id: updated_assessment.cooperative_id,
         document_title: updated_assessment.document_title,
         status: convert_entity_assessment_status_to_dto(updated_assessment.status),
         started_at: updated_assessment.started_at,
         completed_at: updated_assessment.completed_at,
         created_at: updated_assessment.created_at,
         updated_at: updated_assessment.updated_at,
-        metadata: updated_assessment.metadata,
+        dimensions_id: updated_assessment.dimensions_id,
     };
 
     Ok(success_response_with_message(
@@ -341,9 +338,10 @@ pub async fn update_assessment(
 )]
 /// Delete assessment
 pub async fn delete_assessment(
-    State(db): State<Arc<DatabaseConnection>>,
+    State(state): State<AppState>,
     Path(assessment_id): Path<Uuid>,
 ) -> Result<Json<ApiResponse<()>>, (StatusCode, Json<serde_json::Value>)> {
+    let db = &state.db;
     AssessmentsRepository::delete(db.as_ref(), assessment_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?;
@@ -366,31 +364,101 @@ pub async fn delete_assessment(
 )]
 /// Create dimension assessment
 pub async fn create_dimension_assessment(
-    State(db): State<Arc<DatabaseConnection>>,
+    State(state): State<AppState>,
     Path(assessment_id): Path<Uuid>,
     Json(request): Json<CreateDimensionAssessmentRequest>,
 ) -> Result<Json<ApiResponse<DimensionAssessmentResponse>>, (StatusCode, Json<serde_json::Value>)> {
-    let active_model = crate::entities::dimension_assessments::ActiveModel {
-        assessment_id: sea_orm::Set(assessment_id),
-        dimension_id: sea_orm::Set(request.dimension_id),
-        ..Default::default()
+    let db = &state.db;
+    // 1. Create the Dimension Assessment
+    let gap = GapsRepository::find_by_dimension_and_severity(
+        db.as_ref(),
+        request.dimension_id,
+        match request.gap_score {
+            1 => crate::entities::gaps::GapSeverity::Low,
+            2 => crate::entities::gaps::GapSeverity::Medium,
+            3 => crate::entities::gaps::GapSeverity::High,
+            _ => {
+                return Err(crate::api::handlers::common::handle_error(
+                    AppError::ValidationError("Invalid gap_score. Must be 1, 2, or 3.".to_string()),
+                ));
+            }
+        },
+    )
+    .await
+    .map_err(crate::api::handlers::common::handle_error)?
+    .ok_or_else(|| {
+        crate::api::handlers::common::handle_error(AppError::NotFound(
+            "Corresponding gap not found for the given dimension and severity".to_string(),
+        ))
+    })?;
+
+    let dimension_assessment_active_model =
+        crate::entities::dimension_assessments::ActiveModel {
+            dimension_assessment_id: sea_orm::Set(Uuid::new_v4()),
+            assessment_id: sea_orm::Set(assessment_id),
+            dimension_id: sea_orm::Set(request.dimension_id),
+            current_state_id: sea_orm::Set(request.current_state_id),
+            desired_state_id: sea_orm::Set(request.desired_state_id),
+            gap_score: sea_orm::Set(request.gap_score),
+            gap_id: sea_orm::Set(gap.gap_id),
+            ..Default::default()
+        };
+
+    let dimension_assessment =
+        DimensionAssessmentsRepository::create(db.as_ref(), dimension_assessment_active_model)
+            .await
+            .map_err(crate::api::handlers::common::handle_error)?;
+
+    // 2. Find or create an Action Plan
+    let action_plan =
+        ActionPlansRepository::find_or_create(db.as_ref(), dimension_assessment.assessment_id)
+            .await
+            .map_err(crate::api::handlers::common::handle_error)?;
+
+    // 3. Create an Action Item
+    let recommendation_priority = match request.gap_score {
+        1 => "Low",
+        2 => "Medium",
+        3 => "High",
+        _ => "Medium", // Should not happen
     };
+    if let Some(recommendation) = RecommendationsRepository::find_by_dimension_and_priority(
+        db.as_ref(),
+        request.dimension_id,
+        recommendation_priority,
+    )
+    .await
+    .map_err(crate::api::handlers::common::handle_error)?
+    {
+        let action_item_active_model = crate::entities::action_items::ActiveModel {
+            id: sea_orm::Set(Uuid::new_v4()),
+            action_plan_id: sea_orm::Set(action_plan.id),
+            dimension_assessment_id: sea_orm::Set(dimension_assessment.dimension_assessment_id),
+            recommendation_id: sea_orm::Set(recommendation.recommendation_id),
+            ..Default::default()
+        };
 
-    let dimension_assessment = DimensionAssessmentsRepository::create(db.as_ref(), active_model)
-        .await
-        .map_err(crate::api::handlers::common::handle_error)?;
+        ActionItemsRepository::create(db.as_ref(), action_item_active_model)
+            .await
+            .map_err(crate::api::handlers::common::handle_error)?;
+    }
 
+    // 4. Prepare and return the response
     let response = DimensionAssessmentResponse {
         dimension_assessment_id: dimension_assessment.dimension_assessment_id,
         assessment_id: dimension_assessment.assessment_id,
         dimension_id: dimension_assessment.dimension_id,
+        current_state_id: dimension_assessment.current_state_id,
+        desired_state_id: dimension_assessment.desired_state_id,
+        gap_score: dimension_assessment.gap_score,
+        gap_id: dimension_assessment.gap_id,
         created_at: dimension_assessment.created_at,
         updated_at: dimension_assessment.updated_at,
     };
 
     Ok(success_response_with_message(
         response,
-        "Dimension assessment created successfully".to_string(),
+        "Dimension assessment created and action plan generated successfully".to_string(),
     ))
 }
 
@@ -409,11 +477,12 @@ pub async fn create_dimension_assessment(
 )]
 /// Update dimension assessment
 pub async fn update_dimension_assessment(
-    State(db): State<Arc<DatabaseConnection>>,
-    Path((assessment_id, dimension_assessment_id)): Path<(Uuid, Uuid)>,
-    Json(_request): Json<UpdateDimensionAssessmentRequest>,
+    State(state): State<AppState>,
+    Path((_assessment_id, dimension_assessment_id)): Path<(Uuid, Uuid)>,
+    Json(request): Json<UpdateDimensionAssessmentRequest>,
 ) -> Result<Json<ApiResponse<DimensionAssessmentResponse>>, (StatusCode, Json<serde_json::Value>)> {
-    let mut dimension_assessment =
+    let db = &state.db;
+    let dimension_assessment =
         DimensionAssessmentsRepository::find_by_id(db.as_ref(), dimension_assessment_id)
             .await
             .map_err(crate::api::handlers::common::handle_error)?
@@ -423,22 +492,13 @@ pub async fn update_dimension_assessment(
                 ))
             })?;
 
-    // Verify it belongs to the assessment
-    if dimension_assessment.assessment_id != assessment_id {
-        return Err(crate::api::handlers::common::handle_error(
-            AppError::ValidationError(
-                "Dimension assessment does not belong to this assessment".to_string(),
-            ),
-        ));
+    let mut active_model: crate::entities::dimension_assessments::ActiveModel =
+        dimension_assessment.into();
+
+    if let Some(gap_score) = request.gap_score {
+        active_model.gap_score = sea_orm::Set(gap_score);
     }
 
-    // Update fields if provided
-    // No updatable fields on slimmed dimension_assessments for now
-
-    dimension_assessment.updated_at = chrono::Utc::now();
-
-    let active_model: crate::entities::dimension_assessments::ActiveModel =
-        dimension_assessment.into();
     let updated_dimension_assessment =
         DimensionAssessmentsRepository::update(db.as_ref(), dimension_assessment_id, active_model)
             .await
@@ -448,6 +508,10 @@ pub async fn update_dimension_assessment(
         dimension_assessment_id: updated_dimension_assessment.dimension_assessment_id,
         assessment_id: updated_dimension_assessment.assessment_id,
         dimension_id: updated_dimension_assessment.dimension_id,
+        current_state_id: updated_dimension_assessment.current_state_id,
+        desired_state_id: updated_dimension_assessment.desired_state_id,
+        gap_score: updated_dimension_assessment.gap_score,
+        gap_id: updated_dimension_assessment.gap_id,
         created_at: updated_dimension_assessment.created_at,
         updated_at: updated_dimension_assessment.updated_at,
     };

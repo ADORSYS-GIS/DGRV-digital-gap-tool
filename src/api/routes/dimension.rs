@@ -1,9 +1,8 @@
+use crate::AppState;
 use axum::{
-    routing::{delete, get, post, put},
+    routing::{get, post, put},
     Router,
 };
-use sea_orm::DatabaseConnection;
-use std::sync::Arc;
 
 use crate::api::handlers::dimension::{
     create_current_state, create_desired_state, create_dimension, delete_dimension, get_dimension,
@@ -12,14 +11,14 @@ use crate::api::handlers::dimension::{
 };
 
 /// Create dimension routes
-pub fn create_dimension_routes() -> Router<Arc<DatabaseConnection>> {
+pub fn create_dimension_routes() -> Router<AppState> {
     Router::new()
         // Dimension CRUD operations
         .route("/", post(create_dimension))
         .route("/", get(list_dimensions))
         .route("/:id", get(get_dimension))
         .route("/:id", put(update_dimension))
-        .route("/:id", delete(delete_dimension))
+        .route("/:id", axum::routing::delete(delete_dimension))
         .route("/:id/with-states", get(get_dimension_with_states))
         // Current state operations
         .route("/:id/current-states", post(create_current_state))

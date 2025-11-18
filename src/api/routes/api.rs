@@ -2,14 +2,21 @@ use axum::{
     routing::{delete, get, post, put},
     Router,
 };
-use sea_orm::DatabaseConnection;
-use std::sync::Arc;
+use crate::AppState;
 
-use crate::api::handlers::{action_plan::*, assessment::*, dimension::*, gap::*, report::*};
+use crate::api::handlers::{
+    assessment::*, dimension::*, gap::*, report::*,
+};
+use crate::api::routes::{
+    action_plan::create_action_plan_routes, organization::create_organization_routes, recommendation::create_recommendation_routes,
+};
 
 /// Create the main API routes
-pub fn create_api_routes() -> Router<Arc<DatabaseConnection>> {
+pub fn create_api_routes() -> Router<AppState> {
     Router::new()
+        .nest("/action-plans", create_action_plan_routes())
+        .nest("/admin/organizations", create_organization_routes())
+        .nest("/recommendations", create_recommendation_routes())
         // Assessment routes
         .route("/assessments", post(create_assessment))
         .route("/assessments", get(list_assessments))
@@ -65,32 +72,11 @@ pub fn create_api_routes() -> Router<Arc<DatabaseConnection>> {
         .route("/reports/:id", get(get_report))
         .route("/reports/:id", put(update_report))
         .route("/reports/:id", delete(delete_report))
-        // Action plan routes
-        .route("/action-plans", post(create_action_plan))
-        .route("/action-plans", get(list_action_plans))
-        .route("/action-plans/:id", get(get_action_plan))
-        .route("/action-plans/:id", put(update_action_plan))
-        .route("/action-plans/:id", delete(delete_action_plan))
-        .route(
-            "/action-plans/:id/with-items",
-            get(get_action_plan_with_items),
-        )
-        .route(
-            "/action-plans/:action_plan_id/action-items",
-            post(create_action_item),
-        )
-        .route(
-            "/action-plans/:action_plan_id/action-items/:action_item_id",
-            put(update_action_item),
-        )
-        .route(
-            "/action-plans/:action_plan_id/action-items/:action_item_id",
-            delete(delete_action_item),
-        )
         // Gap routes
-        .route("/gaps", post(create_gap))
         .route("/gaps", get(list_gaps))
         .route("/gaps/:id", get(get_gap))
+        .route("/gaps/:id", put(update_gap))
+        .route("/gaps/:id", delete(delete_gap))
         .route(
             "/dimension-assessments/:dimension_assessment_id/gaps",
             get(list_gaps_by_dimension_assessment),
@@ -99,7 +85,6 @@ pub fn create_api_routes() -> Router<Arc<DatabaseConnection>> {
             "/assessments/:assessment_id/gaps",
             get(list_gaps_by_assessment),
         )
-        // Admin gap configuration
-        .route("/admin/gap-severity-rules", post(set_severity_rules))
-        .route("/admin/gap-descriptions", post(set_gap_description))
+        // Admin gap creation
+        .route("/admin/gaps", post(admin_create_gap))
 }

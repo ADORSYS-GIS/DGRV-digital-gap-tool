@@ -5,7 +5,7 @@
 ```mermaid
 erDiagram
     
-    DIMENSIONS {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
+    DIMENSIONS {                                                                                                                                                                   
         uuid dimension_id PK
         string name UK
         text description
@@ -60,7 +60,6 @@ erDiagram
     
     GAPS {
         uuid gap_id PK
-        uuid dimension_assessment_id FK
         uuid dimension_id FK
         integer gap_size
         string gap_severity

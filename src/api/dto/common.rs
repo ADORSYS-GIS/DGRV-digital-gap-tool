@@ -27,12 +27,17 @@ use uuid::Uuid;
     ApiResponsePaginatedReportResponse = ApiResponse<PaginatedResponse<crate::api::dto::report::ReportResponse>>,
     ApiResponseGapResponse = ApiResponse<crate::api::dto::gap::GapResponse>,
     ApiResponsePaginatedGapResponse = ApiResponse<PaginatedResponse<crate::api::dto::gap::GapResponse>>,
-    ApiResponseEmpty = ApiResponse<EmptyResponse>
+    ApiResponseEmpty = ApiResponse<EmptyResponse>,
+    ApiResponseAdminCreateGapRequest = ApiResponse<crate::api::dto::gap::AdminCreateGapRequest>,
+    // Recommendation API responses
+    ApiResponseRecommendationResponse = ApiResponse<crate::api::dto::recommendation::RecommendationResponse>,
+    ApiResponsePaginatedRecommendationResponse = ApiResponse<PaginatedResponse<crate::api::dto::recommendation::RecommendationResponse>>,
+    ApiResponseCreateRecommendationRequest = ApiResponse<crate::api::dto::recommendation::CreateRecommendationRequest>,
+    ApiResponseUpdateRecommendationRequest = ApiResponse<crate::api::dto::recommendation::UpdateRecommendationRequest>
 )]
 pub struct ApiResponse<T>
 where
-    T: for<'a> ToSchema<'a>,
-{
+    T: for<'a> ToSchema<'a>, {
     pub success: bool,
     #[schema(inline)]
     pub data: Option<T>,
@@ -133,7 +138,8 @@ impl FromStr for SortOrder {
     PaginatedReportResponse = PaginatedResponse<crate::api::dto::report::ReportResponse>,
     PaginatedDimensionResponse = PaginatedResponse<crate::api::dto::dimension::DimensionResponse>,
     PaginatedGapResponse = PaginatedResponse<crate::api::dto::gap::GapResponse>,
-    PaginatedAssessmentResponse = PaginatedResponse<crate::api::dto::assessment::AssessmentResponse>
+    PaginatedAssessmentResponse = PaginatedResponse<crate::api::dto::assessment::AssessmentResponse>,
+    PaginatedRecommendationResponse = PaginatedResponse<crate::api::dto::recommendation::RecommendationResponse>
 )]
 pub struct PaginatedResponse<T>
 where

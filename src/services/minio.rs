@@ -5,6 +5,7 @@ use minio::s3::creds::StaticProvider;
 use minio::s3::http::BaseUrl;
 use crate::config::MinioConfig;
 use crate::error::AppError;
+use crate::services::minio;
 
 pub struct MinioService {
     client: MinioClient,
@@ -106,6 +107,7 @@ pub trait FileStorageService: Send + Sync {
     async fn download_file(&self, object_name: &str) -> Result<Bytes, AppError>;
 
     async fn delete_file(&self, object_name: &str) -> Result<(), AppError>;
+
 }
 
 #[async_trait]
@@ -125,6 +127,5 @@ impl FileStorageService for MinioService {
 
     async fn delete_file(&self, object_name: &str) -> Result<(), AppError> {
         self.delete_file(object_name).await
-    }
     }
 }

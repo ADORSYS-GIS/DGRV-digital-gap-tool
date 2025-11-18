@@ -46,9 +46,6 @@ impl RecommendationsRepository {
         if let ActiveValue::Set(dimension_id) = recommendation_data.dimension_id {
             active_model.dimension_id = Set(dimension_id);
         }
-        if let ActiveValue::Set(gap_severity) = recommendation_data.gap_severity {
-            active_model.gap_severity = Set(gap_severity);
-        }
         if let ActiveValue::Set(priority) = recommendation_data.priority {
             active_model.priority = Set(priority);
         }
@@ -80,6 +77,25 @@ impl RecommendationsRepository {
             .await
             .map_err(AppError::from)
     }
+    pub async fn find_by_dimension_and_priority(
+        db: &DbConn,
+        dimension_id: Uuid,
+        priority: &str,
+    ) -> Result<Option<recommendations::Model>, AppError> {
+        let priority_enum = match priority {
+            "Low" => crate::entities::recommendations::RecommendationPriority::Low,
+            "Medium" => crate::entities::recommendations::RecommendationPriority::Medium,
+            "High" => crate::entities::recommendations::RecommendationPriority::High,
+            _ => return Err(AppError::ValidationError("Invalid priority".to_string())),
+        };
+
+        Recommendations::find()
+            .filter(recommendations::Column::DimensionId.eq(dimension_id))
+            .filter(recommendations::Column::Priority.eq(priority_enum))
+            .one(db)
+            .await
+            .map_err(AppError::from)
+    }
 
     pub async fn find_by_priority(
         db: &DbConn,
@@ -108,10 +124,8 @@ impl RecommendationsRepository {
         recommendation_id: Uuid,
         priority: crate::entities::recommendations::RecommendationPriority,
     ) -> Result<recommendations::Model, AppError> {
-        let recommendation = Recommendations::find_by_id(recommendation_id)
-            .one(db)
-            .await
-            .map_err(AppError::from)?
+        let recommendation = Self::find_by_id(db, recommendation_id)
+            .await?
             .ok_or_else(|| AppError::NotFound("Recommendation not found".to_string()))?;
 
         let mut active_model: recommendations::ActiveModel = recommendation.into();
@@ -119,5 +133,39 @@ impl RecommendationsRepository {
         active_model.updated_at = Set(chrono::Utc::now());
 
         active_model.update(db).await.map_err(AppError::from)
+    }
+
+    /// Find all recommendations with pagination
+    pub async fn find_all_paginated(
+        db: &DbConn,
+        page: u64,
+        page_size: u64,
+    ) -> Result<(Vec<recommendations::Model>, u64), AppError> {
+        let paginator = Recommendations::find()
+            .order_by_asc(recommendations::Column::CreatedAt)
+            .paginate(db, page_size);
+        
+        let total = paginator.num_items().await?;
+        let recommendations = paginator.fetch_page(page - 1).await?;
+        
+        Ok((recommendations, total))
+    }
+
+    /// Find recommendations by dimension with pagination
+    pub async fn find_by_dimension_paginated(
+        db: &DbConn,
+        dimension_id: Uuid,
+        page: u64,
+        page_size: u64,
+    ) -> Result<(Vec<recommendations::Model>, u64), AppError> {
+        let paginator = Recommendations::find()
+            .filter(recommendations::Column::DimensionId.eq(dimension_id))
+            .order_by_asc(recommendations::Column::CreatedAt)
+            .paginate(db, page_size);
+        
+        let total = paginator.num_items().await?;
+        let recommendations = paginator.fetch_page(page - 1).await?;
+        
+        Ok((recommendations, total))
     }
 }

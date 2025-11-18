@@ -1,17 +1,16 @@
+use crate::AppState;
 use axum::{
     extract::{Path, Query, State},
     http::StatusCode,
     response::Json,
 };
-use sea_orm::{DatabaseConnection, Set};
-use std::sync::Arc;
+use sea_orm::Set;
 use uuid::Uuid;
 
 use crate::api::dto::{
     common::{ApiResponse, EmptyResponse, PaginatedResponse, PaginationParams},
     gap::{
-        CreateGapRequest, GapResponse, GapSeverity, SetGapDescriptionRequest,
-        SetSeverityRulesRequest,
+        AdminCreateGapRequest, GapResponse, GapSeverity, UpdateGapRequest,
     },
 };
 use crate::api::handlers::common::{
@@ -19,13 +18,11 @@ use crate::api::handlers::common::{
 };
 use crate::entities::gaps;
 use crate::error::AppError;
-use crate::repositories::dimension_assessments::DimensionAssessmentsRepository;
 use crate::repositories::gaps::GapsRepository;
 
 fn to_gap_response(model: gaps::Model) -> GapResponse {
     GapResponse {
         gap_id: model.gap_id,
-        dimension_assessment_id: model.dimension_assessment_id,
         dimension_id: model.dimension_id,
         gap_size: model.gap_size,
         gap_severity: GapSeverity::from(model.gap_severity),
@@ -35,104 +32,50 @@ fn to_gap_response(model: gaps::Model) -> GapResponse {
         updated_at: model.updated_at,
     }
 }
-/// Set severity rules for gap analysis
-/// 
-/// This endpoint allows administrators to configure the severity thresholds for gap analysis.
-/// The rules will be used to automatically determine the severity of gaps based on their size.
+/// Create a new gap (admin)
+///
+/// Creates a new gap with a specified severity and description.
+/// This endpoint requires a direct severity level and does not use rule-based calculations.
+///
+/// Required fields:
+/// - `dimension_id` (UUID)
+/// - `gap_description` (string)
+/// - `gap_severity` (enum: "LOW", "MEDIUM", "HIGH")
+///
+/// Example:
+/// {
+///   "dimension_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+///   "gap_description": "A significant gap in the marketing dimension.",
+///   "gap_severity": "HIGH"
+/// }
 #[utoipa::path(
     post,
-    path = "/admin/gap-severity-rules",
+    path = "/admin/gaps",
     tag = "Admin",
-    request_body = SetSeverityRulesRequest,
+    request_body = AdminCreateGapRequest,
     responses(
-        (status = 200, description = "Severity rules successfully updated", body = ApiResponseEmpty),
-        (status = 400, description = "Invalid input data"),
-        (status = 401, description = "Unauthorized"),
-        (status = 403, description = "Forbidden - Admin access required")
-    ),
-    security(
-        ("jwt" = [])
-    )
-)]
-pub async fn set_severity_rules(
-    Json(_req): Json<SetSeverityRulesRequest>,
-) -> Result<Json<ApiResponse<EmptyResponse>>, (StatusCode, Json<serde_json::Value>)> {
-    Ok(success_response(EmptyResponse {}))
-}
-
-/// Set a description for a specific gap size in a dimension
-/// 
-/// This endpoint allows administrators to set or update a description for gaps of a specific size
-/// within a dimension. This description will be used as a template or default description for gaps
-/// that match the criteria.
-#[utoipa::path(
-    post,
-    path = "/admin/gap-descriptions",
-    tag = "Admin",
-    request_body = SetGapDescriptionRequest,
-    responses(
-        (status = 200, description = "Gap description successfully set", body = ApiResponseEmpty),
-        (status = 400, description = "Invalid input data"),
-        (status = 401, description = "Unauthorized"),
-        (status = 403, description = "Forbidden - Admin access required")
-    ),
-    security(
-        ("jwt" = [])
-    )
-)]
-pub async fn set_gap_description(
-    Json(_req): Json<SetGapDescriptionRequest>,
-) -> Result<Json<ApiResponse<EmptyResponse>>, (StatusCode, Json<serde_json::Value>)> {
-    Ok(success_response(EmptyResponse {}))
-}
-/// Create a new gap
-/// 
-/// Creates a new gap record with the provided details. The gap severity will be automatically
-/// determined based on the configured severity rules.
-#[utoipa::path(
-    post,
-    path = "/gaps",
-    tag = "Gaps",
-    request_body = CreateGapRequest,
-    responses(
-        (status = 200, description = "Gap successfully created", body = ApiResponseGapResponse),
+        (status = 200, description = "Gap created", body = ApiResponseGapResponse),
         (status = 400, description = "Invalid input data"),
         (status = 401, description = "Unauthorized"),
         (status = 404, description = "Dimension assessment not found")
     ),
-    security(
-        ("jwt" = [])
-    )
+    security(("jwt" = []))
 )]
-pub async fn create_gap(
-    State(db): State<Arc<DatabaseConnection>>,
-    Json(request): Json<CreateGapRequest>,
+pub async fn admin_create_gap(
+    State(state): State<AppState>,
+    Json(request): Json<AdminCreateGapRequest>,
 ) -> Result<Json<ApiResponse<GapResponse>>, (StatusCode, Json<serde_json::Value>)> {
-    // Look up the dimension assessment to derive gap values
-    let da =
-        DimensionAssessmentsRepository::find_by_id(db.as_ref(), request.dimension_assessment_id)
-            .await
-            .map_err(crate::api::handlers::common::handle_error)?
-            .ok_or_else(|| {
-                crate::api::handlers::common::handle_error(AppError::NotFound(
-                    "Dimension assessment not found".to_string(),
-                ))
-            })?;
-
-    let gap_size = request.gap_size;
-    let severity = match gap_size.abs() {
-        0..=1 => crate::entities::gaps::GapSeverity::Low,
-        2..=3 => crate::entities::gaps::GapSeverity::Medium,
-        _ => crate::entities::gaps::GapSeverity::High,
-    };
+    let db = &state.db;
+    let dimension_id = request.dimension_id;
+    let severity = request.gap_severity.into();
+    let description = request.gap_description;
 
     let active = gaps::ActiveModel {
         gap_id: Set(Uuid::new_v4()),
-        dimension_assessment_id: Set(request.dimension_assessment_id),
-        dimension_id: Set(da.dimension_id),
-        gap_size: Set(gap_size),
+        dimension_id: Set(dimension_id),
+        gap_size: Set(0), // gap_size is no longer used but the field still exists
         gap_severity: Set(severity),
-        gap_description: Set(Some(request.gap_description)),
+        gap_description: Set(Some(description)),
         calculated_at: Set(chrono::Utc::now()),
         ..Default::default()
     };
@@ -167,9 +110,10 @@ pub async fn create_gap(
     )
 )]
 pub async fn get_gap(
-    State(db): State<Arc<DatabaseConnection>>,
+    State(state): State<AppState>,
     Path(gap_id): Path<Uuid>,
 ) -> Result<Json<ApiResponse<GapResponse>>, (StatusCode, Json<serde_json::Value>)> {
+    let db = &state.db;
     let gap = GapsRepository::find_by_id(db.as_ref(), gap_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?
@@ -182,6 +126,90 @@ pub async fn get_gap(
     Ok(success_response(to_gap_response(gap)))
 }
 
+/// Update an existing gap
+/// 
+/// Optionally updates gap size (and recalculates severity) and/or description.
+#[utoipa::path(
+    put,
+    path = "/gaps/{id}",
+    tag = "Gaps",
+    params(("id" = Uuid, Path, description = "Gap ID")),
+    request_body = UpdateGapRequest,
+    responses(
+        (status = 200, description = "Gap updated successfully", body = ApiResponseGapResponse),
+        (status = 401, description = "Unauthorized"),
+        (status = 404, description = "Gap not found")
+    ),
+    security(("jwt" = []))
+)]
+pub async fn update_gap(
+    State(state): State<AppState>,
+    Path(gap_id): Path<Uuid>,
+    Json(req): Json<UpdateGapRequest>,
+) -> Result<Json<ApiResponse<GapResponse>>, (StatusCode, Json<serde_json::Value>)> {
+    let db = &state.db;
+    // Build partial ActiveModel
+    let mut active = gaps::ActiveModel {
+        gap_id: Set(gap_id),
+        ..Default::default()
+    };
+    if let Some(size) = req.gap_size {
+        active.gap_size = Set(size);
+        // If gap_size is updated, recalculate severity unless a specific one is provided
+        if req.gap_severity.is_none() {
+            let new_severity = match size.abs() {
+                0..=1 => crate::entities::gaps::GapSeverity::Low,
+                2..=3 => crate::entities::gaps::GapSeverity::Medium,
+                _ => crate::entities::gaps::GapSeverity::High,
+            };
+            active.gap_severity = Set(new_severity);
+        }
+    }
+    if let Some(desc) = req.gap_description {
+        active.gap_description = Set(Some(desc));
+    }
+    if let Some(severity) = req.gap_severity {
+        active.gap_severity = Set(severity.into());
+    }
+
+    let updated = GapsRepository::update(db.as_ref(), gap_id, active)
+        .await
+        .map_err(crate::api::handlers::common::handle_error)?;
+
+    Ok(success_response_with_message(
+        to_gap_response(updated),
+        "Gap updated successfully".to_string(),
+    ))
+}
+
+/// Delete a gap
+#[utoipa::path(
+    delete,
+    path = "/gaps/{id}",
+    tag = "Gaps",
+    params(("id" = Uuid, Path, description = "Gap ID")),
+    responses(
+        (status = 200, description = "Gap deleted successfully", body = ApiResponseEmpty),
+        (status = 401, description = "Unauthorized"),
+        (status = 404, description = "Gap not found")
+    ),
+    security(("jwt" = []))
+)]
+pub async fn delete_gap(
+    State(state): State<AppState>,
+    Path(gap_id): Path<Uuid>,
+) -> Result<Json<ApiResponse<EmptyResponse>>, (StatusCode, Json<serde_json::Value>)> {
+    let db = &state.db;
+    let deleted = GapsRepository::delete(db.as_ref(), gap_id)
+        .await
+        .map_err(crate::api::handlers::common::handle_error)?;
+    if !deleted {
+        return Err(crate::api::handlers::common::handle_error(AppError::NotFound(
+            "Gap not found".to_string(),
+        )));
+    }
+    Ok(success_response(EmptyResponse {}))
+}
 /// List all gaps with pagination
 /// 
 /// Retrieves a paginated list of all gaps in the system.
@@ -202,13 +230,14 @@ pub async fn get_gap(
     )
 )]
 pub async fn list_gaps(
-    State(db): State<Arc<DatabaseConnection>>,
+    State(state): State<AppState>,
     Query(params): Query<PaginationParams>,
 ) -> Result<Json<ApiResponse<PaginatedResponse<GapResponse>>>, (StatusCode, Json<serde_json::Value>)>
 {
     let (page, limit, _sort_by, _sort_order) = extract_pagination(Query(params));
     let offset = ((page - 1) * limit) as u64;
 
+    let db = &state.db;
     let gaps = GapsRepository::find_all(db.as_ref())
         .await
         .map_err(crate::api::handlers::common::handle_error)?;
@@ -248,10 +277,11 @@ pub async fn list_gaps(
     )
 )]
 pub async fn list_gaps_by_dimension_assessment(
-    State(db): State<Arc<DatabaseConnection>>,
+    State(state): State<AppState>,
     Path(dimension_assessment_id): Path<Uuid>,
     Query(params): Query<PaginationParams>,
 ) -> Result<Json<ApiResponse<PaginatedResponse<GapResponse>>>, (StatusCode, Json<serde_json::Value>)> {
+    let db = &state.db;
     let (page, limit, _sort_by, _sort_order) = extract_pagination(Query(params));
     let offset = ((page - 1) * limit) as u64;
 
@@ -294,10 +324,11 @@ pub async fn list_gaps_by_dimension_assessment(
     )
 )]
 pub async fn list_gaps_by_assessment(
-    State(db): State<Arc<DatabaseConnection>>,
+    State(state): State<AppState>,
     Path(assessment_id): Path<Uuid>,
     Query(params): Query<PaginationParams>,
 ) -> Result<Json<ApiResponse<PaginatedResponse<GapResponse>>>, (StatusCode, Json<serde_json::Value>)> {
+    let db = &state.db;
     let (page, limit, _sort_by, _sort_order) = extract_pagination(Query(params));
     let offset = ((page - 1) * limit) as u64;
 

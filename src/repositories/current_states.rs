@@ -43,9 +43,6 @@ impl CurrentStatesRepository {
         if current_state_data.dimension_id.is_set() {
             active_model.dimension_id = current_state_data.dimension_id;
         }
-        if current_state_data.title.is_set() {
-            active_model.title = current_state_data.title;
-        }
         if current_state_data.description.is_set() {
             active_model.description = current_state_data.description;
         }

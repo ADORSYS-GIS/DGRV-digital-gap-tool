@@ -8,11 +8,18 @@ use crate::api::dto::assessment::*;
 use crate::api::dto::common::*;
 use crate::api::dto::dimension::*;
 use crate::api::dto::gap::*;
+use crate::api::dto::recommendation::*;
 use crate::api::dto::report::*;
+use crate::api::dto::organization::*;
 
 #[derive(OpenApi)]
 #[openapi(
     paths(
+        crate::api::handlers::organization::create_organization,
+        crate::api::handlers::organization::get_organizations,
+        crate::api::handlers::organization::get_organization,
+        crate::api::handlers::organization::update_organization,
+        crate::api::handlers::organization::delete_organization,
         crate::api::handlers::assessment::create_assessment,
         crate::api::handlers::assessment::list_assessments,
         crate::api::handlers::assessment::get_assessment,
@@ -41,26 +48,24 @@ use crate::api::dto::report::*;
         crate::api::handlers::report::download_report,
         crate::api::handlers::report::list_reports,
         crate::api::handlers::report::list_reports_by_assessment,
-        crate::api::handlers::action_plan::create_action_plan,
-        crate::api::handlers::action_plan::get_action_plan,
-        crate::api::handlers::action_plan::get_action_plan_with_items,
         crate::api::handlers::action_plan::list_action_plans,
-        crate::api::handlers::action_plan::list_action_plans_by_assessment,
-        crate::api::handlers::action_plan::update_action_plan,
-        crate::api::handlers::action_plan::delete_action_plan,
-        crate::api::handlers::action_plan::create_action_item,
-        crate::api::handlers::action_plan::get_action_item,
-        crate::api::handlers::action_plan::update_action_item,
-        crate::api::handlers::action_plan::delete_action_item,
+        crate::api::handlers::action_plan::get_action_plan_by_assessment_id,
+        // Recommendation endpoints
+        crate::api::handlers::recommendation::create_recommendation,
+        crate::api::handlers::recommendation::get_recommendation,
+        crate::api::handlers::recommendation::update_recommendation,
+        crate::api::handlers::recommendation::delete_recommendation,
+        crate::api::handlers::recommendation::list_recommendations,
+        crate::api::handlers::recommendation::list_recommendations_by_dimension,
         // Gaps
-        crate::api::handlers::gap::create_gap,
         crate::api::handlers::gap::get_gap,
         crate::api::handlers::gap::list_gaps,
         crate::api::handlers::gap::list_gaps_by_dimension_assessment,
         crate::api::handlers::gap::list_gaps_by_assessment,
-        // Admin config for gaps
-        crate::api::handlers::gap::set_severity_rules,
-        crate::api::handlers::gap::set_gap_description,
+        crate::api::handlers::gap::update_gap,
+        crate::api::handlers::gap::delete_gap,
+        // Admin gap creation
+        crate::api::handlers::gap::admin_create_gap,
     ),
     components(
         schemas(
@@ -68,7 +73,18 @@ use crate::api::dto::report::*;
             PaginationParams,
             SortOrder,
             EmptyResponse,
+            // Include the generic ApiResponse with EmptyResponse as a concrete type
             ApiResponseEmpty,
+            // Include the specific response types for the recommendations endpoints
+            ApiResponseRecommendationResponse,
+            ApiResponsePaginatedRecommendationResponse,
+            // Base ApiResponse type (using EmptyResponse as the generic type)
+            // This is a workaround since we can't directly expose the generic ApiResponse<T>
+            // in the OpenAPI components. All concrete ApiResponse types are already included
+            // in the aliases below.
+            //
+            // The actual ApiResponse type is exposed through the aliases like ApiResponseEmpty,
+            // ApiResponseRecommendationResponse, etc.
             // ApiResponse aliases for Action Plans
             ApiResponseActionPlanResponse,
             ApiResponseActionPlanWithItemsResponse,
@@ -79,6 +95,12 @@ use crate::api::dto::report::*;
             ApiResponseReportDownloadResponse,
             ApiResponseReportStatusResponse,
             ApiResponsePaginatedReportResponse,
+            
+            // Report related schemas
+            ReportType,
+            ReportFormat,
+            ReportStatus,
+            UpdateReportRequest,
             // ApiResponse aliases for Assessments & Dimensions
             ApiResponseAssessmentResponse,
             ApiResponsePaginatedAssessmentResponse,
@@ -92,11 +114,18 @@ use crate::api::dto::report::*;
             // ApiResponse aliases for Gaps
             ApiResponseGapResponse,
             ApiResponsePaginatedGapResponse,
+            ApiResponseAdminCreateGapRequest,
+            // ApiResponse aliases for Recommendations
+            ApiResponseRecommendationResponse,
+            ApiResponsePaginatedRecommendationResponse,
+            ApiResponseCreateRecommendationRequest,
+            ApiResponseUpdateRecommendationRequest,
             // Paginated alias types
             PaginatedActionPlanResponse,
             PaginatedReportResponse,
             PaginatedAssessmentResponse,
             PaginatedGapResponse,
+            PaginatedRecommendationResponse,
             // Assessments
             CreateAssessmentRequest,
             UpdateAssessmentRequest,
@@ -120,38 +149,39 @@ use crate::api::dto::report::*;
             DimensionListResponse,
             // Reports
             GenerateReportRequest,
-            UpdateReportRequest,
-            ReportResponse,
-            ReportType,
             ReportFormat,
+            ReportResponse,
             ReportStatus,
+            // Recommendations
+            CreateRecommendationRequest,
+            UpdateRecommendationRequest,
+            RecommendationResponse,
+            RecommendationPriority,
             ReportDownloadResponse,
             ReportListResponse,
             ReportStatusResponse,
             // Action Plans
-            CreateActionPlanRequest,
-            UpdateActionPlanRequest,
             ActionPlanResponse,
-            ActionPlanStatus,
-            CreateActionItemRequest,
-            UpdateActionItemRequest,
             ActionItemResponse,
-            ActionItemStatus,
-            ActionItemPriority,
-            ActionPlanWithItemsResponse,
-            ActionPlanListResponse,
-            ActionItemListResponse,
             // Gaps
             CreateGapRequest,
+            UpdateGapRequest,
             GapResponse,
             GapSeverity,
-            // Admin DTOs
+            // Admin create payload
             SeverityRuleDto,
-            SetSeverityRulesRequest,
-            SetGapDescriptionRequest
+            DescriptionConfig,
+            AdminCreateGapRequest,
+            // Organizations
+            OrganizationDomainRequest,
+            OrganizationCreateRequest,
+            OrganizationUpdateRequest,
+            OrganizationDomain,
+            KeycloakOrganization,
         )
     ),
     tags(
+        (name = "Organization", description = "Organization endpoints"),
         (name = "Assessments", description = "Assessment endpoints"),
         (name = "Dimensions", description = "Dimension endpoints"),
         (name = "Reports", description = "Report endpoints"),

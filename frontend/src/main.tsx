@@ -4,7 +4,13 @@ import App from "./App";
 import "./index.css";
 
 // Create a client
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    mutations: {
+      networkMode: "always",
+    },
+  },
+});
 
 // Render app
 createRoot(document.getElementById("root")!).render(
