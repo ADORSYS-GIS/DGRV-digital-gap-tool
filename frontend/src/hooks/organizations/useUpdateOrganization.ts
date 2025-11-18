@@ -7,6 +7,7 @@ export const useUpdateOrganization = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
+    networkMode: "always",
     mutationFn: async (organization: Organization) => {
       return organizationRepository.update(organization.id, organization);
     },

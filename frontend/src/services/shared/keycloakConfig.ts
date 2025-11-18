@@ -22,7 +22,7 @@ export const keycloak = new Keycloak({
  * Keycloak initialization options
  */
 export const keycloakInitOptions = {
-  onLoad: "login-required" as const,
+  onLoad: "check-sso" as const,
   pkceMethod: "S256" as const,
   checkLoginIframe: false,
   enableLogging: import.meta.env.DEV,

@@ -7,14 +7,13 @@ export const useAddOrganization = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (
+    networkMode: "always",
+    mutationFn: (
       newOrganization: Omit<
         Organization,
         "id" | "syncStatus" | "createdAt" | "updatedAt"
       >,
-    ) => {
-      return organizationRepository.add(newOrganization);
-    },
+    ) => organizationRepository.add(newOrganization),
     onMutate: async (newOrganization) => {
       await queryClient.cancelQueries({ queryKey: ["organizations"] });
       const previousOrganizations =
@@ -28,10 +27,10 @@ export const useAddOrganization = () => {
         updatedAt: new Date().toISOString(),
       };
 
-      queryClient.setQueryData<Organization[]>(["organizations"], (old = []) => [
-        ...old,
-        optimisticOrganization,
-      ]);
+      queryClient.setQueryData<Organization[]>(
+        ["organizations"],
+        (old = []) => [...old, optimisticOrganization],
+      );
 
       return { previousOrganizations, optimisticOrganization };
     },
@@ -44,10 +43,12 @@ export const useAddOrganization = () => {
       toast.success("Organization added successfully");
     },
     onError: (error: Error, _, context) => {
-      queryClient.setQueryData(
-        ["organizations"],
-        context?.previousOrganizations,
-      );
+      if (context?.previousOrganizations) {
+        queryClient.setQueryData(
+          ["organizations"],
+          context.previousOrganizations,
+        );
+      }
       toast.error(`Failed to add organization: ${error.message}`);
     },
   });

@@ -8,9 +8,9 @@ export const useAddDimension = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (dimension: ICreateDimensionRequest) => {
-      return await dimensionRepository.add(dimension);
-    },
+    networkMode: "always",
+    mutationFn: (dimension: ICreateDimensionRequest) =>
+      dimensionRepository.add(dimension),
     onMutate: async (newDimension) => {
       await queryClient.cancelQueries({ queryKey: ["dimensions"] });
       const previousDimensions =
@@ -31,16 +31,16 @@ export const useAddDimension = () => {
         optimisticDimension,
       ]);
 
-      return { previousDimensions, optimisticDimension };
+      return { previousDimensions };
     },
-    onSuccess: (data, _, context) => {
-      queryClient.setQueryData<IDimension[]>(["dimensions"], (old = []) =>
-        old.map((d) => (d.id === context?.optimisticDimension.id ? data : d)),
-      );
-      toast.success("Dimension added successfully");
+    onSuccess: () => {
+      toast.success("Dimension added and will sync when online");
+      queryClient.invalidateQueries({ queryKey: ["dimensions"] });
     },
     onError: (error: Error, _, context) => {
-      queryClient.setQueryData(["dimensions"], context?.previousDimensions);
+      if (context?.previousDimensions) {
+        queryClient.setQueryData(["dimensions"], context.previousDimensions);
+      }
       toast.error(`Failed to add dimension: ${error.message}`);
     },
   });

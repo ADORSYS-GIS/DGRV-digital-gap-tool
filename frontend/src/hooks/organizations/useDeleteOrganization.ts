@@ -7,6 +7,7 @@ export const useDeleteOrganization = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
+    networkMode: "always",
     mutationFn: async (id: string) => {
       return organizationRepository.delete(id);
     },
@@ -23,7 +24,6 @@ export const useDeleteOrganization = () => {
     },
     onSuccess: () => {
       toast.success("Organization deleted successfully");
-      void queryClient.invalidateQueries({ queryKey: ["organizations"] });
     },
     onError: (error: Error, _, context) => {
       queryClient.setQueryData(
