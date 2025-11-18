@@ -1,0 +1,19 @@
+{
+  "translation": {
+    "welcome": "Siyakwamukela",
+    "home": "Ikhaya",
+    "about": "Mayelana",
+    "contact": "Xhumana",
+    "language": "Ulimi",
+    "app.onlineSyncMessage": "Uhlelo lokusebenza luku-inthanethi, luzama ukuvumelanisa...",
+    "navbar.profile": "Iphrofayela",
+    "navbar.home": "Ikhaya",
+    "navbar.cooperativeDashboard": "Ideshibhodi Yokubambisana",
+    "navbar.login": "Ngena ngemvume",
+    "navbar.logout": "Phuma",
+    "navbar.navigation": "Ukuzulazula",
+    "navbar.account": "I-akhawunti",
+    "navbar.noData": "Ayikho idatha",
+    "navbar.platformName": "Ipulatifomu Yokusimama ye-DGRV"
+  }
+}

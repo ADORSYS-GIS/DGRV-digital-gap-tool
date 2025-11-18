@@ -19,11 +19,14 @@ import { User, LogOut, Home, Menu, X, Building2 } from "lucide-react";
 import { useAuth } from "@/hooks/shared/useAuth";
 import { useNavigate } from "react-router-dom";
 import { ROLES } from "@/constants/roles";
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 export const Navbar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { isAuthenticated, user, login, logout } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const roles =
     isAuthenticated && user
@@ -36,8 +39,8 @@ export const Navbar = () => {
 
   // Helper to get user display name
   const getUserDisplay = () => {
-    if (!user) return "Profile";
-    return user.name || user.preferred_username || user.email || "Profile";
+    if (!user) return t("navbar.profile");
+    return user.name || user.preferred_username || user.email || t("navbar.profile");
   };
 
   // Helper to determine the appropriate home route based on user role
@@ -93,7 +96,7 @@ export const Navbar = () => {
                 aria-label="Home"
               >
                 <Home className="w-5 h-5" />
-                <span>Home</span>
+                <span>{t("navbar.home")}</span>
               </Button>
               {hasAdminRole && (
                 <Button
@@ -104,7 +107,7 @@ export const Navbar = () => {
                   aria-label="Cooperative Dashboard"
                 >
                   <Building2 className="w-5 h-5" />
-                  <span>Cooperative Dashboard</span>
+                  <span>{t("navbar.cooperativeDashboard")}</span>
                 </Button>
               )}
             </div>
@@ -120,7 +123,7 @@ export const Navbar = () => {
                     onClick={login}
                     className="ml-2"
                   >
-                    Login
+                    {t("navbar.login")}
                   </Button>
                 ) : (
                   <DropdownMenu>
@@ -145,10 +148,10 @@ export const Navbar = () => {
                           {user?.name ||
                             user?.preferred_username ||
                             user?.email ||
-                            "Profile"}
+                            t("navbar.profile")}
                         </span>
                         <span className="text-xs text-gray-500">
-                          {user?.email || "No data"}
+                          {user?.email || t("navbar.noData")}
                         </span>
                       </DropdownMenuItem>
                       <DropdownMenuItem
@@ -156,11 +159,15 @@ export const Navbar = () => {
                         className="flex items-center space-x-2 text-red-600"
                       >
                         <LogOut className="w-4 h-4" />
-                        <span>Logout</span>
+                        <span>{t("navbar.logout")}</span>
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 )}
+              </div>
+              {/* Language Switcher */}
+              <div className="hidden md:block">
+                <LanguageSwitcher />
               </div>
 
               {/* Mobile Hamburger Menu */}
@@ -223,7 +230,7 @@ export const Navbar = () => {
             {/* Navigation Section */}
             <div className="space-y-3">
               <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">
-                Navigation
+                {t("navbar.navigation")}
               </h3>
 
               {/* Home Button */}
@@ -237,7 +244,7 @@ export const Navbar = () => {
                 }}
               >
                 <Home className="w-5 h-5" />
-                <span className="font-medium">Home</span>
+                <span className="font-medium">{t("navbar.home")}</span>
               </Button>
               {hasAdminRole && (
                 <Button
@@ -250,15 +257,21 @@ export const Navbar = () => {
                   }}
                 >
                   <Building2 className="w-5 h-5" />
-                  <span className="font-medium">Cooperative Dashboard</span>
+                  <span className="font-medium">{t("navbar.cooperativeDashboard")}</span>
                 </Button>
               )}
+            </div>
+            <div className="space-y-3">
+              <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">
+                {t("navbar.language")}
+              </h3>
+              <LanguageSwitcher />
             </div>
 
             {/* Auth Section */}
             <div className="space-y-3">
               <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">
-                Account
+                {t("navbar.account")}
               </h3>
 
               {!isAuthenticated ? (
@@ -272,7 +285,7 @@ export const Navbar = () => {
                   className="w-full h-12 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white border-0 rounded-lg font-medium"
                 >
                   <User className="w-5 h-5 mr-2" />
-                  Login
+                  {t("navbar.login")}
                 </Button>
               ) : (
                 <div className="space-y-4">
@@ -286,10 +299,10 @@ export const Navbar = () => {
                           {user?.name ||
                             user?.preferred_username ||
                             user?.email ||
-                            "Profile"}
+                            t("navbar.profile")}
                         </div>
                         <div className="text-xs text-gray-500">
-                          {user?.email || "No data"}
+                          {user?.email || t("navbar.noData")}
                         </div>
                       </div>
                     </div>
@@ -305,7 +318,7 @@ export const Navbar = () => {
                     className="w-full h-12 bg-red-50 hover:bg-red-100 text-red-600 border-red-200 rounded-lg font-medium"
                   >
                     <LogOut className="w-4 h-4 mr-2" />
-                    Logout
+                    {t("navbar.logout")}
                   </Button>
                 </div>
               )}
@@ -315,7 +328,7 @@ export const Navbar = () => {
             <div className="mt-auto pt-6 border-t border-blue-100">
               <div className="text-center">
                 <p className="text-xs text-gray-500 mb-2">
-                  DGRV Sustainability Platform
+                  {t("navbar.platformName")}
                 </p>
                 <div className="flex justify-center space-x-2">
                   <div className="w-2 h-2 bg-blue-400 rounded-full"></div>

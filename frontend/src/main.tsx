@@ -1,5 +1,7 @@
 import { createRoot } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { I18nextProvider } from "react-i18next";
+import i18n from "./i18n"; // Import the i18n configuration
 import App from "./App";
 import "./index.css";
 import {
@@ -38,11 +40,17 @@ const root = createRoot(document.getElementById("root")!);
 const renderApp = () => {
   root.render(
     <QueryClientProvider client={queryClient}>
-      <App />
+      <I18nextProvider i18n={i18n}>
+        <App />
+      </I18nextProvider>
     </QueryClientProvider>,
   );
 };
 
+// Render the application immediately
+renderApp();
+
+// Initialize Keycloak asynchronously
 keycloak
   .init(keycloakInitOptions)
   .then((authenticated) => {
@@ -54,9 +62,8 @@ keycloak
         "Keycloak initialized - User not authenticated (check-sso mode)",
       );
     }
-    renderApp();
   })
   .catch((error) => {
     console.error("Failed to initialize Keycloak:", error);
-    root.render(<div>Failed to initialize authentication service.</div>);
+    // Optionally, you could set an error state here if needed for the UI
   });
