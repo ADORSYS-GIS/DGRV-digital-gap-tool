@@ -1,0 +1,19 @@
+{
+  "translation": {
+    "welcome": "Bem-vindo",
+    "home": "Início",
+    "about": "Sobre",
+    "contact": "Contato",
+    "language": "Idioma",
+    "app.onlineSyncMessage": "O aplicativo está online, tentando sincronizar...",
+    "navbar.profile": "Perfil",
+    "navbar.home": "Início",
+    "navbar.cooperativeDashboard": "Painel Cooperativo",
+    "navbar.login": "Entrar",
+    "navbar.logout": "Sair",
+    "navbar.navigation": "Navegação",
+    "navbar.account": "Conta",
+    "navbar.noData": "Sem dados",
+    "navbar.platformName": "Plataforma de Sustentabilidade DGRV"
+  }
+}

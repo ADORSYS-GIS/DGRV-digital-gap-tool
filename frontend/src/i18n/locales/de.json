@@ -1,0 +1,19 @@
+{
+  "translation": {
+    "welcome": "Willkommen",
+    "home": "Startseite",
+    "about": "Über uns",
+    "contact": "Kontakt",
+    "language": "Sprache",
+    "app.onlineSyncMessage": "App ist online, versuche zu synchronisieren...",
+    "navbar.profile": "Profil",
+    "navbar.home": "Startseite",
+    "navbar.cooperativeDashboard": "Kooperatives Dashboard",
+    "navbar.login": "Anmelden",
+    "navbar.logout": "Abmelden",
+    "navbar.navigation": "Navigation",
+    "navbar.account": "Konto",
+    "navbar.noData": "Keine Daten",
+    "navbar.platformName": "DGRV Nachhaltigkeitsplattform"
+  }
+}
