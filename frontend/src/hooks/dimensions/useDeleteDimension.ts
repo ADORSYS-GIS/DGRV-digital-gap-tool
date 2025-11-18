@@ -7,6 +7,7 @@ export const useDeleteDimension = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
+    networkMode: "always",
     mutationFn: async (id: string) => {
       return dimensionRepository.delete(id);
     },

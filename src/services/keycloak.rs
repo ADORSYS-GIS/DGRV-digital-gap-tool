@@ -31,6 +31,7 @@ impl KeycloakService {
     /// Create a new organization
     pub async fn create_organization(
         &self,
+        access_token: &str,
         name: &str,
         domains: Vec<crate::api::dto::organization::OrganizationDomainRequest>,
         redirect_url: String,
@@ -39,7 +40,7 @@ impl KeycloakService {
     ) -> Result<KeycloakOrganization> {
         let url = format!(
             "{}/admin/realms/{}/organizations",
-            self.config.keycloak_url, self.config.keycloak_realm
+            self.config.keycloak.url, self.config.keycloak.realm
         );
         info!(url = %url, "Constructed Keycloak URL");
 
@@ -58,7 +59,7 @@ impl KeycloakService {
         let response = self
             .client
             .post(&url)
-            .bearer_auth(&self.config.keycloak_admin_token)
+            .bearer_auth(access_token)
             .json(&payload)
             .send()
             .await?;
@@ -127,17 +128,17 @@ impl KeycloakService {
     }
 
     /// Get all organizations
-    pub async fn get_organizations(&self) -> Result<Vec<KeycloakOrganization>> {
+    pub async fn get_organizations(&self, access_token: &str) -> Result<Vec<KeycloakOrganization>> {
         let url = format!(
             "{}/admin/realms/{}/organizations?briefRepresentation=false",
-            self.config.keycloak_url, self.config.keycloak_realm
+            self.config.keycloak.url, self.config.keycloak.realm
         );
         info!(url = %url, "Constructed Keycloak URL");
 
         let response = self
             .client
             .get(&url)
-            .bearer_auth(&self.config.keycloak_admin_token)
+            .bearer_auth(access_token)
             .send()
             .await?
             .error_for_status()?;
@@ -162,18 +163,19 @@ impl KeycloakService {
     /// Get a specific organization by ID
     pub async fn get_organization(
         &self,
+        access_token: &str,
         org_id: &str,
     ) -> Result<KeycloakOrganization> {
         let url = format!(
             "{}/admin/realms/{}/organizations/{}?briefRepresentation=false",
-            self.config.keycloak_url, self.config.keycloak_realm, org_id
+            self.config.keycloak.url, self.config.keycloak.realm, org_id
         );
         info!(url = %url, "Constructed Keycloak URL");
 
         let response = self
             .client
             .get(&url)
-            .bearer_auth(&self.config.keycloak_admin_token)
+            .bearer_auth(access_token)
             .send()
             .await?
             .error_for_status()?;
@@ -196,6 +198,7 @@ impl KeycloakService {
     /// Update an organization
     pub async fn update_organization(
         &self,
+        access_token: &str,
         org_id: &str,
         name: &str,
         domains: Vec<crate::api::dto::organization::OrganizationDomainRequest>,
@@ -203,7 +206,7 @@ impl KeycloakService {
     ) -> Result<()> {
         let url = format!(
             "{}/admin/realms/{}/organizations/{}",
-            self.config.keycloak_url, self.config.keycloak_realm, org_id
+            self.config.keycloak.url, self.config.keycloak.realm, org_id
         );
         info!(url = %url, "Constructed Keycloak URL");
 
@@ -220,7 +223,7 @@ impl KeycloakService {
         let response = self
             .client
             .put(&url)
-            .bearer_auth(&self.config.keycloak_admin_token)
+            .bearer_auth(access_token)
             .json(&payload)
             .send()
             .await?;
@@ -237,17 +240,17 @@ impl KeycloakService {
     }
 
     /// Delete an organization
-    pub async fn delete_organization(&self, org_id: &str) -> Result<()> {
+    pub async fn delete_organization(&self, access_token: &str, org_id: &str) -> Result<()> {
         let url = format!(
             "{}/admin/realms/{}/organizations/{}",
-            self.config.keycloak_url, self.config.keycloak_realm, org_id
+            self.config.keycloak.url, self.config.keycloak.realm, org_id
         );
         info!(url = %url, "Constructed Keycloak URL");
 
         let response = self
             .client
             .delete(&url)
-            .bearer_auth(&self.config.keycloak_admin_token)
+            .bearer_auth(access_token)
             .send()
             .await?;
 

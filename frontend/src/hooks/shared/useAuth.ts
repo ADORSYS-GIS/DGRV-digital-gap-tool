@@ -32,75 +32,21 @@ export const useAuth = (): AuthHookState => {
   React.useEffect(() => {
     const updateAuthState = () => {
       const state = authService.getAuthState();
-      setAuthState(state);
+      setAuthState({ ...state, loading: false });
     };
 
-    const initializeKeycloak = async () => {
-      if (keycloak.authenticated !== undefined) {
-        updateAuthState();
-        return;
-      }
+    updateAuthState();
 
-      try {
-        await authService.initialize();
-        updateAuthState();
-      } catch (error) {
-        setAuthState({
-          isAuthenticated: false,
-          user: null,
-          roles: [],
-          loading: false,
-        });
-      }
-
-      return () => {};
-    };
-
-    let cleanupTokenRefresh: () => void = () => {};
-
-    initializeKeycloak().then((cleanup) => {
-      if (cleanup) {
-        cleanupTokenRefresh = cleanup;
-      }
-    });
-
-    const onTokenExpired = () => {
-      updateAuthState();
-    };
-
-    const onAuthSuccess = () => {
-      updateAuthState();
-    };
-
-    const onAuthLogout = () => {
-      setAuthState({
-        isAuthenticated: false,
-        user: null,
-        roles: [],
-        loading: false,
-      });
-    };
-
-    const onAuthError = () => {
-      setAuthState({
-        isAuthenticated: false,
-        user: null,
-        roles: [],
-        loading: false,
-      });
-    };
-
-    keycloak.onTokenExpired = onTokenExpired;
-    keycloak.onAuthSuccess = onAuthSuccess;
-    keycloak.onAuthLogout = onAuthLogout;
-    keycloak.onAuthError = onAuthError;
+    keycloak.onAuthSuccess = () => updateAuthState();
+    keycloak.onAuthError = () => updateAuthState();
+    keycloak.onAuthLogout = () => updateAuthState();
+    keycloak.onTokenExpired = () => keycloak.updateToken(30);
 
     return () => {
-      keycloak.onTokenExpired = () => {};
       keycloak.onAuthSuccess = () => {};
-      keycloak.onAuthLogout = () => {};
       keycloak.onAuthError = () => {};
-      cleanupTokenRefresh();
+      keycloak.onAuthLogout = () => {};
+      keycloak.onTokenExpired = () => {};
     };
   }, []);
 

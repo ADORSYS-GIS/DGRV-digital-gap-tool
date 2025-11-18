@@ -39,26 +39,21 @@ export const AddDimensionForm = ({
     resolver: zodResolver(formSchema),
   });
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const addDimensionMutation = useAddDimension();
 
   useEffect(() => {
     if (!isOpen) {
       reset();
-      setIsSubmitting(false);
     }
   }, [isOpen, reset]);
 
   const onSubmit = (data: FormValues) => {
-    setIsSubmitting(true);
     const payload = {
       name: data.name,
       ...(data.description && { description: data.description }),
     };
     addDimensionMutation.mutate(payload, {
       onSettled: () => {
-        // This will be called regardless of success or error, online or offline.
-        // We can safely close the modal and reset the state here.
         onClose();
       },
     });
@@ -84,8 +79,8 @@ export const AddDimensionForm = ({
             />
           </div>
           <DialogFooter>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Adding..." : "Add Dimension"}
+            <Button type="submit" disabled={addDimensionMutation.isPending}>
+              {addDimensionMutation.isPending ? "Adding..." : "Add Dimension"}
             </Button>
           </DialogFooter>
         </form>

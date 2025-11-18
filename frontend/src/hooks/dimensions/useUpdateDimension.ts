@@ -8,6 +8,7 @@ export const useUpdateDimension = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
+    networkMode: "always",
     mutationFn: async ({
       id,
       dimension,

@@ -24,6 +24,7 @@ use crate::{
 )]
 pub async fn create_organization(
     State(state): State<AppState>,
+    axum::Extension(token): axum::Extension<String>,
     Json(request): Json<OrganizationCreateRequest>,
 ) -> AppResult<impl IntoResponse> {
     let keycloak_service = state.keycloak_service;
@@ -34,6 +35,7 @@ pub async fn create_organization(
 
     match keycloak_service
         .create_organization(
+            &token,
             &request.name,
             request.domains,
             request.redirect_url,
@@ -62,11 +64,12 @@ pub async fn create_organization(
 )]
 pub async fn get_organizations(
     State(state): State<AppState>,
+    axum::Extension(token): axum::Extension<String>,
 ) -> AppResult<impl IntoResponse> {
     let keycloak_service = state.keycloak_service;
     tracing::info!("Received get organizations request");
 
-    match keycloak_service.get_organizations().await {
+    match keycloak_service.get_organizations(&token).await {
         Ok(organizations) => Ok((StatusCode::OK, Json(organizations))),
         Err(e) => {
             tracing::error!("Failed to get organizations: {}", e);
@@ -88,13 +91,14 @@ pub async fn get_organizations(
 )]
 pub async fn get_organization(
     State(state): State<AppState>,
+    axum::Extension(token): axum::Extension<String>,
     Path(org_id): Path<String>,
 ) -> AppResult<impl IntoResponse> {
     let keycloak_service = state.keycloak_service;
     tracing::info!("Received get organization request for id {}", org_id);
 
     match keycloak_service
-        .get_organization(&org_id)
+        .get_organization(&token, &org_id)
         .await
     {
         Ok(organization) => Ok((StatusCode::OK, Json(organization))),
@@ -119,6 +123,7 @@ pub async fn get_organization(
 )]
 pub async fn update_organization(
     State(state): State<AppState>,
+    axum::Extension(token): axum::Extension<String>,
     Path(org_id): Path<String>,
     Json(request): Json<OrganizationUpdateRequest>,
 ) -> AppResult<impl IntoResponse> {
@@ -130,6 +135,7 @@ pub async fn update_organization(
 
     match keycloak_service
         .update_organization(
+            &token,
             &org_id,
             &request.name,
             request.domains,
@@ -158,13 +164,14 @@ pub async fn update_organization(
 )]
 pub async fn delete_organization(
     State(state): State<AppState>,
+    axum::Extension(token): axum::Extension<String>,
     Path(org_id): Path<String>,
 ) -> AppResult<impl IntoResponse> {
     let keycloak_service = state.keycloak_service;
     tracing::info!("Received delete organization request for id {}", org_id);
 
     match keycloak_service
-        .delete_organization(&org_id)
+        .delete_organization(&token, &org_id)
         .await
     {
         Ok(_) => Ok(StatusCode::NO_CONTENT),

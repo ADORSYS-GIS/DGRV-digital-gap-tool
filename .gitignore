@@ -29,3 +29,4 @@ dist-ssr
 *.sw?
 *.env
 /src/openapi-client/
+/CODE_IMPROVEMENTS.md

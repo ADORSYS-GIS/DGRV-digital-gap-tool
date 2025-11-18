@@ -5,13 +5,18 @@ use serde::Deserialize;
 pub struct Config {
     pub database_url: String,
     pub port: u16,
-    pub keycloak_url: String,
-    pub keycloak_realm: String,
-    pub keycloak_client_id: String,
-    pub keycloak_client_secret: String,
+    pub keycloak: KeycloakConfigs,
     pub jwt_secret: String,
     pub keycloak_admin_token: String,
     pub minio: MinioConfig,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct KeycloakConfigs {
+    pub url: String,
+    pub realm: String,
+    pub client_id: String,
+    pub client_secret: String,
 }
 
 #[derive(Debug, Deserialize, Clone)]
@@ -78,10 +83,12 @@ impl Config {
         Ok(Self {
             database_url: e.database_url,
             port: e.port,
-            keycloak_url: e.keycloak_url,
-            keycloak_realm: e.keycloak_realm,
-            keycloak_client_id: e.keycloak_client_id,
-            keycloak_client_secret: e.keycloak_client_secret,
+            keycloak: KeycloakConfigs {
+                url: e.keycloak_url,
+                realm: e.keycloak_realm,
+                client_id: e.keycloak_client_id,
+                client_secret: e.keycloak_client_secret,
+            },
             jwt_secret: e.jwt_secret,
             keycloak_admin_token: e.keycloak_admin_token,
             minio: MinioConfig {

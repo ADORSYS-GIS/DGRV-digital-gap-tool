@@ -4,6 +4,6 @@ import { organizationRepository } from "@/services/organizations/organizationRep
 export const useOrganizations = () => {
   return useQuery({
     queryKey: ["organizations"],
-    queryFn: () => organizationRepository.getAll(),
+    queryFn: organizationRepository.getAll,
   });
 };

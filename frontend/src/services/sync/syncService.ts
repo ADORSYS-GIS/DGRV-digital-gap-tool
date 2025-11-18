@@ -17,17 +17,22 @@ import {
   updateDimension,
   updateGap,
   updateRecommendation,
+  createOrganization,
+  updateOrganization,
+  deleteOrganization,
 } from "@/openapi-client/services.gen";
 import { assessmentRepository } from "@/services/assessments/assessmentRepository";
 import { db } from "@/services/db";
 import { digitalisationGapRepository } from "@/services/digitalisationGaps/digitalisationGapRepository";
 import { digitalisationLevelRepository } from "@/services/digitalisationLevels/digitalisationLevelRepository";
 import { dimensionRepository } from "@/services/dimensions/dimensionRepository";
+import { organizationRepository } from "@/services/organizations/organizationRepository";
 import { recommendationRepository } from "@/services/recommendations/recommendationRepository";
 import { Assessment } from "@/types/assessment";
 import { IDigitalisationGap } from "@/types/digitalisationGap";
 import { IDigitalisationLevel } from "@/types/digitalisationLevel";
 import { IDimension } from "@/types/dimension";
+import { Organization } from "@/types/organization";
 import { IRecommendation } from "@/types/recommendation";
 import { SyncQueueItem } from "@/types/sync/index";
 
@@ -81,6 +86,9 @@ export const syncService = {
           case "Recommendation":
             await syncService.syncRecommendation(item);
             break;
+          case "Organization":
+            await syncService.syncOrganization(item);
+            break;
         }
         await db.sync_queue.delete(item.id!);
       } catch (error: unknown) {
@@ -113,6 +121,11 @@ export const syncService = {
             );
           } else if (item.entityType === "Recommendation") {
             await recommendationRepository.markAsFailed(
+              item.entityId,
+              errorMessage,
+            );
+          } else if (item.entityType === "Organization") {
+            await organizationRepository.markAsFailed(
               item.entityId,
               errorMessage,
             );
@@ -612,6 +625,46 @@ export const syncService = {
       // Mark as failed in the repository
       await recommendationRepository.markAsFailed(item.entityId, errorMessage);
       throw error; // Re-throw to be caught by processSyncQueue's error handling
+    }
+  },
+  async syncOrganization(item: SyncQueueItem) {
+    const organizationData = item.payload as Organization;
+    switch (item.action) {
+      case "CREATE": {
+        const response = await createOrganization({
+          requestBody: {
+            name: organizationData.name,
+            enabled: "true",
+            domains: [{ name: organizationData.domain }],
+            redirectUrl: "http://localhost:8000/",
+          },
+        });
+        if (response) {
+          await organizationRepository.markAsSynced(
+            organizationData.id,
+            response.id,
+          );
+        } else {
+          throw new Error("Failed to create organization on server");
+        }
+        break;
+      }
+      case "UPDATE": {
+        await updateOrganization({
+          orgId: item.entityId,
+          requestBody: {
+            name: organizationData.name,
+            domains: [{ name: organizationData.domain }],
+          },
+        });
+        await organizationRepository.markAsSynced(item.entityId, item.entityId);
+        break;
+      }
+      case "DELETE": {
+        await deleteOrganization({ orgId: item.entityId });
+        await organizationRepository.markAsSynced(item.entityId, item.entityId);
+        break;
+      }
     }
   },
 };

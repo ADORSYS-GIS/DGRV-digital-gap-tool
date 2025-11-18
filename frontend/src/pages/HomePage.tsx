@@ -87,6 +87,17 @@ export const HomePage: React.FC = () => {
             <img src="/dgrv.jpg" alt="DGRV Logo" className="h-10 w-auto" />
             <span className="text-xl font-semibold text-gray-700">DGAT</span>
           </div>
+          <div className="flex items-center gap-4">
+            {!isAuthenticated ? (
+              <Button
+                variant="outline"
+                className="border-blue-600 text-blue-600 hover:bg-blue-50 hover:text-blue-700"
+                onClick={() => login()}
+              >
+                Login
+              </Button>
+            ) : null}
+          </div>
         </div>
       </header>
 
