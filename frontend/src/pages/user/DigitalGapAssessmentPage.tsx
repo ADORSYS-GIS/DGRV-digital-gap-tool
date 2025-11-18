@@ -63,7 +63,6 @@ const DigitalGapAssessmentPage: React.FC = () => {
     mutate: submitForm,
     isPending,
     isSuccess,
-    data,
   } = useSubmitAssessment();
 
   const handlePerspectiveValueChange = (
