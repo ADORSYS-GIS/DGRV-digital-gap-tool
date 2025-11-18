@@ -21,6 +21,8 @@ serde_json = "1.0"
 # Authentication
 jsonwebtoken = "9.0"
 uuid = { version = "1.0", features = ["v4", "serde"] }
+biscuit = "0.6.0"
+axum-extra = { version = "0.9.3", features = ["typed-header"] }
 
 # Time handling
 chrono = { version = "0.4", features = ["serde"] }
@@ -45,6 +47,7 @@ validator = { version = "0.16", features = ["derive"] }
 
 # Migration
 sea-orm-migration = "0.12"
+migration = { path = "migration" }
 bytes = "1.10.1"
 async-trait = "0.1.89"
 aws-sdk-s3 = "1.106.0"
@@ -52,9 +55,12 @@ aws-config = "1.8.6"
 aws-credential-types = "1.2.6"
 
 # OpenAPI / Swagger
-utoipa = { version = "4", features = ["chrono", "uuid"] }
+utoipa = { version = "4", features = ["chrono", "uuid", "decimal"] }
 utoipa-axum = { version = "0.1" }
 utoipa-swagger-ui = { version = "6", features = ["axum"] }
+openapiv3 = "2.0"
+reqwest = { version = "0.12.24", features = ["json", "rustls-tls"] }
+config = "0.15.19"
 
 [dev-dependencies]
 sea-orm = { version = "0.12", features = ["mock"] }

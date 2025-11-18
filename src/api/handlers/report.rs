@@ -1,21 +1,22 @@
+use crate::entities::reports::ReportFormat;
+use crate::AppState;
 use axum::{
     extract::{Path, Query, State},
     http::StatusCode,
     response::Json,
 };
 use uuid::Uuid;
-use sea_orm::DatabaseConnection;
-use std::sync::Arc;
-use crate::entities::reports::ReportFormat;
 
+use crate::api::dto::report::{ReportStatus, ReportType};
 use crate::api::dto::{
+    common::{ApiResponse, PaginatedResponse, PaginationParams},
     report::*,
-    common::{ApiResponse, PaginationParams, PaginatedResponse},
 };
-use crate::api::handlers::common::{extract_pagination, success_response, success_response_with_message};
-use crate::repositories::reports::ReportsRepository;
+use crate::api::handlers::common::{
+    extract_pagination, success_response, success_response_with_message,
+};
 use crate::error::AppError;
-use crate::api::dto::report::{ReportType, ReportStatus};
+use crate::repositories::reports::ReportsRepository;
 
 /// Create a new report
 #[utoipa::path(
@@ -23,11 +24,11 @@ use crate::api::dto::report::{ReportType, ReportStatus};
     path = "/reports",
     request_body = GenerateReportRequest,
     responses(
-        (status = 200, description = "Report created", body = ApiResponse<ReportResponse>)
+        (status = 200, description = "Report created", body = ApiResponseReportResponse)
     )
 )]
 pub async fn create_report(
-    State(db): State<Arc<DatabaseConnection>>,
+    State(state): State<AppState>,
     Json(request): Json<GenerateReportRequest>,
 ) -> Result<Json<ApiResponse<ReportResponse>>, (StatusCode, Json<serde_json::Value>)> {
     // Create report record first
@@ -49,7 +50,7 @@ pub async fn create_report(
         ..Default::default()
     };
 
-    let report = ReportsRepository::create(db.as_ref(), active_model)
+    let report = ReportsRepository::create(&state.db, active_model)
         .await
         .map_err(crate::api::handlers::common::handle_error)?;
 
@@ -68,11 +69,16 @@ pub async fn create_report(
         updated_at: report.updated_at,
     };
 
-    Ok(success_response_with_message(response, "Report created successfully".to_string()))
+    Ok(success_response_with_message(
+        response,
+        "Report created successfully".to_string(),
+    ))
 }
 
 // Conversion functions for report enums
-fn convert_entity_report_type_to_dto(entity_type: crate::entities::reports::ReportType) -> ReportType {
+fn convert_entity_report_type_to_dto(
+    entity_type: crate::entities::reports::ReportType,
+) -> ReportType {
     match entity_type {
         crate::entities::reports::ReportType::Summary => ReportType::Summary,
         crate::entities::reports::ReportType::Detailed => ReportType::Detailed,
@@ -80,7 +86,9 @@ fn convert_entity_report_type_to_dto(entity_type: crate::entities::reports::Repo
     }
 }
 
-fn convert_entity_report_format_to_dto(entity_format: crate::entities::reports::ReportFormat) -> ReportFormat {
+fn convert_entity_report_format_to_dto(
+    entity_format: crate::entities::reports::ReportFormat,
+) -> ReportFormat {
     match entity_format {
         crate::entities::reports::ReportFormat::Pdf => ReportFormat::Pdf,
         crate::entities::reports::ReportFormat::Excel => ReportFormat::Excel,
@@ -88,7 +96,9 @@ fn convert_entity_report_format_to_dto(entity_format: crate::entities::reports::
     }
 }
 
-fn convert_entity_report_status_to_dto(entity_status: crate::entities::reports::ReportStatus) -> ReportStatus {
+fn convert_entity_report_status_to_dto(
+    entity_status: crate::entities::reports::ReportStatus,
+) -> ReportStatus {
     match entity_status {
         crate::entities::reports::ReportStatus::Pending => ReportStatus::Pending,
         crate::entities::reports::ReportStatus::Generating => ReportStatus::Generating,
@@ -105,7 +115,9 @@ fn convert_dto_report_type_to_entity(dto_type: ReportType) -> crate::entities::r
     }
 }
 
-fn convert_dto_report_format_to_entity(dto_format: ReportFormat) -> crate::entities::reports::ReportFormat {
+fn convert_dto_report_format_to_entity(
+    dto_format: ReportFormat,
+) -> crate::entities::reports::ReportFormat {
     match dto_format {
         ReportFormat::Pdf => crate::entities::reports::ReportFormat::Pdf,
         ReportFormat::Excel => crate::entities::reports::ReportFormat::Excel,
@@ -119,11 +131,11 @@ fn convert_dto_report_format_to_entity(dto_format: ReportFormat) -> crate::entit
     path = "/reports",
     request_body = GenerateReportRequest,
     responses(
-        (status = 200, description = "Report generation started", body = ApiResponse<ReportResponse>)
+        (status = 200, description = "Report generation started", body = ApiResponseReportResponse)
     )
 )]
 pub async fn generate_report(
-    State(db): State<Arc<DatabaseConnection>>,
+    State(state): State<AppState>,
     Json(request): Json<GenerateReportRequest>,
 ) -> Result<Json<ApiResponse<ReportResponse>>, (StatusCode, Json<serde_json::Value>)> {
     // Create report record first
@@ -145,7 +157,7 @@ pub async fn generate_report(
         ..Default::default()
     };
 
-    let report = ReportsRepository::create(&db, active_model)
+    let report = ReportsRepository::create(&state.db, active_model)
         .await
         .map_err(crate::api::handlers::common::handle_error)?;
 
@@ -168,7 +180,10 @@ pub async fn generate_report(
         updated_at: report.updated_at,
     };
 
-    Ok(success_response_with_message(response, "Report generation started".to_string()))
+    Ok(success_response_with_message(
+        response,
+        "Report generation started".to_string(),
+    ))
 }
 
 /// Get report by ID
@@ -177,18 +192,22 @@ pub async fn generate_report(
     path = "/reports/{id}",
     params(("id" = Uuid, Path, description = "Report ID")),
     responses(
-        (status = 200, description = "Report fetched", body = ApiResponse<ReportResponse>),
+        (status = 200, description = "Report fetched", body = ApiResponseReportResponse),
         (status = 404, description = "Report not found")
     )
 )]
 pub async fn get_report(
-    State(db): State<Arc<DatabaseConnection>>,
+    State(state): State<AppState>,
     Path(report_id): Path<Uuid>,
 ) -> Result<Json<ApiResponse<ReportResponse>>, (StatusCode, Json<serde_json::Value>)> {
-    let report = ReportsRepository::find_by_id(db.as_ref(), report_id)
+    let report = ReportsRepository::find_by_id(&state.db, report_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?
-        .ok_or_else(|| crate::api::handlers::common::handle_error(AppError::NotFound("Report not found".to_string())))?;
+        .ok_or_else(|| {
+            crate::api::handlers::common::handle_error(AppError::NotFound(
+                "Report not found".to_string(),
+            ))
+        })?;
 
     let response = ReportResponse {
         report_id: report.report_id,
@@ -214,18 +233,22 @@ pub async fn get_report(
     path = "/reports/{id}/status",
     params(("id" = Uuid, Path, description = "Report ID")),
     responses(
-        (status = 200, description = "Report status", body = ApiResponse<ReportStatusResponse>),
+        (status = 200, description = "Report status", body = ApiResponseReportStatusResponse),
         (status = 404, description = "Report not found")
     )
 )]
 pub async fn get_report_status(
-    State(db): State<Arc<DatabaseConnection>>,
+    State(state): State<AppState>,
     Path(report_id): Path<Uuid>,
 ) -> Result<Json<ApiResponse<ReportStatusResponse>>, (StatusCode, Json<serde_json::Value>)> {
-    let report = ReportsRepository::find_by_id(db.as_ref(), report_id)
+    let report = ReportsRepository::find_by_id(&state.db, report_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?
-        .ok_or_else(|| crate::api::handlers::common::handle_error(AppError::NotFound("Report not found".to_string())))?;
+        .ok_or_else(|| {
+            crate::api::handlers::common::handle_error(AppError::NotFound(
+                "Report not found".to_string(),
+            ))
+        })?;
 
     let status = convert_entity_report_status_to_dto(report.status);
     let progress = match status {
@@ -262,18 +285,22 @@ pub async fn get_report_status(
     path = "/reports/{id}/download",
     params(("id" = Uuid, Path, description = "Report ID")),
     responses(
-        (status = 200, description = "Report download info", body = ApiResponse<ReportDownloadResponse>),
+        (status = 200, description = "Report download info", body = ApiResponseReportDownloadResponse),
         (status = 404, description = "Report not found")
     )
 )]
 pub async fn download_report(
-    State(db): State<Arc<DatabaseConnection>>,
+    State(state): State<AppState>,
     Path(report_id): Path<Uuid>,
 ) -> Result<Json<ApiResponse<ReportDownloadResponse>>, (StatusCode, Json<serde_json::Value>)> {
-    let report = ReportsRepository::find_by_id(db.as_ref(), report_id)
+    let report = ReportsRepository::find_by_id(&state.db, report_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?
-        .ok_or_else(|| crate::api::handlers::common::handle_error(AppError::NotFound("Report not found".to_string())))?;
+        .ok_or_else(|| {
+            crate::api::handlers::common::handle_error(AppError::NotFound(
+                "Report not found".to_string(),
+            ))
+        })?;
 
     let format = report.format.clone();
     let report_response = ReportResponse {
@@ -292,19 +319,25 @@ pub async fn download_report(
     };
 
     // Generate a simple download URL based on object key (file_path)
-    let download_url = report.file_path.as_ref().map(|key| {
-        format!("/api/v1/reports/{}/objects/{}", report_id, key)
-    });
+    let download_url = report
+        .file_path
+        .as_ref()
+        .map(|key| format!("/api/v1/reports/{report_id}/objects/{key}"));
 
     let response = ReportDownloadResponse {
         report: report_response,
         download_url,
         file_size: None, // Would be retrieved from storage service
-        content_type: Some(match format {
-            crate::entities::reports::ReportFormat::Pdf => "application/pdf",
-            crate::entities::reports::ReportFormat::Excel => "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            crate::entities::reports::ReportFormat::Json => "application/json",
-        }.to_string()),
+        content_type: Some(
+            match format {
+                crate::entities::reports::ReportFormat::Pdf => "application/pdf",
+                crate::entities::reports::ReportFormat::Excel => {
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                }
+                crate::entities::reports::ReportFormat::Json => "application/json",
+            }
+            .to_string(),
+        ),
     };
 
     Ok(success_response(response))
@@ -319,17 +352,20 @@ pub async fn download_report(
         ("limit" = Option<u32>, Query, description = "Page size (default 20)")
     ),
     responses(
-        (status = 200, description = "Reports list", body = ApiResponse<PaginatedResponse<ReportResponse>>)
+        (status = 200, description = "Reports list", body = ApiResponsePaginatedReportResponse)
     )
 )]
 pub async fn list_reports(
-    State(db): State<Arc<DatabaseConnection>>,
+    State(state): State<AppState>,
     Query(params): Query<PaginationParams>,
-) -> Result<Json<ApiResponse<PaginatedResponse<ReportResponse>>>, (StatusCode, Json<serde_json::Value>)> {
+) -> Result<
+    Json<ApiResponse<PaginatedResponse<ReportResponse>>>,
+    (StatusCode, Json<serde_json::Value>),
+> {
     let (page, limit, _sort_by, _sort_order) = extract_pagination(Query(params));
     let offset = ((page - 1) * limit) as u64;
 
-    let reports = ReportsRepository::find_all(db.as_ref())
+    let reports = ReportsRepository::find_all(&state.db)
         .await
         .map_err(crate::api::handlers::common::handle_error)?;
 
@@ -364,18 +400,21 @@ pub async fn list_reports(
     path = "/reports/assessment/{assessment_id}",
     params(("assessment_id" = Uuid, Path, description = "Assessment ID")),
     responses(
-        (status = 200, description = "Reports list by assessment", body = ApiResponse<PaginatedResponse<ReportResponse>>)
+        (status = 200, description = "Reports list by assessment", body = ApiResponsePaginatedReportResponse)
     )
 )]
 pub async fn list_reports_by_assessment(
-    State(db): State<Arc<DatabaseConnection>>,
+    State(state): State<AppState>,
     Path(assessment_id): Path<Uuid>,
     Query(params): Query<PaginationParams>,
-) -> Result<Json<ApiResponse<PaginatedResponse<ReportResponse>>>, (StatusCode, Json<serde_json::Value>)> {
+) -> Result<
+    Json<ApiResponse<PaginatedResponse<ReportResponse>>>,
+    (StatusCode, Json<serde_json::Value>),
+> {
     let (page, limit, _sort_by, _sort_order) = extract_pagination(Query(params));
     let offset = ((page - 1) * limit) as u64;
 
-    let reports = ReportsRepository::find_by_assessment(db.as_ref(), assessment_id)
+    let reports = ReportsRepository::find_by_assessment(&state.db, assessment_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?;
 
@@ -411,19 +450,23 @@ pub async fn list_reports_by_assessment(
     params(("id" = Uuid, Path, description = "Report ID")),
     request_body = UpdateReportRequest,
     responses(
-        (status = 200, description = "Report updated", body = ApiResponse<ReportResponse>),
+        (status = 200, description = "Report updated", body = ApiResponseReportResponse),
         (status = 404, description = "Report not found")
     )
 )]
 pub async fn update_report(
-    State(db): State<Arc<DatabaseConnection>>,
+    State(state): State<AppState>,
     Path(report_id): Path<Uuid>,
     Json(request): Json<UpdateReportRequest>,
 ) -> Result<Json<ApiResponse<ReportResponse>>, (StatusCode, Json<serde_json::Value>)> {
-    let mut report = ReportsRepository::find_by_id(db.as_ref(), report_id)
+    let mut report = ReportsRepository::find_by_id(&state.db, report_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?
-        .ok_or_else(|| crate::api::handlers::common::handle_error(AppError::NotFound("Report not found".to_string())))?;
+        .ok_or_else(|| {
+            crate::api::handlers::common::handle_error(AppError::NotFound(
+                "Report not found".to_string(),
+            ))
+        })?;
 
     // Update fields if provided
     if let Some(title) = request.title {
@@ -439,7 +482,7 @@ pub async fn update_report(
     report.updated_at = chrono::Utc::now();
 
     let active_model: crate::entities::reports::ActiveModel = report.into();
-    let updated_report = ReportsRepository::update(db.as_ref(), report_id, active_model)
+    let updated_report = ReportsRepository::update(&state.db, report_id, active_model)
         .await
         .map_err(crate::api::handlers::common::handle_error)?;
 
@@ -458,7 +501,10 @@ pub async fn update_report(
         updated_at: updated_report.updated_at,
     };
 
-    Ok(success_response_with_message(response, "Report updated successfully".to_string()))
+    Ok(success_response_with_message(
+        response,
+        "Report updated successfully".to_string(),
+    ))
 }
 
 /// Delete report
@@ -471,12 +517,15 @@ pub async fn update_report(
     )
 )]
 pub async fn delete_report(
-    State(db): State<Arc<DatabaseConnection>>,
+    State(state): State<AppState>,
     Path(report_id): Path<Uuid>,
 ) -> Result<Json<ApiResponse<()>>, (StatusCode, Json<serde_json::Value>)> {
-    ReportsRepository::delete(db.as_ref(), report_id)
+    ReportsRepository::delete(&state.db, report_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?;
 
-    Ok(success_response_with_message((), "Report deleted successfully".to_string()))
+    Ok(success_response_with_message(
+        (),
+        "Report deleted successfully".to_string(),
+    ))
 }

@@ -6,7 +6,7 @@ pub struct Migration;
 #[async_trait::async_trait]
 impl MigrationTrait for Migration {
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
-        // assessments: add cooperative_id, make document_title not null, drop deprecated columns
+        // First, add cooperative_id if it doesn't exist
         manager
             .alter_table(
                 Table::alter()
@@ -17,10 +17,28 @@ impl MigrationTrait for Migration {
                             .string()
                             .not_null(),
                     )
-                    .drop_column(Assessments::FileName)
-                    .drop_column(Assessments::OverallScore)
-                    .drop_column(Assessments::ExpectedCompletionDate)
                     .to_owned(),
+            )
+            .await?;
+            
+        // Safely drop file_name column if it exists
+        manager
+            .get_connection()
+            .execute_unprepared(
+                r#"
+                DO $$
+                BEGIN
+                    IF EXISTS (
+                        SELECT 1 
+                        FROM information_schema.columns 
+                        WHERE table_name = 'assessments' 
+                        AND column_name = 'file_name'
+                    ) THEN
+                        EXECUTE 'ALTER TABLE assessments DROP COLUMN file_name';
+                    END IF;
+                END
+                $$
+                "#
             )
             .await?;
 
@@ -33,7 +51,6 @@ impl MigrationTrait for Migration {
                     .drop_column(DimensionAssessments::DesiredStateId)
                     .drop_column(DimensionAssessments::CurrentScore)
                     .drop_column(DimensionAssessments::DesiredScore)
-                    .drop_column(DimensionAssessments::Notes)
                     .to_owned(),
             )
             .await?;
@@ -139,6 +156,7 @@ impl MigrationTrait for Migration {
 }
 
 #[derive(DeriveIden)]
+#[allow(dead_code)]
 enum Assessments {
     Table,
     AssessmentId,
@@ -155,6 +173,7 @@ enum Assessments {
 }
 
 #[derive(DeriveIden)]
+#[allow(dead_code)]
 enum DimensionAssessments {
     Table,
     DimensionAssessmentId,
@@ -168,6 +187,7 @@ enum DimensionAssessments {
 }
 
 #[derive(DeriveIden)]
+#[allow(dead_code)]
 enum Reports {
     Table,
     ReportId,

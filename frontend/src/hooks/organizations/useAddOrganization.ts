@@ -1,50 +1,55 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { organizationRepository } from "@/services/organizations/organizationRepository";
 import { Organization } from "@/types/organization";
+import { toast } from "sonner";
 
 export const useAddOrganization = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (
+    networkMode: "always",
+    mutationFn: (
       newOrganization: Omit<
         Organization,
         "id" | "syncStatus" | "createdAt" | "updatedAt"
       >,
-    ) => {
-      // In a real app, this is where you'd send the request to the backend.
-      // For our offline-first approach, we're interacting directly with the repository.
-      return organizationRepository.add(newOrganization);
-    },
+    ) => organizationRepository.add(newOrganization),
     onMutate: async (newOrganization) => {
-      // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
       await queryClient.cancelQueries({ queryKey: ["organizations"] });
-
-      // Snapshot the previous value
       const previousOrganizations =
         queryClient.getQueryData<Organization[]>(["organizations"]) || [];
 
-      // Optimistically update to the new value
-      queryClient.setQueryData<Organization[]>(["organizations"], (old) => [
-        ...(old || []),
-        { ...newOrganization, id: crypto.randomUUID(), syncStatus: "new" },
-      ]);
+      const optimisticOrganization: Organization = {
+        id: `temp-${Date.now()}`,
+        ...newOrganization,
+        syncStatus: "new",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
 
-      // Return a context object with the snapshotted value
-      return { previousOrganizations };
+      queryClient.setQueryData<Organization[]>(
+        ["organizations"],
+        (old = []) => [...old, optimisticOrganization],
+      );
+
+      return { previousOrganizations, optimisticOrganization };
     },
-    onError: (err, newOrganization, context) => {
-      // Rollback to the previous value on error
+    onSuccess: (data, _, context) => {
+      queryClient.setQueryData<Organization[]>(["organizations"], (old = []) =>
+        old.map((org) =>
+          org.id === context?.optimisticOrganization.id ? data : org,
+        ),
+      );
+      toast.success("Organization added successfully");
+    },
+    onError: (error: Error, _, context) => {
       if (context?.previousOrganizations) {
         queryClient.setQueryData(
           ["organizations"],
           context.previousOrganizations,
         );
       }
-    },
-    onSettled: () => {
-      // Invalidate and refetch after error or success
-      queryClient.invalidateQueries({ queryKey: ["organizations"] });
+      toast.error(`Failed to add organization: ${error.message}`);
     },
   });
 };

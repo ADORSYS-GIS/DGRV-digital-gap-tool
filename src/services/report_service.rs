@@ -1,11 +1,11 @@
-use async_trait::async_trait;
-use bytes::Bytes;
-use uuid::Uuid;
 use crate::entities::reports::{ReportFormat, ReportStatus, ReportType};
 use crate::error::AppError;
 use crate::repositories::reports::ReportsRepository;
 use crate::services::s3_storage::{FileStorageService, S3StorageService};
+use async_trait::async_trait;
+use bytes::Bytes;
 use sea_orm::DatabaseConnection;
+use uuid::Uuid;
 
 pub struct ReportService {
     storage_service: S3StorageService,
@@ -13,7 +13,10 @@ pub struct ReportService {
 }
 
 impl ReportService {
-    pub async fn new(config: &crate::config::MinioConfig, db: DatabaseConnection) -> Result<Self, AppError> {
+    pub async fn new(
+        config: &crate::config::MinioConfig,
+        db: DatabaseConnection,
+    ) -> Result<Self, AppError> {
         let storage_service = S3StorageService::new(config).await?;
         Ok(Self {
             storage_service,
@@ -31,16 +34,21 @@ impl ReportService {
     ) -> Result<crate::entities::reports::Model, AppError> {
         // Create report record in database
         let report_id = Uuid::new_v4();
-        let object_name = self.storage_service.generate_object_name(&report_id, &format.to_string());
-        
+        let object_name = self
+            .storage_service
+            .generate_object_name(&report_id, &format.to_string());
+
         let content_type = match format {
             ReportFormat::Pdf => "application/pdf",
-            ReportFormat::Excel => "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            ReportFormat::Excel => {
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            }
             ReportFormat::Json => "application/json",
         };
 
         // Upload file to S3/MinIO
-        let _ = self.storage_service
+        let _ = self
+            .storage_service
             .upload_file(&object_name, report_data, content_type)
             .await?;
 
@@ -73,21 +81,18 @@ impl ReportService {
             .ok_or_else(|| AppError::NotFound("Report not found".to_string()))?;
 
         // Expect object key in file_path
-        let object_name = report.file_path.as_ref()
+        let object_name = report
+            .file_path
+            .as_ref()
             .ok_or_else(|| AppError::NotFound("Report file not available".to_string()))?;
 
         // Download file from S3/MinIO
-        let file_data = self.storage_service
-            .download_file(object_name)
-            .await?;
+        let file_data = self.storage_service.download_file(object_name).await?;
 
         Ok((report, file_data))
     }
 
-    pub async fn delete_report(
-        &self,
-        report_id: Uuid,
-    ) -> Result<bool, AppError> {
+    pub async fn delete_report(&self, report_id: Uuid) -> Result<bool, AppError> {
         // Get report metadata
         let report = ReportsRepository::find_by_id(&self.db, report_id)
             .await?
@@ -95,9 +100,7 @@ impl ReportService {
 
         // Delete file from S3/MinIO if it exists
         if let Some(object_name) = &report.file_path {
-            self.storage_service
-                .delete_file(object_name)
-                .await?;
+            self.storage_service.delete_file(object_name).await?;
         }
 
         // Delete report from database
@@ -113,7 +116,9 @@ impl FileStorageService for ReportService {
         data: Bytes,
         content_type: &str,
     ) -> Result<String, AppError> {
-        self.storage_service.upload_file(object_name, data, content_type).await
+        self.storage_service
+            .upload_file(object_name, data, content_type)
+            .await
     }
 
     async fn download_file(&self, object_name: &str) -> Result<Bytes, AppError> {

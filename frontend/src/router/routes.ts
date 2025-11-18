@@ -15,6 +15,7 @@ import Dashboard from "../pages/user/Dashboard";
 import { ProtectedRoute } from "./ProtectedRoute";
 import AdminLayout from "@/layouts/AdminLayout";
 import ThirdAdminLayout from "@/layouts/ThirdAdminLayout";
+import SecondAdminLayout from "@/layouts/SecondAdminLayout";
 const ManageOrganizations = React.lazy(
   () => import("../pages/admin/ManageOrganizationsPage"),
 );
@@ -27,9 +28,41 @@ const ManageDigitalisationLevels = React.lazy(
 const ManageDimensions = React.lazy(
   () => import("../pages/admin/ManageDimensions"),
 );
-const ManageGapRecommendations = React.lazy(
-  () => import("../pages/admin/ManageGapRecommendations"),
+const ManageRecommendations = React.lazy(
+  () => import("../pages/admin/ManageRecommendations"),
 );
+const ManageActionPlan = React.lazy(
+  () => import("../pages/admin/ManageActionPlan"),
+);
+const ManageDigitalGaps = React.lazy(
+  () => import("../pages/admin/ManageDigitalGaps"),
+);
+const ViewReports = React.lazy(() => import("../pages/admin/ViewReports"));
+const SecondAdminDashboard = React.lazy(
+  () => import("../pages/second_admin/SecondAdminDashboard"),
+);
+const ManageCooperations = React.lazy(
+  () => import("../pages/second_admin/ManageCooperations"),
+);
+const ManageAssessments = React.lazy(
+  () => import("../pages/second_admin/ManageAssessments"),
+);
+const AssessmentDetailPage = React.lazy(
+  () => import("../pages/second_admin/AssessmentDetailPage"),
+);
+const ManageSubmissionsPage = React.lazy(
+  () => import("../pages/second_admin/ManageSubmissionsPage"),
+);
+const SubmissionDetailPage = React.lazy(
+  () => import("../pages/second_admin/SubmissionDetailPage"),
+);
+const ActionPlansListPage = React.lazy(
+  () => import("../pages/second_admin/action_plans/ActionPlansListPage"),
+);
+const ActionPlanPage = React.lazy(
+  () => import("../pages/second_admin/action_plans/ActionPlanPage"),
+);
+import AnswerDimensionAssessmentPage from "@/pages/assessments/AnswerDimensionAssessmentPage";
 const ThirdAdminDashboard = React.lazy(
   () => import("../pages/third_admin/ThirdAdminDashboard"),
 );
@@ -80,7 +113,72 @@ const routes = [
       { path: "dimensions", element: React.createElement(ManageDimensions) },
       {
         path: "recommendations",
-        element: React.createElement(ManageGapRecommendations),
+        element: React.createElement(ManageRecommendations),
+      },
+      {
+        path: "action-plan",
+        element: React.createElement(ManageActionPlan),
+      },
+      {
+        path: "digital-gaps",
+        element: React.createElement(ManageDigitalGaps),
+      },
+      {
+        path: "manage-levels/:dimensionId",
+        element: React.createElement(ManageDigitalisationLevels),
+      },
+      {
+        path: "users",
+        element: React.createElement(ManageUsers),
+      },
+      {
+        path: "reports",
+        element: React.createElement(ViewReports),
+      },
+    ],
+  },
+  {
+    path: "/second-admin",
+    element: React.createElement(ProtectedRoute, {
+      allowedRoles: [ROLES.ADMIN],
+      children: React.createElement(SecondAdminLayout),
+    }),
+    children: [
+      {
+        path: "dashboard",
+        element: React.createElement(SecondAdminDashboard),
+      },
+      {
+        path: "cooperations",
+        element: React.createElement(ManageCooperations),
+      },
+      {
+        path: "assessments",
+        element: React.createElement(ManageAssessments),
+      },
+      {
+        path: "assessment/:assessmentId",
+        element: React.createElement(AssessmentDetailPage),
+      },
+      {
+        path: "assessment/:assessmentId/dimension/:dimensionId",
+        element: React.createElement(AnswerDimensionAssessmentPage),
+      },
+      {
+        path: "submissions",
+        element: React.createElement(ManageSubmissionsPage),
+      },
+      {
+        path: "submissions/:submissionId",
+        element: React.createElement(SubmissionDetailPage),
+      },
+      {
+        path: "action-plans",
+        element: React.createElement(ActionPlansListPage),
+      },
+      {
+        path: "action-plans/:assessmentId",
+        element: React.createElement(ActionPlanPage),
       },
     ],
   },

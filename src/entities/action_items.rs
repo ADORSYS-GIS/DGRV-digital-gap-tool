@@ -1,24 +1,18 @@
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
-use rust_decimal::Decimal;
+use std::fmt;
 use std::str::FromStr;
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
 #[sea_orm(table_name = "action_items")]
 pub struct Model {
     #[sea_orm(primary_key, auto_generate = false)]
-    pub action_item_id: Uuid,
+    pub id: Uuid,
     pub action_plan_id: Uuid,
-    pub recommendation_id: Option<Uuid>,
-    pub title: String,
-    pub description: Option<String>,
+    pub recommendation_id: Uuid,
+    pub dimension_assessment_id: Uuid,
     pub status: ActionItemStatus,
     pub priority: ActionItemPriority,
-    pub estimated_effort_hours: Option<i32>,
-    pub estimated_cost: Option<Decimal>,
-    pub target_date: Option<DateTimeUtc>,
-    pub completed_date: Option<DateTimeUtc>,
-    pub assigned_to: Option<String>,
     pub created_at: DateTimeUtc,
     pub updated_at: DateTimeUtc,
 }
@@ -26,14 +20,25 @@ pub struct Model {
 #[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize)]
 #[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "action_item_status")]
 pub enum ActionItemStatus {
-    #[sea_orm(string_value = "pending")]
-    Pending,
+    #[sea_orm(string_value = "todo")]
+    Todo,
     #[sea_orm(string_value = "in_progress")]
     InProgress,
-    #[sea_orm(string_value = "completed")]
-    Completed,
-    #[sea_orm(string_value = "cancelled")]
-    Cancelled,
+    #[sea_orm(string_value = "done")]
+    Done,
+    #[sea_orm(string_value = "approved")]
+    Approved,
+}
+
+impl fmt::Display for ActionItemStatus {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            ActionItemStatus::Todo => write!(f, "todo"),
+            ActionItemStatus::InProgress => write!(f, "in_progress"),
+            ActionItemStatus::Done => write!(f, "done"),
+            ActionItemStatus::Approved => write!(f, "approved"),
+        }
+    }
 }
 
 impl FromStr for ActionItemStatus {
@@ -41,17 +46,21 @@ impl FromStr for ActionItemStatus {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.to_lowercase().as_str() {
-            "pending" => Ok(ActionItemStatus::Pending),
+            "todo" => Ok(ActionItemStatus::Todo),
             "in_progress" => Ok(ActionItemStatus::InProgress),
-            "completed" => Ok(ActionItemStatus::Completed),
-            "cancelled" => Ok(ActionItemStatus::Cancelled),
-            _ => Err(format!("Invalid action item status: {}", s)),
+            "done" => Ok(ActionItemStatus::Done),
+            "approved" => Ok(ActionItemStatus::Approved),
+            _ => Err(format!("Invalid action item status: {s}")),
         }
     }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize)]
-#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "action_item_priority")]
+#[sea_orm(
+    rs_type = "String",
+    db_type = "Enum",
+    enum_name = "action_item_priority"
+)]
 pub enum ActionItemPriority {
     #[sea_orm(string_value = "low")]
     Low,
@@ -59,8 +68,16 @@ pub enum ActionItemPriority {
     Medium,
     #[sea_orm(string_value = "high")]
     High,
-    #[sea_orm(string_value = "urgent")]
-    Urgent,
+}
+
+impl fmt::Display for ActionItemPriority {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            ActionItemPriority::Low => write!(f, "low"),
+            ActionItemPriority::Medium => write!(f, "medium"),
+            ActionItemPriority::High => write!(f, "high"),
+        }
+    }
 }
 
 impl FromStr for ActionItemPriority {
@@ -71,8 +88,7 @@ impl FromStr for ActionItemPriority {
             "low" => Ok(ActionItemPriority::Low),
             "medium" => Ok(ActionItemPriority::Medium),
             "high" => Ok(ActionItemPriority::High),
-            "urgent" => Ok(ActionItemPriority::Urgent),
-            _ => Err(format!("Invalid action item priority: {}", s)),
+            _ => Err(format!("Invalid action item priority: {s}")),
         }
     }
 }
@@ -82,7 +98,7 @@ pub enum Relation {
     #[sea_orm(
         belongs_to = "super::action_plans::Entity",
         from = "Column::ActionPlanId",
-        to = "super::action_plans::Column::ActionPlanId",
+        to = "super::action_plans::Column::Id",
         on_update = "Cascade",
         on_delete = "Cascade"
     )]
@@ -92,7 +108,7 @@ pub enum Relation {
         from = "Column::RecommendationId",
         to = "super::recommendations::Column::RecommendationId",
         on_update = "Cascade",
-        on_delete = "SetNull"
+        on_delete = "Cascade"
     )]
     Recommendations,
 }

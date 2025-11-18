@@ -1,47 +1,16 @@
 import { AuthState, UserProfile } from "@/types/auth";
 import { del, set } from "idb-keyval";
-import { keycloak, keycloakInitOptions } from "./keycloakConfig";
+import { KeycloakTokenParsed } from "keycloak-js";
+import { keycloak } from "./keycloakConfig";
+
+interface CustomKeycloakTokenParsed extends KeycloakTokenParsed {
+  roles?: string[];
+}
 
 /**
  * Core authentication service operations
  */
 export const authService = {
-  /**
-   * Initialize Keycloak authentication
-   */
-  async initialize(): Promise<boolean> {
-    try {
-      if (keycloak.authenticated !== undefined) {
-        return keycloak.authenticated;
-      }
-
-      const authenticated = await keycloak.init(keycloakInitOptions);
-
-      if (authenticated) {
-        await this.storeTokens();
-        console.log("Keycloak initialized successfully - User authenticated");
-      } else {
-        console.log(
-          "Keycloak initialized - User not authenticated (check-sso mode)",
-        );
-      }
-
-      return authenticated;
-    } catch (error) {
-      console.error("Failed to initialize Keycloak:", error);
-      try {
-        keycloak.clearToken();
-        await this.clearStoredTokens();
-      } catch (cleanupError) {
-        console.error(
-          "Failed to cleanup tokens during initialization error:",
-          cleanupError,
-        );
-      }
-      return false;
-    }
-  },
-
   /**
    * Login user
    */
@@ -117,14 +86,18 @@ export const authService = {
     try {
       if (!keycloak.tokenParsed) return null;
 
-      const token = keycloak.tokenParsed;
+      const token = keycloak.tokenParsed as CustomKeycloakTokenParsed;
+
+      const realmRoles = token.realm_access?.roles || [];
+      const resourceRoles = token.roles || [];
+      const allRoles = [...new Set([...realmRoles, ...resourceRoles])];
 
       return {
         sub: token.sub || "",
         preferred_username: token.preferred_username,
         name: token.name,
         email: token.email,
-        roles: token.realm_access?.roles || [],
+        roles: allRoles,
         realm_access: token.realm_access
           ? { roles: token.realm_access.roles || [] }
           : undefined,
@@ -143,7 +116,7 @@ export const authService = {
   getAuthState(): AuthState {
     const isAuthenticated = !!keycloak.authenticated;
     const user = this.getUserProfile();
-    const roles = user?.roles || user?.realm_access?.roles || [];
+    const roles = user?.roles || [];
 
     return {
       isAuthenticated,
@@ -160,10 +133,7 @@ export const authService = {
     const user = this.getUserProfile();
     if (!user) return false;
 
-    const userRoles = [
-      ...(user.roles || []),
-      ...(user.realm_access?.roles || []),
-    ].map((role) => role.toLowerCase());
+    const userRoles = (user.roles || []).map((role) => role.toLowerCase());
 
     return requiredRoles.some((role) => userRoles.includes(role.toLowerCase()));
   },

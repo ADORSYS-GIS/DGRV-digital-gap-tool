@@ -22,14 +22,8 @@ export const AddOrganizationForm: React.FC = () => {
     const domain = formData.get("domain") as string;
 
     if (name && domain) {
-      addOrganizationMutation.mutate(
-        { name, domain },
-        {
-          onSuccess: () => {
-            setIsOpen(false);
-          },
-        },
-      );
+      addOrganizationMutation.mutate({ name, domain });
+      setIsOpen(false);
       event.currentTarget.reset();
     }
   };

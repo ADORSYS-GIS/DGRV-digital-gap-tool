@@ -1,9 +1,3 @@
-import React from "react";
-import { EditOrganizationForm } from "./EditOrganizationForm";
-import { Organization } from "@/types/organization";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FilePenLine, Trash2, ListTree } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,7 +9,26 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useDeleteOrganization } from "@/hooks/organizations/useDeleteOrganization";
+import { Organization } from "@/types/organization";
+import { Building2, FilePenLine, Trash2, Users } from "lucide-react";
+import React, { useState } from "react";
+import { EditOrganizationForm } from "./EditOrganizationForm";
 
 interface OrganizationCardProps {
   organization: Organization;
@@ -24,49 +37,93 @@ interface OrganizationCardProps {
 export const OrganizationCard: React.FC<OrganizationCardProps> = ({
   organization,
 }) => {
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const deleteMutation = useDeleteOrganization();
 
   const handleDelete = () => {
     deleteMutation.mutate(organization.id);
   };
 
+  const handleAssignDimension = () => {
+    // Placeholder for assign dimension functionality
+    console.log("Assign dimension for:", organization.name);
+  };
+
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-xl font-bold">{organization.name}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="text-sm text-muted-foreground mb-4">
-          <span className="font-semibold">Domains:</span> {organization.domain}
+    <Card className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-lg transition-shadow duration-300 flex flex-col h-full">
+      <CardContent className="p-6 flex-grow flex flex-col justify-between">
+        <div>
+          <div className="flex items-center gap-3">
+            <div className="bg-gray-100 p-2 rounded-md">
+              <Building2 className="h-5 w-5 text-gray-500" />
+            </div>
+            <CardTitle className="text-lg font-bold text-gray-900">
+              {organization.name}
+            </CardTitle>
+          </div>
+          <p className="text-sm text-gray-500 mt-3">
+            <span className="font-medium">Domain:</span> {organization.domain}
+          </p>
         </div>
-        <div className="grid grid-cols-2 gap-2">
-          <EditOrganizationForm organization={organization} />
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="destructive" size="sm">
-                <Trash2 className="mr-2 h-4 w-4" /> Delete
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete the
-                  organization and remove its data from our servers.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={handleDelete}>
-                  Continue
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+        <div className="mt-6 pt-4 border-t border-gray-100">
+          <div className="flex w-full gap-2 mb-2">
+            <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm" className="w-full">
+                  <FilePenLine className="mr-2 h-4 w-4" /> Edit
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Edit Organization</DialogTitle>
+                </DialogHeader>
+                <EditOrganizationForm
+                  organization={organization}
+                  onSuccess={() => setIsEditDialogOpen(false)}
+                />
+              </DialogContent>
+            </Dialog>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive" size="sm" className="w-full">
+                  <Trash2 className="mr-2 h-4 w-4" /> Delete
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete
+                    the organization and remove its data from our servers.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleDelete}>
+                    Continue
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full"
+                  onClick={handleAssignDimension}
+                >
+                  <Users className="mr-2 h-4 w-4" /> Assign Dimension
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Assign dimensions to this organization</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
-        <Button variant="outline" size="sm" className="mt-2 w-full">
-          <ListTree className="mr-2 h-4 w-4" /> Assign Categories
-        </Button>
       </CardContent>
     </Card>
   );

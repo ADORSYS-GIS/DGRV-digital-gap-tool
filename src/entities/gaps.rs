@@ -6,7 +6,6 @@ use serde::{Deserialize, Serialize};
 pub struct Model {
     #[sea_orm(primary_key, auto_generate = false)]
     pub gap_id: Uuid,
-    pub dimension_assessment_id: Uuid,
     pub dimension_id: Uuid,
     pub gap_size: i32,
     pub gap_severity: GapSeverity,
@@ -17,7 +16,11 @@ pub struct Model {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize)]
-#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "gap_severity")]
+#[sea_orm(
+    rs_type = "String",
+    db_type = "Enum",
+    enum_name = "gap_severity"
+)]
 pub enum GapSeverity {
     #[sea_orm(string_value = "LOW")]
     Low,
@@ -30,14 +33,6 @@ pub enum GapSeverity {
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
     #[sea_orm(
-        belongs_to = "super::dimension_assessments::Entity",
-        from = "Column::DimensionAssessmentId",
-        to = "super::dimension_assessments::Column::DimensionAssessmentId",
-        on_update = "Cascade",
-        on_delete = "Cascade"
-    )]
-    DimensionAssessments,
-    #[sea_orm(
         belongs_to = "super::dimensions::Entity",
         from = "Column::DimensionId",
         to = "super::dimensions::Column::DimensionId",
@@ -45,12 +40,6 @@ pub enum Relation {
         on_delete = "Cascade"
     )]
     Dimensions,
-}
-
-impl Related<super::dimension_assessments::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::DimensionAssessments.def()
-    }
 }
 
 impl Related<super::dimensions::Entity> for Entity {

@@ -10,25 +10,25 @@ use thiserror::Error;
 pub enum AppError {
     #[error("Database error: {0}")]
     DatabaseError(#[from] sea_orm::DbErr),
-    
+
     #[error("Validation error: {0}")]
     ValidationError(String),
-    
+
     #[error("Not found: {0}")]
     NotFound(String),
-    
+
     #[error("Unauthorized: {0}")]
     Unauthorized(String),
-    
+
     #[error("Bad request: {0}")]
     BadRequest(String),
-    
+
     #[error("Internal server error: {0}")]
     InternalServerError(String),
-    
+
     #[error("Authentication error: {0}")]
     AuthError(String),
-    
+
     #[error("File storage error: {0}")]
     FileStorageError(String),
 }
@@ -41,9 +41,13 @@ impl IntoResponse for AppError {
             AppError::NotFound(_) => (StatusCode::NOT_FOUND, "Resource not found"),
             AppError::Unauthorized(_) => (StatusCode::UNAUTHORIZED, "Unauthorized"),
             AppError::BadRequest(_) => (StatusCode::BAD_REQUEST, "Bad request"),
-            AppError::InternalServerError(_) => (StatusCode::INTERNAL_SERVER_ERROR, "Internal server error"),
+            AppError::InternalServerError(_) => {
+                (StatusCode::INTERNAL_SERVER_ERROR, "Internal server error")
+            }
             AppError::AuthError(_) => (StatusCode::UNAUTHORIZED, "Authentication error"),
-            AppError::FileStorageError(_) => (StatusCode::INTERNAL_SERVER_ERROR, "File storage error"),
+            AppError::FileStorageError(_) => {
+                (StatusCode::INTERNAL_SERVER_ERROR, "File storage error")
+            }
         };
 
         let body = Json(json!({
