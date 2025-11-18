@@ -112,6 +112,123 @@
         "security": [{ "jwt": [] }]
       }
     },
+    "/admin/organizations": {
+      "get": {
+        "tags": ["Organization"],
+        "summary": "Get organizations",
+        "operationId": "get_organizations",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KeycloakOrganization"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Organization"],
+        "summary": "Create organization",
+        "operationId": "create_organization",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrganizationCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KeycloakOrganization"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/organizations/{org_id}": {
+      "get": {
+        "tags": ["Organization"],
+        "summary": "Get organization by ID",
+        "operationId": "get_organization",
+        "parameters": [
+          {
+            "name": "org_id",
+            "in": "path",
+            "description": "Organization ID",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KeycloakOrganization"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["Organization"],
+        "summary": "Update organization",
+        "operationId": "update_organization",
+        "parameters": [
+          {
+            "name": "org_id",
+            "in": "path",
+            "description": "Organization ID",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrganizationUpdateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": { "204": { "description": "No Content" } }
+      },
+      "delete": {
+        "tags": ["Organization"],
+        "summary": "Delete organization",
+        "operationId": "delete_organization",
+        "parameters": [
+          {
+            "name": "org_id",
+            "in": "path",
+            "description": "Organization ID",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": { "204": { "description": "No Content" } }
+      }
+    },
     "/assessments": {
       "get": {
         "tags": ["crate::api::handlers::assessment"],
@@ -1778,9 +1895,9 @@
                   }
                 },
                 "example": {
-                  "description": "Implement automated testing for critical components",
                   "dimension_id": "550e8400-e29b-41d4-a716-446655440000",
-                  "priority": "HIGH"
+                  "priority": "HIGH",
+                  "description": "Implement automated testing for critical components"
                 }
               }
             ],
@@ -2064,13 +2181,13 @@
                   }
                 },
                 "example": {
+                  "gap_id": "550e8400-e29b-41d4-a716-446655440000",
+                  "dimension_id": "550e8400-e29b-41d4-a716-446655440002",
+                  "gap_size": 3,
+                  "gap_severity": "HIGH",
+                  "gap_description": "Significant gap in digital transformation",
                   "calculated_at": "2023-01-01T00:00:00Z",
                   "created_at": "2023-01-01T00:00:00Z",
-                  "dimension_id": "550e8400-e29b-41d4-a716-446655440002",
-                  "gap_description": "Significant gap in digital transformation",
-                  "gap_id": "550e8400-e29b-41d4-a716-446655440000",
-                  "gap_severity": "HIGH",
-                  "gap_size": 3,
                   "updated_at": "2023-01-01T00:00:00Z"
                 }
               }
@@ -2385,13 +2502,13 @@
                         }
                       },
                       "example": {
+                        "gap_id": "550e8400-e29b-41d4-a716-446655440000",
+                        "dimension_id": "550e8400-e29b-41d4-a716-446655440002",
+                        "gap_size": 3,
+                        "gap_severity": "HIGH",
+                        "gap_description": "Significant gap in digital transformation",
                         "calculated_at": "2023-01-01T00:00:00Z",
                         "created_at": "2023-01-01T00:00:00Z",
-                        "dimension_id": "550e8400-e29b-41d4-a716-446655440002",
-                        "gap_description": "Significant gap in digital transformation",
-                        "gap_id": "550e8400-e29b-41d4-a716-446655440000",
-                        "gap_severity": "HIGH",
-                        "gap_size": 3,
                         "updated_at": "2023-01-01T00:00:00Z"
                       }
                     }
@@ -2485,11 +2602,11 @@
                         }
                       },
                       "example": {
-                        "created_at": "2023-01-01T00:00:00Z",
-                        "description": "Implement automated testing for critical components",
+                        "recommendation_id": "550e8400-e29b-41d4-a716-446655440000",
                         "dimension_id": "550e8400-e29b-41d4-a716-446655440002",
                         "priority": "HIGH",
-                        "recommendation_id": "550e8400-e29b-41d4-a716-446655440000",
+                        "description": "Implement automated testing for critical components",
+                        "created_at": "2023-01-01T00:00:00Z",
                         "updated_at": "2023-01-01T00:00:00Z"
                       }
                     }
@@ -2665,11 +2782,11 @@
                   }
                 },
                 "example": {
-                  "created_at": "2023-01-01T00:00:00Z",
-                  "description": "Implement automated testing for critical components",
+                  "recommendation_id": "550e8400-e29b-41d4-a716-446655440000",
                   "dimension_id": "550e8400-e29b-41d4-a716-446655440002",
                   "priority": "HIGH",
-                  "recommendation_id": "550e8400-e29b-41d4-a716-446655440000",
+                  "description": "Implement automated testing for critical components",
+                  "created_at": "2023-01-01T00:00:00Z",
                   "updated_at": "2023-01-01T00:00:00Z"
                 }
               }
@@ -2972,8 +3089,8 @@
         },
         "example": {
           "dimension_assessment_id": "550e8400-e29b-41d4-a716-446655440000",
-          "gap_description": "Significant gap in digital transformation",
-          "gap_size": 3
+          "gap_size": 3,
+          "gap_description": "Significant gap in digital transformation"
         }
       },
       "CreateRecommendationRequest": {
@@ -2994,9 +3111,9 @@
           "priority": { "$ref": "#/components/schemas/RecommendationPriority" }
         },
         "example": {
-          "description": "Implement automated testing for critical components",
           "dimension_id": "550e8400-e29b-41d4-a716-446655440000",
-          "priority": "HIGH"
+          "priority": "HIGH",
+          "description": "Implement automated testing for critical components"
         }
       },
       "CurrentStateResponse": {
@@ -3184,13 +3301,13 @@
           }
         },
         "example": {
+          "gap_id": "550e8400-e29b-41d4-a716-446655440000",
+          "dimension_id": "550e8400-e29b-41d4-a716-446655440002",
+          "gap_size": 3,
+          "gap_severity": "HIGH",
+          "gap_description": "Significant gap in digital transformation",
           "calculated_at": "2023-01-01T00:00:00Z",
           "created_at": "2023-01-01T00:00:00Z",
-          "dimension_id": "550e8400-e29b-41d4-a716-446655440002",
-          "gap_description": "Significant gap in digital transformation",
-          "gap_id": "550e8400-e29b-41d4-a716-446655440000",
-          "gap_severity": "HIGH",
-          "gap_size": 3,
           "updated_at": "2023-01-01T00:00:00Z"
         }
       },
@@ -3215,6 +3332,81 @@
           "include_recommendations": { "type": "boolean", "nullable": true },
           "report_type": { "$ref": "#/components/schemas/ReportType" },
           "title": { "type": "string" }
+        }
+      },
+      "KeycloakOrganization": {
+        "type": "object",
+        "required": ["id", "name", "enabled"],
+        "properties": {
+          "alias": { "type": "string", "nullable": true },
+          "attributes": { "nullable": true },
+          "description": { "type": "string", "nullable": true },
+          "domains": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/OrganizationDomain" },
+            "nullable": true
+          },
+          "enabled": { "type": "boolean" },
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "redirectUrl": { "type": "string", "nullable": true }
+        }
+      },
+      "OrganizationCreateRequest": {
+        "type": "object",
+        "required": ["name", "domains", "redirectUrl", "enabled"],
+        "properties": {
+          "attributes": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "nullable": true
+          },
+          "domains": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrganizationDomainRequest"
+            }
+          },
+          "enabled": { "type": "string" },
+          "name": { "type": "string" },
+          "redirectUrl": { "type": "string" }
+        }
+      },
+      "OrganizationDomain": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": { "type": "string" },
+          "verified": { "type": "boolean", "nullable": true }
+        }
+      },
+      "OrganizationDomainRequest": {
+        "type": "object",
+        "required": ["name"],
+        "properties": { "name": { "type": "string" } }
+      },
+      "OrganizationUpdateRequest": {
+        "type": "object",
+        "required": ["name", "domains"],
+        "properties": {
+          "attributes": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "nullable": true
+          },
+          "domains": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrganizationDomainRequest"
+            }
+          },
+          "name": { "type": "string" }
         }
       },
       "PaginatedActionPlanResponse": {
@@ -3391,13 +3583,13 @@
                 }
               },
               "example": {
+                "gap_id": "550e8400-e29b-41d4-a716-446655440000",
+                "dimension_id": "550e8400-e29b-41d4-a716-446655440002",
+                "gap_size": 3,
+                "gap_severity": "HIGH",
+                "gap_description": "Significant gap in digital transformation",
                 "calculated_at": "2023-01-01T00:00:00Z",
                 "created_at": "2023-01-01T00:00:00Z",
-                "dimension_id": "550e8400-e29b-41d4-a716-446655440002",
-                "gap_description": "Significant gap in digital transformation",
-                "gap_id": "550e8400-e29b-41d4-a716-446655440000",
-                "gap_severity": "HIGH",
-                "gap_size": 3,
                 "updated_at": "2023-01-01T00:00:00Z"
               }
             }
@@ -3460,11 +3652,11 @@
                 }
               },
               "example": {
-                "created_at": "2023-01-01T00:00:00Z",
-                "description": "Implement automated testing for critical components",
+                "recommendation_id": "550e8400-e29b-41d4-a716-446655440000",
                 "dimension_id": "550e8400-e29b-41d4-a716-446655440002",
                 "priority": "HIGH",
-                "recommendation_id": "550e8400-e29b-41d4-a716-446655440000",
+                "description": "Implement automated testing for critical components",
+                "created_at": "2023-01-01T00:00:00Z",
                 "updated_at": "2023-01-01T00:00:00Z"
               }
             }
@@ -3589,11 +3781,11 @@
           }
         },
         "example": {
-          "created_at": "2023-01-01T00:00:00Z",
-          "description": "Implement automated testing for critical components",
+          "recommendation_id": "550e8400-e29b-41d4-a716-446655440000",
           "dimension_id": "550e8400-e29b-41d4-a716-446655440002",
           "priority": "HIGH",
-          "recommendation_id": "550e8400-e29b-41d4-a716-446655440000",
+          "description": "Implement automated testing for critical components",
+          "created_at": "2023-01-01T00:00:00Z",
           "updated_at": "2023-01-01T00:00:00Z"
         }
       },
@@ -3819,6 +4011,7 @@
     }
   },
   "tags": [
+    { "name": "Organization", "description": "Organization endpoints" },
     { "name": "Assessments", "description": "Assessment endpoints" },
     { "name": "Dimensions", "description": "Dimension endpoints" },
     { "name": "Reports", "description": "Report endpoints" },
