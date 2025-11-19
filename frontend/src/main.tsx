@@ -44,6 +44,8 @@ const renderApp = () => {
   );
 };
 
+renderApp();
+
 keycloak
   .init(keycloakInitOptions)
   .then((authenticated) => {
@@ -56,9 +58,9 @@ keycloak
       );
     }
     syncManager.initialize();
-    renderApp();
   })
   .catch((error) => {
     console.error("Failed to initialize Keycloak:", error);
-    root.render(<div>Failed to initialize authentication service.</div>);
+    // App is already rendered, just log the error.
+    // The user will be in a "logged out" state.
   });

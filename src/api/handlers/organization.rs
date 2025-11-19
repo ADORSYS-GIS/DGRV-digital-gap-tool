@@ -225,8 +225,13 @@ pub async fn assign_dimension_to_organization(
     Path(org_id): Path<String>,
     Json(request): Json<AssignDimensionRequest>,
 ) -> AppResult<impl IntoResponse> {
-    OrganisationDimensionRepository::assign(&state.db, &org_id, request.dimension_id).await?;
-    Ok(StatusCode::CREATED)
+    let assigned_dimensions =
+        OrganisationDimensionRepository::assign(&state.db, &org_id, request.dimension_ids).await?;
+    let response: Vec<OrganisationDimensionResponse> = assigned_dimensions
+        .into_iter()
+        .map(Into::into)
+        .collect();
+    Ok((StatusCode::CREATED, Json(response)))
 }
 
 /// Get all dimensions of an organization
@@ -235,7 +240,7 @@ pub async fn assign_dimension_to_organization(
     path = "/admin/organizations/{org_id}/dimensions",
     tag = "Organization",
     params(("org_id" = String, Path, description = "Organization ID")),
-    responses((status = 200, description = "OK", body = Vec<OrganisationDimensionResponse>))
+    responses((status = 200, description = "OK", body = Vec<Uuid>))
 )]
 pub async fn get_organization_dimensions(
     State(state): State<AppState>,
@@ -243,8 +248,7 @@ pub async fn get_organization_dimensions(
 ) -> AppResult<impl IntoResponse> {
     let dimensions =
         OrganisationDimensionRepository::list_by_organisation(&state.db, &org_id).await?;
-    let response: Vec<OrganisationDimensionResponse> =
-        dimensions.into_iter().map(Into::into).collect();
+    let response: Vec<Uuid> = dimensions.into_iter().map(|d| d.dimension_id).collect();
     Ok((StatusCode::OK, Json(response)))
 }
 

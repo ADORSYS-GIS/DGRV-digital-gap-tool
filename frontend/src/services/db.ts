@@ -11,6 +11,7 @@ import { SyncQueueItem } from "@/types/sync";
 import { IDimension, IDimensionAssessment } from "@/types/dimension";
 import { IRecommendation } from "@/types/recommendation";
 import { KeycloakUser } from "@/types/user";
+import { OrganizationDimension } from "@/types/organizationDimension";
 
 export class AppDB extends Dexie {
   users!: Table<KeycloakUser, string>;
@@ -24,10 +25,11 @@ export class AppDB extends Dexie {
   sync_queue!: Table<SyncQueueItem, number>;
   dimensions!: Table<IDimension, string>;
   recommendations!: Table<IRecommendation, string>;
+  organizationDimensions!: Table<OrganizationDimension, string>;
 
   constructor() {
     super("AppDB");
-    this.version(2).stores({
+    this.version(3).stores({
       assessments: "id",
       submissions: "id",
       organizations: "id",
@@ -39,6 +41,7 @@ export class AppDB extends Dexie {
       recommendations: "id",
       dimensionAssessments: "id, [dimensionId+assessmentId]",
       users: "id, orgId",
+      organizationDimensions: "id, organizationId, syncStatus",
     });
   }
 }

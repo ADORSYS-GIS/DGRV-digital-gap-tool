@@ -5,7 +5,7 @@ use uuid::Uuid;
 
 #[derive(Serialize, Deserialize, ToSchema)]
 pub struct AssignDimensionRequest {
-    pub dimension_id: Uuid,
+    pub dimension_ids: Vec<Uuid>,
 }
 
 #[derive(Serialize, Deserialize, ToSchema)]
