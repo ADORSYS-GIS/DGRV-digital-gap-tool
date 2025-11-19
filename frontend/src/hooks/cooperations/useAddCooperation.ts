@@ -1,28 +1,38 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { cooperationRepository } from "@/services/cooperations/cooperationRepository";
 import { Cooperation } from "@/types/cooperation";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export const useAddCooperation = () => {
   const queryClient = useQueryClient();
 
-  const {
-    mutateAsync: addCooperation,
-    isLoading,
-    error,
-  } = useMutation<Cooperation, Error, Omit<Cooperation, "id" | "syncStatus">>({
-    mutationFn: async (cooperation) => {
-      const newCooperation: Cooperation = {
-        ...cooperation,
-        id: crypto.randomUUID(),
-        syncStatus: "new",
-      };
-      await cooperationRepository.add(newCooperation);
-      return newCooperation;
+  return useMutation({
+    mutationFn: (cooperation: Omit<Cooperation, "id" | "syncStatus">) =>
+      cooperationRepository.add(cooperation),
+    onMutate: async (newCooperation) => {
+      await queryClient.cancelQueries({ queryKey: ["cooperations"] });
+      const previousCooperations = queryClient.getQueryData<Cooperation[]>([
+        "cooperations",
+      ]);
+      queryClient.setQueryData<Cooperation[]>(["cooperations"], (old) =>
+        old
+          ? [
+              ...old,
+              {
+                ...newCooperation,
+                id: "temp-id",
+                syncStatus: "new",
+                domains: [],
+              },
+            ]
+          : [],
+      );
+      return { previousCooperations };
     },
-    onSuccess: () => {
+    onError: (err, newCooperation, context) => {
+      queryClient.setQueryData(["cooperations"], context?.previousCooperations);
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["cooperations"] });
     },
   });
-
-  return { addCooperation, isLoading, error };
 };

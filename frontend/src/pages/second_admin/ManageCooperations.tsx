@@ -8,9 +8,30 @@ import { AddCooperationForm } from "@/components/second_admin/cooperations/AddCo
 import { CooperationList } from "@/components/second_admin/cooperations/CooperationList";
 import { useCooperations } from "@/hooks/cooperations/useCooperations";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
+import { useAddCooperation } from "@/hooks/cooperations/useAddCooperation";
+import { useUpdateCooperation } from "@/hooks/cooperations/useUpdateCooperation";
+import { useDeleteCooperation } from "@/hooks/cooperations/useDeleteCooperation";
+import { Cooperation } from "@/types/cooperation";
 
 const ManageCooperations: React.FC = () => {
-  const { data: cooperations, isLoading } = useCooperations();
+  const { data: cooperations, isLoading, error } = useCooperations();
+  const { mutate: addCooperation } = useAddCooperation();
+  const { mutate: updateCooperation } = useUpdateCooperation();
+  const { mutate: deleteCooperation } = useDeleteCooperation();
+
+  const handleAddCooperation = (
+    cooperation: Omit<Cooperation, "id" | "syncStatus">,
+  ) => {
+    addCooperation(cooperation);
+  };
+
+  const handleUpdateCooperation = (cooperation: Cooperation) => {
+    updateCooperation(cooperation);
+  };
+
+  const handleDeleteCooperation = (id: string) => {
+    deleteCooperation(id);
+  };
 
   return (
     <div>
@@ -21,12 +42,19 @@ const ManageCooperations: React.FC = () => {
             Add and manage cooperative profiles and data
           </p>
         </div>
-        <AddCooperationForm />
+        <AddCooperationForm onAdd={handleAddCooperation} />
       </div>
 
       {isLoading && <LoadingSpinner />}
-      {!isLoading && cooperations && (
-        <CooperationList cooperations={cooperations} />
+      {error && (
+        <p className="text-red-500">An error occurred: {error.message}</p>
+      )}
+      {cooperations && (
+        <CooperationList
+          cooperations={cooperations}
+          onUpdate={handleUpdateCooperation}
+          onDelete={handleDeleteCooperation}
+        />
       )}
     </div>
   );

@@ -12,19 +12,16 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Trash2 } from "lucide-react";
-import { useDeleteCooperation } from "@/hooks/cooperations/useDeleteCooperation";
-
 interface DeleteCooperationDialogProps {
   cooperationId: string;
+  onDelete: (id: string) => void;
 }
 
 export const DeleteCooperationDialog: React.FC<
   DeleteCooperationDialogProps
-> = ({ cooperationId }) => {
-  const deleteMutation = useDeleteCooperation();
-
+> = ({ cooperationId, onDelete }) => {
   const handleDelete = () => {
-    deleteMutation.mutate(cooperationId);
+    onDelete(cooperationId);
   };
 
   return (

@@ -30,6 +30,7 @@ import { dimensionRepository } from "@/services/dimensions/dimensionRepository";
 import { organizationRepository } from "@/services/organizations/organizationRepository";
 import { recommendationRepository } from "@/services/recommendations/recommendationRepository";
 import { userRepository } from "@/services/users/userRepository";
+import { cooperationSyncService } from "@/services/sync/cooperationSyncService";
 import { Assessment } from "@/types/assessment";
 import { IDigitalisationGap } from "@/types/digitalisationGap";
 import { IDigitalisationLevel } from "@/types/digitalisationLevel";
@@ -75,6 +76,9 @@ export const syncService = {
 
   async processSyncQueue() {
     const items = await db.sync_queue.toArray();
+    if (navigator.onLine) {
+      await cooperationSyncService.sync();
+    }
     for (const item of items) {
       try {
         switch (item.entityType) {

@@ -10,42 +10,24 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { FilePenLine } from "lucide-react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { cooperationRepository } from "@/services/cooperations/cooperationRepository";
 import { Cooperation } from "@/types/cooperation";
-
-// Defining the hook directly in the component file to avoid export/import issues.
-function useUpdateCooperation() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (cooperation: Omit<Cooperation, "syncStatus">) =>
-      cooperationRepository.update(cooperation.id, {
-        ...cooperation,
-        syncStatus: "updated",
-      }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["cooperations"] });
-    },
-  });
-}
 
 interface EditCooperationFormProps {
   cooperation: Cooperation;
+  onUpdate: (cooperation: Cooperation) => void;
 }
 
 export const EditCooperationForm: React.FC<EditCooperationFormProps> = ({
   cooperation,
+  onUpdate,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [name, setName] = useState(cooperation.name);
   const [description, setDescription] = useState(cooperation.description);
-  const { mutate: updateCooperation, isPending: isLoading } =
-    useUpdateCooperation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    updateCooperation({
+    onUpdate({
       ...cooperation,
       name,
       description,
@@ -75,9 +57,7 @@ export const EditCooperationForm: React.FC<EditCooperationFormProps> = ({
             onChange={(e) => setDescription(e.target.value)}
             required
           />
-          <Button type="submit" disabled={isLoading}>
-            {isLoading ? "Saving..." : "Save Changes"}
-          </Button>
+          <Button type="submit">Save Changes</Button>
         </form>
       </DialogContent>
     </Dialog>

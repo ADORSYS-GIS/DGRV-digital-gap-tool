@@ -9,10 +9,14 @@ import { ListTree } from "lucide-react";
 
 interface CooperationCardProps {
   cooperation: Cooperation;
+  onUpdate: (cooperation: Cooperation) => void;
+  onDelete: (id: string) => void;
 }
 
 export const CooperationCard: React.FC<CooperationCardProps> = ({
   cooperation,
+  onUpdate,
+  onDelete,
 }) => {
   return (
     <Card>
@@ -24,8 +28,11 @@ export const CooperationCard: React.FC<CooperationCardProps> = ({
           {cooperation.description}
         </div>
         <div className="grid grid-cols-2 gap-2">
-          <EditCooperationForm cooperation={cooperation} />
-          {/* <DeleteCooperationDialog cooperationId={cooperation.id} /> */}
+          <EditCooperationForm cooperation={cooperation} onUpdate={onUpdate} />
+          <DeleteCooperationDialog
+            cooperationId={cooperation.id}
+            onDelete={onDelete}
+          />
         </div>
         <Button variant="outline" size="sm" className="mt-2 w-full">
           <ListTree className="mr-2 h-4 w-4" /> Assign Dimensions
