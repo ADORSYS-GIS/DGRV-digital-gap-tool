@@ -11,16 +11,23 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { PlusCircle } from "lucide-react";
 import { useAddCooperation } from "@/hooks/cooperations/useAddCooperation";
+import { Cooperation } from "@/types/cooperation";
 
-export const AddCooperationForm: React.FC = () => {
+interface AddCooperationFormProps {
+  onAdd: (cooperation: Omit<Cooperation, "id" | "syncStatus">) => void;
+}
+
+export const AddCooperationForm: React.FC<AddCooperationFormProps> = ({
+  onAdd,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const { addCooperation, isLoading } = useAddCooperation();
+  const { mutate: addCooperation, isPending: isLoading } = useAddCooperation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await addCooperation({
+    addCooperation({
       name,
       description,
       domains: [],

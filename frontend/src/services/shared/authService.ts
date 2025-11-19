@@ -5,6 +5,12 @@ import { keycloak } from "./keycloakConfig";
 
 interface CustomKeycloakTokenParsed extends KeycloakTokenParsed {
   roles?: string[];
+  organizations?: {
+    [key: string]: {
+      id: string;
+      displayName?: string[];
+    };
+  };
 }
 
 /**
@@ -92,20 +98,63 @@ export const authService = {
       const resourceRoles = token.roles || [];
       const allRoles = [...new Set([...realmRoles, ...resourceRoles])];
 
-      return {
+      const userProfile: UserProfile = {
         sub: token.sub || "",
-        preferred_username: token.preferred_username,
-        name: token.name,
-        email: token.email,
         roles: allRoles,
-        realm_access: token.realm_access
-          ? { roles: token.realm_access.roles || [] }
-          : undefined,
-        organization_name: token.organization_name,
-        organization: token.organization,
       };
+
+      if (token.preferred_username) {
+        userProfile.preferred_username = token.preferred_username;
+      }
+      if (token.name) {
+        userProfile.name = token.name;
+      }
+      if (token.email) {
+        userProfile.email = token.email;
+      }
+      if (token.realm_access) {
+        userProfile.realm_access = { roles: token.realm_access.roles || [] };
+      }
+      const orgs = token.organizations;
+      if (orgs) {
+        const orgNames = Object.keys(orgs);
+        const orgName = orgNames[0];
+        if (orgName) {
+          userProfile.organization_name = orgName;
+          const organizationDetails = orgs[orgName];
+          if (organizationDetails?.id) {
+            userProfile.organization = organizationDetails.id;
+          }
+        }
+      }
+
+      return userProfile;
     } catch (error) {
       console.error("Failed to get user profile:", error);
+      return null;
+    }
+  },
+
+  /**
+   * Get organization ID from token
+   */
+  getOrganizationId(): string | null {
+    try {
+      if (!keycloak.tokenParsed) return null;
+
+      const token = keycloak.tokenParsed as CustomKeycloakTokenParsed;
+      const orgs = token.organizations;
+      if (orgs) {
+        const orgNames = Object.keys(orgs);
+        const orgName = orgNames[0];
+        if (orgName) {
+          const organizationDetails = orgs[orgName];
+          return organizationDetails?.id || null;
+        }
+      }
+      return null;
+    } catch (error) {
+      console.error("Failed to get organization ID:", error);
       return null;
     }
   },

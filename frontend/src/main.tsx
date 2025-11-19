@@ -8,6 +8,7 @@ import {
 } from "./services/shared/keycloakConfig";
 import { authService } from "./services/shared/authService";
 import { OpenAPI } from "./openapi-client/core/OpenAPI";
+import { syncManager } from "./services/sync/syncManager";
 
 // Register OpenAPI request middleware to add Bearer token
 OpenAPI.interceptors.request.use(async (request) => {
@@ -54,6 +55,7 @@ keycloak
         "Keycloak initialized - User not authenticated (check-sso mode)",
       );
     }
+    syncManager.initialize();
     renderApp();
   })
   .catch((error) => {

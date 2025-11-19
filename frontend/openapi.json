@@ -112,6 +112,126 @@
         "security": [{ "jwt": [] }]
       }
     },
+    "/admin/groups/{group_id}": {
+      "get": {
+        "tags": ["Group"],
+        "operationId": "get_group",
+        "parameters": [
+          {
+            "name": "group_id",
+            "in": "path",
+            "description": "Group ID",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/KeycloakGroup" }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["Group"],
+        "operationId": "update_group",
+        "parameters": [
+          {
+            "name": "group_id",
+            "in": "path",
+            "description": "Group ID",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/GroupUpdateRequest" }
+            }
+          },
+          "required": true
+        },
+        "responses": { "204": { "description": "No Content" } }
+      },
+      "delete": {
+        "tags": ["Group"],
+        "operationId": "delete_group",
+        "parameters": [
+          {
+            "name": "group_id",
+            "in": "path",
+            "description": "Group ID",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": { "204": { "description": "No Content" } }
+      }
+    },
+    "/admin/groups/{group_id}/members": {
+      "get": {
+        "tags": ["User"],
+        "summary": "Get all members of a group",
+        "operationId": "get_group_members",
+        "parameters": [
+          {
+            "name": "group_id",
+            "in": "path",
+            "description": "Group ID",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/KeycloakUser" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["User"],
+        "summary": "Add a member to a group",
+        "operationId": "add_member",
+        "parameters": [
+          {
+            "name": "group_id",
+            "in": "path",
+            "description": "Group ID",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "redirect_uri",
+            "in": "query",
+            "description": "Redirect URI for email verification",
+            "required": false,
+            "schema": { "type": "string", "nullable": true }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/AddMemberRequest" }
+            }
+          },
+          "required": true
+        },
+        "responses": { "201": { "description": "Created" } }
+      }
+    },
     "/admin/organizations": {
       "get": {
         "tags": ["Organization"],
@@ -227,6 +347,65 @@
           }
         ],
         "responses": { "204": { "description": "No Content" } }
+      }
+    },
+    "/admin/organizations/{org_id}/groups": {
+      "get": {
+        "tags": ["Group"],
+        "operationId": "get_groups_by_organization",
+        "parameters": [
+          {
+            "name": "org_id",
+            "in": "path",
+            "description": "Organization ID",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/KeycloakGroup" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Group"],
+        "operationId": "create_group",
+        "parameters": [
+          {
+            "name": "org_id",
+            "in": "path",
+            "description": "Organization ID",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/GroupCreateRequest" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/KeycloakGroup" }
+              }
+            }
+          }
+        }
       }
     },
     "/admin/organizations/{org_id}/invitations": {
@@ -1683,6 +1862,16 @@
           "action_plan_id": { "type": "string", "format": "uuid" },
           "assessment_id": { "type": "string", "format": "uuid" },
           "created_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "AddMemberRequest": {
+        "type": "object",
+        "required": ["email", "roles"],
+        "properties": {
+          "email": { "type": "string" },
+          "first_name": { "type": "string", "nullable": true },
+          "last_name": { "type": "string", "nullable": true },
+          "roles": { "type": "array", "items": { "type": "string" } }
         }
       },
       "AdminCreateGapRequest": {
@@ -3416,6 +3605,32 @@
           "title": { "type": "string" }
         }
       },
+      "GroupCreateRequest": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "description": { "type": "string", "nullable": true },
+          "name": { "type": "string" }
+        }
+      },
+      "GroupUpdateRequest": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "description": { "type": "string", "nullable": true },
+          "name": { "type": "string" }
+        }
+      },
+      "KeycloakGroup": {
+        "type": "object",
+        "required": ["id", "name", "path"],
+        "properties": {
+          "description": { "type": "string", "nullable": true },
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "path": { "type": "string" }
+        }
+      },
       "KeycloakOrganization": {
         "type": "object",
         "required": ["id", "name", "enabled"],
@@ -4128,6 +4343,7 @@
   },
   "tags": [
     { "name": "Organization", "description": "Organization endpoints" },
+    { "name": "Group", "description": "Group management endpoints" },
     { "name": "Assessments", "description": "Assessment endpoints" },
     { "name": "Dimensions", "description": "Dimension endpoints" },
     { "name": "Reports", "description": "Report endpoints" },

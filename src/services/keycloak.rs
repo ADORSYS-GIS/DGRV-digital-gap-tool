@@ -21,6 +21,7 @@ struct RawKeycloakGroup {
     pub name: String,
     pub path: String,
     pub attributes: Option<HashMap<String, Vec<String>>>,
+    pub description: Option<String>,
 }
 
 #[derive(Debug, Clone)]
@@ -589,14 +590,9 @@ impl KeycloakService {
         );
         info!(url = %url, "Constructed Keycloak URL for creating group");
 
-        let mut attributes = HashMap::new();
-        if let Some(desc) = description {
-            attributes.insert("description".to_string(), vec![desc]);
-        }
-
         let payload = json!({
             "name": name,
-            "attributes": attributes,
+            "description": description,
         });
         info!(payload = %payload, "Sending group create payload to Keycloak");
 
@@ -652,11 +648,21 @@ impl KeycloakService {
             .error_for_status()?;
 
         let raw_groups: Vec<RawKeycloakGroup> = response.json().await?;
-        let groups = raw_groups.into_iter().map(|g| KeycloakGroup {
-            id: g.id,
-            name: g.name,
-            path: g.path,
-            description: g.attributes.and_then(|mut attrs| attrs.remove("description").and_then(|mut v| v.pop())),
+        let groups = raw_groups.into_iter().map(|g| {
+            let mut clean_name = g.name.clone();
+            let parts: Vec<&str> = g.name.splitn(6, '-').collect();
+            if parts.len() == 6 {
+                // Basic check for UUID structure
+                if parts[0].len() == 8 && parts[1].len() == 4 && parts[2].len() == 4 && parts[3].len() == 4 && parts[4].len() == 12 {
+                     clean_name = parts[5].to_string();
+                }
+            }
+            KeycloakGroup {
+                id: g.id,
+                name: clean_name,
+                path: g.path,
+                description: g.description,
+            }
         }).collect();
         Ok(groups)
     }
@@ -678,12 +684,20 @@ impl KeycloakService {
             .error_for_status()?;
 
         let raw_group: RawKeycloakGroup = response.json().await?;
-        let group = KeycloakGroup {
+        let mut group = KeycloakGroup {
             id: raw_group.id,
-            name: raw_group.name,
+            name: raw_group.name.clone(),
             path: raw_group.path,
-            description: raw_group.attributes.and_then(|mut attrs| attrs.remove("description").and_then(|mut v| v.pop())),
+            description: raw_group.description,
         };
+
+        let parts: Vec<&str> = raw_group.name.splitn(6, '-').collect();
+        if parts.len() == 6 {
+            if parts[0].len() == 8 && parts[1].len() == 4 && parts[2].len() == 4 && parts[3].len() == 4 && parts[4].len() == 12 {
+                 group.name = parts[5].to_string();
+            }
+        }
+
         Ok(group)
     }
 
@@ -701,14 +715,26 @@ impl KeycloakService {
         );
         info!(url = %url, "Constructed Keycloak URL for updating group");
 
-        let mut attributes = HashMap::new();
-        if let Some(desc) = description {
-            attributes.insert("description".to_string(), vec![desc]);
-        }
+        let get_url = format!(
+            "{}/admin/realms/{}/groups/{}",
+            self.config.keycloak.url, self.config.keycloak.realm, group_id
+        );
+        let response = self.client.get(&get_url).bearer_auth(access_token).send().await?.error_for_status()?;
+        let raw_group: RawKeycloakGroup = response.json().await?;
+        let current_name = raw_group.name;
+
+        let parts: Vec<&str> = current_name.splitn(6, '-').collect();
+        let new_name = if parts.len() == 6 && parts[0].len() == 8 && parts[1].len() == 4 && parts[2].len() == 4 && parts[3].len() == 4 && parts[4].len() == 12 {
+            let uuid_parts = [parts[0], parts[1], parts[2], parts[3], parts[4]];
+            let org_id = uuid_parts.join("-");
+            format!("{}-{}", org_id, name)
+        } else {
+            name.to_string()
+        };
 
         let payload = json!({
-            "name": name,
-            "attributes": attributes,
+            "name": new_name,
+            "description": description,
         });
 
         let response = self
