@@ -8,14 +8,10 @@ import { Organization } from "@/types/organization";
 
 const ManageOrganizationsPage: React.FC = () => {
   const { data: organizations, isLoading, error } = useOrganizations();
-  const [
-    isAssignDimensionDialogOpen,
-    setIsAssignDimensionDialogOpen,
-  ] = useState(false);
-  const [
-    selectedOrganization,
-    setSelectedOrganization,
-  ] = useState<Organization | null>(null);
+  const [isAssignDimensionDialogOpen, setIsAssignDimensionDialogOpen] =
+    useState(false);
+  const [selectedOrganization, setSelectedOrganization] =
+    useState<Organization | null>(null);
 
   const handleOpenAssignDimensionDialog = (organization: Organization) => {
     setSelectedOrganization(organization);

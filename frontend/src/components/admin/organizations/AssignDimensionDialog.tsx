@@ -30,8 +30,9 @@ export const AssignDimensionDialog: React.FC<AssignDimensionDialogProps> = ({
   const { data: assignedDimensionIds, isLoading: isLoadingAssigned } =
     useOrganizationDimensions(organization?.id || "");
 
-  const { mutate: setAssignedDimensions, isPending } =
-    useSetAssignedDimensions(organization?.id || "");
+  const { mutate: setAssignedDimensions, isPending } = useSetAssignedDimensions(
+    organization?.id || "",
+  );
 
   const [selectedDimensions, setSelectedDimensions] = useState<string[]>([]);
 
@@ -59,16 +60,13 @@ export const AssignDimensionDialog: React.FC<AssignDimensionDialogProps> = ({
     );
   };
 
-  const isLoading =
-    isLoadingDimensions || isLoadingAssigned;
+  const isLoading = isLoadingDimensions || isLoadingAssigned;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>
-            Assign Dimensions to {organization?.name}
-          </DialogTitle>
+          <DialogTitle>Assign Dimensions to {organization?.name}</DialogTitle>
         </DialogHeader>
         {isLoading ? (
           <LoadingSpinner />

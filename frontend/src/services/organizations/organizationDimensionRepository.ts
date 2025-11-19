@@ -51,7 +51,10 @@ export const organizationDimensionRepository = {
               syncStatus: SyncStatus.DELETED,
               updatedAt: now,
             });
-          } else if (isAssigned && assignment.syncStatus === SyncStatus.DELETED) {
+          } else if (
+            isAssigned &&
+            assignment.syncStatus === SyncStatus.DELETED
+          ) {
             await db.organizationDimensions.update(assignment.id, {
               syncStatus: SyncStatus.UPDATED,
               updatedAt: now,
