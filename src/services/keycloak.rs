@@ -1,16 +1,26 @@
 use reqwest::{Client, StatusCode};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use serde_json::json;
 use tracing::{debug, error, info, warn};
 use anyhow::{anyhow, Result};
 
+use crate::api::dto::group::KeycloakGroup;
 use crate::api::dto::organization::{KeycloakOrganization, OrganizationDomain};
 use crate::config::Config;
 use crate::models::keycloak::*;
+use std::collections::HashMap;
 
 #[derive(Deserialize)]
 struct TokenResponse {
     access_token: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct RawKeycloakGroup {
+    pub id: String,
+    pub name: String,
+    pub path: String,
+    pub attributes: Option<HashMap<String, Vec<String>>>,
 }
 
 #[derive(Debug, Clone)]
@@ -407,7 +417,7 @@ impl KeycloakService {
                 let user = self.get_user_by_id(token, user_id).await?;
                 
                 // Try to trigger email verification email, but don't fail if it doesn't work
-                match self.trigger_email_verification(token, user_id).await {
+                match self.trigger_email_verification(token, user_id, None).await {
                     Ok(_) => {
                         info!(user_id = %user_id, "Email verification email sent successfully");
                     },
@@ -464,11 +474,15 @@ impl KeycloakService {
     }
 
     /// Trigger email verification email for a user
-    pub async fn trigger_email_verification(&self, token: &str, user_id: &str) -> Result<()> {
+    pub async fn trigger_email_verification(&self, token: &str, user_id: &str, redirect_uri: Option<&str>) -> Result<()> {
         // Method 1: Try the send-verify-email endpoint
-        let url = format!("{}/admin/realms/{}/users/{}/send-verify-email",
+        let mut url = format!("{}/admin/realms/{}/users/{}/send-verify-email",
                          self.config.keycloak.url, self.config.keycloak.realm, user_id);
         
+        if let Some(uri) = redirect_uri {
+            url.push_str(&format!("?redirect_uri={}&client_id={}", uri, self.config.keycloak.client_id));
+        }
+
         let response = self.client.post(&url)
             .bearer_auth(token)
             .send()
@@ -485,8 +499,12 @@ impl KeycloakService {
         }
 
         // Method 2: Try executing the VERIFY_EMAIL action
-        let url = format!("{}/admin/realms/{}/users/{}/execute-actions-email",
+        let mut url = format!("{}/admin/realms/{}/users/{}/execute-actions-email",
                          self.config.keycloak.url, self.config.keycloak.realm, user_id);
+        
+        if let Some(uri) = redirect_uri {
+            url.push_str(&format!("?redirect_uri={}&client_id={}", uri, self.config.keycloak.client_id));
+        }
         
         let payload = json!(["VERIFY_EMAIL"]);
         
@@ -555,6 +573,278 @@ impl KeycloakService {
                 let error_text = response.text().await?;
                 error!("Failed to delete user: {}", error_text);
                 Err(anyhow!("Failed to delete user: {}", error_text))
+            }
+        }
+    }
+    /// Create a new group
+    pub async fn create_group(
+        &self,
+        access_token: &str,
+        name: &str,
+        description: Option<String>,
+    ) -> Result<KeycloakGroup> {
+        let url = format!(
+            "{}/admin/realms/{}/groups",
+            self.config.keycloak.url, self.config.keycloak.realm
+        );
+        info!(url = %url, "Constructed Keycloak URL for creating group");
+
+        let mut attributes = HashMap::new();
+        if let Some(desc) = description {
+            attributes.insert("description".to_string(), vec![desc]);
+        }
+
+        let payload = json!({
+            "name": name,
+            "attributes": attributes,
+        });
+        info!(payload = %payload, "Sending group create payload to Keycloak");
+
+        let response = self
+            .client
+            .post(&url)
+            .bearer_auth(access_token)
+            .json(&payload)
+            .send()
+            .await?;
+
+        match response.status() {
+            StatusCode::CREATED => {
+                if let Some(location) = response.headers().get(reqwest::header::LOCATION) {
+                    let location_str = location.to_str()?;
+                    if let Some(id) = location_str.split('/').last() {
+                        let created_group = self.get_group_by_id(access_token, id).await?;
+                        info!(group_id = %id, "Successfully created group in Keycloak");
+                        Ok(created_group)
+                    } else {
+                        Err(anyhow!("Failed to parse group ID from Location header"))
+                    }
+                } else {
+                    Err(anyhow!("Keycloak returned 201 Created but no Location header was found"))
+                }
+            }
+            _ => {
+                let status = response.status();
+                let error_text = response.text().await?;
+                error!(status = %status, "Failed to create group: {}", error_text);
+                Err(anyhow!("Failed to create group (status: {}): {}", status, error_text))
+            }
+        }
+    }
+
+    /// Get groups, optionally filtering by a search term
+    pub async fn get_groups(&self, access_token: &str, search: Option<&str>) -> Result<Vec<KeycloakGroup>> {
+        let mut url = format!(
+            "{}/admin/realms/{}/groups",
+            self.config.keycloak.url, self.config.keycloak.realm
+        );
+        if let Some(search_term) = search {
+            url.push_str(&format!("?search={}", search_term));
+        }
+        info!(url = %url, "Constructed Keycloak URL for getting groups");
+
+        let response = self
+            .client
+            .get(&url)
+            .bearer_auth(access_token)
+            .send()
+            .await?
+            .error_for_status()?;
+
+        let raw_groups: Vec<RawKeycloakGroup> = response.json().await?;
+        let groups = raw_groups.into_iter().map(|g| KeycloakGroup {
+            id: g.id,
+            name: g.name,
+            path: g.path,
+            description: g.attributes.and_then(|mut attrs| attrs.remove("description").and_then(|mut v| v.pop())),
+        }).collect();
+        Ok(groups)
+    }
+
+    /// Get a specific group by ID
+    pub async fn get_group_by_id(&self, access_token: &str, group_id: &str) -> Result<KeycloakGroup> {
+        let url = format!(
+            "{}/admin/realms/{}/groups/{}",
+            self.config.keycloak.url, self.config.keycloak.realm, group_id
+        );
+        info!(url = %url, "Constructed Keycloak URL for getting group by ID");
+
+        let response = self
+            .client
+            .get(&url)
+            .bearer_auth(access_token)
+            .send()
+            .await?
+            .error_for_status()?;
+
+        let raw_group: RawKeycloakGroup = response.json().await?;
+        let group = KeycloakGroup {
+            id: raw_group.id,
+            name: raw_group.name,
+            path: raw_group.path,
+            description: raw_group.attributes.and_then(|mut attrs| attrs.remove("description").and_then(|mut v| v.pop())),
+        };
+        Ok(group)
+    }
+
+    /// Update a group
+    pub async fn update_group(
+        &self,
+        access_token: &str,
+        group_id: &str,
+        name: &str,
+        description: Option<String>,
+    ) -> Result<()> {
+        let url = format!(
+            "{}/admin/realms/{}/groups/{}",
+            self.config.keycloak.url, self.config.keycloak.realm, group_id
+        );
+        info!(url = %url, "Constructed Keycloak URL for updating group");
+
+        let mut attributes = HashMap::new();
+        if let Some(desc) = description {
+            attributes.insert("description".to_string(), vec![desc]);
+        }
+
+        let payload = json!({
+            "name": name,
+            "attributes": attributes,
+        });
+
+        let response = self
+            .client
+            .put(&url)
+            .bearer_auth(access_token)
+            .json(&payload)
+            .send()
+            .await?;
+
+        match response.status() {
+            StatusCode::NO_CONTENT => Ok(()),
+            _ => {
+                let status = response.status();
+                let error_text = response.text().await?;
+                error!(status = %status, "Failed to update group: {}", error_text);
+                Err(anyhow!("Failed to update group (status: {}): {}", status, error_text))
+            }
+        }
+    }
+
+    /// Delete a group
+    pub async fn delete_group(&self, access_token: &str, group_id: &str) -> Result<()> {
+        let url = format!(
+            "{}/admin/realms/{}/groups/{}",
+            self.config.keycloak.url, self.config.keycloak.realm, group_id
+        );
+        info!(url = %url, "Constructed Keycloak URL for deleting group");
+
+        let response = self
+            .client
+            .delete(&url)
+            .bearer_auth(access_token)
+            .send()
+            .await?;
+
+        match response.status() {
+            StatusCode::NO_CONTENT => Ok(()),
+            _ => {
+                let status = response.status();
+                let error_text = response.text().await?;
+                error!(status = %status, "Failed to delete group: {}", error_text);
+                Err(anyhow!("Failed to delete group (status: {}): {}", status, error_text))
+            }
+        }
+    }
+
+    /// Create a new user
+    pub async fn create_user(&self, token: &str, request: &CreateUserRequest) -> Result<String> {
+        let url = format!("{}/admin/realms/{}/users", self.config.keycloak.url, self.config.keycloak.realm);
+        
+        let payload = json!({
+            "username": request.email, // Using email as username as per example
+            "email": request.email,
+            "enabled": true,
+            "emailVerified": false,
+            "firstName": request.first_name,
+            "lastName": request.last_name,
+        });
+
+        info!(url = %url, email = %request.email, "Creating user");
+
+        let response = self.client.post(&url)
+            .bearer_auth(token)
+            .json(&payload)
+            .send()
+            .await?;
+
+        match response.status() {
+            StatusCode::CREATED => {
+                let location = response.headers()
+                    .get("location")
+                    .and_then(|h| h.to_str().ok())
+                    .ok_or_else(|| anyhow!("No location header in response"))?;
+                
+                let user_id = location.split('/').last()
+                    .ok_or_else(|| anyhow!("Invalid location header"))?.to_string();
+                
+                info!(user_id = %user_id, email = %request.email, "User created successfully");
+                Ok(user_id)
+            },
+            _ => {
+                let error_text = response.text().await?;
+                error!("Failed to create user: {}", error_text);
+                Err(anyhow!("Failed to create user: {}", error_text))
+            }
+        }
+    }
+
+    /// Add a user to a group
+    pub async fn add_user_to_group(&self, token: &str, user_id: &str, group_id: &str) -> Result<()> {
+        let url = format!("{}/admin/realms/{}/users/{}/groups/{}",
+                          self.config.keycloak.url, self.config.keycloak.realm, user_id, group_id);
+
+        info!(url = %url, user_id = %user_id, group_id = %group_id, "Adding user to group");
+
+        let response = self.client.put(&url)
+            .bearer_auth(token)
+            .send()
+            .await?;
+
+        match response.status() {
+            StatusCode::NO_CONTENT => {
+                info!(user_id = %user_id, group_id = %group_id, "Successfully added user to group");
+                Ok(())
+            },
+            _ => {
+                let error_text = response.text().await?;
+                error!("Failed to add user to group: {}", error_text);
+                Err(anyhow!("Failed to add user to group: {}", error_text))
+            }
+        }
+    }
+
+    /// Get all members of a group
+    pub async fn get_group_members(&self, token: &str, group_id: &str) -> Result<Vec<KeycloakUser>> {
+        let url = format!("{}/admin/realms/{}/groups/{}/members",
+                          self.config.keycloak.url, self.config.keycloak.realm, group_id);
+
+        info!(url = %url, group_id = %group_id, "Getting group members");
+
+        let response = self.client.get(&url)
+            .bearer_auth(token)
+            .send()
+            .await?;
+
+        match response.status() {
+            StatusCode::OK => {
+                let users: Vec<KeycloakUser> = response.json().await?;
+                info!(group_id = %group_id, count = users.len(), "Successfully retrieved group members");
+                Ok(users)
+            },
+            _ => {
+                let error_text = response.text().await?;
+                error!("Failed to get group members: {}", error_text);
+                Err(anyhow!("Failed to get group members: {}", error_text))
             }
         }
     }
