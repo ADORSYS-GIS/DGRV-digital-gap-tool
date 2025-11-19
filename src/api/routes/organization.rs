@@ -1,5 +1,5 @@
 use axum::{
-    routing::{get, post},
+    routing::{delete, get, post, put},
     Router,
 };
 
@@ -14,4 +14,14 @@ pub fn create_organization_routes() -> Router<AppState> {
         .route("/:org_id/invitations", post(invite_user_to_organization))
         .route("/:org_id/members", get(get_organization_members))
         .route("/:org_id/groups", post(create_group).get(get_groups_by_organization))
+        .route(
+            "/:org_id/dimensions",
+            post(assign_dimension_to_organization)
+                .get(get_organization_dimensions)
+                .put(update_organization_dimensions),
+        )
+        .route(
+            "/:org_id/dimensions/:dimension_id",
+            delete(remove_dimension_from_organization),
+        )
 }

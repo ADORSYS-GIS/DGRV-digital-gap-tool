@@ -30,6 +30,7 @@ mod m20251115_084826_create_new_action_plan_tables;
 // mod m20251115_083637_add_dimension_assessment_id_to_action_items;
 mod m20251115_112421_create_gap_severity_enum;
 mod m20251115_113323_alter_gap_severity_column_type;
+mod m20251119_142500_create_organisation_dimension_table;
 
 pub struct Migrator;
 
@@ -67,6 +68,7 @@ impl MigratorTrait for Migrator {
             // Box::new(m20251115_083637_add_dimension_assessment_id_to_action_items::Migration),
             Box::new(m20251115_112421_create_gap_severity_enum::Migration),
             Box::new(m20251115_113323_alter_gap_severity_column_type::Migration),
+            Box::new(m20251119_142500_create_organisation_dimension_table::Migration),
         ]
     }
 }

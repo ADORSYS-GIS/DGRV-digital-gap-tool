@@ -7,11 +7,17 @@ use axum::{
 };
 
 use crate::{
-    api::dto::organization::{
-        OrganizationCreateRequest, OrganizationUpdateRequest,
+    api::dto::{
+        organization::{OrganizationCreateRequest, OrganizationUpdateRequest},
+        organization_dimension::{
+            AssignDimensionRequest, OrganisationDimensionResponse,
+            UpdateOrganisationDimensionsRequest,
+        },
     },
     error::{AppError, AppResult},
+    repositories::organisation_dimension::OrganisationDimensionRepository,
 };
+use uuid::Uuid;
 
 // Create a new organization
 /// Create organization
@@ -203,4 +209,83 @@ pub async fn get_organization_members(
         .await?;
 
     Ok((StatusCode::OK, Json(members)))
+}
+
+/// Assign a dimension to an organization
+#[utoipa::path(
+    post,
+    path = "/admin/organizations/{org_id}/dimensions",
+    tag = "Organization",
+    params(("org_id" = String, Path, description = "Organization ID")),
+    request_body = AssignDimensionRequest,
+    responses((status = 201, description = "Created"))
+)]
+pub async fn assign_dimension_to_organization(
+    State(state): State<AppState>,
+    Path(org_id): Path<String>,
+    Json(request): Json<AssignDimensionRequest>,
+) -> AppResult<impl IntoResponse> {
+    OrganisationDimensionRepository::assign(&state.db, &org_id, request.dimension_id).await?;
+    Ok(StatusCode::CREATED)
+}
+
+/// Get all dimensions of an organization
+#[utoipa::path(
+    get,
+    path = "/admin/organizations/{org_id}/dimensions",
+    tag = "Organization",
+    params(("org_id" = String, Path, description = "Organization ID")),
+    responses((status = 200, description = "OK", body = Vec<OrganisationDimensionResponse>))
+)]
+pub async fn get_organization_dimensions(
+    State(state): State<AppState>,
+    Path(org_id): Path<String>,
+) -> AppResult<impl IntoResponse> {
+    let dimensions =
+        OrganisationDimensionRepository::list_by_organisation(&state.db, &org_id).await?;
+    let response: Vec<OrganisationDimensionResponse> =
+        dimensions.into_iter().map(Into::into).collect();
+    Ok((StatusCode::OK, Json(response)))
+}
+
+/// Remove a dimension from an organization
+#[utoipa::path(
+    delete,
+    path = "/admin/organizations/{org_id}/dimensions/{dimension_id}",
+    tag = "Organization",
+    params(
+        ("org_id" = String, Path, description = "Organization ID"),
+        ("dimension_id" = Uuid, Path, description = "Dimension ID")
+    ),
+    responses((status = 204, description = "No Content"))
+)]
+pub async fn remove_dimension_from_organization(
+    State(state): State<AppState>,
+    Path((org_id, dimension_id)): Path<(String, Uuid)>,
+) -> AppResult<impl IntoResponse> {
+    OrganisationDimensionRepository::remove(&state.db, &org_id, dimension_id).await?;
+    Ok(StatusCode::NO_CONTENT)
+}
+
+/// Update all dimensions of an organization
+#[utoipa::path(
+    put,
+    path = "/admin/organizations/{org_id}/dimensions",
+    tag = "Organization",
+    params(("org_id" = String, Path, description = "Organization ID")),
+    request_body = UpdateOrganisationDimensionsRequest,
+    responses((status = 204, description = "No Content"))
+)]
+pub async fn update_organization_dimensions(
+    State(state): State<AppState>,
+    Path(org_id): Path<String>,
+    Json(request): Json<UpdateOrganisationDimensionsRequest>,
+) -> AppResult<impl IntoResponse> {
+    OrganisationDimensionRepository::update_assignments(
+        &state.db,
+        &org_id,
+        request.dimension_ids,
+    )
+    .await?;
+    Ok(StatusCode::NO_CONTENT)
 }

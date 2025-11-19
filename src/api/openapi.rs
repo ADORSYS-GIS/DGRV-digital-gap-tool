@@ -14,6 +14,7 @@ use crate::api::dto::recommendation::*;
 use crate::api::dto::report::*;
 use crate::api::dto::organization::*;
 use crate::api::dto::invitation::*;
+use crate::api::dto::organization_dimension::*;
 use crate::models::keycloak::KeycloakUser;
 
 #[derive(OpenApi)]
@@ -26,6 +27,10 @@ use crate::models::keycloak::KeycloakUser;
         crate::api::handlers::organization::delete_organization,
         crate::api::handlers::invitation::invite_user_to_organization,
         crate::api::handlers::organization::get_organization_members,
+        crate::api::handlers::organization::assign_dimension_to_organization,
+        crate::api::handlers::organization::get_organization_dimensions,
+        crate::api::handlers::organization::remove_dimension_from_organization,
+        crate::api::handlers::organization::update_organization_dimensions,
         crate::api::handlers::group::create_group,
         crate::api::handlers::group::get_groups_by_organization,
         crate::api::handlers::group::get_group,
@@ -200,6 +205,9 @@ use crate::models::keycloak::KeycloakUser;
             GroupUpdateRequest,
             KeycloakGroup,
             AddMemberRequest,
+            AssignDimensionRequest,
+            OrganisationDimensionResponse,
+            UpdateOrganisationDimensionsRequest,
         )
     ),
     tags(
