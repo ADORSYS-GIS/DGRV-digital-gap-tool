@@ -20,6 +20,7 @@ import {
   createOrganization,
   updateOrganization,
   deleteOrganization,
+  inviteUserToOrganization,
 } from "@/openapi-client/services.gen";
 import { assessmentRepository } from "@/services/assessments/assessmentRepository";
 import { db } from "@/services/db";
@@ -28,6 +29,7 @@ import { digitalisationLevelRepository } from "@/services/digitalisationLevels/d
 import { dimensionRepository } from "@/services/dimensions/dimensionRepository";
 import { organizationRepository } from "@/services/organizations/organizationRepository";
 import { recommendationRepository } from "@/services/recommendations/recommendationRepository";
+import { userRepository } from "@/services/users/userRepository";
 import { Assessment } from "@/types/assessment";
 import { IDigitalisationGap } from "@/types/digitalisationGap";
 import { IDigitalisationLevel } from "@/types/digitalisationLevel";
@@ -35,6 +37,14 @@ import { IDimension } from "@/types/dimension";
 import { Organization } from "@/types/organization";
 import { IRecommendation } from "@/types/recommendation";
 import { SyncQueueItem } from "@/types/sync/index";
+
+interface IUserInvitationPayload {
+  orgId: string;
+  email: string;
+  first_name: string;
+  last_name: string;
+  roles: string[];
+}
 
 export const syncService = {
   async addToSyncQueue(
@@ -89,6 +99,9 @@ export const syncService = {
           case "Organization":
             await syncService.syncOrganization(item);
             break;
+          case "UserInvitation":
+            await syncService.syncUserInvitation(item);
+            break;
         }
         await db.sync_queue.delete(item.id!);
       } catch (error: unknown) {
@@ -129,6 +142,8 @@ export const syncService = {
               item.entityId,
               errorMessage,
             );
+          } else if (item.entityType === "UserInvitation") {
+            await userRepository.markAsFailed(item.entityId, errorMessage);
           }
         }
       }
@@ -663,6 +678,29 @@ export const syncService = {
       case "DELETE": {
         await deleteOrganization({ orgId: item.entityId });
         await organizationRepository.markAsSynced(item.entityId, item.entityId);
+        break;
+      }
+    }
+  },
+
+  async syncUserInvitation(item: SyncQueueItem) {
+    const invitationData = item.payload as IUserInvitationPayload;
+    switch (item.action) {
+      case "CREATE": {
+        const response = await inviteUserToOrganization({
+          orgId: invitationData.orgId,
+          requestBody: {
+            email: invitationData.email,
+            first_name: invitationData.first_name,
+            last_name: invitationData.last_name,
+            roles: invitationData.roles,
+          },
+        });
+        if (response) {
+          await userRepository.markAsSynced(item.entityId, response.user_id);
+        } else {
+          throw new Error("Failed to invite user on server");
+        }
         break;
       }
     }

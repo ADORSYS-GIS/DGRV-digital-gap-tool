@@ -57,7 +57,7 @@ const SecondAdminDashboard: React.FC = () => {
             variant="default"
           />
         </Link>
-        <Link to="/second-admin/users">
+        <Link to="/second-admin/manage-users">
           <DashboardCard
             title="Manage Users"
             description="Oversee user accounts and permissions"

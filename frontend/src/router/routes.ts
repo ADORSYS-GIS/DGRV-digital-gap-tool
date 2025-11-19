@@ -66,8 +66,9 @@ import AnswerDimensionAssessmentPage from "@/pages/assessments/AnswerDimensionAs
 const ThirdAdminDashboard = React.lazy(
   () => import("../pages/third_admin/ThirdAdminDashboard"),
 );
-const ManageUsers = React.lazy(
-  () => import("../pages/third_admin/ManageUsers"),
+const ManageUsers = React.lazy(() => import("../pages/shared/ManageUsers"));
+const OrganizationUsers = React.lazy(
+  () => import("../pages/shared/OrganizationUsers"),
 );
 
 const routes = [
@@ -119,8 +120,12 @@ const routes = [
         element: React.createElement(ManageDigitalisationLevels),
       },
       {
-        path: "users",
+        path: "manage-users",
         element: React.createElement(ManageUsers),
+      },
+      {
+        path: "manage-users/:orgId",
+        element: React.createElement(OrganizationUsers),
       },
       {
         path: "reports",
@@ -170,6 +175,14 @@ const routes = [
       {
         path: "action-plans/:assessmentId",
         element: React.createElement(ActionPlanPage),
+      },
+      {
+        path: "manage-users",
+        element: React.createElement(ManageUsers),
+      },
+      {
+        path: "manage-users/:orgId",
+        element: React.createElement(OrganizationUsers),
       },
     ],
   },

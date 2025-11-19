@@ -1,6 +1,6 @@
 use crate::AppState;
 use axum::{
-    extract::{Path, State},
+    extract::{Extension, Path, State},
     http::StatusCode,
     response::IntoResponse,
     Json,
@@ -182,4 +182,25 @@ pub async fn delete_organization(
             ))
         }
     }
+}
+
+/// Get all members of an organization
+#[utoipa::path(
+    get,
+    path = "/admin/organizations/{org_id}/members",
+    tag = "Organization",
+    params(("org_id" = String, Path, description = "Organization ID")),
+    responses((status = 200, description = "OK", body = Vec<KeycloakUser>))
+)]
+pub async fn get_organization_members(
+    Extension(token): Extension<String>,
+    State(app_state): State<AppState>,
+    Path(org_id): Path<String>,
+) -> AppResult<impl IntoResponse> {
+    let members = app_state
+        .keycloak_service
+        .get_organization_members(&token, &org_id)
+        .await?;
+
+    Ok((StatusCode::OK, Json(members)))
 }

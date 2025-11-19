@@ -1,21 +1,16 @@
 use axum::{
-    routing::{delete, get, post, put},
+    routing::{get, post},
     Router,
 };
 
 use crate::AppState;
+use crate::api::handlers::invitation::*;
 use crate::api::handlers::organization::*;
 
 pub fn create_organization_routes() -> Router<AppState> {
     Router::new()
-        .route(
-            "/",
-            post(create_organization).get(get_organizations),
-        )
-        .route(
-            "/:org_id",
-            get(get_organization)
-                .put(update_organization)
-                .delete(delete_organization),
-        )
+        .route("/", post(create_organization).get(get_organizations))
+        .route("/:org_id", get(get_organization).put(update_organization).delete(delete_organization))
+        .route("/:org_id/invitations", post(invite_user_to_organization))
+        .route("/:org_id/members", get(get_organization_members))
 }

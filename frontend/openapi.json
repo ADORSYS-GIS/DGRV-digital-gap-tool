@@ -229,6 +229,88 @@
         "responses": { "204": { "description": "No Content" } }
       }
     },
+    "/admin/organizations/{org_id}/invitations": {
+      "post": {
+        "tags": ["Organization"],
+        "summary": "Invite a user to an organization",
+        "operationId": "invite_user_to_organization",
+        "parameters": [
+          {
+            "name": "org_id",
+            "in": "path",
+            "description": "Organization ID",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UserInvitationRequest" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserInvitationResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/organizations/{org_id}/members": {
+      "get": {
+        "tags": ["Organization"],
+        "summary": "Get all members of an organization",
+        "operationId": "get_organization_members",
+        "parameters": [
+          {
+            "name": "org_id",
+            "in": "path",
+            "description": "Organization ID",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/KeycloakUser" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/users/{user_id}": {
+      "delete": {
+        "tags": ["User"],
+        "summary": "Delete a user by ID",
+        "operationId": "delete_user",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "description": "User ID",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": { "204": { "description": "No Content" } }
+      }
+    },
     "/assessments": {
       "get": {
         "tags": ["crate::api::handlers::assessment"],
@@ -3352,6 +3434,20 @@
           "redirectUrl": { "type": "string", "nullable": true }
         }
       },
+      "KeycloakUser": {
+        "type": "object",
+        "required": ["id", "username", "email"],
+        "properties": {
+          "attributes": { "nullable": true },
+          "email": { "type": "string" },
+          "emailVerified": { "type": "boolean" },
+          "enabled": { "type": "boolean" },
+          "firstName": { "type": "string", "nullable": true },
+          "id": { "type": "string" },
+          "lastName": { "type": "string", "nullable": true },
+          "username": { "type": "string" }
+        }
+      },
       "OrganizationCreateRequest": {
         "type": "object",
         "required": ["name", "domains", "redirectUrl", "enabled"],
@@ -4007,6 +4103,26 @@
           "summary": { "type": "string", "nullable": true },
           "title": { "type": "string", "nullable": true }
         }
+      },
+      "UserInvitationRequest": {
+        "type": "object",
+        "required": ["email", "roles"],
+        "properties": {
+          "email": { "type": "string" },
+          "first_name": { "type": "string", "nullable": true },
+          "last_name": { "type": "string", "nullable": true },
+          "roles": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "UserInvitationResponse": {
+        "type": "object",
+        "required": ["user_id", "email", "status", "message"],
+        "properties": {
+          "email": { "type": "string" },
+          "message": { "type": "string" },
+          "status": { "type": "string" },
+          "user_id": { "type": "string" }
+        }
       }
     }
   },
@@ -4017,6 +4133,10 @@
     { "name": "Reports", "description": "Report endpoints" },
     { "name": "Action Plans", "description": "Action plan endpoints" },
     { "name": "Gaps", "description": "Gap endpoints" },
-    { "name": "Admin", "description": "Administrative configuration endpoints" }
+    {
+      "name": "Admin",
+      "description": "Administrative configuration endpoints"
+    },
+    { "name": "User", "description": "User management endpoints" }
   ]
 }

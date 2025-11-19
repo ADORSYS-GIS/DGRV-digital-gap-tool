@@ -31,6 +31,9 @@ pub enum AppError {
 
     #[error("File storage error: {0}")]
     FileStorageError(String),
+
+    #[error("Internal error: {0}")]
+    AnyhowError(#[from] anyhow::Error),
 }
 
 impl IntoResponse for AppError {
@@ -48,6 +51,7 @@ impl IntoResponse for AppError {
             AppError::FileStorageError(_) => {
                 (StatusCode::INTERNAL_SERVER_ERROR, "File storage error")
             }
+            AppError::AnyhowError(_) => (StatusCode::INTERNAL_SERVER_ERROR, "Internal server error"),
         };
 
         let body = Json(json!({

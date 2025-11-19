@@ -10,8 +10,10 @@ import { ActionPlan } from "@/types/actionPlan";
 import { SyncQueueItem } from "@/types/sync";
 import { IDimension, IDimensionAssessment } from "@/types/dimension";
 import { IRecommendation } from "@/types/recommendation";
+import { KeycloakUser } from "@/types/user";
 
 export class AppDB extends Dexie {
+  users!: Table<KeycloakUser, string>;
   dimensionAssessments!: Table<IDimensionAssessment, string>;
   assessments!: Table<Assessment, string>;
   submissions!: Table<Submission, string>;
@@ -36,6 +38,7 @@ export class AppDB extends Dexie {
       dimensions: "id",
       recommendations: "id",
       dimensionAssessments: "id, [dimensionId+assessmentId]",
+      users: "id, orgId",
     });
   }
 }

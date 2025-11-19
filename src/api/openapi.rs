@@ -11,6 +11,8 @@ use crate::api::dto::gap::*;
 use crate::api::dto::recommendation::*;
 use crate::api::dto::report::*;
 use crate::api::dto::organization::*;
+use crate::api::dto::invitation::*;
+use crate::models::keycloak::KeycloakUser;
 
 #[derive(OpenApi)]
 #[openapi(
@@ -20,6 +22,8 @@ use crate::api::dto::organization::*;
         crate::api::handlers::organization::get_organization,
         crate::api::handlers::organization::update_organization,
         crate::api::handlers::organization::delete_organization,
+        crate::api::handlers::invitation::invite_user_to_organization,
+        crate::api::handlers::organization::get_organization_members,
         crate::api::handlers::assessment::create_assessment,
         crate::api::handlers::assessment::list_assessments,
         crate::api::handlers::assessment::get_assessment,
@@ -66,6 +70,7 @@ use crate::api::dto::organization::*;
         crate::api::handlers::gap::delete_gap,
         // Admin gap creation
         crate::api::handlers::gap::admin_create_gap,
+        crate::api::handlers::user::delete_user,
     ),
     components(
         schemas(
@@ -178,6 +183,9 @@ use crate::api::dto::organization::*;
             OrganizationUpdateRequest,
             OrganizationDomain,
             KeycloakOrganization,
+            UserInvitationRequest,
+            UserInvitationResponse,
+            KeycloakUser,
         )
     ),
     tags(
@@ -187,7 +195,8 @@ use crate::api::dto::organization::*;
         (name = "Reports", description = "Report endpoints"),
         (name = "Action Plans", description = "Action plan endpoints"),
         (name = "Gaps", description = "Gap endpoints"),
-        (name = "Admin", description = "Administrative configuration endpoints")
+        (name = "Admin", description = "Administrative configuration endpoints"),
+        (name = "User", description = "User management endpoints")
     )
 )]
 pub struct ApiDoc;
