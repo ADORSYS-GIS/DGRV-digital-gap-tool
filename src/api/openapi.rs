@@ -8,6 +8,8 @@ use crate::api::dto::assessment::*;
 use crate::api::dto::common::*;
 use crate::api::dto::dimension::*;
 use crate::api::dto::gap::*;
+use crate::api::dto::group::*;
+use crate::api::dto::member::*;
 use crate::api::dto::recommendation::*;
 use crate::api::dto::report::*;
 use crate::api::dto::organization::*;
@@ -24,6 +26,11 @@ use crate::models::keycloak::KeycloakUser;
         crate::api::handlers::organization::delete_organization,
         crate::api::handlers::invitation::invite_user_to_organization,
         crate::api::handlers::organization::get_organization_members,
+        crate::api::handlers::group::create_group,
+        crate::api::handlers::group::get_groups_by_organization,
+        crate::api::handlers::group::get_group,
+        crate::api::handlers::group::update_group,
+        crate::api::handlers::group::delete_group,
         crate::api::handlers::assessment::create_assessment,
         crate::api::handlers::assessment::list_assessments,
         crate::api::handlers::assessment::get_assessment,
@@ -71,6 +78,8 @@ use crate::models::keycloak::KeycloakUser;
         // Admin gap creation
         crate::api::handlers::gap::admin_create_gap,
         crate::api::handlers::user::delete_user,
+        crate::api::handlers::user::add_member,
+        crate::api::handlers::user::get_group_members,
     ),
     components(
         schemas(
@@ -186,10 +195,16 @@ use crate::models::keycloak::KeycloakUser;
             UserInvitationRequest,
             UserInvitationResponse,
             KeycloakUser,
+            // Groups
+            GroupCreateRequest,
+            GroupUpdateRequest,
+            KeycloakGroup,
+            AddMemberRequest,
         )
     ),
     tags(
         (name = "Organization", description = "Organization endpoints"),
+        (name = "Group", description = "Group management endpoints"),
         (name = "Assessments", description = "Assessment endpoints"),
         (name = "Dimensions", description = "Dimension endpoints"),
         (name = "Reports", description = "Report endpoints"),
