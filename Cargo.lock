@@ -1432,6 +1432,7 @@ dependencies = [
  "jsonwebtoken",
  "migration",
  "openapiv3",
+ "rand 0.8.5",
  "reqwest",
  "rust_decimal",
  "sea-orm",

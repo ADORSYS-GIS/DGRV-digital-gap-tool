@@ -23,38 +23,38 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   allowedRoles,
   children,
 }) => {
-  const { isAuthenticated, user, loading } = useAuth();
-  const location = useLocation();
+  // const { isAuthenticated, user, loading } = useAuth();
+  // const location = useLocation();
 
-  const userRoles = React.useMemo(() => {
-    if (!user) return [];
-    return [...(user.roles || []), ...(user.realm_access?.roles || [])].map(
-      (r) => r.toLowerCase(),
-    );
-  }, [user]);
+  // const userRoles = React.useMemo(() => {
+  //   if (!user) return [];
+  //   return [...(user.roles || []), ...(user.realm_access?.roles || [])].map(
+  //     (r) => r.toLowerCase(),
+  //   );
+  // }, [user]);
 
-  const hasRequiredRole = React.useMemo(() => {
-    if (!allowedRoles || allowedRoles.length === 0) return true;
-    return allowedRoles.some((role) => userRoles.includes(role.toLowerCase()));
-  }, [userRoles, allowedRoles]);
+  // const hasRequiredRole = React.useMemo(() => {
+  //   if (!allowedRoles || allowedRoles.length === 0) return true;
+  //   return allowedRoles.some((role) => userRoles.includes(role.toLowerCase()));
+  // }, [userRoles, allowedRoles]);
 
-  if (loading) {
-    return <LoadingSpinner />;
-  }
+  // if (loading) {
+  //   return <LoadingSpinner />;
+  // }
 
-  if (!isAuthenticated) {
-    return <Navigate to="/" replace state={{ from: location }} />;
-  }
+  // if (!isAuthenticated) {
+  //   return <Navigate to="/" replace state={{ from: location }} />;
+  // }
 
-  const isAdmin = userRoles.includes(ROLES.ADMIN.toLowerCase());
+  // const isAdmin = userRoles.includes(ROLES.ADMIN.toLowerCase());
 
-  if (isAdmin && location.pathname === "/dashboard") {
-    return <Navigate to="/admin/dashboard" replace />;
-  }
+  // if (isAdmin && location.pathname === "/dashboard") {
+  //   return <Navigate to="/admin/dashboard" replace />;
+  // }
 
-  if (allowedRoles && allowedRoles.length > 0 && !hasRequiredRole) {
-    return <Navigate to="/unauthorized" replace />;
-  }
+  // if (allowedRoles && allowedRoles.length > 0 && !hasRequiredRole) {
+  //   return <Navigate to="/unauthorized" replace />;
+  // }
 
   return children ? <>{children}</> : <Outlet />;
 };

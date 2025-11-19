@@ -37,7 +37,7 @@ pub struct RealmAccess {
 
 impl Claims {
     pub fn is_application_admin(&self) -> bool {
-        self.has_realm_role("dgat_admin")
+        self.has_realm_role("dgrv_admin")
     }
 
     pub fn has_realm_role(&self, role: &str) -> bool {

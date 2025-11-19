@@ -24,12 +24,19 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { useDimensions } from "@/hooks/dimensions/useDimensions";
 import { useAssessments } from "@/hooks/assessments/useAssessments";
+import { useOrganizations } from "@/hooks/organizations/useOrganizations";
+import { useAllOrganizationMembers } from "@/hooks/users/useAllOrganizationMembers";
 
 const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
   const { data: submissions, isLoading, error } = useSubmissions();
   const { data: dimensions } = useDimensions();
   const { data: assessments } = useAssessments();
+  const { data: organizations } = useOrganizations();
+  const { data: allMembers } = useAllOrganizationMembers();
+
+  const activeUsers =
+    allMembers?.filter((member) => member.enabled).length || 0;
 
   return (
     <div className="space-y-6">
@@ -55,7 +62,9 @@ const AdminDashboard: React.FC = () => {
             <Building2 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">0</div>
+            <div className="text-2xl font-bold">
+              {organizations ? organizations.length : 0}
+            </div>
             <p className="text-xs text-muted-foreground">+0% from last month</p>
           </CardContent>
         </Card>
@@ -65,7 +74,7 @@ const AdminDashboard: React.FC = () => {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">0</div>
+            <div className="text-2xl font-bold">{activeUsers}</div>
             <p className="text-xs text-muted-foreground">+0% from last month</p>
           </CardContent>
         </Card>
@@ -140,7 +149,7 @@ const AdminDashboard: React.FC = () => {
               variant="default"
             />
           </Link>
-          <Link to="/admin/users">
+          <Link to="/admin/manage-users">
             <DashboardCard
               title="Manage Users"
               description="Create, edit, and manage users"

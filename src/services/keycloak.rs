@@ -1,11 +1,12 @@
 use reqwest::{Client, StatusCode};
 use serde::Deserialize;
 use serde_json::json;
-use tracing::{error, info};
+use tracing::{debug, error, info, warn};
 use anyhow::{anyhow, Result};
 
 use crate::api::dto::organization::{KeycloakOrganization, OrganizationDomain};
 use crate::config::Config;
+use crate::models::keycloak::*;
 
 #[derive(Deserialize)]
 struct TokenResponse {
@@ -261,6 +262,299 @@ impl KeycloakService {
                 let error_text = response.text().await?;
                 error!(status = %status, "Failed to delete organization: {}", error_text);
                 Err(anyhow!("Failed to delete organization (status: {}): {}", status, error_text))
+            }
+        }
+    }
+
+    /// Find a user by username or email
+    pub async fn find_user_by_username_or_email(&self, token: &str, query: &str) -> Result<Option<KeycloakUser>> {
+        let url = format!("{}/admin/realms/{}/users?search={}", self.config.keycloak.url, self.config.keycloak.realm, query);
+        let response = self.client.get(&url)
+            .bearer_auth(token)
+            .send()
+            .await?
+            .error_for_status()?;
+        let users: Vec<KeycloakUser> = response.json().await?;
+        // Try to find an exact match by username or email
+        let user = users.into_iter().find(|u| u.username == query || u.email == query);
+        Ok(user)
+    }
+
+    /// Assign a realm role to a user by role name
+    pub async fn assign_realm_role_to_user(&self, token: &str, user_id: &str, role_name: &str) -> Result<()> {
+        // Get the role object by name
+        let url = format!("{}/admin/realms/{}/roles/{}", self.config.keycloak.url, self.config.keycloak.realm, role_name);
+        let role: serde_json::Value = self.client.get(&url)
+            .bearer_auth(token)
+            .send()
+            .await?
+            .error_for_status()?
+            .json()
+            .await?;
+        // Assign the role to the user
+        let assign_url = format!("{}/admin/realms/{}/users/{}/role-mappings/realm", self.config.keycloak.url, self.config.keycloak.realm, user_id);
+        let roles_payload = serde_json::json!([role]);
+        let response = self.client.post(&assign_url)
+            .bearer_auth(token)
+            .json(&roles_payload)
+            .send()
+            .await?;
+        match response.status() {
+            StatusCode::NO_CONTENT | StatusCode::OK | StatusCode::CREATED => Ok(()),
+            _ => {
+                let error_text = response.text().await?;
+                error!("Failed to assign realm role to user: {}", error_text);
+                Err(anyhow!("Failed to assign realm role to user: {}", error_text))
+            }
+        }
+    }
+
+    /// Create an invitation to an organization
+    pub async fn create_invitation(&self, token: &str, org_id: &str, email: &str, roles: Vec<String>, expiration: Option<String>) -> Result<KeycloakInvitation> {
+        let url = format!("{}/admin/realms/{}/organizations/{}/members/invite-user",
+                          self.config.keycloak.url, self.config.keycloak.realm, org_id);
+
+        // Build form data (not JSON)
+        let mut form_data = std::collections::HashMap::new();
+        form_data.insert("email".to_string(), email.to_string());
+        
+        // Add roles if provided (might need to be comma-separated or handled differently)
+        if !roles.is_empty() {
+            let roles_str = roles.join(",");
+            form_data.insert("roles".to_string(), roles_str);
+        }
+
+        info!(url = %url, email = %email, org_id = %org_id, "Creating organization invitation with form data");
+
+        let response = self.client.post(&url)
+            .bearer_auth(token)
+            .form(&form_data)
+            .send()
+            .await?;
+
+        match response.status() {
+            StatusCode::NO_CONTENT => {
+                // Since the API returns 204 No Content, we create a mock invitation response
+                let invitation = KeycloakInvitation {
+                    id: format!("invitation-{}", chrono::Utc::now().timestamp()),
+                    email: email.to_string(),
+                    invited_at: chrono::Utc::now().to_rfc3339(),
+                    expiration,
+                    roles,
+                };
+                info!(invitation_id = %invitation.id, email = %email, "Organization invitation created successfully");
+                Ok(invitation)
+            },
+            _ => {
+                let error_text = response.text().await?;
+                error!("Failed to create invitation: {}", error_text);
+                Err(anyhow!("Failed to create invitation: {}", error_text))
+            }
+        }
+    }
+
+    /// Create a new user with email verification required
+    pub async fn create_user_with_email_verification(&self, token: &str, request: &CreateUserRequest) -> Result<KeycloakUser> {
+        let url = format!("{}/admin/realms/{}/users", self.config.keycloak.url, self.config.keycloak.realm);
+        
+        // Generate a temporary password
+        let temp_password = self.generate_temporary_password();
+        
+        let mut payload = json!({
+            "username": request.username,
+            "email": request.email,
+            "enabled": true,
+            "emailVerified": false,
+            "requiredActions": ["VERIFY_EMAIL"],
+            "credentials": [{
+                "type": "password",
+                "value": temp_password,
+                "temporary": true
+            }]
+        });
+
+        // Add optional fields if provided
+        if let Some(first_name) = &request.first_name {
+            payload["firstName"] = json!(first_name);
+        }
+        if let Some(last_name) = &request.last_name {
+            payload["lastName"] = json!(last_name);
+        }
+        if let Some(attributes) = &request.attributes {
+            payload["attributes"] = json!(attributes);
+        }
+
+        info!(url = %url, email = %request.email, "Creating user with email verification");
+
+        let response = self.client.post(&url)
+            .bearer_auth(token)
+            .json(&payload)
+            .send()
+            .await?;
+
+        match response.status() {
+            StatusCode::CREATED => {
+                // Get the created user to return the full user object
+                let location = response.headers()
+                    .get("location")
+                    .and_then(|h| h.to_str().ok())
+                    .ok_or_else(|| anyhow!("No location header in response"))?;
+                
+                let user_id = location.split('/').last()
+                    .ok_or_else(|| anyhow!("Invalid location header"))?;
+                
+                // Fetch the created user
+                let user = self.get_user_by_id(token, user_id).await?;
+                
+                // Try to trigger email verification email, but don't fail if it doesn't work
+                match self.trigger_email_verification(token, user_id).await {
+                    Ok(_) => {
+                        info!(user_id = %user_id, "Email verification email sent successfully");
+                    },
+                    Err(e) => {
+                        warn!(user_id = %user_id, error = %e, "Failed to send email verification email, but user was created successfully");
+                        // Don't fail the entire operation, just log the warning
+                    }
+                }
+                
+                info!(user_id = %user_id, email = %request.email, "User created successfully with email verification required");
+                Ok(user)
+            },
+            _ => {
+                let error_text = response.text().await?;
+                error!("Failed to create user: {}", error_text);
+                Err(anyhow!("Failed to create user: {}", error_text))
+            }
+        }
+    }
+
+    /// Get user by ID
+    pub async fn get_user_by_id(&self, token: &str, user_id: &str) -> Result<KeycloakUser> {
+        let url = format!("{}/admin/realms/{}/users/{}", self.config.keycloak.url, self.config.keycloak.realm, user_id);
+        
+        let response = self.client.get(&url)
+            .bearer_auth(token)
+            .send()
+            .await?;
+
+        match response.status() {
+            StatusCode::OK => {
+                let user: KeycloakUser = response.json().await?;
+                Ok(user)
+            },
+            _ => {
+                let error_text = response.text().await?;
+                error!("Failed to get user by ID: {}", error_text);
+                Err(anyhow!("Failed to get user by ID: {}", error_text))
+            }
+        }
+    }
+
+    /// Generate a temporary password for new users
+    fn generate_temporary_password(&self) -> String {
+        use rand::{thread_rng, Rng};
+        use rand::distributions::Alphanumeric;
+        
+        let mut rng = thread_rng();
+        let password: String = (0..12)
+            .map(|_| rng.sample(Alphanumeric) as char)
+            .collect();
+        
+        format!("Temp{}!", password)
+    }
+
+    /// Trigger email verification email for a user
+    pub async fn trigger_email_verification(&self, token: &str, user_id: &str) -> Result<()> {
+        // Method 1: Try the send-verify-email endpoint
+        let url = format!("{}/admin/realms/{}/users/{}/send-verify-email",
+                         self.config.keycloak.url, self.config.keycloak.realm, user_id);
+        
+        let response = self.client.post(&url)
+            .bearer_auth(token)
+            .send()
+            .await;
+
+        if let Ok(response) = response {
+            if response.status() == StatusCode::NO_CONTENT || response.status() == StatusCode::OK {
+                info!(user_id = %user_id, "Email verification email triggered successfully via send-verify-email");
+                return Ok(());
+            }
+            if let Ok(error_text) = response.text().await {
+                 debug!("send-verify-email failed: {}", error_text);
+            }
+        }
+
+        // Method 2: Try executing the VERIFY_EMAIL action
+        let url = format!("{}/admin/realms/{}/users/{}/execute-actions-email",
+                         self.config.keycloak.url, self.config.keycloak.realm, user_id);
+        
+        let payload = json!(["VERIFY_EMAIL"]);
+        
+        let response = self.client.put(&url)
+            .bearer_auth(token)
+            .json(&payload)
+            .send()
+            .await?;
+
+        match response.status() {
+            StatusCode::NO_CONTENT | StatusCode::OK => {
+                info!(user_id = %user_id, "Email verification email triggered successfully via execute-actions-email");
+                Ok(())
+            },
+            _ => {
+                let error_text = response.text().await?;
+                error!("Failed to trigger email verification via execute-actions-email: {}", error_text);
+                Err(anyhow!("Failed to trigger email verification: {}", error_text))
+            }
+        }
+    }
+
+    /// Get all members of an organization
+    pub async fn get_organization_members(&self, token: &str, org_id: &str) -> Result<Vec<KeycloakUser>> {
+        let url = format!("{}/admin/realms/{}/organizations/{}/members",
+                          self.config.keycloak.url, self.config.keycloak.realm, org_id);
+
+        info!(url = %url, org_id = %org_id, "Getting organization members");
+
+        let response = self.client.get(&url)
+            .bearer_auth(token)
+            .send()
+            .await?;
+
+        match response.status() {
+            StatusCode::OK => {
+                let users: Vec<KeycloakUser> = response.json().await?;
+                info!(org_id = %org_id, count = users.len(), "Successfully retrieved organization members");
+                Ok(users)
+            },
+            _ => {
+                let error_text = response.text().await?;
+                error!("Failed to get organization members: {}", error_text);
+                Err(anyhow!("Failed to get organization members: {}", error_text))
+            }
+        }
+    }
+    /// Delete a user by ID
+    pub async fn delete_user(&self, token: &str, user_id: &str) -> Result<()> {
+        let url = format!("{}/admin/realms/{}/users/{}",
+                          self.config.keycloak.url, self.config.keycloak.realm, user_id);
+
+        info!(url = %url, user_id = %user_id, "Deleting user");
+
+        let response = self.client.delete(&url)
+            .bearer_auth(token)
+            .send()
+            .await?;
+
+        match response.status() {
+            StatusCode::NO_CONTENT => {
+                info!(user_id = %user_id, "Successfully deleted user");
+                Ok(())
+            },
+            _ => {
+                let error_text = response.text().await?;
+                error!("Failed to delete user: {}", error_text);
+                Err(anyhow!("Failed to delete user: {}", error_text))
             }
         }
     }

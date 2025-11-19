@@ -28,7 +28,7 @@ const SecondAdminLayout: React.FC = () => {
       icon: Building2,
       text: "Cooperations",
     },
-    { to: "/second-admin/users", icon: Users, text: "Users" },
+    { to: "/second-admin/manage-users", icon: Users, text: "Manage Users" },
     {
       to: "/second-admin/assessments",
       icon: FilePlus2,

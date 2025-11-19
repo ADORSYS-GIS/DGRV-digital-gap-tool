@@ -7,6 +7,7 @@ pub mod entities;
 pub mod error;
 pub mod repositories;
 pub mod services;
+pub mod models;
 pub mod auth;
 
 use crate::api::routes;
@@ -72,7 +73,7 @@ fn create_app(db: DatabaseConnection, config: Config) -> Router {
     };
 
     // Create API router with all routes
-    let api_router = routes::api::create_api_routes()
+    let api_router = routes::api::create_api_routes(state.clone())
         .layer(axum::middleware::from_fn_with_state(state.clone(), crate::auth::middleware::auth_middleware));
 
     // Combine all routers without the /api prefix
