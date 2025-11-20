@@ -16,6 +16,7 @@ import { ProtectedRoute } from "./ProtectedRoute";
 import AdminLayout from "@/layouts/AdminLayout";
 import ThirdAdminLayout from "@/layouts/ThirdAdminLayout";
 import SecondAdminLayout from "@/layouts/SecondAdminLayout";
+import UserLayout from "@/layouts/UserLayout";
 const ManageOrganizations = React.lazy(
   () => import("../pages/admin/ManageOrganizationsPage"),
 );
@@ -239,11 +240,46 @@ const routes = [
     ],
   },
   {
-    path: "/dashboard",
-    element: React.createElement(ProtectedRoute, {
-      allowedRoles: [ROLES.ADMIN, ROLES.Org_User],
-    }),
-    children: [{ path: "", element: React.createElement(Dashboard) }],
+    path: "/user",
+    element: React.createElement(UserLayout),
+    children: [
+      {
+        element: React.createElement(ProtectedRoute, {
+          allowedRoles: [ROLES.ADMIN, ROLES.Org_User],
+        }),
+        children: [
+          { path: "dashboard", element: React.createElement(Dashboard) },
+          {
+            path: "assessments",
+            element: React.createElement(ManageAssessments),
+          },
+          {
+            path: "assessment/:assessmentId",
+            element: React.createElement(AssessmentDetailPage),
+          },
+          {
+            path: "assessment/:assessmentId/dimension/:dimensionId",
+            element: React.createElement(AnswerDimensionAssessmentPage),
+          },
+          {
+            path: "submissions",
+            element: React.createElement(ManageSubmissionsPage),
+          },
+          {
+            path: "submissions/:submissionId",
+            element: React.createElement(SubmissionDetailPage),
+          },
+          {
+            path: "action-plans",
+            element: React.createElement(ActionPlansListPage),
+          },
+          {
+            path: "action-plans/:assessmentId",
+            element: React.createElement(ActionPlanPage),
+          },
+        ],
+      },
+    ],
   },
   { path: "*", element: React.createElement(NotFound) },
 ];

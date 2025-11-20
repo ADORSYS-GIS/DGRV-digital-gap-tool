@@ -6,76 +6,113 @@
  * - Assessment management section
  * - Placeholder for additional content
  */
-import React from "react";
+/**
+ * Second admin dashboard page for cooperative management.
+ * This page provides:
+ * - Cooperative and user management tools
+ * - Assessment creation and submission tracking
+ * - Action plan overview
+ */
+import { DashboardCard } from "@/components/shared/DashboardCard";
+import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
+import { SubmissionList } from "@/components/shared/submissions/SubmissionList";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { useAuth } from "@/hooks/shared/useAuth";
-import { UserStats } from "@/components/user/UserStats";
-import { AssessmentSection } from "@/components/user/AssessmentSection";
-import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
+import { useSubmissions } from "@/hooks/submissions/useSubmissions";
+import {
+  ClipboardCheck,
+  ClipboardList,
+  FilePlus2,
+  History,
+} from "lucide-react";
+import React from "react";
+import { Link } from "react-router-dom";
 
-const Dashboard: React.FC = () => {
+const UserDashboard: React.FC = () => {
   const { user } = useAuth();
-  const navigate = useNavigate();
-
-  const handleStartAssessment = () => {
-    // In a real app, you'd likely create a new assessment and get an ID from the backend
-    const newAssessmentId = 1;
-    toast.success("Assessment started successfully!");
-    navigate(`/dashboard/assessment/${newAssessmentId}`);
-  };
-
-  const handleContinueAssessment = () => {
-    toast.success("Continuing your assessment...");
-  };
-
-  const userStats = {
-    totalAssessments: 0,
-    completionRate: 0,
-    averageScore: 0,
-  };
-
-  const currentAssessment = null;
+  const { data: submissions, isLoading, error } = useSubmissions();
 
   return (
-    <div className="container mx-auto p-6">
+    <div className="space-y-6">
       {/* Welcome Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Welcome back, {user?.name || user?.preferred_username || "User"}!
+          User Management Dashboard
         </h1>
         <p className="text-gray-600">
-          Track your digital transformation journey and manage your assessments.
+          Welcome back,{" "}
+          {user?.name || user?.preferred_username || "Administrator"}. Manage
+          cooperatives and their assessments.
         </p>
       </div>
 
-      {/* Quick Stats */}
-      <UserStats {...userStats} />
-
-      {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Left Column - Assessment Section */}
-        <AssessmentSection
-          currentAssessment={currentAssessment}
-          onStartAssessment={handleStartAssessment}
-          onContinueAssessment={handleContinueAssessment}
-        />
-
-        {/* Right Column - Will be filled with other components */}
-        <div className="space-y-6">
-          {/* Placeholder for future components */}
-          <div className="p-6 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300 text-center">
-            <h3 className="text-lg font-semibold text-gray-700 mb-2">
-              Additional Content
-            </h3>
-            <p className="text-gray-500">
-              Completed assessments, progress charts, and other features will
-              appear here.
-            </p>
-          </div>
-        </div>
+      {/* Management Tools Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <Link to="/user/assessments">
+          <DashboardCard
+            title="Create Assesment"
+            description="Design and deploy new assessments"
+            icon={FilePlus2}
+            variant="default"
+          />
+        </Link>
+        <Link to="/user/action-plans">
+          <DashboardCard
+            title="View Action Plan"
+            description="Review and monitor strategic action plans"
+            icon={ClipboardList}
+            variant="default"
+          />
+        </Link>
+        <Link to="/user/submissions">
+          <DashboardCard
+            title="View Submissions"
+            description="Track and evaluate assessment submissions"
+            icon={ClipboardCheck}
+            variant="default"
+          />
+        </Link>
       </div>
+
+      {/* Recent Submissions */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div>
+            <CardTitle className="flex items-center">
+              <History className="mr-2 h-5 w-5" />
+              Recent Submissions
+            </CardTitle>
+            <CardDescription>
+              A log of recent activities and system events.
+            </CardDescription>
+          </div>
+          <Link to="/user/submissions">
+            <Button variant="outline">View All</Button>
+          </Link>
+        </CardHeader>
+        <CardContent>
+          {isLoading && <LoadingSpinner />}
+          {error && (
+            <p className="text-red-500">An error occurred: {error.message}</p>
+          )}
+          {submissions && (
+            <SubmissionList
+              submissions={submissions}
+              limit={5}
+              basePath="user"
+            />
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 };
 
-export default Dashboard;
+export default UserDashboard;
