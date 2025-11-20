@@ -49,7 +49,7 @@ const ThirdAdminDashboard: React.FC = () => {
 
       {/* Management Tools Grid */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <Link to="/third-admin/users" className="flex">
+        <Link to="/third-admin/manage-cooperation-users" className="flex">
           <DashboardCard
             title="Manage Users"
             description="Administer user accounts and permissions"

@@ -21,7 +21,11 @@ const ThirdAdminLayout: React.FC = () => {
 
   const navLinks = [
     { to: "/third-admin/dashboard", icon: BarChart3, text: "Dashboard" },
-    { to: "/third-admin/users", icon: Users, text: "Manage Users" },
+    {
+      to: "/third-admin/manage-cooperation-users",
+      icon: Users,
+      text: "Manage Users",
+    },
     {
       to: "/third-admin/assessments",
       icon: FilePenLine,
