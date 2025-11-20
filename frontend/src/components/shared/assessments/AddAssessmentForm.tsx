@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
@@ -21,6 +22,8 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAddAssessment } from "@/hooks/assessments/useAddAssessment";
 import { useDimensions } from "@/hooks/dimensions/useDimensions";
+import { useOrganizationDimensions } from "@/hooks/organization_dimensions/useOrganizationDimensions";
+import { authService } from "@/services/shared/authService";
 import { LoadingSpinner } from "../../shared/LoadingSpinner";
 
 const formSchema = z.object({
@@ -36,8 +39,24 @@ interface AddAssessmentFormProps {
 }
 
 export function AddAssessmentForm({ isOpen, onClose }: AddAssessmentFormProps) {
-  const { data: dimensions, isLoading: isLoadingDimensions } = useDimensions();
+  const [organizationId, setOrganizationId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      const id = authService.getOrganizationId();
+      setOrganizationId(id);
+    }
+  }, [isOpen]);
+
+  const { data: allDimensions, isLoading: isLoadingDimensions } =
+    useDimensions();
+  const { data: assignedDimensionIds, isLoading: isLoadingAssigned } =
+    useOrganizationDimensions(organizationId || "");
+
   const { mutate: addAssessment, isPending: isAdding } = useAddAssessment();
+
+  const assignedDimensions =
+    allDimensions?.filter((d) => assignedDimensionIds?.includes(d.id)) || [];
 
   const form = useForm<AddAssessmentFormValues>({
     resolver: zodResolver(formSchema),
@@ -91,11 +110,11 @@ export function AddAssessmentForm({ isOpen, onClose }: AddAssessmentFormProps) {
                   <div className="mb-4">
                     <FormLabel>Dimensions</FormLabel>
                   </div>
-                  {isLoadingDimensions ? (
+                  {isLoadingDimensions || isLoadingAssigned ? (
                     <LoadingSpinner />
                   ) : (
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-                      {dimensions?.map((dimension) => (
+                      {assignedDimensions.map((dimension) => (
                         <FormItem
                           key={dimension.id}
                           className="flex flex-row items-start space-x-3 space-y-0"
