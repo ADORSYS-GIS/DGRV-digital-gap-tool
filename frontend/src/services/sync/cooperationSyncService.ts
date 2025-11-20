@@ -1,13 +1,12 @@
-import { db } from "@/services/db";
 import {
   createGroup,
   deleteGroup,
   getGroupsByOrganization,
   updateGroup,
 } from "@/openapi-client";
-import { Cooperation } from "@/types/cooperation";
-import { authService } from "@/services/shared/authService";
 import { KeycloakGroup } from "@/openapi-client/types.gen";
+import { db } from "@/services/db";
+import { Cooperation } from "@/types/cooperation";
 
 const mapRemoteCooperationToLocal = (
   cooperation: KeycloakGroup,
@@ -20,15 +19,14 @@ const mapRemoteCooperationToLocal = (
 });
 
 export const cooperationSyncService = {
-  async sync() {
+  async sync(organizationId: string) {
     if (!navigator.onLine) {
       console.log("Offline, skipping cooperation sync.");
       return;
     }
 
-    const organizationId = authService.getOrganizationId();
     if (!organizationId) {
-      console.error("Organization ID not found, skipping sync.");
+      console.error("Organization ID not provided, skipping sync.");
       return;
     }
 

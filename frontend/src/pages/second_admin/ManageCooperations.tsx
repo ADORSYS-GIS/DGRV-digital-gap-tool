@@ -3,7 +3,7 @@
  * This page allows administrators to view, add, edit, and delete cooperations.
  */
 
-import React from "react";
+import React, { useEffect } from "react";
 import { AddCooperationForm } from "@/components/second_admin/cooperations/AddCooperationForm";
 import { CooperationList } from "@/components/second_admin/cooperations/CooperationList";
 import { useCooperations } from "@/hooks/cooperations/useCooperations";
@@ -12,12 +12,21 @@ import { useAddCooperation } from "@/hooks/cooperations/useAddCooperation";
 import { useUpdateCooperation } from "@/hooks/cooperations/useUpdateCooperation";
 import { useDeleteCooperation } from "@/hooks/cooperations/useDeleteCooperation";
 import { Cooperation } from "@/types/cooperation";
+import { useOrganizationId } from "@/hooks/organizations/useOrganizationId";
+import { cooperationSyncService } from "@/services/sync/cooperationSyncService";
 
 const ManageCooperations: React.FC = () => {
+  const organizationId = useOrganizationId();
   const { data: cooperations, isLoading, error } = useCooperations();
   const { mutate: addCooperation } = useAddCooperation();
   const { mutate: updateCooperation } = useUpdateCooperation();
   const { mutate: deleteCooperation } = useDeleteCooperation();
+
+  useEffect(() => {
+    if (organizationId) {
+      cooperationSyncService.sync(organizationId);
+    }
+  }, [organizationId]);
 
   const handleAddCooperation = (
     cooperation: Omit<Cooperation, "id" | "syncStatus">,
