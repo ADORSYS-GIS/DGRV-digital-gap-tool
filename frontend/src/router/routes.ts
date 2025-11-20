@@ -200,7 +200,6 @@ const routes = [
     }),
     children: [
       { path: "dashboard", element: React.createElement(ThirdAdminDashboard) },
-      { path: "users", element: React.createElement(ManageUsers) },
       {
         path: "assessments",
         element: React.createElement(ManageAssessments),
@@ -228,6 +227,14 @@ const routes = [
       {
         path: "action-plans/:assessmentId",
         element: React.createElement(ActionPlanPage),
+      },
+      {
+        path: "manage-cooperation-users",
+        element: React.createElement(ManageCooperationUsers),
+      },
+      {
+        path: "manage-cooperation-users/:cooperationId",
+        element: React.createElement(ManageCooperationUsersPage),
       },
     ],
   },

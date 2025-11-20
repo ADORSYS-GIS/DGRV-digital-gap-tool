@@ -25,6 +25,7 @@ export const CooperationUserList = ({ users }: CooperationUserListProps) => {
           <TableHead>Email</TableHead>
           <TableHead>First Name</TableHead>
           <TableHead>Last Name</TableHead>
+          <TableHead>Email Verified</TableHead>
           <TableHead>Actions</TableHead>
         </TableRow>
       </TableHeader>
@@ -34,6 +35,7 @@ export const CooperationUserList = ({ users }: CooperationUserListProps) => {
             <TableCell>{user.email}</TableCell>
             <TableCell>{user.firstName}</TableCell>
             <TableCell>{user.lastName}</TableCell>
+            <TableCell>{user.emailVerified ? "Yes" : "No"}</TableCell>
             <TableCell>
               <Button
                 variant="destructive"

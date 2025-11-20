@@ -9,6 +9,7 @@ export interface CooperationUser {
   roles: string[];
   cooperationId: string;
   syncStatus: SyncStatus;
+  emailVerified?: boolean;
 }
 
 export type AddCooperationUser = Omit<

@@ -12,6 +12,8 @@ import { Label } from "@/components/ui/label";
 import { PlusCircle } from "lucide-react";
 import { useAddCooperationUser } from "@/hooks/cooperationUsers/useAddCooperationUser";
 import { AddCooperationUser } from "@/types/cooperationUser";
+import { useAuth } from "@/hooks/shared/useAuth";
+import { ROLES } from "@/constants/roles";
 
 export const AddCooperationUserForm = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -19,14 +21,29 @@ export const AddCooperationUserForm = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const { mutate: addUser, isPending } = useAddCooperationUser();
+  const { user: currentUser } = useAuth();
+
+  const getNewUserRole = () => {
+    if (currentUser?.roles?.includes(ROLES.COOP_ADMIN)) {
+      return "coop_user";
+    }
+    if (currentUser?.roles?.includes(ROLES.ORG_ADMIN)) {
+      return "coop_admin";
+    }
+    return null;
+  };
+
+  const newUserRole = getNewUserRole();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!newUserRole) return;
+
     const user: AddCooperationUser = {
       email,
       firstName,
       lastName,
-      roles: ["coop_admin"],
+      roles: [newUserRole],
     };
     addUser(user, {
       onSuccess: () => {
@@ -77,7 +94,15 @@ export const AddCooperationUserForm = () => {
               onChange={(e) => setLastName(e.target.value)}
             />
           </div>
-          <Button type="submit" disabled={isPending}>
+          <div>
+            <Label htmlFor="role">Role</Label>
+            <Input
+              id="role"
+              value={newUserRole || "No role will be assigned"}
+              disabled
+            />
+          </div>
+          <Button type="submit" disabled={isPending || !newUserRole}>
             {isPending ? "Adding..." : "Add User"}
           </Button>
         </form>
