@@ -349,6 +349,109 @@
         "responses": { "204": { "description": "No Content" } }
       }
     },
+    "/admin/organizations/{org_id}/dimensions": {
+      "get": {
+        "tags": ["Organization"],
+        "summary": "Get all dimensions of an organization",
+        "operationId": "get_organization_dimensions",
+        "parameters": [
+          {
+            "name": "org_id",
+            "in": "path",
+            "description": "Organization ID",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "type": "string", "format": "uuid" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Organization"],
+        "summary": "Assign a dimension to an organization",
+        "operationId": "assign_dimension_to_organization",
+        "parameters": [
+          {
+            "name": "org_id",
+            "in": "path",
+            "description": "Organization ID",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignDimensionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": { "201": { "description": "Created" } }
+      },
+      "put": {
+        "tags": ["Organization"],
+        "summary": "Update all dimensions of an organization",
+        "operationId": "update_organization_dimensions",
+        "parameters": [
+          {
+            "name": "org_id",
+            "in": "path",
+            "description": "Organization ID",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateOrganisationDimensionsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": { "204": { "description": "No Content" } }
+      }
+    },
+    "/admin/organizations/{org_id}/dimensions/{dimension_id}": {
+      "delete": {
+        "tags": ["Organization"],
+        "summary": "Remove a dimension from an organization",
+        "operationId": "remove_dimension_from_organization",
+        "parameters": [
+          {
+            "name": "org_id",
+            "in": "path",
+            "description": "Organization ID",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "dimension_id",
+            "in": "path",
+            "description": "Dimension ID",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": { "204": { "description": "No Content" } }
+      }
+    },
     "/admin/organizations/{org_id}/groups": {
       "get": {
         "tags": ["Group"],
@@ -3278,6 +3381,16 @@
           }
         }
       },
+      "AssignDimensionRequest": {
+        "type": "object",
+        "required": ["dimension_ids"],
+        "properties": {
+          "dimension_ids": {
+            "type": "array",
+            "items": { "type": "string", "format": "uuid" }
+          }
+        }
+      },
       "CreateAssessmentRequest": {
         "type": "object",
         "description": "Assessment creation request",
@@ -3661,6 +3774,23 @@
           "id": { "type": "string" },
           "lastName": { "type": "string", "nullable": true },
           "username": { "type": "string" }
+        }
+      },
+      "OrganisationDimensionResponse": {
+        "type": "object",
+        "required": [
+          "organisation_dimension",
+          "organisation_id",
+          "dimension_id",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "created_at": { "type": "string", "format": "date-time" },
+          "dimension_id": { "type": "string", "format": "uuid" },
+          "organisation_dimension": { "type": "string", "format": "uuid" },
+          "organisation_id": { "type": "string" },
+          "updated_at": { "type": "string", "format": "date-time" }
         }
       },
       "OrganizationCreateRequest": {
@@ -4290,6 +4420,16 @@
             "format": "int32",
             "description": "New gap size; if provided, severity will be recalculated",
             "nullable": true
+          }
+        }
+      },
+      "UpdateOrganisationDimensionsRequest": {
+        "type": "object",
+        "required": ["dimension_ids"],
+        "properties": {
+          "dimension_ids": {
+            "type": "array",
+            "items": { "type": "string", "format": "uuid" }
           }
         }
       },

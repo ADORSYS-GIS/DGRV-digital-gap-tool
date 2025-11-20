@@ -8,5 +8,6 @@ pub mod member;
 pub mod recommendation;
 pub mod report;
 pub mod organization;
+pub mod organization_dimension;
 
 pub mod group;

@@ -32,10 +32,12 @@ import { EditOrganizationForm } from "./EditOrganizationForm";
 
 interface OrganizationCardProps {
   organization: Organization;
+  onAssignDimension: (organization: Organization) => void;
 }
 
 export const OrganizationCard: React.FC<OrganizationCardProps> = ({
   organization,
+  onAssignDimension,
 }) => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const deleteMutation = useDeleteOrganization();
@@ -45,8 +47,7 @@ export const OrganizationCard: React.FC<OrganizationCardProps> = ({
   };
 
   const handleAssignDimension = () => {
-    // Placeholder for assign dimension functionality
-    console.log("Assign dimension for:", organization.name);
+    onAssignDimension(organization);
   };
 
   return (

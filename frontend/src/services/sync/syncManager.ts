@@ -1,4 +1,5 @@
 import { cooperationSyncService } from "./cooperationSyncService";
+import { organizationDimensionSyncService } from "./organizationDimensionSyncService";
 
 export const syncManager = {
   initialize() {
@@ -23,6 +24,7 @@ export const syncManager = {
   async syncAll() {
     try {
       await cooperationSyncService.sync();
+      await organizationDimensionSyncService.syncPendingAssignments();
       // Add other sync services here in the future
       console.log("All data synced successfully.");
     } catch (error) {
