@@ -70,6 +70,12 @@ const ManageUsers = React.lazy(() => import("../pages/shared/ManageUsers"));
 const OrganizationUsers = React.lazy(
   () => import("../pages/shared/OrganizationUsers"),
 );
+const ManageCooperationUsers = React.lazy(
+  () => import("../pages/second_admin/ManageCooperationUsers"),
+);
+const ManageCooperationUsersPage = React.lazy(
+  () => import("../pages/second_admin/ManageCooperationUsersPage"),
+);
 
 const routes = [
   { path: "/", element: React.createElement(HomePage) },
@@ -177,12 +183,12 @@ const routes = [
         element: React.createElement(ActionPlanPage),
       },
       {
-        path: "manage-users",
-        element: React.createElement(ManageUsers),
+        path: "manage-cooperation-users",
+        element: React.createElement(ManageCooperationUsers),
       },
       {
-        path: "manage-users/:orgId",
-        element: React.createElement(OrganizationUsers),
+        path: "manage-cooperation-users/:cooperationId",
+        element: React.createElement(ManageCooperationUsersPage),
       },
     ],
   },

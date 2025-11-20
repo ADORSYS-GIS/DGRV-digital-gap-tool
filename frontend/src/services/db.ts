@@ -12,6 +12,7 @@ import { IDimension, IDimensionAssessment } from "@/types/dimension";
 import { IRecommendation } from "@/types/recommendation";
 import { KeycloakUser } from "@/types/user";
 import { OrganizationDimension } from "@/types/organizationDimension";
+import { CooperationUser } from "@/types/cooperationUser";
 
 export class AppDB extends Dexie {
   users!: Table<KeycloakUser, string>;
@@ -20,6 +21,7 @@ export class AppDB extends Dexie {
   submissions!: Table<Submission, string>;
   organizations!: Table<Organization, string>;
   cooperations!: Table<Cooperation, string>;
+  cooperationUsers!: Table<CooperationUser, string>;
   digitalisationGaps!: Table<IDigitalisationGap, string>;
   action_plans!: Table<ActionPlan, string>;
   sync_queue!: Table<SyncQueueItem, number>;
@@ -29,7 +31,7 @@ export class AppDB extends Dexie {
 
   constructor() {
     super("AppDB");
-    this.version(3).stores({
+    this.version(4).stores({
       assessments: "id",
       submissions: "id",
       organizations: "id",
@@ -42,6 +44,7 @@ export class AppDB extends Dexie {
       dimensionAssessments: "id, [dimensionId+assessmentId]",
       users: "id, orgId",
       organizationDimensions: "id, organizationId, syncStatus",
+      cooperationUsers: "id, cooperationId, syncStatus",
     });
   }
 }
