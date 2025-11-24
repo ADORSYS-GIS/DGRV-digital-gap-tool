@@ -1,5 +1,4 @@
 import { OfflineEntity } from "@/types/sync/index";
-import { CreateDimensionRequest } from "@/openapi-client/types.gen";
 
 export interface IDimension extends OfflineEntity {
   name: string;
@@ -9,7 +8,10 @@ export interface IDimension extends OfflineEntity {
   is_active?: boolean | null;
 }
 
-export interface ICreateDimensionRequest extends CreateDimensionRequest {
+export interface ICreateDimensionRequest {
+  name: string;
+  description?: string | null;
+  weight?: number | null;
   id?: string; // Temporary ID for offline creation
 }
 
