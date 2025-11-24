@@ -38,6 +38,9 @@ export interface ISubmitDimensionAssessmentRequest {
   currentStateId: string;
   desiredStateId: string;
   gapScore: number;
+  organizationId: string;
+  cooperationId: string | null; // Can be null for org_admin users
+  userRoles?: string[];
   // The following are for offline storage and UI purposes
   currentLevel: number;
   desiredLevel: number;

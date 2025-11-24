@@ -1,31 +1,55 @@
-use crate::AppState;
+use crate::api::handlers::assessment::{
+    create_assessment, create_dimension_assessment, delete_assessment, delete_organization_assessment,
+    get_assessment, get_assessment_summary, list_assessments, list_assessments_by_cooperation,
+    list_assessments_by_organization, list_submissions_by_cooperation,
+    list_submissions_by_organization, update_assessment, update_dimension_assessment,
+};
 use axum::{
-    routing::{get, post, put},
+    routing::{delete, get, post, put},
     Router,
 };
 
-use crate::api::handlers::assessment::{
-    create_assessment, create_dimension_assessment, delete_assessment, get_assessment,
-    get_assessment_summary, list_assessments, update_assessment, update_dimension_assessment,
-};
+use crate::AppState;
 
-/// Create assessment routes
-pub fn create_assessment_routes() -> Router<AppState> {
+pub fn assessment_routes() -> Router<AppState> {
     Router::new()
-        // Assessment CRUD operations
-        .route("/", post(create_assessment))
-        .route("/", get(list_assessments))
-        .route("/:id", get(get_assessment))
-        .route("/:id", put(update_assessment))
-        .route("/:id", axum::routing::delete(delete_assessment))
-        .route("/:id/summary", get(get_assessment_summary))
-        // Dimension assessment operations
+        .route("/", post(create_assessment).get(list_assessments))
         .route(
-            "/:id/dimension-assessments",
+            "/:assessment_id",
+            get(get_assessment)
+                .put(update_assessment)
+                .delete(delete_assessment),
+        )
+        .route(
+            "/:assessment_id/summary",
+            get(get_assessment_summary),
+        )
+        .route(
+            "/:assessment_id/dimension-assessments",
             post(create_dimension_assessment),
         )
         .route(
-            "/:id/dimension-assessments/:dimension_assessment_id",
+            "/:assessment_id/dimension-assessments/:dimension_assessment_id",
             put(update_dimension_assessment),
+        )
+        .route(
+            "/organizations/:organization_id",
+            get(list_assessments_by_organization),
+        )
+        .route(
+            "/organizations/:organization_id/submissions",
+            get(list_submissions_by_organization),
+        )
+        .route(
+            "/organizations/:organization_id/:assessment_id",
+            delete(delete_organization_assessment),
+        )
+        .route(
+            "/cooperations/:cooperation_id",
+            get(list_assessments_by_cooperation),
+        )
+        .route(
+            "/cooperations/:cooperation_id/submissions",
+            get(list_submissions_by_cooperation),
         )
 }

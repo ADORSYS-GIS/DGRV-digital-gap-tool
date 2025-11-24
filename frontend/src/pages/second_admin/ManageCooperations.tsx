@@ -18,9 +18,15 @@ import { cooperationSyncService } from "@/services/sync/cooperationSyncService";
 const ManageCooperations: React.FC = () => {
   const organizationId = useOrganizationId();
   const { data: cooperations, isLoading, error } = useCooperations();
-  const { mutate: addCooperation } = useAddCooperation();
-  const { mutate: updateCooperation } = useUpdateCooperation();
-  const { mutate: deleteCooperation } = useDeleteCooperation();
+  const { mutate: addCooperation } = useAddCooperation(
+    organizationId || undefined,
+  );
+  const { mutate: updateCooperation } = useUpdateCooperation(
+    organizationId || undefined,
+  );
+  const { mutate: deleteCooperation } = useDeleteCooperation(
+    organizationId || undefined,
+  );
 
   useEffect(() => {
     if (organizationId) {

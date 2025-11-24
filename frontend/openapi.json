@@ -665,6 +665,145 @@
         }
       }
     },
+    "/assessments/cooperations/{cooperation_id}": {
+      "get": {
+        "tags": ["crate::api::handlers::assessment"],
+        "summary": "List assessments by cooperation",
+        "operationId": "list_assessments_by_cooperation",
+        "parameters": [
+          {
+            "name": "cooperation_id",
+            "in": "path",
+            "description": "Cooperation ID",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Assessments by cooperation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseAssessmentsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/assessments/cooperations/{cooperation_id}/submissions": {
+      "get": {
+        "tags": ["crate::api::handlers::assessment"],
+        "summary": "List submissions by cooperation",
+        "operationId": "list_submissions_by_cooperation",
+        "parameters": [
+          {
+            "name": "cooperation_id",
+            "in": "path",
+            "description": "Cooperation ID",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Submissions by cooperation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseAssessmentSummaryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/assessments/organizations/{organization_id}": {
+      "get": {
+        "tags": ["crate::api::handlers::assessment"],
+        "summary": "List assessments by organization",
+        "operationId": "list_assessments_by_organization",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "description": "Organization ID",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Assessments by organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseAssessmentsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/assessments/organizations/{organization_id}/submissions": {
+      "get": {
+        "tags": ["crate::api::handlers::assessment"],
+        "summary": "List submissions by organization",
+        "operationId": "list_submissions_by_organization",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "description": "Organization ID",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Submissions by organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseAssessmentSummaryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/assessments/organizations/{organization_id}/{assessment_id}": {
+      "delete": {
+        "tags": ["crate::api::handlers::assessment"],
+        "summary": "Delete an assessment for a specific organization",
+        "operationId": "delete_organization_assessment",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "description": "Organization ID",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "assessment_id",
+            "in": "path",
+            "description": "Assessment ID",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Assessment deleted" },
+          "404": { "description": "Assessment not found" }
+        }
+      }
+    },
     "/assessments/{assessment_id}/dimension-assessments/{dimension_assessment_id}": {
       "put": {
         "tags": ["crate::api::handlers::assessment"],
@@ -2170,6 +2309,7 @@
                     "format": "date-time",
                     "nullable": true
                   },
+                  "cooperation_id": { "type": "string", "nullable": true },
                   "created_at": { "type": "string", "format": "date-time" },
                   "dimensions_id": { "nullable": true },
                   "document_title": { "type": "string" },
@@ -2231,6 +2371,34 @@
                     "type": "integer",
                     "format": "int32",
                     "minimum": 0
+                  }
+                }
+              }
+            ],
+            "nullable": true
+          },
+          "error": { "type": "string", "nullable": true },
+          "message": { "type": "string", "nullable": true },
+          "success": { "type": "boolean" }
+        }
+      },
+      "ApiResponseAssessmentsResponse": {
+        "type": "object",
+        "description": "Standard API response wrapper",
+        "required": ["success"],
+        "properties": {
+          "data": {
+            "allOf": [
+              {
+                "type": "object",
+                "description": "A list of assessments",
+                "required": ["assessments"],
+                "properties": {
+                  "assessments": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/AssessmentResponse"
+                    }
                   }
                 }
               }
@@ -2368,11 +2536,13 @@
                   "desired_state_id",
                   "gap_score",
                   "gap_id",
+                  "organization_id",
                   "created_at",
                   "updated_at"
                 ],
                 "properties": {
                   "assessment_id": { "type": "string", "format": "uuid" },
+                  "cooperation_id": { "type": "string", "nullable": true },
                   "created_at": { "type": "string", "format": "date-time" },
                   "current_state_id": { "type": "string", "format": "uuid" },
                   "desired_state_id": { "type": "string", "format": "uuid" },
@@ -2383,7 +2553,36 @@
                   "dimension_id": { "type": "string", "format": "uuid" },
                   "gap_id": { "type": "string", "format": "uuid" },
                   "gap_score": { "type": "integer", "format": "int32" },
+                  "organization_id": { "type": "string" },
                   "updated_at": { "type": "string", "format": "date-time" }
+                }
+              }
+            ],
+            "nullable": true
+          },
+          "error": { "type": "string", "nullable": true },
+          "message": { "type": "string", "nullable": true },
+          "success": { "type": "boolean" }
+        }
+      },
+      "ApiResponseDimensionAssessmentsResponse": {
+        "type": "object",
+        "description": "Standard API response wrapper",
+        "required": ["success"],
+        "properties": {
+          "data": {
+            "allOf": [
+              {
+                "type": "object",
+                "description": "A list of dimension assessments",
+                "required": ["dimension_assessments"],
+                "properties": {
+                  "dimension_assessments": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/DimensionAssessmentResponse"
+                    }
+                  }
                 }
               }
             ],
@@ -2674,6 +2873,10 @@
                         "completed_at": {
                           "type": "string",
                           "format": "date-time",
+                          "nullable": true
+                        },
+                        "cooperation_id": {
+                          "type": "string",
                           "nullable": true
                         },
                         "created_at": {
@@ -3333,6 +3536,7 @@
             "format": "date-time",
             "nullable": true
           },
+          "cooperation_id": { "type": "string", "nullable": true },
           "created_at": { "type": "string", "format": "date-time" },
           "dimensions_id": { "nullable": true },
           "document_title": { "type": "string" },
@@ -3381,6 +3585,17 @@
           }
         }
       },
+      "AssessmentsResponse": {
+        "type": "object",
+        "description": "A list of assessments",
+        "required": ["assessments"],
+        "properties": {
+          "assessments": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/AssessmentResponse" }
+          }
+        }
+      },
       "AssignDimensionRequest": {
         "type": "object",
         "required": ["dimension_ids"],
@@ -3397,6 +3612,7 @@
         "required": ["organization_id", "assessment_name", "dimensions_id"],
         "properties": {
           "assessment_name": { "type": "string" },
+          "cooperation_id": { "type": "string", "nullable": true },
           "dimensions_id": { "type": "array", "items": { "type": "string" } },
           "organization_id": { "type": "string" }
         }
@@ -3428,13 +3644,16 @@
           "dimension_id",
           "current_state_id",
           "desired_state_id",
-          "gap_score"
+          "gap_score",
+          "organization_id"
         ],
         "properties": {
+          "cooperation_id": { "type": "string", "nullable": true },
           "current_state_id": { "type": "string", "format": "uuid" },
           "desired_state_id": { "type": "string", "format": "uuid" },
           "dimension_id": { "type": "string", "format": "uuid" },
-          "gap_score": { "type": "integer", "format": "int32" }
+          "gap_score": { "type": "integer", "format": "int32" },
+          "organization_id": { "type": "string" }
         }
       },
       "CreateDimensionRequest": {
@@ -3563,11 +3782,13 @@
           "desired_state_id",
           "gap_score",
           "gap_id",
+          "organization_id",
           "created_at",
           "updated_at"
         ],
         "properties": {
           "assessment_id": { "type": "string", "format": "uuid" },
+          "cooperation_id": { "type": "string", "nullable": true },
           "created_at": { "type": "string", "format": "date-time" },
           "current_state_id": { "type": "string", "format": "uuid" },
           "desired_state_id": { "type": "string", "format": "uuid" },
@@ -3575,7 +3796,21 @@
           "dimension_id": { "type": "string", "format": "uuid" },
           "gap_id": { "type": "string", "format": "uuid" },
           "gap_score": { "type": "integer", "format": "int32" },
+          "organization_id": { "type": "string" },
           "updated_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "DimensionAssessmentsResponse": {
+        "type": "object",
+        "description": "A list of dimension assessments",
+        "required": ["dimension_assessments"],
+        "properties": {
+          "dimension_assessments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DimensionAssessmentResponse"
+            }
+          }
         }
       },
       "DimensionListResponse": {
@@ -3907,6 +4142,7 @@
                   "format": "date-time",
                   "nullable": true
                 },
+                "cooperation_id": { "type": "string", "nullable": true },
                 "created_at": { "type": "string", "format": "date-time" },
                 "dimensions_id": { "nullable": true },
                 "document_title": { "type": "string" },

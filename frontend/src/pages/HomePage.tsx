@@ -34,20 +34,35 @@ export const HomePage: React.FC = () => {
     if (loading) return;
     if (!isAuthenticated) return;
 
+    console.log("User object:", user);
+    console.log("User roles:", user?.roles);
+    console.log("Realm access:", user?.realm_access);
+
     const hasCompletedOnboarding = localStorage.getItem(
       `onboarding_completed_${user?.sub}`,
     );
-    const roles = (user?.roles || user?.realm_access?.roles || []).map((r) =>
-      r.toLowerCase(),
-    );
-    const isAdmin = roles.includes(ROLES.ADMIN);
-    const isOrgUser = roles.includes(ROLES.Org_User.toLowerCase());
+    const roles = (user?.roles || user?.realm_access?.roles || [])
+      .filter(Boolean)
+      .map((r) => r?.toLowerCase?.() || "");
+
+    console.log("Processed roles:", roles);
+
+    const isAdmin = roles.includes(ROLES.ADMIN.toLowerCase());
+    const isOrgAdmin = roles.includes(ROLES.ORG_ADMIN.toLowerCase());
 
     if (window.location.pathname === "/") {
       if (hasCompletedOnboarding) {
-        if (isAdmin) navigate("/admin/dashboard", { replace: true });
-        else if (isOrgUser) navigate("/dashboard", { replace: true });
+        if (isAdmin) {
+          console.log("Redirecting to admin dashboard");
+          navigate("/admin/dashboard", { replace: true });
+        } else if (isOrgAdmin) {
+          console.log("Redirecting to user dashboard");
+          navigate("/dashboard", { replace: true });
+        } else {
+          console.log("No matching role found, showing home page");
+        }
       } else {
+        console.log("Redirecting to onboarding");
         navigate("/onboarding", { replace: true });
       }
     }
@@ -66,13 +81,18 @@ export const HomePage: React.FC = () => {
     const hasCompletedOnboarding = localStorage.getItem(
       `onboarding_completed_${user?.sub}`,
     );
-    const roles = (user?.roles || user?.realm_access?.roles || []).map((r) =>
-      r.toLowerCase(),
-    );
+    const roles = (user?.roles || user?.realm_access?.roles || [])
+      .filter(Boolean)
+      .map((r) => r?.toLowerCase?.() || "");
+
+    console.log("Processed roles in handleGetStarted:", roles);
+
     if (hasCompletedOnboarding) {
-      if (roles.includes(ROLES.ADMIN)) navigate("/admin/dashboard");
-      else if (roles.includes(ROLES.Org_User.toLowerCase()))
+      if (roles.includes(ROLES.ADMIN.toLowerCase())) {
+        navigate("/admin/dashboard");
+      } else if (roles.includes(ROLES.ORG_ADMIN.toLowerCase())) {
         navigate("/dashboard");
+      }
     } else {
       navigate("/onboarding");
     }

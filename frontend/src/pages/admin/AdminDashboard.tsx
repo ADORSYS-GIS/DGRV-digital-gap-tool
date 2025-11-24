@@ -18,7 +18,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useAuth } from "@/hooks/shared/useAuth";
-import { useSubmissions } from "@/hooks/submissions/useSubmissions";
 import { Building2, FileText, History, Settings, Users } from "lucide-react";
 import React from "react";
 import { Link } from "react-router-dom";
@@ -26,14 +25,29 @@ import { useDimensions } from "@/hooks/dimensions/useDimensions";
 import { useAssessments } from "@/hooks/assessments/useAssessments";
 import { useOrganizations } from "@/hooks/organizations/useOrganizations";
 import { useAllOrganizationMembers } from "@/hooks/users/useAllOrganizationMembers";
+import { useOrganizationId } from "@/hooks/organizations/useOrganizationId";
+import { useSubmissionsByOrganization } from "@/hooks/submissions/useSubmissionsByOrganization";
 
 const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
-  const { data: submissions, isLoading, error } = useSubmissions();
+  const organizationId = useOrganizationId();
+  const {
+    data: submissions = [],
+    isLoading,
+    error,
+  } = useSubmissionsByOrganization(organizationId || "", {
+    enabled: !!organizationId,
+    refetchOnMount: true,
+    refetchOnWindowFocus: false,
+  });
   const { data: dimensions } = useDimensions();
   const { data: assessments } = useAssessments();
   const { data: organizations } = useOrganizations();
   const { data: allMembers } = useAllOrganizationMembers();
+
+  // Log for debugging
+  console.log("Organization ID:", organizationId);
+  console.log("Submissions:", submissions);
 
   const activeUsers =
     allMembers?.filter((member) => member.enabled).length || 0;

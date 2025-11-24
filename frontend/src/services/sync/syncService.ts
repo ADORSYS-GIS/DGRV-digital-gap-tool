@@ -23,6 +23,7 @@ import {
   inviteUserToOrganization,
 } from "@/openapi-client/services.gen";
 import { assessmentRepository } from "@/services/assessments/assessmentRepository";
+import { authService } from "@/services/shared/authService";
 import { db } from "@/services/db";
 import { digitalisationGapRepository } from "@/services/digitalisationGaps/digitalisationGapRepository";
 import { digitalisationLevelRepository } from "@/services/digitalisationLevels/digitalisationLevelRepository";
@@ -77,7 +78,10 @@ export const syncService = {
   async processSyncQueue() {
     const items = await db.sync_queue.toArray();
     if (navigator.onLine) {
-      await cooperationSyncService.sync();
+      const organizationId = authService.getOrganizationId();
+      if (organizationId) {
+        await cooperationSyncService.sync(organizationId);
+      }
     }
     for (const item of items) {
       try {
@@ -429,7 +433,8 @@ export const syncService = {
           requestBody: {
             assessment_name: assessmentData.name,
             dimensions_id: assessmentData.dimensionIds || [],
-            organization_id: "123", // Replace with actual organization ID
+            organization_id: assessmentData.organization_id,
+            cooperation_id: assessmentData.cooperation_id || "",
           },
         });
         if (response.data) {

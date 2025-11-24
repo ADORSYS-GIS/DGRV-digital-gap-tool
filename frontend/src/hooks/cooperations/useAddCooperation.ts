@@ -2,12 +2,12 @@ import { cooperationRepository } from "@/services/cooperations/cooperationReposi
 import { Cooperation } from "@/types/cooperation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-export const useAddCooperation = () => {
+export const useAddCooperation = (organizationId?: string) => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (cooperation: Omit<Cooperation, "id" | "syncStatus">) =>
-      cooperationRepository.add(cooperation),
+      cooperationRepository.add(cooperation, organizationId),
     onMutate: async (newCooperation) => {
       await queryClient.cancelQueries({ queryKey: ["cooperations"] });
       const previousCooperations = queryClient.getQueryData<Cooperation[]>([

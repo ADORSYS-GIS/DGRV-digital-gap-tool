@@ -11,6 +11,7 @@ interface CustomKeycloakTokenParsed extends KeycloakTokenParsed {
       displayName?: string[];
     };
   };
+  cooperation?: string[];
 }
 
 /**
@@ -213,6 +214,20 @@ export const authService = {
       await del("auth_tokens");
     } catch (error) {
       console.error("Failed to clear stored tokens:", error);
+    }
+  },
+
+  /**
+   * Get cooperation path from ID token
+   */
+  getCooperationPath(): string | null {
+    try {
+      if (!keycloak.tokenParsed) return null;
+      const token = keycloak.tokenParsed as CustomKeycloakTokenParsed;
+      return token.cooperation?.[0] || null;
+    } catch (error) {
+      console.error("Error getting cooperation path from token:", error);
+      return null;
     }
   },
 

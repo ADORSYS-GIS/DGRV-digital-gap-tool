@@ -1,8 +1,5 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -19,16 +16,27 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useAddAssessment } from "@/hooks/assessments/useAddAssessment";
+import { useCooperations } from "@/hooks/cooperations/useCooperations";
 import { useDimensions } from "@/hooks/dimensions/useDimensions";
 import { useOrganizationDimensions } from "@/hooks/organization_dimensions/useOrganizationDimensions";
-import { authService } from "@/services/shared/authService";
+import { useOrganizationId } from "@/hooks/organizations/useOrganizationId";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
 import { LoadingSpinner } from "../../shared/LoadingSpinner";
 
 const formSchema = z.object({
   name: z.string().min(1, "Assessment name is required"),
   dimensionIds: z.array(z.string()).min(1, "Select at least one dimension"),
+  cooperationId: z.string().min(1, "Please select a cooperation"),
 });
 
 type AddAssessmentFormValues = z.infer<typeof formSchema>;
@@ -39,20 +47,15 @@ interface AddAssessmentFormProps {
 }
 
 export function AddAssessmentForm({ isOpen, onClose }: AddAssessmentFormProps) {
-  const [organizationId, setOrganizationId] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (isOpen) {
-      const id = authService.getOrganizationId();
-      setOrganizationId(id);
-    }
-  }, [isOpen]);
+  const organizationId = useOrganizationId();
 
   const { data: allDimensions, isLoading: isLoadingDimensions } =
     useDimensions();
   const { data: assignedDimensionIds, isLoading: isLoadingAssigned } =
     useOrganizationDimensions(organizationId || "");
 
+  const { data: cooperations, isLoading: isLoadingCooperations } =
+    useCooperations();
   const { mutate: addAssessment, isPending: isAdding } = useAddAssessment();
 
   const assignedDimensions =
@@ -63,14 +66,18 @@ export function AddAssessmentForm({ isOpen, onClose }: AddAssessmentFormProps) {
     defaultValues: {
       name: "",
       dimensionIds: [],
+      cooperationId: "",
     },
   });
 
   const onSubmit = (values: AddAssessmentFormValues) => {
+    if (!organizationId) return;
     addAssessment(
       {
-        name: values.name,
-        dimensionIds: values.dimensionIds,
+        assessment_name: values.name,
+        dimensions_id: values.dimensionIds,
+        cooperation_id: values.cooperationId,
+        organization_id: organizationId,
       },
       {
         onSuccess: () => {
@@ -98,6 +105,34 @@ export function AddAssessmentForm({ isOpen, onClose }: AddAssessmentFormProps) {
                   <FormControl>
                     <Input placeholder="e.g., Q4 Security Review" {...field} />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="cooperationId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Cooperation</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                    disabled={isLoadingCooperations}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a cooperation" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {cooperations?.map((cooperation) => (
+                        <SelectItem key={cooperation.id} value={cooperation.id}>
+                          {cooperation.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}

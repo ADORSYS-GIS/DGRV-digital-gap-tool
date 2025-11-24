@@ -34,6 +34,26 @@ pub fn create_api_routes(_app_state: AppState) -> Router<AppState> {
             "/assessments/:assessment_id/dimension-assessments/:dimension_assessment_id",
             put(update_dimension_assessment),
         )
+        .route(
+            "/assessments/organizations/:organization_id",
+            get(list_assessments_by_organization),
+        )
+        .route(
+            "/assessments/organizations/:organization_id/:assessment_id",
+            delete(delete_organization_assessment),
+        )
+        .route(
+            "/assessments/cooperations/:cooperation_id",
+            get(list_assessments_by_cooperation),
+        )
+        .route(
+            "/assessments/organizations/:organization_id/submissions",
+            get(list_submissions_by_organization),
+        )
+        .route(
+            "/assessments/cooperations/:cooperation_id/submissions",
+            get(list_submissions_by_cooperation),
+        )
         // Dimension routes
         .route("/dimensions", post(create_dimension))
         .route("/dimensions", get(list_dimensions))
