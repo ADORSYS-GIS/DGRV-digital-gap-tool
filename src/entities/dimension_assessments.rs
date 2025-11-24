@@ -12,6 +12,8 @@ pub struct Model {
     pub desired_state_id: Uuid,
     pub gap_score: i32,
     pub gap_id: Uuid,
+    pub organization_id: String,
+    pub cooperation_id: Option<String>,
     pub created_at: DateTimeUtc,
     pub updated_at: DateTimeUtc,
 }

@@ -12,39 +12,64 @@ export const cooperationRepository = {
     return await db.cooperations.get(id);
   },
 
-  async add(cooperation: Omit<Cooperation, "id" | "syncStatus">) {
+  async add(
+    cooperation: Omit<Cooperation, "id" | "syncStatus">,
+    organizationId?: string,
+  ) {
     const newCooperation: Cooperation = {
       ...cooperation,
       id: uuidv4(),
       syncStatus: "new",
     };
     await db.cooperations.add(newCooperation);
-    cooperationSyncService.sync();
+    if (organizationId) {
+      await cooperationSyncService.sync(organizationId);
+    } else {
+      console.warn("Organization ID not provided, cooperation sync may fail");
+      await cooperationSyncService.sync("");
+    }
     return newCooperation;
   },
 
   async update(
     id: string,
     updates: Partial<Omit<Cooperation, "id" | "syncStatus">>,
-  ) {
+    organizationId?: string,
+  ): Promise<Cooperation | undefined> {
     const cooperation = await db.cooperations.get(id);
-    if (cooperation) {
-      const updatedCooperation = {
-        ...cooperation,
-        ...updates,
-        syncStatus: "updated" as const,
-      };
-      await db.cooperations.put(updatedCooperation);
-      cooperationSyncService.sync();
-      return updatedCooperation;
+    if (!cooperation) {
+      console.warn(`Cooperation with ID ${id} not found`);
+      return undefined;
     }
+
+    const updatedCooperation = {
+      ...cooperation,
+      ...updates,
+      syncStatus: "updated" as const,
+    };
+
+    await db.cooperations.put(updatedCooperation);
+
+    if (organizationId) {
+      await cooperationSyncService.sync(organizationId);
+    } else {
+      console.warn("Organization ID not provided, cooperation sync may fail");
+      await cooperationSyncService.sync("");
+    }
+
+    return updatedCooperation;
   },
 
-  async delete(id: string) {
+  async delete(id: string, organizationId?: string) {
     const cooperation = await db.cooperations.get(id);
     if (cooperation) {
       await db.cooperations.update(id, { syncStatus: "deleted" });
-      cooperationSyncService.sync();
+      if (organizationId) {
+        await cooperationSyncService.sync(organizationId);
+      } else {
+        console.warn("Organization ID not provided, cooperation sync may fail");
+        await cooperationSyncService.sync("");
+      }
     }
   },
 };

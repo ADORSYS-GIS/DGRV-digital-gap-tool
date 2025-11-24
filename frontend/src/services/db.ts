@@ -13,6 +13,7 @@ import { IRecommendation } from "@/types/recommendation";
 import { KeycloakUser } from "@/types/user";
 import { OrganizationDimension } from "@/types/organizationDimension";
 import { CooperationUser } from "@/types/cooperationUser";
+import { IDigitalisationLevel } from "@/types/digitalisationLevel";
 
 export class AppDB extends Dexie {
   users!: Table<KeycloakUser, string>;
@@ -23,6 +24,7 @@ export class AppDB extends Dexie {
   cooperations!: Table<Cooperation, string>;
   cooperationUsers!: Table<CooperationUser, string>;
   digitalisationGaps!: Table<IDigitalisationGap, string>;
+  digitalisationLevels!: Table<IDigitalisationLevel, string>;
   action_plans!: Table<ActionPlan, string>;
   sync_queue!: Table<SyncQueueItem, number>;
   dimensions!: Table<IDimension, string>;
@@ -31,8 +33,8 @@ export class AppDB extends Dexie {
 
   constructor() {
     super("AppDB");
-    this.version(4).stores({
-      assessments: "id",
+    this.version(6).stores({
+      assessments: "id, organization_id, cooperation_id",
       submissions: "id",
       organizations: "id",
       cooperations: "id, syncStatus",
@@ -45,6 +47,7 @@ export class AppDB extends Dexie {
       users: "id, orgId",
       organizationDimensions: "id, organizationId, syncStatus",
       cooperationUsers: "id, cooperationId, syncStatus",
+      digitalisationLevels: "id, dimensionId, [dimensionId+levelType]",
     });
   }
 }

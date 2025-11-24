@@ -1,16 +1,16 @@
 import {
-  getDimensionWithStates as getDimensionWithStatesApi,
-  createDimensionAssessment as createDimensionAssessmentApi,
-  updateDimensionAssessment as updateDimensionAssessmentApi,
-} from "../../openapi-client/services.gen";
-import {
-  IDimensionWithStates,
-  ISubmitDimensionAssessmentRequest,
   IDimensionAssessment,
   IDimensionState,
+  IDimensionWithStates,
+  ISubmitDimensionAssessmentRequest,
 } from "@/types/dimension";
 import { SyncStatus } from "@/types/sync";
 import { v4 as uuidv4 } from "uuid";
+import {
+  createDimensionAssessment as createDimensionAssessmentApi,
+  getDimensionWithStates as getDimensionWithStatesApi,
+  updateDimensionAssessment as updateDimensionAssessmentApi,
+} from "../../openapi-client/services.gen";
 import { db } from "../db";
 import { syncService } from "../sync/syncService";
 
@@ -274,6 +274,9 @@ export const dimensionAssessmentRepository = {
     if (!payload.assessmentId) {
       throw new Error("Assessment ID is required");
     }
+    if (!payload.organizationId) {
+      throw new Error("Organization ID is required");
+    }
 
     // Check if an assessment already exists for this dimension and assessment
     const existingAssessment =
@@ -288,6 +291,24 @@ export const dimensionAssessmentRepository = {
         existingAssessment.id,
         payload,
       );
+    }
+
+    const requestBody: {
+      dimension_id: string;
+      current_state_id: string;
+      desired_state_id: string;
+      gap_score: number;
+      organization_id: string;
+      cooperation_id?: string;
+    } = {
+      dimension_id: payload.dimensionId,
+      current_state_id: payload.currentStateId,
+      desired_state_id: payload.desiredStateId,
+      gap_score: payload.gapScore,
+      organization_id: payload.organizationId,
+    };
+    if (payload.cooperationId) {
+      requestBody.cooperation_id = payload.cooperationId;
     }
 
     const newAssessment: IDimensionAssessment = {
@@ -334,6 +355,8 @@ export const dimensionAssessmentRepository = {
           current_state_id: payload.currentStateId,
           desired_state_id: payload.desiredStateId,
           gap_score: payload.gapScore,
+          organization_id: payload.organizationId,
+          cooperation_id: payload.cooperationId,
         },
       );
 
@@ -342,12 +365,7 @@ export const dimensionAssessmentRepository = {
         try {
           const response = await createDimensionAssessmentApi({
             id: payload.assessmentId,
-            requestBody: {
-              dimension_id: payload.dimensionId,
-              current_state_id: payload.currentStateId,
-              desired_state_id: payload.desiredStateId,
-              gap_score: payload.gapScore,
-            },
+            requestBody,
           });
 
           if (response.data) {

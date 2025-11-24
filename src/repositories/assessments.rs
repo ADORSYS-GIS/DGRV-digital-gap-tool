@@ -73,13 +73,63 @@ impl AssessmentsRepository {
         Ok(result.rows_affected > 0)
     }
 
-    pub async fn find_by_organization(
+    pub async fn delete_by_organization_and_id(
         db: &DbConn,
-        organization_id: &str,
+        organization_id: String,
+        assessment_id: Uuid,
+    ) -> Result<bool, AppError> {
+        let result = Assessments::delete_many()
+            .filter(assessments::Column::OrganizationId.eq(organization_id))
+            .filter(assessments::Column::AssessmentId.eq(assessment_id))
+            .exec(db)
+            .await
+            .map_err(AppError::from)?;
+
+        Ok(result.rows_affected > 0)
+    }
+ 
+    pub async fn find_by_organization_id(
+        db: &DbConn,
+        organization_id: String,
     ) -> Result<Vec<assessments::Model>, AppError> {
         Assessments::find()
             .filter(assessments::Column::OrganizationId.eq(organization_id))
             .all(db)
+            .await
+            .map_err(AppError::from)
+    }
+
+    pub async fn find_latest_by_organization_id(
+        db: &DbConn,
+        organization_id: String,
+    ) -> Result<Option<assessments::Model>, AppError> {
+        Assessments::find()
+            .filter(assessments::Column::OrganizationId.eq(organization_id))
+            .order_by_desc(assessments::Column::CreatedAt)
+            .one(db)
+            .await
+            .map_err(AppError::from)
+    }
+ 
+    pub async fn find_by_cooperation_id(
+        db: &DbConn,
+        cooperation_id: String,
+    ) -> Result<Vec<assessments::Model>, AppError> {
+        Assessments::find()
+            .filter(assessments::Column::CooperationId.eq(cooperation_id))
+            .all(db)
+            .await
+            .map_err(AppError::from)
+    }
+
+    pub async fn find_latest_by_cooperation_id(
+        db: &DbConn,
+        cooperation_id: String,
+    ) -> Result<Option<assessments::Model>, AppError> {
+        Assessments::find()
+            .filter(assessments::Column::CooperationId.eq(cooperation_id))
+            .order_by_desc(assessments::Column::CreatedAt)
+            .one(db)
             .await
             .map_err(AppError::from)
     }

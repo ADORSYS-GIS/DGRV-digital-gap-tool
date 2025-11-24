@@ -1,6 +1,9 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { calculateGapScore } from "@/utils/gapCalculation";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useAuth } from "@/hooks/shared/useAuth";
+import { useOrganizationId } from "@/hooks/organizations/useOrganizationId";
+import { useCooperationId } from "@/hooks/cooperations/useCooperationId";
 // Core React and routing
 // Material-UI components
 import { DimensionAssessmentAnswer } from "@/components/assessment/answering/DimensionAssessmentAnswer";
@@ -49,6 +52,12 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
+  // Get user info and IDs
+  const { user } = useAuth();
+  const organizationId = useOrganizationId();
+  const cooperationId = useCooperationId() || null; // Ensure null instead of undefined
+  const userRoles = user?.roles || [];
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showResult, setShowResult] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -75,10 +84,6 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
   };
 
   const { data: assessment } = useAssessment(assessmentId || "");
-
-  const dimensionStates = useMemo<IDimensionState[]>(() => {
-    return dimension?.states || [];
-  }, [dimension]);
 
   const isLastDimension = useMemo(() => {
     if (assessment?.dimensionIds && dimensionId) {
@@ -143,6 +148,10 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
           desiredLevelDescription: desiredState.description,
         });
 
+        if (!organizationId) {
+          throw new Error("Organization ID is required");
+        }
+
         const payload = {
           assessmentId,
           dimensionId,
@@ -151,6 +160,9 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
           gapScore: calculateGapScore(currentLevel, desiredLevel),
           currentLevel,
           desiredLevel,
+          organizationId,
+          cooperationId,
+          userRoles,
         };
 
         await submitAssessment(payload, {
@@ -166,7 +178,15 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
         throw error; // Re-throw to allow the form to handle the error
       }
     },
-    [assessmentId, dimensionId, submitAssessment, dimension],
+    [
+      assessmentId,
+      dimensionId,
+      submitAssessment,
+      dimension,
+      organizationId,
+      cooperationId,
+      userRoles,
+    ],
   );
 
   const handleEdit = useCallback(() => {

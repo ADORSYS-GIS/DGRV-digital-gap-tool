@@ -11,6 +11,7 @@ pub struct CreateAssessmentRequest {
     pub organization_id: String,
     pub assessment_name: String,
     pub dimensions_id: Vec<String>,
+    pub cooperation_id: Option<String>,
 }
 
 /// Assessment update request
@@ -28,6 +29,7 @@ pub struct UpdateAssessmentRequest {
 pub struct AssessmentResponse {
     pub assessment_id: Uuid,
     pub organization_id: String,
+    pub cooperation_id: Option<String>,
     pub document_title: String,
     pub status: AssessmentStatus,
     pub started_at: Option<DateTime<Utc>>,
@@ -78,6 +80,8 @@ pub struct CreateDimensionAssessmentRequest {
     pub current_state_id: Uuid,
     pub desired_state_id: Uuid,
     pub gap_score: i32,
+    pub organization_id: String,
+    pub cooperation_id: Option<String>,
 }
 
 /// Dimension assessment update request
@@ -97,6 +101,8 @@ pub struct DimensionAssessmentResponse {
     pub desired_state_id: Uuid,
     pub gap_score: i32,
     pub gap_id: Uuid,
+    pub organization_id: String,
+    pub cooperation_id: Option<String>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
@@ -119,4 +125,17 @@ pub struct AssessmentListResponse {
     pub page: u32,
     pub limit: u32,
     pub total_pages: u32,
+}
+
+
+/// A list of assessments
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+pub struct AssessmentsResponse {
+    pub assessments: Vec<AssessmentResponse>,
+}
+
+/// A list of dimension assessments
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+pub struct DimensionAssessmentsResponse {
+    pub dimension_assessments: Vec<DimensionAssessmentResponse>,
 }

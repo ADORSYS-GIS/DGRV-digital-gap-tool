@@ -77,6 +77,12 @@ impl DimensionAssessmentsRepository {
         if assessment_data.gap_id.is_set() {
             active_model.gap_id = assessment_data.gap_id;
         }
+        if assessment_data.organization_id.is_set() {
+            active_model.organization_id = assessment_data.organization_id;
+        }
+        if assessment_data.cooperation_id.is_set() {
+            active_model.cooperation_id = assessment_data.cooperation_id;
+        }
 
         active_model.updated_at = Set(chrono::Utc::now());
 
@@ -90,5 +96,27 @@ impl DimensionAssessmentsRepository {
             .map_err(AppError::from)?;
 
         Ok(result.rows_affected > 0)
+    }
+
+    pub async fn find_by_organization_id(
+        db: &DbConn,
+        organization_id: String,
+    ) -> Result<Vec<dimension_assessments::Model>, AppError> {
+        DimensionAssessments::find()
+            .filter(dimension_assessments::Column::OrganizationId.eq(organization_id))
+            .all(db)
+            .await
+            .map_err(AppError::from)
+    }
+
+    pub async fn find_by_cooperation_id(
+        db: &DbConn,
+        cooperation_id: String,
+    ) -> Result<Vec<dimension_assessments::Model>, AppError> {
+        DimensionAssessments::find()
+            .filter(dimension_assessments::Column::CooperationId.eq(cooperation_id))
+            .all(db)
+            .await
+            .map_err(AppError::from)
     }
 }

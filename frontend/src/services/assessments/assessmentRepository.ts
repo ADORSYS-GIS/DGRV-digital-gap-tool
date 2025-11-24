@@ -1,34 +1,15 @@
-import {
-  getAssessment,
-  listAssessments,
-} from "../../openapi-client/services.gen";
-import { Assessment } from "../../types/assessment";
+import { getAssessment } from "../../openapi-client/services.gen";
+import { AddAssessmentPayload, Assessment } from "../../types/assessment";
 import { SyncStatus } from "../../types/sync/index";
 import { v4 as uuidv4 } from "uuid";
 import { db } from "../db";
 import { syncService } from "../sync/syncService";
 
 export const assessmentRepository = {
+  // Note: getAll is no longer used as we now use role-based fetching
+  // through useAssessmentsByOrganization and useAssessmentsByCooperation
+  // This is kept as a fallback to return local data only
   getAll: async (): Promise<Assessment[]> => {
-    try {
-      if (navigator.onLine) {
-        const backendAssessments = await listAssessments({});
-        if (backendAssessments.data) {
-          await db.assessments.clear();
-          const syncedAssessments = backendAssessments.data.items.map((a) => ({
-            ...a,
-            id: a.assessment_id,
-            name: a.document_title,
-            dimensionIds: (a.dimensions_id as string[]) ?? [],
-            syncStatus: SyncStatus.SYNCED,
-            lastError: "",
-          }));
-          await db.assessments.bulkAdd(syncedAssessments);
-        }
-      }
-    } catch (error) {
-      console.error("Failed to sync all assessments from backend:", error);
-    }
     return db.assessments.toArray();
   },
   getById: async (id: string): Promise<Assessment | undefined> => {
@@ -55,13 +36,13 @@ export const assessmentRepository = {
     }
     return localAssessment;
   },
-  add: async (assessment: {
-    name: string;
-    dimensionIds: string[];
-  }): Promise<Assessment> => {
+  add: async (assessment: AddAssessmentPayload): Promise<Assessment> => {
     const newAssessment: Assessment = {
-      ...assessment,
       id: uuidv4(),
+      name: assessment.assessment_name,
+      dimensionIds: assessment.dimensions_id,
+      organization_id: assessment.organization_id,
+      cooperation_id: assessment.cooperation_id,
       syncStatus: SyncStatus.PENDING,
       created_at: new Date().toISOString(),
       status: "Draft",
@@ -114,4 +95,15 @@ export const assessmentRepository = {
       syncStatus: SyncStatus.FAILED,
       lastError: error,
     }),
+
+  deleteByOrganizationId: async (organizationId: string): Promise<void> => {
+    await db.assessments
+      .where("organization_id")
+      .equals(organizationId)
+      .delete();
+  },
+
+  deleteByCooperationId: async (cooperationId: string): Promise<void> => {
+    await db.assessments.where("cooperation_id").equals(cooperationId).delete();
+  },
 };

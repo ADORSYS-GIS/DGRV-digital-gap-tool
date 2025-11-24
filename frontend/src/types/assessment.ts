@@ -3,6 +3,8 @@ import { OfflineEntity } from "./sync";
 export interface Assessment extends OfflineEntity {
   name: string;
   dimensionIds?: string[];
+  organization_id: string;
+  cooperation_id?: string | null | undefined;
   created_at: string;
   status: string;
 }
@@ -10,6 +12,7 @@ export interface Assessment extends OfflineEntity {
 export interface AssessmentDetails {
   assessment_id: string;
   organization_id: string;
+  cooperation_id?: string | null; // Added cooperation_id as optional field
   document_title: string;
   status: string;
   started_at: string | null;
@@ -43,4 +46,11 @@ export interface AssessmentSummary
   extends OfflineEntity,
     AssessmentSummaryData {
   // id is from OfflineEntity and will be assessment.assessment_id
+}
+
+export interface AddAssessmentPayload {
+  assessment_name: string;
+  dimensions_id: string[];
+  organization_id: string;
+  cooperation_id: string;
 }

@@ -16,6 +16,8 @@ use uuid::Uuid;
     ApiResponseAssessmentSummaryResponse = ApiResponse<crate::api::dto::assessment::AssessmentSummaryResponse>,
     ApiResponsePaginatedAssessmentResponse = ApiResponse<PaginatedResponse<crate::api::dto::assessment::AssessmentResponse>>,
     ApiResponseDimensionAssessmentResponse = ApiResponse<crate::api::dto::assessment::DimensionAssessmentResponse>,
+    ApiResponseAssessmentsResponse = ApiResponse<crate::api::dto::assessment::AssessmentsResponse>,
+    ApiResponseDimensionAssessmentsResponse = ApiResponse<crate::api::dto::assessment::DimensionAssessmentsResponse>,
     ApiResponseDimensionResponse = ApiResponse<crate::api::dto::dimension::DimensionResponse>,
     ApiResponsePaginatedDimensionResponse = ApiResponse<PaginatedResponse<crate::api::dto::dimension::DimensionResponse>>,
     ApiResponseCurrentStateResponse = ApiResponse<crate::api::dto::dimension::CurrentStateResponse>,

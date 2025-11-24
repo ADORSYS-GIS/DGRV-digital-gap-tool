@@ -2,11 +2,12 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { cooperationRepository } from "@/services/cooperations/cooperationRepository";
 import { Cooperation } from "@/types/cooperation";
 
-export const useDeleteCooperation = () => {
+export const useDeleteCooperation = (organizationId?: string) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: string) => cooperationRepository.delete(id),
+    mutationFn: (id: string) =>
+      cooperationRepository.delete(id, organizationId),
     onMutate: async (id) => {
       await queryClient.cancelQueries({ queryKey: ["cooperations"] });
       const previousCooperations = queryClient.getQueryData<Cooperation[]>([
