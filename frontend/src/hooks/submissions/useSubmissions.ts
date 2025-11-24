@@ -1,9 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
-import { submissionRepository } from "@/services/assessments/submissionRepository";
+import { assessmentRepository } from "@/services/assessments/assessmentRepository";
 
-export const useSubmissions = () => {
+/**
+ * A simple wrapper hook that returns all submissions from the local database.
+ * For role-based filtering, use useSubmissionsByOrganization or useSubmissionsByCooperation.
+ */
+export const useSubmissions = (options?: { enabled?: boolean }) => {
   return useQuery({
     queryKey: ["submissions"],
-    queryFn: () => submissionRepository.getSubmissions(),
+    queryFn: () => assessmentRepository.getAll(),
+    enabled: options?.enabled !== false,
   });
 };

@@ -24,14 +24,28 @@ import {
 } from "lucide-react";
 import React from "react";
 import { Link } from "react-router-dom";
-import { useSubmissions } from "@/hooks/submissions/useSubmissions";
+import { useSubmissionsByCooperation } from "@/hooks/submissions/useSubmissionsByCooperation";
 import { SubmissionList } from "@/components/shared/submissions/SubmissionList";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { Button } from "@/components/ui/button";
+import { useCooperationId } from "@/hooks/cooperations/useCooperationId";
 
 const ThirdAdminDashboard: React.FC = () => {
   const { user } = useAuth();
-  const { data: submissions, isLoading, error } = useSubmissions();
+  const cooperationId = useCooperationId();
+  const {
+    data: submissions = [],
+    isLoading,
+    error,
+  } = useSubmissionsByCooperation(cooperationId || "", {
+    enabled: !!cooperationId,
+    refetchOnMount: true,
+    refetchOnWindowFocus: false,
+  });
+
+  // Log for debugging
+  console.log("Cooperation ID:", cooperationId);
+  console.log("Submissions:", submissions);
 
   return (
     <div className="space-y-8 p-4 sm:p-6 md:p-8">

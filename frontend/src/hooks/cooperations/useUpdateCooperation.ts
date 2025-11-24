@@ -2,12 +2,12 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { cooperationRepository } from "@/services/cooperations/cooperationRepository";
 import { Cooperation } from "@/types/cooperation";
 
-export const useUpdateCooperation = () => {
+export const useUpdateCooperation = (organizationId?: string) => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (cooperation: Cooperation) =>
-      cooperationRepository.update(cooperation.id, cooperation),
+      cooperationRepository.update(cooperation.id, cooperation, organizationId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["cooperations"] });
     },

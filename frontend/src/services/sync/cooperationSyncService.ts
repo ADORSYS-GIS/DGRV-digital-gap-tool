@@ -14,8 +14,9 @@ const mapRemoteCooperationToLocal = (
   id: cooperation.id,
   name: cooperation.name,
   description: cooperation.description || "",
+  path: cooperation.path,
   domains: [],
-  syncStatus: "synced",
+  syncStatus: "synced" as const,
 });
 
 export const cooperationSyncService = {
