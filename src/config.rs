@@ -36,7 +36,7 @@ struct ConfigEnv {
     )]
     database_url: String,
 
-    #[envconfig(from = "DGAT_PORT", default = "8080")]
+    #[envconfig(from = "DGAT_PORT", default = "3001")]
     port: u16,
 
     #[envconfig(from = "DGAT_KEYCLOAK_URL", default = "http://localhost:8080")]

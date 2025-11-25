@@ -1,47 +1,195 @@
-version: "3.9"
-
 services:
-  postgres:
-    image: postgres:15
-    container_name: dgat-postgres
+  #
+  # ─────────────────────────────── BACKEND ───────────────────────────────
+  #
+  backend:
+    build:
+      context: .
+      dockerfile: ./infrastructure/Dockerfile.backend
+    image: dgrv-digital-gap-tool-backend:latest
+    container_name: dgrv-digital-gap-tool-backend
+    command: ["/app/dgrv-digital-gap-tool"]
+    env_file: .env
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: dgat
-    ports:
-      - "5433:5432"
-    volumes:
-      - pg_data:/var/lib/postgresql/data
+      RUST_LOG: "debug,hyper=info,sea_orm=info"
+      DGAT_DATABASE_URL: "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}"
+      DGAT_PORT: 3001
+      DGAT_KEYCLOAK_URL: "http://keycloak:8080"
+      DGAT_KEYCLOAK_REALM: "digital-gap"
+      DGAT_KEYCLOAK_CLIENT_ID: "dgrv-client"
+      DGAT_KEYCLOAK_CLIENT_SECRET: "${DGAT_KEYCLOAK_CLIENT_SECRET}"
+      DGAT_JWT_SECRET: "${DGAT_JWT_SECRET}"
+      DGAT_KEYCLOAK_ADMIN_TOKEN: "${DGAT_KEYCLOAK_ADMIN_TOKEN}"
+      DGAT_MINIO_ENDPOINT: "minio:9000"
+      DGAT_MINIO_ACCESS_KEY: "${MINIO_ROOT_USER}"
+      DGAT_MINIO_SECRET_KEY: "${MINIO_ROOT_PASSWORD}"
+      DGAT_MINIO_BUCKET_NAME: "reports"
+      DGAT_MINIO_USE_SSL: "false"
+      CORS_ORIGIN: "${CORS_ORIGIN:-https://localhost}"
+    depends_on:
+      db:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+      minio:
+        condition: service_started
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d dgat"]
-      interval: 5s
-      timeout: 3s
-      retries: 20
-    restart: unless-stopped
-    networks:
-      - dgat-network
+      test: ["CMD-SHELL", "curl http://localhost:3001/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+    ports:
+      - "3001:3001"
+    networks: [dgrv-net]
 
-  # Uncomment this section to run your application in Docker
-  # app:
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile
-  #   container_name: dgat-backend
-  #   environment:
-  #     DGAT_DATABASE_URL: postgres://postgres:postgres@postgres:5432/dgat
-  #     DGAT_PORT: 8080
-  #   ports:
-  #     - "8080:8080"
-  #   depends_on:
-  #     postgres:
-  #       condition: service_healthy
-  #   restart: unless-stopped
-  #   networks:
-  #     - dgat-network
+  #
+  # ────────────────────────────── MINIO ──────────────────────────────
+  #
+  minio:
+    image: minio/minio:latest
+    container_name: dgrv-minio
+    environment:
+      MINIO_ROOT_USER: "${MINIO_ROOT_USER:-minioadmin}"
+      MINIO_ROOT_PASSWORD: "${MINIO_ROOT_PASSWORD:-minioadmin}"
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    networks: [dgrv-net]
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
+  #
+  # ────────────────────────────── POSTGRES ──────────────────────────────
+  #
+  db:
+    image: postgres:16-alpine
+    container_name: dgrv-db
+    environment:
+      POSTGRES_DB:       "${POSTGRES_DB:-dgat}"
+      POSTGRES_USER:     "${POSTGRES_USER:-postgres}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-postgres}"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+    ports:
+      - "5430:5432"
+    networks: [dgrv-net]
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+
+  #
+  # ────────────────────────────── KEYCLOAK ──────────────────────────────
+  #
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.3.1
+    container_name: dgrv-keycloak
+    environment:
+      KC_DB: "postgres"
+      KC_DB_URL_HOST: db
+      KC_DB_URL_PORT: 5432
+      KC_DB_URL_DATABASE: "${POSTGRES_DB:-dgat}"
+      KC_DB_USERNAME: "${POSTGRES_USER:-postgres}"
+      KC_DB_PASSWORD: "${POSTGRES_PASSWORD:-postgres}"
+      KEYCLOAK_ADMIN: "${KEYCLOAK_ADMIN:-admin}"
+      KEYCLOAK_ADMIN_PASSWORD: "${KEYCLOAK_ADMIN_PASSWORD:-admin123}"
+      KEYCLOAK_REALM: "dgrv-realm"
+      KEYCLOAK_FRONTEND_URL: "${KEYCLOAK_FRONTEND_URL:-https://localhost/keycloak}"
+      KEYCLOAK_SERVER: "${KEYCLOAK_SERVER:-https://localhost}"
+      KC_PROXY_HEADERS: "xforwarded"
+      KC_PROXY: "edge"
+      KC_FEATURES: "preview,organization"
+      KC_HOSTNAME: "${KC_HOSTNAME:-localhost}"
+      KC_HOSTNAME_URL: "${KC_HOSTNAME_URL:-https://localhost/keycloak}"
+      KC_HOSTNAME_PATH: "/keycloak"
+      KC_HOSTNAME_STRICT: "true"
+      KC_HOSTNAME_STRICT_HTTPS: "true"
+      KC_HTTP_ENABLED: "true"
+      KC_HTTPS_PORT: 8443
+      KC_URL: "${KC_URL:-localhost}"
+      SSL_CERT_PATH: "/etc/x509/https/nginx.crt"
+      SSL_KEY_PATH: "/etc/x509/https/nginx.key"
+      KC_SSL_TRUSTSTORE_FILE: "/opt/keycloak/conf/nginx-truststore.jks"
+      KC_SSL_TRUSTSTORE_PASSWORD: "changeit"
+
+      # SMTP Configuration
+      KC_SPI_EMAIL_DEFAULT_HOST: "${EMAIL_HOST:-smtp.gmail.com}"
+      KC_SPI_EMAIL_DEFAULT_PORT: "${EMAIL_PORT:-587}"
+      KC_SPI_EMAIL_DEFAULT_FROM: "${EMAIL_FROM:-noreply@dgrv.coop}"
+      KC_SPI_EMAIL_DEFAULT_FROM_DISPLAY_NAME: "${EMAIL_FROM_DISPLAY_NAME:-DGRV COOPERATION}"
+      KC_SPI_EMAIL_DEFAULT_USER: "${EMAIL_USER:-yemelechristian2@gmail.com}"
+      KC_SPI_EMAIL_DEFAULT_PASSWORD: "${EMAIL_PASSWORD:-verysecurepassword123!}"
+      KC_SPI_EMAIL_DEFAULT_SSL: "${EMAIL_SSL:-false}"
+      KC_SPI_EMAIL_DEFAULT_STARTTLS: "${EMAIL_STARTTLS:-true}"
+      KC_SPI_EMAIL_DEFAULT_AUTH: "${EMAIL_AUTH:-true}"
+
+      KEYCLOAK_START_CMD: "/opt/keycloak/bin/kc.sh start-dev --import-realm --spi-import-ignore-unknown=true --http-relative-path=/keycloak"
+    entrypoint: ["/bin/bash", "/keycloak-startup.sh"]
+    volumes:
+      - ./infrastructure/keycloak:/opt/keycloak/data/import:rw
+      - ./infrastructure/themes/theme-vaam-01.jar:/opt/keycloak/providers/theme-vaam-01.jar
+      - ./ssl/nginx.crt:/etc/x509/https/nginx.crt:ro
+      - ./ssl/nginx.key:/etc/x509/https/nginx.key:ro
+      - ./keycloak-startup.sh:/keycloak-startup.sh:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/ || exit 0"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 240s
+    ports:
+      - "8080:8080"
+    networks: [dgrv-net]
+
+  #
+  # ────────────────────────────── FRONTEND ──────────────────────────────
+  #
+  frontend:
+    build:
+      context: .
+      dockerfile: ./infrastructure/Dockerfile.frontend
+      args:
+        VITE_KEYCLOAK_URL: "${VITE_KEYCLOAK_URL:-http://localhost:8080/keycloak}"
+        VITE_KEYCLOAK_REALM: "${VITE_KEYCLOAK_REALM:-digital-gap}"
+        VITE_KEYCLOAK_CLIENT_ID: "${VITE_KEYCLOAK_CLIENT_ID:-dgat-client}"
+        VITE_API_BASE_URL: "${VITE_API_BASE_URL:-http://localhost:3001}"
+
+    image: dgrv-digital-gap-tool-frontend:latest
+    container_name: dgrv-digital-gap-tool-frontend
+    depends_on:
+      - backend
+      - keycloak
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f -k https://localhost/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 15s
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./ssl:/etc/nginx/ssl:ro
+    networks: [dgrv-net]
+
+# ────────────────────────────── VOLUMES / NETS ───────────────────────────
 volumes:
-  pg_data:
+  postgres-data:
+  minio-data:
 
 networks:
-  dgat-network:
+  dgrv-net:
     driver: bridge
