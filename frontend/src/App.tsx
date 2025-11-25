@@ -9,6 +9,7 @@
 import { useEffect } from "react";
 import AppRouter from "./router/AppRouter";
 import { ErrorBoundary } from "./components/shared/ErrorBoundary";
+import { AuthProvider } from "./context/AuthContext";
 import { syncService } from "./services/sync/syncService";
 
 const App = () => {
@@ -41,7 +42,9 @@ const App = () => {
 
   return (
     <ErrorBoundary>
-      <AppRouter />
+      <AuthProvider>
+        <AppRouter />
+      </AuthProvider>
     </ErrorBoundary>
   );
 };

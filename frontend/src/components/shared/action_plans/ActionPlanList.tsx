@@ -14,6 +14,7 @@ export function ActionPlanList({
   const assessmentMap = new Map(
     assessments.map((assessment) => [assessment.id, assessment.name]),
   );
+  const basePath = location.pathname.split("/").slice(0, 2).join("/");
 
   return (
     <div className="bg-white shadow overflow-hidden sm:rounded-md">
@@ -21,7 +22,7 @@ export function ActionPlanList({
         {actionPlans.map((plan) => (
           <li key={plan.action_plan_id}>
             <Link
-              to={`/second-admin/action-plans/${plan.assessment_id}`}
+              to={`${basePath}/action-plans/${plan.assessment_id}`}
               className="block hover:bg-gray-50"
             >
               <div className="px-4 py-4 sm:px-6">

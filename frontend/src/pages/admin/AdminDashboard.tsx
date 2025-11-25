@@ -17,7 +17,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useAuth } from "@/hooks/shared/useAuth";
+import { useAuth } from "@/context/AuthContext";
 import { Building2, FileText, History, Settings, Users } from "lucide-react";
 import React from "react";
 import { Link } from "react-router-dom";

@@ -89,7 +89,12 @@ const routes = [
   {
     path: "/onboarding",
     element: React.createElement(ProtectedRoute, {
-      allowedRoles: [ROLES.ADMIN, ROLES.Org_User],
+      allowedRoles: [
+        ROLES.ADMIN,
+        ROLES.ORG_ADMIN,
+        ROLES.COOP_ADMIN,
+        ROLES.COOP_USER,
+      ],
     }),
     children: [{ path: "", element: React.createElement(OnboardingFlow) }],
   },
@@ -143,7 +148,7 @@ const routes = [
   {
     path: "/second-admin",
     element: React.createElement(ProtectedRoute, {
-      allowedRoles: [ROLES.ADMIN],
+      allowedRoles: [ROLES.ORG_ADMIN],
       children: React.createElement(SecondAdminLayout),
     }),
     children: [
@@ -196,7 +201,7 @@ const routes = [
   {
     path: "/third-admin",
     element: React.createElement(ProtectedRoute, {
-      allowedRoles: [ROLES.ADMIN],
+      allowedRoles: [ROLES.COOP_ADMIN],
       children: React.createElement(ThirdAdminLayout),
     }),
     children: [
@@ -245,7 +250,7 @@ const routes = [
     children: [
       {
         element: React.createElement(ProtectedRoute, {
-          allowedRoles: [ROLES.ADMIN, ROLES.Org_User],
+          allowedRoles: [ROLES.COOP_USER],
         }),
         children: [
           { path: "dashboard", element: React.createElement(Dashboard) },

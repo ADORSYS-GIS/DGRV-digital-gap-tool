@@ -73,6 +73,26 @@ pub async fn invite_user_to_organization(
             })?
     };
 
+    // Assign roles
+    app_state.keycloak_service
+        .assign_realm_role_to_user(&token, &user.id, "org_admin")
+        .await?;
+
+    let client_roles = vec![
+        "view-users",
+        "query-users",
+        "manage-users",
+        "manage-organizations",
+        "manage-clients",
+        "manage-realm",
+    ];
+
+    for role in client_roles {
+        app_state.keycloak_service
+            .assign_client_role_to_user(&token, &user.id, role)
+            .await?;
+    }
+
     // Create invitation
     match app_state.keycloak_service
         .create_invitation(&token, &org_id, &request.email, request.roles.clone(), None)

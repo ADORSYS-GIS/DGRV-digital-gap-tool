@@ -10,6 +10,6 @@ describe("ROLES Constant", () => {
   it("should have expected role values", () => {
     // Check that ROLES has the expected properties
     expect(ROLES.ADMIN).toBe("dgrv_admin");
-    expect(ROLES.ORG_USER).toBe("org_user");
+    expect(ROLES.ORG_ADMIN).toBe("org_admin");
   });
 });

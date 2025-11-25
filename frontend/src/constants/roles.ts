@@ -3,5 +3,4 @@ export const ROLES = {
   ORG_ADMIN: "org_admin",
   COOP_ADMIN: "coop_admin",
   COOP_USER: "coop_user",
-  ORG_USER: "org_user",
 };
