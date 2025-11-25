@@ -4,7 +4,7 @@ import Keycloak from "keycloak-js";
  * Keycloak configuration for the DGAT tool
  */
 export const keycloakConfig = {
-  url: import.meta.env.VITE_KEYCLOAK_URL || "http://localhost:8080",
+  url: import.meta.env.VITE_KEYCLOAK_URL || "http://ec2-3-120-98-172.eu-central-1.compute.amazonaws.com:8080/keycloak",
   realm: import.meta.env.VITE_KEYCLOAK_REALM || "sustainability-realm",
   clientId: import.meta.env.VITE_KEYCLOAK_CLIENT_ID || "dgat-client",
 };
