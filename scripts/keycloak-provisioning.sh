@@ -2,7 +2,7 @@
 
 # ==== CONFIGURATION ====
 export KEYCLOAK_BIN_DIR=/opt/keycloak/bin
-export KEYCLOAK_SERVER=${KEYCLOAK_SERVER:-http://localhost:8080}
+export KEYCLOAK_SERVER=${KEYCLOAK_SERVER:-http://localhost:8080/keycloak}
 export TRUSTSTORE=/opt/keycloak/bin/truststore.jks
 export REALM=digital-gap
 export ADMIN_USER=admin
@@ -127,7 +127,7 @@ fi
 # --- 1. LOG IN AS ADMIN ON MASTER REALM (retry until ready) ---
 login_ok=false
 for i in {1..120}; do
-  if ./kcadm.sh config credentials --server "http://localhost:8080" --realm master --user "${ADMIN_USER}" --password "${ADMIN_PASS}"; then
+  if ./kcadm.sh config credentials --server "${KEYCLOAK_SERVER}" --realm master --user "${ADMIN_USER}" --password "${ADMIN_PASS}"; then
     login_ok=true
     break
   fi
@@ -148,7 +148,7 @@ fi
     -s enabled=true \
     -s firstName="${NEW_USER_FIRSTNAME}" \
     -s lastName="${NEW_USER_LASTNAME}" \
-    --server "http://localhost:8080" \
+    --server "${KEYCLOAK_SERVER}" \
     --truststore "${TRUSTSTORE}" \
     --trustpass "${TRUSTSTORE_PASS}"
 
@@ -158,7 +158,7 @@ fi
     --username "${NEW_USER_EMAIL}" \
     --new-password "${TEMP_PASSWORD}" \
     --temporary \
-    --server "http://localhost:8080" \
+    --server "${KEYCLOAK_SERVER}" \
     --truststore "${TRUSTSTORE}" \
     --trustpass "${TRUSTSTORE_PASS}"
 
@@ -188,13 +188,13 @@ fi
   --rolename view-organizations \
   --rolename view-realm \
   --rolename view-users \
-  --server "http://localhost:8080" \
+  --server "${KEYCLOAK_SERVER}" \
   --truststore "${TRUSTSTORE}" \
   --trustpass "${TRUSTSTORE_PASS}"
 
 # --- 5. ASSIGN application_admin and drgv_admin realm roles ---
-./kcadm.sh add-roles -r "${REALM}" --uusername "${NEW_USER_EMAIL}" --rolename application_admin --rolename drgv_admin \
-  --server "http://localhost:8080" \
+./kcadm.sh add-roles -r "${REALM}" --uusername "${NEW_USER_EMAIL}" --rolename application_admin --rolename dgrv_admin \
+  --server "${KEYCLOAK_SERVER}" \
   --truststore "${TRUSTSTORE}" \
   --trustpass "${TRUSTSTORE_PASS}"
 
@@ -215,7 +215,7 @@ echo "[a.sh] Configuring realm email settings..."
   -s 'smtpServer.replyToDisplayName='"${KC_SPI_EMAIL_DEFAULT_FROM_DISPLAY_NAME:-DGRV COOPERATION}" \
   -s 'smtpServer.envelopeFrom=' \
   -s 'smtpServer.debug=false' \
-  --server "http://localhost:8080" \
+  --server "${KEYCLOAK_SERVER}" \
   --truststore "${TRUSTSTORE}" \
   --trustpass "${TRUSTSTORE_PASS}"
 

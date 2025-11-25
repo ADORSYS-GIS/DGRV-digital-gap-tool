@@ -20,8 +20,8 @@ cleanup() {
 trap cleanup INT TERM
 
 # Wait for readiness and run provisioning
-bash "$SCRIPT_DIR/scripts/keycloak-provisioning.sh" --wait-only || true
-bash "$SCRIPT_DIR/scripts/keycloak-provisioning.sh" || true
+bash "/scripts/keycloak-provisioning.sh" --wait-only || true
+bash "/scripts/keycloak-provisioning.sh" || true
 
 # Keep the container/process alive with Keycloak in foreground
 wait "$KC_PID"
@@ -42,8 +42,8 @@ cleanup() {
 trap cleanup INT TERM
 
 # Wait for readiness and run provisioning
-"$SCRIPT_DIR/scripts/keycloak-provisioning.sh" --wait-only || true
-"$SCRIPT_DIR/scripts/keycloak-provisioning.sh" || true
+"/scripts/keycloak-provisioning.sh" --wait-only || true
+"/scripts/keycloak-provisioning.sh" || true
 
 # Keep the container/process alive with Keycloak in foreground
 wait "$KC_PID"

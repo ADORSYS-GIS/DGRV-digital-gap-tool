@@ -141,6 +141,7 @@ services:
       - ./ssl/nginx.crt:/etc/x509/https/nginx.crt:ro
       - ./ssl/nginx.key:/etc/x509/https/nginx.key:ro
       - ./keycloak-startup.sh:/keycloak-startup.sh:ro
+      - ./scripts:/scripts:ro
     depends_on:
       db:
         condition: service_healthy
