@@ -4,10 +4,20 @@ import { ICreateDimensionRequest, IDimension } from "@/types/dimension";
 import { SyncStatus } from "@/types/sync";
 import { dimensionRepository } from "@/services/dimensions/dimensionRepository";
 
+type MutationContext = {
+  previousDimensions: IDimension[];
+  optimisticId: number;
+};
+
 export const useAddDimension = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<
+    IDimension,
+    Error,
+    ICreateDimensionRequest,
+    MutationContext
+  >({
     networkMode: "always",
     mutationFn: (dimension: ICreateDimensionRequest) =>
       dimensionRepository.add(dimension),
@@ -16,8 +26,9 @@ export const useAddDimension = () => {
       const previousDimensions =
         queryClient.getQueryData<IDimension[]>(["dimensions"]) ?? [];
 
+      const optimisticId = Date.now();
       const optimisticDimension: IDimension = {
-        id: `temp-${Date.now()}`,
+        id: `temp-${optimisticId}`,
         ...newDimension,
         description: newDimension.description ?? null,
         category: newDimension.category ?? null,
@@ -31,17 +42,22 @@ export const useAddDimension = () => {
         optimisticDimension,
       ]);
 
-      return { previousDimensions };
+      return { previousDimensions, optimisticId };
     },
-    onSuccess: () => {
-      toast.success("Dimension added and will sync when online");
-      queryClient.invalidateQueries({ queryKey: ["dimensions"] });
+    onSuccess: (data, _variables, context) => {
+      toast.success("Dimension added successfully");
+      queryClient.setQueryData<IDimension[]>(["dimensions"], (old = []) =>
+        old.map((d) => (d.id === `temp-${context.optimisticId}` ? data : d)),
+      );
     },
     onError: (error: Error, _, context) => {
       if (context?.previousDimensions) {
         queryClient.setQueryData(["dimensions"], context.previousDimensions);
       }
       toast.error(`Failed to add dimension: ${error.message}`);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["dimensions"] });
     },
   });
 };

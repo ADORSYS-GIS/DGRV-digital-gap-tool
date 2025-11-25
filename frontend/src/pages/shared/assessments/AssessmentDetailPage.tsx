@@ -1,11 +1,11 @@
 import { DimensionCard } from "@/components/shared/DimensionCard";
-import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { useDimensionAssessments } from "@/hooks/assessments/useDimensionAssessments";
 import { assessmentRepository } from "@/services/assessments/assessmentRepository";
 import { dimensionRepository } from "@/services/dimensions/dimensionRepository";
 import { Assessment } from "@/types/assessment";
 import { IDimension } from "@/types/dimension";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -17,7 +17,6 @@ const AssessmentDetailPage: React.FC = () => {
   const [dimensions, setDimensions] = useState<IDimension[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [completedPerspectives, setCompletedPerspectives] = useState(0);
 
   useEffect(() => {
     const fetchAssessmentDetails = async () => {
@@ -52,6 +51,14 @@ const AssessmentDetailPage: React.FC = () => {
     fetchAssessmentDetails();
   }, [assessmentId]);
 
+  const { data: dimensionAssessments } = useDimensionAssessments(assessmentId);
+
+  const submittedDimensionIds = useMemo(() => {
+    return new Set(dimensionAssessments?.map((da) => da.dimensionId));
+  }, [dimensionAssessments]);
+
+  const completedPerspectives = submittedDimensionIds.size;
+
   const handleStartDimensionAssessment = (dimensionId: string) => {
     if (assessmentId) {
       const basePath = location.pathname.split("/")[1];
@@ -84,27 +91,24 @@ const AssessmentDetailPage: React.FC = () => {
     <div className="bg-gray-50 min-h-screen">
       <div className="container mx-auto p-6 lg:p-8">
         <div className="bg-white p-6 rounded-lg border border-gray-200 mb-8">
-          <div className="flex justify-between items-start">
-            <div>
-              <h1 className="text-2xl font-bold">Digital Gap Assessment</h1>
-              <div className="mt-4">
-                <h2 className="text-md font-semibold">Your Progress</h2>
-                <p className="text-sm text-gray-500 mb-2">
-                  {completedPerspectives} of {dimensions.length} perspectives
-                  completed
-                </p>
-                <div className="flex items-center">
-                  <Progress
-                    value={progressPercentage}
-                    className="w-full max-w-md"
-                  />
-                  <span className="ml-4 font-semibold text-gray-700">
-                    {Math.round(progressPercentage)}%
+          <div className="flex justify-between items-center">
+            <h1 className="text-2xl font-bold">Digital Gap Assessment</h1>
+            <div className="flex items-center space-x-4">
+              <div className="w-64">
+                <div className="flex justify-between mb-1">
+                  <span className="text-sm font-medium text-gray-700">
+                    Your Progress
+                  </span>
+                  <span className="text-sm font-medium text-gray-700">
+                    {completedPerspectives} of {dimensions.length}
                   </span>
                 </div>
+                <Progress value={progressPercentage} className="w-full" />
               </div>
+              <span className="font-semibold text-gray-700">
+                {Math.round(progressPercentage)}%
+              </span>
             </div>
-            <Button variant="outline">Logout</Button>
           </div>
         </div>
 
@@ -124,6 +128,7 @@ const AssessmentDetailPage: React.FC = () => {
               key={dimension.id}
               dimension={dimension}
               onClick={handleStartDimensionAssessment}
+              isSubmitted={submittedDimensionIds.has(dimension.id)}
             />
           ))}
         </div>

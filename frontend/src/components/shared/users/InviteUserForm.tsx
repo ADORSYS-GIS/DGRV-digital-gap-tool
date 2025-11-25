@@ -1,13 +1,10 @@
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from "@/components/ui/dialog";
 import {
   Form,
@@ -18,10 +15,13 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { ROLES } from "@/constants/roles";
+import { useCurrentUser } from "@/hooks/users/useCurrentUser";
 import { useInviteUser } from "@/hooks/users/useInviteUser";
 import { UserInvitationRequest } from "@/openapi-client/types.gen";
-import { MultiSelect } from "@/components/ui/multi-select";
-import { userRoles } from "@/constants/user-roles";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 const inviteUserSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
@@ -45,13 +45,22 @@ export const InviteUserForm: React.FC<InviteUserFormProps> = ({
   onClose,
   orgId,
 }) => {
+  const { isAdmin, isOrgAdmin, isCoopAdmin } = useCurrentUser();
+
+  const getRoleToAssign = () => {
+    if (isAdmin) return ROLES.ORG_ADMIN;
+    if (isOrgAdmin) return ROLES.COOP_ADMIN;
+    if (isCoopAdmin) return ROLES.COOP_USER;
+    return "";
+  };
+
   const form = useForm<InviteUserFormValues>({
     resolver: zodResolver(inviteUserSchema),
     defaultValues: {
       email: "",
       firstName: "",
       lastName: "",
-      roles: [],
+      roles: [getRoleToAssign()],
     },
   });
 
@@ -131,13 +140,12 @@ export const InviteUserForm: React.FC<InviteUserFormProps> = ({
               name="roles"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Roles</FormLabel>
+                  <FormLabel>Role</FormLabel>
                   <FormControl>
-                    <MultiSelect
-                      options={userRoles}
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                      placeholder="Select roles"
+                    <Input
+                      value={field.value[0]}
+                      disabled
+                      className="bg-gray-100"
                     />
                   </FormControl>
                   <FormMessage />

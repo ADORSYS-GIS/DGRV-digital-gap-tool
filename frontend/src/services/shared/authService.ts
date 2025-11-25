@@ -164,7 +164,7 @@ export const authService = {
    * Get current authentication state
    */
   getAuthState(): AuthState {
-    const isAuthenticated = !!keycloak.authenticated;
+    const isAuthenticated = !!keycloak.authenticated || !!keycloak.token;
     const user = this.getUserProfile();
     const roles = user?.roles || [];
 

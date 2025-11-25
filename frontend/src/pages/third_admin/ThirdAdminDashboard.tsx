@@ -14,7 +14,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useAuth } from "@/hooks/shared/useAuth";
+import { useAuth } from "@/context/AuthContext";
 import {
   Users,
   FilePenLine,

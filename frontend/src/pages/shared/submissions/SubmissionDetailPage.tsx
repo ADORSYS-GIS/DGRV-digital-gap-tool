@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import { useAuth } from "@/hooks/shared/useAuth";
+import { useAuth } from "@/context/AuthContext";
 import { ROLES } from "@/constants/roles";
 import { useOrganizationId } from "@/hooks/organizations/useOrganizationId";
 import { useCooperationId } from "@/hooks/cooperations/useCooperationId";

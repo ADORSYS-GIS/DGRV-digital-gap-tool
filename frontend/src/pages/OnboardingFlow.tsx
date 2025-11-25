@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { BarChart3, Target, TrendingUp, LucideProps } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/hooks/shared/useAuth";
+import { useAuth } from "@/context/AuthContext";
 import OnboardingStep from "@/components/onboarding/OnboardingStep";
 import OnboardingCompletion from "@/components/onboarding/OnboardingCompletion";
 import ProgressIndicators from "@/components/onboarding/ProgressIndicators";
+import { ROLES } from "@/constants/roles";
 
 interface OnboardingStepData {
   icon: React.ComponentType<LucideProps>;
@@ -90,9 +91,13 @@ export default function EnhancedOnboardingFlow() {
         `onboarding_completed_${user.sub}`,
       );
       if (hasCompletedOnboarding) {
-        if (user?.roles?.includes("Dgrv_Admin")) {
+        if (user?.roles?.includes(ROLES.ADMIN)) {
           navigate("/admin/dashboard");
-        } else if (user?.roles?.includes("Org_User")) {
+        } else if (user?.roles?.includes(ROLES.ORG_ADMIN)) {
+          navigate("/second-admin/dashboard");
+        } else if (user?.roles?.includes(ROLES.COOP_ADMIN)) {
+          navigate("/third-admin/dashboard");
+        } else if (user?.roles?.includes(ROLES.COOP_USER)) {
           navigate("/dashboard");
         } else {
           navigate("/dashboard");
@@ -106,9 +111,13 @@ export default function EnhancedOnboardingFlow() {
       localStorage.setItem(`onboarding_completed_${user.sub}`, "true");
     }
 
-    if (user?.roles?.includes("Dgrv_Admin")) {
+    if (user?.roles?.includes(ROLES.ADMIN)) {
       navigate("/admin/dashboard");
-    } else if (user?.roles?.includes("Org_User")) {
+    } else if (user?.roles?.includes(ROLES.ORG_ADMIN)) {
+      navigate("/second-admin/dashboard");
+    } else if (user?.roles?.includes(ROLES.COOP_ADMIN)) {
+      navigate("/third-admin/dashboard");
+    } else if (user?.roles?.includes(ROLES.COOP_USER)) {
       navigate("/dashboard");
     } else {
       navigate("/dashboard");

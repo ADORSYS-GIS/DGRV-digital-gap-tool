@@ -1,12 +1,31 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, Navigate } from "react-router-dom";
 import { useCooperations } from "@/hooks/cooperations/useCooperations";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { SimpleCooperationCard } from "@/components/second_admin/cooperations/SimpleCooperationCard";
+import { useAuth } from "@/context/AuthContext";
+import { ROLES } from "@/constants/roles";
+import { useCooperationId } from "@/hooks/cooperations/useCooperationId";
 
 export default function ManageCooperationUsers() {
+  const { user } = useAuth();
   const { data: cooperations, isLoading, error } = useCooperations();
   const location = useLocation();
   const basePath = location.pathname.split("/").slice(0, 2).join("/");
+  const cooperationId = useCooperationId();
+
+  const isCoopAdmin = user?.roles?.includes(ROLES.COOP_ADMIN);
+
+  if (isCoopAdmin) {
+    if (cooperationId) {
+      return (
+        <Navigate
+          to={`${basePath}/manage-cooperation-users/${cooperationId}`}
+          replace
+        />
+      );
+    }
+    return <LoadingSpinner />;
+  }
 
   return (
     <div className="container mx-auto p-4 md:p-6 lg:p-8">

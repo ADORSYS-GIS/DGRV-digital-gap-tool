@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { useAuth } from "../useAuth";
+import { useAuth } from "../../../context/AuthContext";
 
 describe("useAuth Hook", () => {
   it("should exist and be importable", () => {
