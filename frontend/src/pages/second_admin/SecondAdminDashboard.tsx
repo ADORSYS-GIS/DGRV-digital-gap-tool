@@ -13,7 +13,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useAuth } from "@/hooks/shared/useAuth";
+import { useAuth } from "@/context/AuthContext";
 import {
   Building2,
   Users,
@@ -24,27 +24,27 @@ import {
 } from "lucide-react";
 import React from "react";
 import { Link } from "react-router-dom";
-import { useSubmissionsByCooperation } from "@/hooks/submissions/useSubmissionsByCooperation";
+import { useSubmissionsByOrganization } from "@/hooks/submissions/useSubmissionsByOrganization";
 import { SubmissionList } from "@/components/shared/submissions/SubmissionList";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { Button } from "@/components/ui/button";
-import { useCooperationId } from "@/hooks/cooperations/useCooperationId";
+import { useOrganizationId } from "@/hooks/organizations/useOrganizationId";
 
 const SecondAdminDashboard: React.FC = () => {
   const { user } = useAuth();
-  const cooperationId = useCooperationId();
+  const organizationId = useOrganizationId();
   const {
     data: submissions = [],
     isLoading,
     error,
-  } = useSubmissionsByCooperation(cooperationId || "", {
-    enabled: !!cooperationId,
+  } = useSubmissionsByOrganization(organizationId || "", {
+    enabled: !!organizationId,
     refetchOnMount: true,
     refetchOnWindowFocus: false,
   });
 
   // Log for debugging
-  console.log("Cooperation ID:", cooperationId);
+  console.log("Organization ID:", organizationId);
   console.log("Submissions:", submissions);
 
   return (
@@ -130,7 +130,7 @@ const SecondAdminDashboard: React.FC = () => {
             <SubmissionList
               submissions={submissions}
               limit={5}
-              basePath="second-admin"
+              basePath="/second-admin"
             />
           )}
         </CardContent>

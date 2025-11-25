@@ -13,15 +13,28 @@ export const dimensionRepository = {
       if (navigator.onLine) {
         const backendDimensions = await listDimensions({});
         if (backendDimensions.data) {
-          // Clear existing and bulk add new dimensions from backend
-          await db.dimensions.clear();
+          const backendIds = new Set(
+            backendDimensions.data.items.map((d) => d.dimension_id),
+          );
+          const localDimensions = await db.dimensions.toArray();
+
+          const idsToDelete = localDimensions
+            .filter(
+              (d) =>
+                d.syncStatus !== SyncStatus.PENDING && !backendIds.has(d.id),
+            )
+            .map((d) => d.id);
+          if (idsToDelete.length > 0) {
+            await db.dimensions.bulkDelete(idsToDelete);
+          }
+
           const syncedDimensions = backendDimensions.data.items.map((d) => ({
             ...d,
-            id: d.dimension_id, // Map backend ID to local ID
+            id: d.dimension_id,
             syncStatus: SyncStatus.SYNCED,
-            lastError: "", // Ensure lastError is a string
+            lastError: "",
           }));
-          await db.dimensions.bulkAdd(syncedDimensions);
+          await db.dimensions.bulkPut(syncedDimensions);
           console.log(
             "Dimensions fetched from backend and synced to IndexedDB.",
           );
@@ -112,7 +125,7 @@ export const dimensionRepository = {
     await db.dimensions.update(offlineId, {
       id: serverId,
       syncStatus: SyncStatus.SYNCED,
-      lastError: null,
+      lastError: "",
     });
   },
   markAsFailed: (id: string, error: string) =>

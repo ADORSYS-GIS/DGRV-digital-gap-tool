@@ -11,6 +11,7 @@ export const useAssessmentsByOrganization = (
   return useQuery({
     queryKey: ["assessments", "organization", organizationId],
     queryFn: async () => {
+<<<<<<< HEAD
       if (!organizationId) return [];
 
       try {
@@ -53,6 +54,22 @@ export const useAssessmentsByOrganization = (
         console.error("Error fetching assessments by organization:", error);
         return [];
       }
+=======
+      const fetcher = async () => {
+        const response = await listAssessmentsByOrganization({
+          organizationId,
+        });
+        return {
+          ...response,
+          data: response.data ?? { assessments: [] },
+        };
+      };
+      return assessmentRepository.syncAssessments(
+        fetcher,
+        "organization_id",
+        organizationId,
+      );
+>>>>>>> main
     },
     enabled: options?.enabled !== false,
   });

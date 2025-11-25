@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { calculateGapScore } from "@/utils/gapCalculation";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { useAuth } from "@/hooks/shared/useAuth";
+import { useAuth } from "@/context/AuthContext";
 import { useOrganizationId } from "@/hooks/organizations/useOrganizationId";
 import { useCooperationId } from "@/hooks/cooperations/useCooperationId";
 // Core React and routing
@@ -12,6 +12,7 @@ import { DimensionIcon } from "@/components/shared/DimensionIcon";
 import { useAssessment } from "@/hooks/assessments/useAssessment";
 import { useDimensionWithStates } from "@/hooks/assessments/useDimensionWithStates";
 import { useSubmitDimensionAssessment } from "@/hooks/assessments/useSubmitDimensionAssessment";
+import { useDimensionAssessments } from "@/hooks/assessments/useDimensionAssessments";
 import {
   IDimensionAssessment,
   IDimensionState,
@@ -84,6 +85,13 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
   };
 
   const { data: assessment } = useAssessment(assessmentId || "");
+  const { data: dimensionAssessments } = useDimensionAssessments(
+    assessmentId || "",
+  );
+
+  const existingAssessment = useMemo(() => {
+    return dimensionAssessments?.find((da) => da.dimensionId === dimensionId);
+  }, [dimensionAssessments, dimensionId]);
 
   const isLastDimension = useMemo(() => {
     if (assessment?.dimensionIds && dimensionId) {
@@ -189,18 +197,15 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
     ],
   );
 
-  const handleEdit = useCallback(() => {
-    setShowResult(false);
-    setError(null);
-  }, []);
-
   const handleBack = useCallback(() => {
     if (fromAssessmentDetail) {
       navigate(-1);
     } else if (assessmentId) {
-      navigate(`/second-admin/assessment/${assessmentId}`);
+      const basePath = location.pathname.split("/")[1];
+      navigate(`/${basePath}/assessment/${assessmentId}`);
     } else {
-      navigate("/second-admin/assessments");
+      const basePath = location.pathname.split("/")[1];
+      navigate(`/${basePath}/assessments`);
     }
   }, [navigate, fromAssessmentDetail, assessmentId]);
 
@@ -212,12 +217,14 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
         currentIndex < assessment.dimensionIds.length - 1
       ) {
         const nextDimensionId = assessment.dimensionIds[currentIndex + 1];
+        const basePath = location.pathname.split("/")[1];
         navigate(
-          `/second-admin/assessment/${assessmentId}/dimension/${nextDimensionId}`,
+          `/${basePath}/assessment/${assessmentId}/dimension/${nextDimensionId}`,
         );
       } else {
         // Last dimension, navigate back to the assessment detail page
-        navigate(`/second-admin/assessment/${assessmentId}`);
+        const basePath = location.pathname.split("/")[1];
+        navigate(`/${basePath}/assessment/${assessmentId}`);
       }
     }
   }, [assessment, dimensionId, assessmentId, navigate]);
@@ -302,6 +309,7 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
         isSubmitting={isSubmitting}
         onSubmit={handleSubmit}
         error={error || null}
+        existingAssessment={existingAssessment || null}
       />
 
       {showResult && gapId && submittedData && (

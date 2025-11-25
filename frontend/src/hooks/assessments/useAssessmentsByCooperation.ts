@@ -11,6 +11,7 @@ export const useAssessmentsByCooperation = (
   return useQuery({
     queryKey: ["assessments", "cooperation", cooperationId],
     queryFn: async () => {
+<<<<<<< HEAD
       if (!cooperationId) return [];
 
       try {
@@ -56,6 +57,20 @@ export const useAssessmentsByCooperation = (
         console.error("Error fetching assessments by cooperation:", error);
         return [];
       }
+=======
+      const fetcher = async () => {
+        const response = await listAssessmentsByCooperation({ cooperationId });
+        return {
+          ...response,
+          data: response.data ?? { assessments: [] },
+        };
+      };
+      return assessmentRepository.syncAssessments(
+        fetcher,
+        "cooperation_id",
+        cooperationId,
+      );
+>>>>>>> main
     },
     enabled: options?.enabled !== false,
   });

@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { PlusCircle } from "lucide-react";
 import { useAddCooperationUser } from "@/hooks/cooperationUsers/useAddCooperationUser";
 import { AddCooperationUser } from "@/types/cooperationUser";
-import { useAuth } from "@/hooks/shared/useAuth";
+import { useAuth } from "@/context/AuthContext";
 import { ROLES } from "@/constants/roles";
 
 export const AddCooperationUserForm = () => {

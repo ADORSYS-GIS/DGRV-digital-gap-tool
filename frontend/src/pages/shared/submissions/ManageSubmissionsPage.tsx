@@ -1,4 +1,4 @@
-import { useAuth } from "@/hooks/shared/useAuth";
+import { useAuth } from "@/context/AuthContext";
 import { ROLES } from "@/constants/roles";
 import { useOrganizationId } from "@/hooks/organizations/useOrganizationId";
 import { useCooperationId } from "@/hooks/cooperations/useCooperationId";
@@ -6,11 +6,12 @@ import { SubmissionList } from "@/components/shared/submissions/SubmissionList";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { useSubmissionsByOrganization } from "@/hooks/submissions/useSubmissionsByOrganization";
 import { useSubmissionsByCooperation } from "@/hooks/submissions/useSubmissionsByCooperation";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 
 export default function ManageSubmissionsPage() {
   const { user } = useAuth();
   const { assessmentId } = useParams<{ assessmentId?: string }>();
+  const location = useLocation();
   const organizationId = useOrganizationId();
   const cooperationId = useCooperationId();
 
@@ -180,7 +181,10 @@ export default function ManageSubmissionsPage() {
       {/* Submissions list */}
       {!isLoading && !error && submissions.length > 0 && (
         <div className="space-y-6">
-          <SubmissionList submissions={submissions} basePath="/submissions" />
+          <SubmissionList
+            submissions={submissions}
+            basePath={location.pathname.split("/").slice(0, 2).join("/")}
+          />
         </div>
       )}
 

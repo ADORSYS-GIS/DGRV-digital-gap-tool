@@ -16,7 +16,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { User, LogOut, Home, Menu, X, Building2 } from "lucide-react";
-import { useAuth } from "@/hooks/shared/useAuth";
+import { useAuth } from "@/context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { ROLES } from "@/constants/roles";
 
@@ -51,14 +51,21 @@ export const Navbar = () => {
       ...(user.realm_access?.roles || []),
     ].map((r) => r.toLowerCase());
 
-    const hasAdminRole = roles.includes(ROLES.ADMIN);
-
-    if (hasAdminRole) {
+    if (roles.includes(ROLES.ADMIN)) {
       return "/admin/dashboard";
     }
+    if (roles.includes(ROLES.ORG_ADMIN)) {
+      return "/second-admin/dashboard";
+    }
+    if (roles.includes(ROLES.COOP_ADMIN)) {
+      return "/third-admin/dashboard";
+    }
+    if (roles.includes(ROLES.COOP_USER)) {
+      return "/user/dashboard";
+    }
 
-    // For org_user, org_admin, or any other authenticated user
-    return "/dashboard";
+    // Fallback for any other authenticated user
+    return "/";
   };
 
   const toggleSidebar = () => {

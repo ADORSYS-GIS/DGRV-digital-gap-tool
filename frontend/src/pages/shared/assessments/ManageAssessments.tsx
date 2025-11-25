@@ -6,7 +6,7 @@ import { AssessmentList } from "@/components/shared/assessments/AssessmentList";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { useAssessmentsByOrganization } from "@/hooks/assessments/useAssessmentsByOrganization";
 import { useAssessmentsByCooperation } from "@/hooks/assessments/useAssessmentsByCooperation";
-import { useAuth } from "@/hooks/shared/useAuth";
+import { useAuth } from "@/context/AuthContext";
 import { ROLES } from "@/constants/roles";
 import { useOrganizationId } from "@/hooks/organizations/useOrganizationId";
 import { useCooperationId } from "@/hooks/cooperations/useCooperationId";
@@ -81,17 +81,21 @@ export default function ManageAssessments() {
         <h1 className="text-3xl font-bold tracking-tight">
           Manage Assessments
         </h1>
-        <Button onClick={() => setAddDialogOpen(true)}>
-          <PlusCircle className="mr-2 h-4 w-4" />
-          Add Assessment
-        </Button>
+        {isOrgAdmin && (
+          <Button onClick={() => setAddDialogOpen(true)}>
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Add Assessment
+          </Button>
+        )}
       </div>
 
       {isLoading && <LoadingSpinner />}
       {error && (
         <p className="text-red-500">An error occurred: {error.message}</p>
       )}
-      {assessments && <AssessmentList assessments={assessments} />}
+      {assessments && (
+        <AssessmentList assessments={assessments} userRoles={userRoles} />
+      )}
 
       <AddAssessmentForm
         isOpen={isAddDialogOpen}

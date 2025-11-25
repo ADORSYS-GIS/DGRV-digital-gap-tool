@@ -6,25 +6,25 @@
  * - Overview of key features and benefits
  * - Information about the tool's purpose and support
  */
-import { useEffect, useState } from "react";
+import { BenefitCard } from "@/components/home/BenefitCard";
+import { FeatureCard } from "@/components/home/FeatureCard";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/hooks/shared/useAuth";
-import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
+import { ROLES } from "@/constants/roles";
+import { useAuth } from "@/context/AuthContext";
 import {
+  ArrowRight,
   BarChart3,
+  Building2,
+  Globe,
+  HeartHandshake,
+  Shield,
   Target,
   TrendingUp,
   Users,
-  Shield,
-  Globe,
-  ArrowRight,
-  HeartHandshake,
-  Building2,
 } from "lucide-react";
-import { FeatureCard } from "@/components/home/FeatureCard";
-import { BenefitCard } from "@/components/home/BenefitCard";
-import { ROLES } from "@/constants/roles";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 export const HomePage: React.FC = () => {
   const { isAuthenticated, loading, user, login } = useAuth();
@@ -49,6 +49,8 @@ export const HomePage: React.FC = () => {
 
     const isAdmin = roles.includes(ROLES.ADMIN.toLowerCase());
     const isOrgAdmin = roles.includes(ROLES.ORG_ADMIN.toLowerCase());
+    const isCoopAdmin = roles.includes(ROLES.COOP_ADMIN.toLowerCase());
+    const isCoopUser = roles.includes(ROLES.COOP_USER.toLowerCase());
 
     if (window.location.pathname === "/") {
       if (hasCompletedOnboarding) {
@@ -56,8 +58,14 @@ export const HomePage: React.FC = () => {
           console.log("Redirecting to admin dashboard");
           navigate("/admin/dashboard", { replace: true });
         } else if (isOrgAdmin) {
+          console.log("Redirecting to org admin dashboard");
+          navigate("/second-admin/dashboard", { replace: true });
+        } else if (isCoopAdmin) {
+          console.log("Redirecting to coop admin dashboard");
+          navigate("/third-admin/dashboard", { replace: true });
+        } else if (isCoopUser) {
           console.log("Redirecting to user dashboard");
-          navigate("/dashboard", { replace: true });
+          navigate("/user/dashboard", { replace: true });
         } else {
           console.log("No matching role found, showing home page");
         }
@@ -66,7 +74,7 @@ export const HomePage: React.FC = () => {
         navigate("/onboarding", { replace: true });
       }
     }
-  }, [isAuthenticated, loading, user, navigate]);
+  }, [isAuthenticated, loading]);
 
   const handleGetStarted = async () => {
     if (!isAuthenticated) {
@@ -91,7 +99,11 @@ export const HomePage: React.FC = () => {
       if (roles.includes(ROLES.ADMIN.toLowerCase())) {
         navigate("/admin/dashboard");
       } else if (roles.includes(ROLES.ORG_ADMIN.toLowerCase())) {
-        navigate("/dashboard");
+        navigate("/second-admin/dashboard");
+      } else if (roles.includes(ROLES.COOP_ADMIN.toLowerCase())) {
+        navigate("/third-admin/dashboard");
+      } else if (roles.includes(ROLES.COOP_USER.toLowerCase())) {
+        navigate("/user/dashboard");
       }
     } else {
       navigate("/onboarding");

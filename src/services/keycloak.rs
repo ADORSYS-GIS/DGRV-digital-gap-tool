@@ -320,6 +320,53 @@ impl KeycloakService {
         }
     }
 
+    /// Assign a client role to a user by role name
+    pub async fn assign_client_role_to_user(&self, token: &str, user_id: &str, role_name: &str) -> Result<()> {
+        // 1. Get the client ID for "realm-management"
+        let clients_url = format!("{}/admin/realms/{}/clients?clientId=realm-management", self.config.keycloak.url, self.config.keycloak.realm);
+        let clients: Vec<serde_json::Value> = self.client.get(&clients_url)
+            .bearer_auth(token)
+            .send()
+            .await?
+            .error_for_status()?
+            .json()
+            .await?;
+        
+        let client = clients.into_iter()
+            .find(|c| c["clientId"] == "realm-management")
+            .ok_or_else(|| anyhow!("Could not find 'realm-management' client"))?;
+        let client_id = client["id"].as_str().ok_or_else(|| anyhow!("Client ID is not a string"))?;
+
+        // 2. Get the role object by name from the client
+        let role_url = format!("{}/admin/realms/{}/clients/{}/roles/{}", self.config.keycloak.url, self.config.keycloak.realm, client_id, role_name);
+        let role: serde_json::Value = self.client.get(&role_url)
+            .bearer_auth(token)
+            .send()
+            .await?
+            .error_for_status()?
+            .json()
+            .await?;
+
+        // 3. Assign the role to the user
+        let assign_url = format!("{}/admin/realms/{}/users/{}/role-mappings/clients/{}", self.config.keycloak.url, self.config.keycloak.realm, user_id, client_id);
+        let roles_payload = serde_json::json!([role]);
+        
+        let response = self.client.post(&assign_url)
+            .bearer_auth(token)
+            .json(&roles_payload)
+            .send()
+            .await?;
+
+        match response.status() {
+            StatusCode::NO_CONTENT | StatusCode::OK | StatusCode::CREATED => Ok(()),
+            _ => {
+                let error_text = response.text().await?;
+                error!("Failed to assign client role '{}' to user: {}", role_name, error_text);
+                Err(anyhow!("Failed to assign client role '{}' to user: {}", role_name, error_text))
+            }
+        }
+    }
+
     /// Create an invitation to an organization
     pub async fn create_invitation(&self, token: &str, org_id: &str, email: &str, roles: Vec<String>, expiration: Option<String>) -> Result<KeycloakInvitation> {
         let url = format!("{}/admin/realms/{}/organizations/{}/members/invite-user",

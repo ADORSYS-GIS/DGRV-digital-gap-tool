@@ -21,7 +21,7 @@ interface AuthHookState extends AuthState {
   logout: () => void;
 }
 
-export const useAuth = (): AuthHookState => {
+export const useProvideAuth = (): AuthHookState => {
   const [authState, setAuthState] = React.useState<AuthState>({
     isAuthenticated: false,
     user: null,
@@ -37,10 +37,15 @@ export const useAuth = (): AuthHookState => {
 
     updateAuthState();
 
-    keycloak.onAuthSuccess = () => updateAuthState();
-    keycloak.onAuthError = () => updateAuthState();
-    keycloak.onAuthLogout = () => updateAuthState();
-    keycloak.onTokenExpired = () => keycloak.updateToken(30);
+    const onAuthSuccess = () => updateAuthState();
+    const onAuthError = () => updateAuthState();
+    const onAuthLogout = () => updateAuthState();
+    const onTokenExpired = () => keycloak.updateToken(30);
+
+    keycloak.onAuthSuccess = onAuthSuccess;
+    keycloak.onAuthError = onAuthError;
+    keycloak.onAuthLogout = onAuthLogout;
+    keycloak.onTokenExpired = onTokenExpired;
 
     return () => {
       keycloak.onAuthSuccess = () => {};

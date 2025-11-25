@@ -4,7 +4,11 @@ import { Button } from "@/components/ui/button";
 // Using native alert for now since @/components/ui/alert is not available
 import { Loader2, AlertCircle } from "lucide-react";
 import { LevelSelector } from "./LevelSelector";
-import { IDimensionWithStates, IDimensionState } from "@/types/dimension";
+import {
+  IDimensionAssessment,
+  IDimensionWithStates,
+  IDimensionState,
+} from "@/types/dimension";
 import { cn } from "@/lib/utils";
 
 interface DimensionAssessmentAnswerProps {
@@ -18,6 +22,8 @@ interface DimensionAssessmentAnswerProps {
   className?: string;
   /** Optional error message from parent component */
   error?: string | null;
+  /** Optional existing assessment data */
+  existingAssessment?: IDimensionAssessment | null;
 }
 
 export function DimensionAssessmentAnswer({
@@ -25,12 +31,13 @@ export function DimensionAssessmentAnswer({
   isSubmitting,
   onSubmit,
   className,
+  existingAssessment,
 }: DimensionAssessmentAnswerProps) {
   const [currentLevel, setCurrentLevel] = useState<number>(
-    dimension.currentState?.level ?? 1,
+    existingAssessment?.currentState?.level ?? 1,
   );
   const [desiredLevel, setDesiredLevel] = useState<number>(
-    dimension.desiredState?.level ?? 1,
+    existingAssessment?.desiredState?.level ?? 1,
   );
   const [localError, setLocalError] = useState<string | null>(null);
   const maxLevel = 5;

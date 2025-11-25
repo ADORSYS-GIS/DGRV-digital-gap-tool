@@ -1,4 +1,5 @@
 import { getAssessment } from "../../openapi-client/services.gen";
+import { AssessmentResponse } from "@/openapi-client/types.gen";
 import { AddAssessmentPayload, Assessment } from "../../types/assessment";
 import { SyncStatus } from "../../types/sync/index";
 import { v4 as uuidv4 } from "uuid";
@@ -80,8 +81,11 @@ export const assessmentRepository = {
       console.warn(`Assessment with ID ${id} not found in IndexedDB.`);
       return;
     }
-    await db.assessments.update(id, { syncStatus: SyncStatus.PENDING });
-    syncService.addToSyncQueue("Assessment", id, "DELETE", null);
+    await db.assessments.update(id, { syncStatus: SyncStatus.DELETED });
+    syncService.addToSyncQueue("Assessment", id, "DELETE", {
+      ...existingAssessment,
+      syncStatus: SyncStatus.DELETED,
+    });
   },
   markAsSynced: async (offlineId: string, serverId: string): Promise<void> => {
     await db.assessments.update(offlineId, {
@@ -105,5 +109,60 @@ export const assessmentRepository = {
 
   deleteByCooperationId: async (cooperationId: string): Promise<void> => {
     await db.assessments.where("cooperation_id").equals(cooperationId).delete();
+  },
+  syncAssessments: async (
+    fetchFunction: () => Promise<{
+      data?: { assessments?: AssessmentResponse[] };
+    }>,
+    filterKey: "organization_id" | "cooperation_id",
+    filterId: string,
+  ): Promise<Assessment[]> => {
+    try {
+      if (navigator.onLine) {
+        const response = await fetchFunction();
+        if (response.data?.assessments) {
+          const backendAssessments = response.data.assessments.map(
+            (assessment: AssessmentResponse) => ({
+              id: assessment.assessment_id,
+              name: assessment.document_title,
+              organization_id: assessment.organization_id,
+              cooperation_id: assessment.cooperation_id,
+              status: assessment.status,
+              started_at: assessment.started_at || null,
+              completed_at: assessment.completed_at || null,
+              created_at: assessment.created_at,
+              updated_at: assessment.updated_at || new Date().toISOString(),
+              dimensionIds: (assessment.dimensions_id as string[]) ?? [],
+              syncStatus: SyncStatus.SYNCED,
+              lastError: "",
+            }),
+          );
+
+          const backendIds = new Set(
+            backendAssessments.map((a: Assessment) => a.id),
+          );
+          const localAssessments = await db.assessments
+            .where(filterKey)
+            .equals(filterId)
+            .toArray();
+
+          const idsToDelete = localAssessments
+            .filter(
+              (a) =>
+                a.syncStatus !== SyncStatus.PENDING && !backendIds.has(a.id),
+            )
+            .map((a) => a.id);
+
+          if (idsToDelete.length > 0) {
+            await db.assessments.bulkDelete(idsToDelete);
+          }
+
+          await db.assessments.bulkPut(backendAssessments);
+        }
+      }
+    } catch (error) {
+      console.error("Failed to sync assessments from backend:", error);
+    }
+    return db.assessments.where(filterKey).equals(filterId).toArray();
   },
 };

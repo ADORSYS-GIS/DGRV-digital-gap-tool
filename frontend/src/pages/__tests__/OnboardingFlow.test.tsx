@@ -2,9 +2,9 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach, Mock } from "vitest";
 import { MemoryRouter } from "react-router-dom";
 import OnboardingFlow from "../OnboardingFlow";
-import { useAuth } from "@/hooks/shared/useAuth";
+import { useAuth } from "@/context/AuthContext";
 
-vi.mock("@/hooks/shared/useAuth");
+vi.mock("@/context/AuthContext");
 
 describe("OnboardingFlow", () => {
   beforeEach(() => {
