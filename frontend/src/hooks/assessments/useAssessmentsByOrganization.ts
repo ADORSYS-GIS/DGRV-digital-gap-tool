@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { assessmentRepository } from "@/services/assessments/assessmentRepository";
-import { listAssessmentsByOrganization } from "@/openapi-client/services.gen";
+import { listAssessments } from "@/openapi-client/services.gen";
 import type { AssessmentResponse } from "@/openapi-client/types.gen";
 import { Assessment } from "@/types/assessment";
 
@@ -15,18 +15,18 @@ export const useAssessmentsByOrganization = (
 
       try {
         if (navigator.onLine) {
-          const response = await listAssessmentsByOrganization({
-            organizationId,
-          });
-
-          if (response.data?.assessments) {
-            const syncedAssessments = response.data.assessments.map(
+          const response = await listAssessments({}); // Fetch all assessments
+          if (response.data?.items) {
+            const filteredAssessments = response.data.items.filter(
+              (assessment: AssessmentResponse) =>
+                assessment.organization_id === organizationId,
+            );
+            const syncedAssessments = filteredAssessments.map(
               (assessment: AssessmentResponse) =>
                 ({
                   id: assessment.assessment_id,
                   name: assessment.document_title,
                   organization_id: assessment.organization_id,
-                  cooperation_id: assessment.cooperation_id,
                   status: assessment.status,
                   started_at: assessment.started_at || null,
                   completed_at: assessment.completed_at || null,

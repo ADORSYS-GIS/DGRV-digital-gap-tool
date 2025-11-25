@@ -1,13 +1,10 @@
-
-/// <reference types="vitest/globals" />
 import React from "react";
-import { renderHook, waitFor } from "@testing-library/react";
+import { renderHook, waitFor, act } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useAddAssessment } from "../useAddAssessment";
 import { assessmentRepository } from "@/services/assessments/assessmentRepository";
 import { AddAssessmentPayload, Assessment } from "@/types/assessment";
 import { SyncStatus } from "@/types/sync"; // Import SyncStatus
-
 import { vi } from "vitest";
 // Mock the assessmentRepository
 vi.mock("@/services/assessments/assessmentRepository", () => ({
@@ -53,27 +50,47 @@ describe("useAddAssessment", () => {
       syncStatus: SyncStatus.SYNCED, // Use SyncStatus enum
     };
 
-    (assessmentRepository.add as vi.Mock).mockResolvedValue(mockNewAssessment);
+    let resolveAdd: (value: Assessment) => void;
+    (assessmentRepository.add as any).mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveAdd = resolve;
+        }),
+    );
 
-    const invalidateQueriesSpy = vi.spyOn(queryClient, "invalidateQueries");
+    const invalidateQueriesSpy = (vi as any).spyOn(
+      queryClient,
+      "invalidateQueries",
+    );
 
     const { result } = renderHook(() => useAddAssessment(), { wrapper });
 
-    result.current.mutate(mockAssessmentPayload);
+    await act(async () => {
+      result.current.mutate(mockAssessmentPayload);
+    });
 
-    expect(result.current.isPending).toBe(true);
+    await waitFor(() => expect(result.current.isPending).toBe(true));
     expect(result.current.data).toBeUndefined();
+
+    // Resolve the promise
+    resolveAdd!(mockNewAssessment);
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
     expect(result.current.data).toEqual(mockNewAssessment);
-    expect(assessmentRepository.add).toHaveBeenCalledWith(mockAssessmentPayload);
-    expect(invalidateQueriesSpy).toHaveBeenCalledWith({ queryKey: ["assessments"] });
+    expect(assessmentRepository.add).toHaveBeenCalledWith(
+      mockAssessmentPayload,
+    );
+    expect(invalidateQueriesSpy).toHaveBeenCalledWith({
+      queryKey: ["assessments"],
+    });
   });
 
   it("should handle error when adding an assessment", async () => {
     const errorMessage = "Failed to add assessment";
-    (assessmentRepository.add as vi.Mock).mockRejectedValue(new Error(errorMessage));
+    (assessmentRepository.add as any).mockRejectedValue(
+      new Error(errorMessage),
+    );
 
     const mockAssessmentPayload: AddAssessmentPayload = {
       assessment_name: "New Assessment",
@@ -90,6 +107,8 @@ describe("useAddAssessment", () => {
 
     expect(result.current.error).toBeInstanceOf(Error);
     expect((result.current.error as Error).message).toBe(errorMessage);
-    expect(assessmentRepository.add).toHaveBeenCalledWith(mockAssessmentPayload);
+    expect(assessmentRepository.add).toHaveBeenCalledWith(
+      mockAssessmentPayload,
+    );
   });
 });

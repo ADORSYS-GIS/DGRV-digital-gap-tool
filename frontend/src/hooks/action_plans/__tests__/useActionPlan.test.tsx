@@ -38,9 +38,13 @@ describe("useActionPlan", () => {
       created_at: new Date().toISOString(),
       action_items: [],
     };
-    (actionPlanRepository.getActionPlanByAssessmentId as Mock).mockResolvedValue(mockActionPlan);
+    (
+      actionPlanRepository.getActionPlanByAssessmentId as Mock
+    ).mockResolvedValue(mockActionPlan);
 
-    const { result } = renderHook(() => useActionPlan("assessment123"), { wrapper });
+    const { result } = renderHook(() => useActionPlan("assessment123"), {
+      wrapper,
+    });
 
     expect(result.current.isLoading).toBe(true);
     expect(result.current.data).toBeUndefined();
@@ -48,7 +52,9 @@ describe("useActionPlan", () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
     expect(result.current.data).toEqual(mockActionPlan);
-    expect(actionPlanRepository.getActionPlanByAssessmentId).toHaveBeenCalledWith("assessment123");
+    expect(
+      actionPlanRepository.getActionPlanByAssessmentId,
+    ).toHaveBeenCalledWith("assessment123");
   });
 
   it("should not fetch if assessmentId is undefined", () => {
@@ -56,19 +62,27 @@ describe("useActionPlan", () => {
 
     expect(result.current.isLoading).toBe(false);
     expect(result.current.data).toBeUndefined();
-    expect(actionPlanRepository.getActionPlanByAssessmentId).not.toHaveBeenCalled();
+    expect(
+      actionPlanRepository.getActionPlanByAssessmentId,
+    ).not.toHaveBeenCalled();
   });
 
   it("should handle error when fetching action plan", async () => {
     const errorMessage = "Failed to fetch action plan";
-    (actionPlanRepository.getActionPlanByAssessmentId as Mock).mockRejectedValue(new Error(errorMessage));
+    (
+      actionPlanRepository.getActionPlanByAssessmentId as Mock
+    ).mockRejectedValue(new Error(errorMessage));
 
-    const { result } = renderHook(() => useActionPlan("assessment123"), { wrapper });
+    const { result } = renderHook(() => useActionPlan("assessment123"), {
+      wrapper,
+    });
 
     await waitFor(() => expect(result.current.isError).toBe(true));
 
     expect(result.current.error).toBeInstanceOf(Error);
     expect((result.current.error as Error).message).toBe(errorMessage);
-    expect(actionPlanRepository.getActionPlanByAssessmentId).toHaveBeenCalledWith("assessment123");
+    expect(
+      actionPlanRepository.getActionPlanByAssessmentId,
+    ).toHaveBeenCalledWith("assessment123");
   });
 });

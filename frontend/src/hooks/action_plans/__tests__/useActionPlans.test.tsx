@@ -47,7 +47,9 @@ describe("useActionPlans", () => {
         action_items: [],
       },
     ];
-    (actionPlanRepository.getActionPlans as Mock).mockResolvedValue(mockActionPlans);
+    (actionPlanRepository.getActionPlans as Mock).mockResolvedValue(
+      mockActionPlans,
+    );
 
     const { result } = renderHook(() => useActionPlans(), { wrapper });
 
@@ -62,7 +64,9 @@ describe("useActionPlans", () => {
 
   it("should handle error when fetching action plans", async () => {
     const errorMessage = "Failed to fetch action plans";
-    (actionPlanRepository.getActionPlans as Mock).mockRejectedValue(new Error(errorMessage));
+    (actionPlanRepository.getActionPlans as Mock).mockRejectedValue(
+      new Error(errorMessage),
+    );
 
     const { result } = renderHook(() => useActionPlans(), { wrapper });
 

@@ -62,7 +62,7 @@ describe("useAddCooperationUser", () => {
 
     expect(cooperationUserRepository.add).toHaveBeenCalledWith(
       "cooperation-123",
-      newUser
+      newUser,
     );
     expect(cooperationUserSyncService.add).toHaveBeenCalledWith({
       id: "new-user-id",
@@ -91,7 +91,7 @@ describe("useAddCooperationUser", () => {
 
     expect(cooperationUserRepository.add).toHaveBeenCalledWith(
       "cooperation-123",
-      newUser
+      newUser,
     );
     expect(cooperationUserSyncService.add).not.toHaveBeenCalled();
     expect(queryClient.invalidateQueries).toHaveBeenCalledWith({
@@ -102,7 +102,7 @@ describe("useAddCooperationUser", () => {
   it("should handle error when adding a cooperation user", async () => {
     const errorMessage = "Failed to add user";
     (cooperationUserRepository.add as Mock).mockRejectedValue(
-      new Error(errorMessage)
+      new Error(errorMessage),
     );
 
     const { result } = renderHook(() => useAddCooperationUser(), { wrapper });

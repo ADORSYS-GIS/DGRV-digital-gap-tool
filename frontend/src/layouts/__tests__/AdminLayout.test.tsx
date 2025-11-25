@@ -4,12 +4,20 @@ import { BrowserRouter, MemoryRouter } from "react-router-dom";
 import AdminLayout from "../AdminLayout";
 import { vi } from "vitest";
 
-// Define mock functions at the top level
-const mockUseLocation = vi.fn();
-const mockOutlet = vi.fn(() => <div data-testid="outlet" />);
+const { mockUseLocation, mockOutlet } = vi.hoisted(() => {
+  const mockUseLocation = vi.fn(() => ({
+    pathname: "/admin/dashboard", // Default pathname
+    search: "",
+    hash: "",
+    state: null,
+    key: "default",
+  }));
+  const mockOutlet = vi.fn(() => <div data-testid="outlet" />);
+  return { mockUseLocation, mockOutlet };
+});
 
-vi.mock("react-router-dom", async () => {
-  const actual = await vi.importActual("react-router-dom");
+vi.mock("react-router-dom", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("react-router-dom")>();
   return {
     ...actual,
     useLocation: mockUseLocation,
@@ -71,23 +79,54 @@ describe("AdminLayout", () => {
   });
 
   it("should highlight the active navigation link based on the current path", () => {
+    // Set mockUseLocation for the initial render
+    mockUseLocation.mockReturnValue({
+      pathname: "/admin/dashboard",
+      search: "",
+      hash: "",
+      state: null,
+      key: "default",
+    });
+
     const { rerender } = render(
       <MemoryRouter initialEntries={["/admin/dashboard"]}>
         <AdminLayout />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
-    expect(screen.getByText("Dashboard")).toHaveClass("bg-gray-900");
-    expect(screen.getByText("Organizations")).not.toHaveClass("bg-gray-900");
+    const dashboardLink = screen.getByRole("link", { name: "Dashboard" });
+    console.log("Dashboard Link classes (initial):", dashboardLink.className);
+    expect(dashboardLink).toHaveClass("bg-gray-900");
+    expect(screen.getByRole("link", { name: "Organizations" })).not.toHaveClass(
+      "bg-gray-900",
+    );
+
+    // Set mockUseLocation for the rerender
+    mockUseLocation.mockReturnValue({
+      pathname: "/admin/organizations",
+      search: "",
+      hash: "",
+      state: null,
+      key: "default",
+    });
 
     rerender(
       <MemoryRouter initialEntries={["/admin/organizations"]}>
         <AdminLayout />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
-    expect(screen.getByText("Organizations")).toHaveClass("bg-gray-900");
-    expect(screen.getByText("Dashboard")).not.toHaveClass("bg-gray-900");
+    const organizationsLink = screen.getByRole("link", {
+      name: "Organizations",
+    });
+    console.log(
+      "Organizations Link classes (rerender):",
+      organizationsLink.className,
+    );
+    expect(organizationsLink).toHaveClass("bg-gray-900");
+    expect(screen.getByRole("link", { name: "Dashboard" })).not.toHaveClass(
+      "bg-gray-900",
+    );
   });
 
   it("should render the Outlet component", () => {

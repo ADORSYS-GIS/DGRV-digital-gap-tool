@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { assessmentRepository } from "@/services/assessments/assessmentRepository";
-import { listAssessmentsByCooperation } from "@/openapi-client/services.gen";
+import { listAssessments } from "@/openapi-client/services.gen";
 import type { AssessmentResponse } from "@/openapi-client/types.gen";
 import { Assessment } from "@/types/assessment";
 
@@ -15,18 +15,21 @@ export const useAssessmentsByCooperation = (
 
       try {
         if (navigator.onLine) {
-          const response = await listAssessmentsByCooperation({
-            cooperationId,
-          });
+          const response = await listAssessments({}); // Fetch all assessments
+          if (response.data?.items) {
+            const filteredAssessments = response.data.items.filter(
+              (assessment) =>
+                (assessment as AssessmentResponse & { cooperation_id?: string })
+                  .cooperation_id === cooperationId,
+            );
 
-          if (response.data?.assessments) {
-            const syncedAssessments = response.data.assessments.map(
+            const syncedAssessments = filteredAssessments.map(
               (assessment: AssessmentResponse) =>
                 ({
                   id: assessment.assessment_id,
                   name: assessment.document_title,
                   organization_id: assessment.organization_id,
-                  cooperation_id: assessment.cooperation_id,
+                  cooperation_id: cooperationId, // Assign from hook parameter
                   status: assessment.status,
                   started_at: assessment.started_at || null,
                   completed_at: assessment.completed_at || null,
