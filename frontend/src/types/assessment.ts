@@ -6,6 +6,7 @@ export interface Assessment extends OfflineEntity {
   organization_id: string;
   cooperation_id?: string | null | undefined;
   created_at: string;
+  updated_at: string; // Added updated_at
   status: string;
 }
 
