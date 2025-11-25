@@ -64,7 +64,20 @@ pub async fn run() -> anyhow::Result<()> {
 }
 
 fn create_app(db: DatabaseConnection, config: Config) -> Router {
-    let cors = CorsLayer::very_permissive();
+    use http::header::{AUTHORIZATION, CONTENT_TYPE};
+    use tower_http::cors::{Any, CorsLayer};
+
+    let cors = CorsLayer::new()
+        .allow_origin(["https://localhost".parse().unwrap()])
+        .allow_methods(vec![
+            http::Method::GET,
+            http::Method::POST,
+            http::Method::PUT,
+            http::Method::DELETE,
+            http::Method::OPTIONS,
+        ])
+        .allow_headers([AUTHORIZATION, CONTENT_TYPE])
+        .allow_credentials(true);
 
     let state = AppState {
         db: Arc::new(db),
@@ -82,7 +95,7 @@ fn create_app(db: DatabaseConnection, config: Config) -> Router {
         .merge(api::openapi::docs_routes())
         .with_state(state)
         .layer(cors)
-        .layer(CorsLayer::permissive())
+        
 }
 
 /// Validates the OpenAPI specification at startup
