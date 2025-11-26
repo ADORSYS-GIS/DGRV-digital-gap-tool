@@ -66,11 +66,11 @@ impl JwtValidator {
         };
 
         let validation_options = ValidationOptions {
-            issuer: Validation::Validate(format!("{}/realms/{}", self.config.url, self.config.realm)),
+            issuer: Validation::Validate(format!("{}/realms/{}", self.config.public_url, self.config.realm)),
             ..Default::default()
         };
 
-        let expected_issuer = format!("{}/realms/{}", self.config.url, self.config.realm);
+        let expected_issuer = format!("{}/realms/{}", self.config.public_url, self.config.realm);
         let token_issuer = decoded_token.payload().ok().and_then(|p| p.registered.issuer.clone());
 
         // --- JWT ISSUER VALIDATION LOGS ---

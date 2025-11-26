@@ -16,6 +16,7 @@ pub struct Config {
 #[derive(Debug, Clone, Deserialize)]
 pub struct KeycloakConfigs {
     pub url: String,
+    pub public_url: String,
     pub realm: String,
     pub client_id: String,
     pub client_secret: String,
@@ -46,6 +47,9 @@ struct ConfigEnv {
 
     #[envconfig(from = "DGAT_KEYCLOAK_URL", default = "http://localhost:8080")]
     keycloak_url: String,
+
+    #[envconfig(from = "DGAT_KEYCLOAK_PUBLIC_URL", default = "http://localhost:8080")]
+    keycloak_public_url: String,
 
     #[envconfig(from = "DGAT_KEYCLOAK_REALM", default = "sustainability-realm")]
     keycloak_realm: String,
@@ -92,6 +96,7 @@ impl Config {
             server_url: format!("http://{}:{}", e.host, e.port),
             keycloak: KeycloakConfigs {
                 url: e.keycloak_url,
+                public_url: e.keycloak_public_url,
                 realm: e.keycloak_realm,
                 client_id: e.keycloak_client_id,
                 client_secret: e.keycloak_client_secret,
