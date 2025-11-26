@@ -10,7 +10,7 @@
   },
   "servers": [
     {
-      "url": "https://ec2-3-120-98-172.eu-central-1.compute.amazonaws.com",
+      "url": "https://ec2-3-120-98-172.eu-central-1.compute.amazonaws.com/api",
       "description": "DGAT Backend Server"
     }
   ],
