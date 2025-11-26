@@ -109,7 +109,7 @@ services:
       KC_PROXY_HEADERS: "xforwarded"
       KC_PROXY: "edge"
       KC_FEATURES: "preview,organization"
-      KC_HOSTNAME: "${KC_HOSTNAME:-https://ec2-3-120-98-172.eu-central-1.compute.amazonaws.com}"
+      KC_HOSTNAME: "${KC_HOSTNAME:-https://ec2-3-120-98-172.eu-central-1.compute.amazonaws.com/keycloak}"
       KC_HOSTNAME_URL: "${KC_HOSTNAME_URL:-https://ec2-3-120-98-172.eu-central-1.compute.amazonaws.com/keycloak}"
       KC_HOSTNAME_ADMIN_URL: "${KC_HOSTNAME_ADMIN_URL:-https://ec2-3-120-98-172.eu-central-1.compute.amazonaws.com/keycloak}"
       KC_HOSTNAME_PATH: "/keycloak"
