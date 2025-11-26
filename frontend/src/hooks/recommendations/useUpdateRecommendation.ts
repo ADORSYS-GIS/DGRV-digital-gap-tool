@@ -38,6 +38,7 @@ export const useUpdateRecommendation = () => {
     },
     onSuccess: () => {
       toast.success("Recommendation updated successfully");
+      queryClient.invalidateQueries({ queryKey: ["recommendations"] });
     },
     onError: (error: Error, _, context) => {
       queryClient.setQueryData(
@@ -45,6 +46,7 @@ export const useUpdateRecommendation = () => {
         context?.previousRecommendations,
       );
       toast.error(`Failed to update recommendation: ${error.message}`);
+      queryClient.invalidateQueries({ queryKey: ["recommendations"] });
     },
   });
 };

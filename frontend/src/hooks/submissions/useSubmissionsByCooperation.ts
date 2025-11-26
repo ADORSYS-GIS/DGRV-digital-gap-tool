@@ -93,7 +93,7 @@ export const useSubmissionsByCooperation = (
       }
     },
     // Only enable the query if we have a cooperationId
-    enabled: options?.enabled !== false && !!cooperationId,
+    enabled: options?.enabled !== false,
     // Default to refetching on mount
     refetchOnMount: options?.refetchOnMount ?? true,
     // Don't refetch on window focus by default

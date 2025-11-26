@@ -3,7 +3,7 @@ import {
   listSubmissionsByCooperation,
   listSubmissionsByOrganization,
   type ApiResponseAssessmentSummaryResponse,
-} from "@/openapi-client";
+} from "@/openapi-client/services.gen";
 import { db } from "@/services/db";
 import type {
   AssessmentDetails,

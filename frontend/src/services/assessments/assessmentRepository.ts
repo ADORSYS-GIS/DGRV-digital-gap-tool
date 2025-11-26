@@ -46,6 +46,7 @@ export const assessmentRepository = {
       cooperation_id: assessment.cooperation_id,
       syncStatus: SyncStatus.PENDING,
       created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(), // Added missing updated_at
       status: "Draft",
     };
     await db.assessments.add(newAssessment);
@@ -117,8 +118,8 @@ export const assessmentRepository = {
     filterKey: "organization_id" | "cooperation_id",
     filterId: string,
   ): Promise<Assessment[]> => {
-    try {
-      if (navigator.onLine) {
+    if (navigator.onLine) {
+      try {
         const response = await fetchFunction();
         if (response.data?.assessments) {
           const backendAssessments = response.data.assessments.map(
@@ -126,7 +127,9 @@ export const assessmentRepository = {
               id: assessment.assessment_id,
               name: assessment.document_title,
               organization_id: assessment.organization_id,
-              cooperation_id: assessment.cooperation_id,
+              cooperation_id: (
+                assessment as AssessmentResponse & { cooperation_id?: string }
+              ).cooperation_id, // Cast for cooperation_id
               status: assessment.status,
               started_at: assessment.started_at || null,
               completed_at: assessment.completed_at || null,
@@ -158,11 +161,14 @@ export const assessmentRepository = {
           }
 
           await db.assessments.bulkPut(backendAssessments);
+          return backendAssessments; // Return online data directly
         }
+      } catch (error) {
+        console.error("Failed to sync assessments from backend:", error);
+        // Fall through to return local data if online fetch fails
       }
-    } catch (error) {
-      console.error("Failed to sync assessments from backend:", error);
     }
+    // Fallback to local data if offline or online fetch failed/returned no data
     return db.assessments.where(filterKey).equals(filterId).toArray();
   },
 };

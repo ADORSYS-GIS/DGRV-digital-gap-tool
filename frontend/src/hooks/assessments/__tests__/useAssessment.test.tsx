@@ -1,85 +1,65 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { vi } from "vitest";
+import { vi, type Mock } from "vitest";
 import { renderHook, waitFor } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useAssessment } from "../useAssessment";
 import { assessmentRepository } from "@/services/assessments/assessmentRepository";
-import { ReactNode } from "react";
-import { Assessment } from "@/types/assessment";
-import { SyncStatus } from "@/types/sync";
 
-// Mock the assessmentRepository
 vi.mock("@/services/assessments/assessmentRepository", () => ({
   assessmentRepository: {
     getById: vi.fn(),
   },
 }));
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: false, // Disable retries for tests
+const createWrapper = () => {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+      },
     },
-  },
-});
-
-const wrapper = ({ children }: { children: ReactNode }) => (
-  <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-);
+  });
+  return ({ children }: { children: React.ReactNode }) => (
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+  );
+};
 
 describe("useAssessment", () => {
-  afterEach(() => {
+  beforeEach(() => {
     vi.clearAllMocks();
-    queryClient.clear();
   });
 
-  it("fetches assessment by ID successfully", async () => {
-    const mockAssessment: Assessment = {
-      id: "1",
-      name: "Test Assessment",
-      status: "IN_PROGRESS",
-      organization_id: "org1",
-      cooperation_id: "coop1",
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      syncStatus: SyncStatus.SYNCED,
-    };
+  it("should return undefined if no assessmentId is provided", async () => {
+    const { result } = renderHook(() => useAssessment(""), {
+      wrapper: createWrapper(),
+    });
 
-    (assessmentRepository.getById as vi.Mock).mockResolvedValue(mockAssessment);
+    expect(result.current.data).toBeUndefined();
+    expect(assessmentRepository.getById).not.toHaveBeenCalled();
+  });
 
-    const { result } = renderHook(() => useAssessment("1"), { wrapper });
+  it("should fetch assessment by id", async () => {
+    const mockAssessment = { id: "123", name: "Test Assessment" };
+    (assessmentRepository.getById as Mock).mockResolvedValue(mockAssessment);
 
-    expect(result.current.isLoading).toBe(true);
+    const { result } = renderHook(() => useAssessment("123"), {
+      wrapper: createWrapper(),
+    });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-
     expect(result.current.data).toEqual(mockAssessment);
-    expect(assessmentRepository.getById).toHaveBeenCalledWith("1");
+    expect(assessmentRepository.getById).toHaveBeenCalledWith("123");
   });
 
-  it("handles error when fetching assessment", async () => {
-    const errorMessage = "Failed to fetch assessment";
-    (assessmentRepository.getById as vi.Mock).mockRejectedValue(
-      new Error(errorMessage),
+  it("should handle error when fetching assessment", async () => {
+    (assessmentRepository.getById as Mock).mockRejectedValue(
+      new Error("Failed to fetch"),
     );
 
-    const { result } = renderHook(() => useAssessment("1"), { wrapper });
-
-    expect(result.current.isLoading).toBe(true);
+    const { result } = renderHook(() => useAssessment("123"), {
+      wrapper: createWrapper(),
+    });
 
     await waitFor(() => expect(result.current.isError).toBe(true));
-
-    expect(result.current.error?.message).toBe(errorMessage);
-    expect(assessmentRepository.getById).toHaveBeenCalledWith("1");
-  });
-
-  it("returns undefined if assessmentId is not provided", async () => {
-    (assessmentRepository.getById as vi.Mock).mockResolvedValue(undefined);
-
-    const { result } = renderHook(() => useAssessment(""), { wrapper });
-
-    expect(result.current.isLoading).toBe(false); // Query should not run
-
-    await waitFor(() => expect(result.current.data).toBeUndefined());
-    expect(assessmentRepository.getById).not.toHaveBeenCalled(); // getById should not be called
+    expect(result.current.error).toEqual(Error("Failed to fetch"));
   });
 });

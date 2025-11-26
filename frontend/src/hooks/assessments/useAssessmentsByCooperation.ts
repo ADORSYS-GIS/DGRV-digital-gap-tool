@@ -11,58 +11,20 @@ export const useAssessmentsByCooperation = (
   return useQuery({
     queryKey: ["assessments", "cooperation", cooperationId],
     queryFn: async () => {
-<<<<<<< HEAD
-      if (!cooperationId) return [];
-
-      try {
-        if (navigator.onLine) {
-          const response = await listAssessments({}); // Fetch all assessments
-          if (response.data?.items) {
-            const filteredAssessments = response.data.items.filter(
-              (assessment) =>
-                (assessment as AssessmentResponse & { cooperation_id?: string })
-                  .cooperation_id === cooperationId,
-            );
-
-            const syncedAssessments = filteredAssessments.map(
-              (assessment: AssessmentResponse) =>
-                ({
-                  id: assessment.assessment_id,
-                  name: assessment.document_title,
-                  organization_id: assessment.organization_id,
-                  cooperation_id: cooperationId, // Assign from hook parameter
-                  status: assessment.status,
-                  started_at: assessment.started_at || null,
-                  completed_at: assessment.completed_at || null,
-                  created_at: assessment.created_at,
-                  updated_at: assessment.updated_at || new Date().toISOString(),
-                  dimensionIds: (assessment.dimensions_id as string[]) ?? [],
-                  syncStatus: "synced" as const,
-                  lastError: "",
-                }) as Assessment,
-            );
-
-            // Clear existing assessments for this cooperation before adding new ones
-            await assessmentRepository.deleteByCooperationId(cooperationId);
-
-            // Store in IndexedDB
-            await assessmentRepository.bulkAdd(syncedAssessments);
-            return syncedAssessments;
-          }
-        }
-
-        // Fallback to local data if offline or API call fails
-        return assessmentRepository.getAll();
-      } catch (error) {
-        console.error("Error fetching assessments by cooperation:", error);
-        return [];
+      if (!cooperationId) {
+        return Promise.resolve([]);
       }
-=======
       const fetcher = async () => {
-        const response = await listAssessmentsByCooperation({ cooperationId });
+        const response = await listAssessments({}); // Fetch all assessments
+        const items = response.data?.items ?? []; // Ensure items is always an array
+        const filteredAssessments = items.filter(
+          (assessment) =>
+            (assessment as AssessmentResponse & { cooperation_id?: string })
+              .cooperation_id === cooperationId,
+        );
         return {
           ...response,
-          data: response.data ?? { assessments: [] },
+          data: { assessments: filteredAssessments },
         };
       };
       return assessmentRepository.syncAssessments(
@@ -70,7 +32,6 @@ export const useAssessmentsByCooperation = (
         "cooperation_id",
         cooperationId,
       );
->>>>>>> main
     },
     enabled: options?.enabled !== false,
   });

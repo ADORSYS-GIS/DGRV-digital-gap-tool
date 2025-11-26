@@ -18,5 +18,6 @@ export const useCooperationUsers = () => {
       return cooperationUserRepository.getAllByCooperationId(cooperationId);
     },
     enabled: !!cooperationId,
+    initialData: cooperationId ? undefined : [],
   });
 };

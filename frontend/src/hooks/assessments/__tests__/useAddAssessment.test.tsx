@@ -51,17 +51,14 @@ describe("useAddAssessment", () => {
     };
 
     let resolveAdd: (value: Assessment) => void;
-    (assessmentRepository.add as any).mockImplementation(
-      () =>
+    vi.mocked(assessmentRepository.add).mockImplementation(
+      (payload: AddAssessmentPayload) =>
         new Promise((resolve) => {
           resolveAdd = resolve;
         }),
     );
 
-    const invalidateQueriesSpy = (vi as any).spyOn(
-      queryClient,
-      "invalidateQueries",
-    );
+    const invalidateQueriesSpy = vi.spyOn(queryClient, "invalidateQueries");
 
     const { result } = renderHook(() => useAddAssessment(), { wrapper });
 
@@ -88,7 +85,7 @@ describe("useAddAssessment", () => {
 
   it("should handle error when adding an assessment", async () => {
     const errorMessage = "Failed to add assessment";
-    (assessmentRepository.add as any).mockRejectedValue(
+    vi.mocked(assessmentRepository.add).mockRejectedValue(
       new Error(errorMessage),
     );
 
