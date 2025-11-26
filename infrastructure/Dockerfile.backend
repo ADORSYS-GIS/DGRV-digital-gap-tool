@@ -10,6 +10,7 @@ RUN apt-get update && \
 # Create a new empty project to cache dependencies
 RUN USER=root cargo init --bin .
 COPY Cargo.toml Cargo.lock ./
+COPY migration/ ./migration/
 
 # Build dependencies
 RUN cargo build --release
@@ -17,7 +18,6 @@ RUN rm src/*.rs
 
 # Copy source code
 COPY src/ ./src/
-COPY migration/ ./migration/
 
 # Build the application
 RUN cargo build --release
