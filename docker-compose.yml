@@ -14,7 +14,7 @@ services:
       RUST_LOG: "debug,hyper=info,sea_orm=info"
       DGAT_DATABASE_URL: "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}"
       DGAT_PORT: 3001
-      DGAT_KEYCLOAK_URL: ${DGAT_KEYCLOAK_URL:-https://ec2-3-120-98-172.eu-central-1.compute.amazonaws.com/keycloak}"
+      DGAT_KEYCLOAK_URL: "${DGAT_KEYCLOAK_URL:-https://ec2-3-120-98-172.eu-central-1.compute.amazonaws.com/keycloak}"
       DGAT_KEYCLOAK_REALM: "digital-gap"
       DGAT_KEYCLOAK_CLIENT_ID: "dgrv-client"
       DGAT_KEYCLOAK_CLIENT_SECRET: "${DGAT_KEYCLOAK_CLIENT_SECRET}"
