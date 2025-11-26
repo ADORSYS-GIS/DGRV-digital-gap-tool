@@ -35,13 +35,20 @@ impl JwtValidator {
         let response_text = response.text().await?;
         info!("[AUTH] OIDC Config Response: {}", response_text);
         let oidc_config: serde_json::Value = serde_json::from_str(&response_text)?;
-        let jwks_uri = oidc_config["jwks_uri"]
+        let public_issuer = oidc_config["issuer"]
             .as_str()
-            .ok_or_else(|| anyhow!("jwks_uri not found in OIDC config"))?;
+            .ok_or_else(|| anyhow!("'issuer' not found in OIDC config"))?;
 
-        info!("Fetching JWKS from {}", jwks_uri);
+        let jwks_uri_public = oidc_config["jwks_uri"]
+            .as_str()
+            .ok_or_else(|| anyhow!("'jwks_uri' not found in OIDC config"))?;
+
+        let internal_issuer = format!("{}/realms/{}", self.config.url, self.config.realm);
+        let jwks_uri_internal = jwks_uri_public.replace(public_issuer, &internal_issuer);
+
+        info!("[AUTH] Fetching JWKS from internal URL: {}", jwks_uri_internal);
         let fetched_jwks: biscuit::jwk::JWKSet<biscuit::Empty> =
-            reqwest::get(jwks_uri).await?.json().await?;
+            reqwest::get(jwks_uri_internal).await?.json().await?;
         *jwks_guard = Some(fetched_jwks.clone());
         Ok(fetched_jwks)
     }
