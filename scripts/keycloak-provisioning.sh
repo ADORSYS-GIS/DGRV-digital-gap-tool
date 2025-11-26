@@ -2,7 +2,7 @@
 
 # ==== CONFIGURATION ====
 export KEYCLOAK_BIN_DIR=/opt/keycloak/bin
-export KEYCLOAK_SERVER=${KEYCLOAK_SERVER:-http://localhost:8080/keycloak}
+export KEYCLOAK_SERVER=${KEYCLOAK_SERVER:-https://ec2-3-120-98-172.eu-central-1.compute.amazonaws.com/keycloak}
 export TRUSTSTORE=/opt/keycloak/bin/truststore.jks
 export REALM=digital-gap
 export ADMIN_USER=admin
@@ -127,7 +127,7 @@ fi
 # --- 1. LOG IN AS ADMIN ON MASTER REALM (retry until ready) ---
 login_ok=false
 for i in {1..120}; do
-  if ./kcadm.sh config credentials --server "${KEYCLOAK_SERVER}" --realm master --user "${ADMIN_USER}" --password "${ADMIN_PASS}"; then
+  if ./kcadm.sh config credentials --server "${KEYCLOAK_SERVER}" --realm master --user "${ADMIN_USER}" --password "${ADMIN_PASS}" --insecure; then
     login_ok=true
     break
   fi
