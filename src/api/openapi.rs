@@ -237,6 +237,13 @@ pub fn docs_routes<S>() -> Router<S>
 where
     S: Clone + Send + Sync + 'static,
 {
-    let openapi = ApiDoc::openapi();
+    let mut openapi = ApiDoc::openapi();
+
+    let paths = std::mem::take(&mut openapi.paths.paths);
+
+    for (path, item) in paths {
+        openapi.paths.paths.insert(format!("/api{}", path), item);
+    }
+
     Router::new().merge(SwaggerUi::new("/api/docs").url("/api/docs/openapi.json", openapi.clone()))
 }

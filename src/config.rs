@@ -4,7 +4,9 @@ use serde::Deserialize;
 #[derive(Debug, Deserialize, Clone)]
 pub struct Config {
     pub database_url: String,
+    pub host: String,
     pub port: u16,
+    pub server_url: String,
     pub keycloak: KeycloakConfigs,
     pub jwt_secret: String,
     pub keycloak_admin_token: String,
@@ -35,6 +37,9 @@ struct ConfigEnv {
         default = "postgres://postgres:postgres@localhost:5435/dgat"
     )]
     database_url: String,
+
+    #[envconfig(from = "DGAT_HOST", default = "0.0.0.0")]
+    host: String,
 
     #[envconfig(from = "DGAT_PORT", default = "3001")]
     port: u16,
@@ -82,7 +87,9 @@ impl Config {
         let e = ConfigEnv::init_from_env()?;
         Ok(Self {
             database_url: e.database_url,
+            host: e.host.clone(),
             port: e.port,
+            server_url: format!("http://{}:{}", e.host, e.port),
             keycloak: KeycloakConfigs {
                 url: e.keycloak_url,
                 realm: e.keycloak_realm,

@@ -54,7 +54,7 @@ pub async fn run() -> anyhow::Result<()> {
     let app = create_app(db, config.clone());
 
     // Run the server
-    let addr = SocketAddr::from(([0, 0, 0, 0], config.port));
+    let addr: SocketAddr = (config.host.parse::<std::net::IpAddr>()?, config.port).into();
     info!("Server listening on {}", addr);
 
     let listener = tokio::net::TcpListener::bind(addr).await?;
@@ -82,16 +82,16 @@ fn create_app(db: DatabaseConnection, config: Config) -> Router {
     let state = AppState {
         db: Arc::new(db),
         keycloak_service: Arc::new(KeycloakService::new(config.clone())),
-        jwt_validator: Arc::new(JwtValidator::new(config.keycloak)),
+        jwt_validator: Arc::new(JwtValidator::new(config.keycloak.clone())),
     };
 
     // Create API router with all routes
     let api_router = routes::api::create_api_routes(state.clone())
         .layer(axum::middleware::from_fn_with_state(state.clone(), crate::auth::middleware::auth_middleware));
 
-    // Combine all routers without the /api prefix
+    // Combine all routers and prefix with /api
     Router::new()
-        .merge(api_router)
+        .nest("/api", api_router)
         .merge(api::openapi::docs_routes())
         .with_state(state)
         .layer(cors)
