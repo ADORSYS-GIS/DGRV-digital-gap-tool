@@ -31,7 +31,10 @@ impl JwtValidator {
             "{}/realms/{}/.well-known/openid-configuration",
             self.config.url, self.config.realm
         );
-        let oidc_config: serde_json::Value = reqwest::get(&oidc_config_url).await?.json().await?;
+        let response = reqwest::get(&oidc_config_url).await?;
+        let response_text = response.text().await?;
+        info!("[AUTH] OIDC Config Response: {}", response_text);
+        let oidc_config: serde_json::Value = serde_json::from_str(&response_text)?;
         let jwks_uri = oidc_config["jwks_uri"]
             .as_str()
             .ok_or_else(|| anyhow!("jwks_uri not found in OIDC config"))?;
