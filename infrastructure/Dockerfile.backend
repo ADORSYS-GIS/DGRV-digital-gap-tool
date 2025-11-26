@@ -8,7 +8,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Create a new empty project to cache dependencies
-RUN USER=root cargo new --bin .
+RUN USER=root cargo init --bin .
 COPY Cargo.toml Cargo.lock ./
 
 # Build dependencies
