@@ -60,6 +60,19 @@ impl JwtValidator {
             ..Default::default()
         };
 
+        let expected_issuer = format!("{}/realms/{}", self.config.url, self.config.realm);
+        let token_issuer = decoded_token.payload().ok().and_then(|p| p.registered.issuer.clone());
+
+        info!("Expected issuer: {}", expected_issuer);
+        info!("Received issuer: {:?}", token_issuer);
+
+        if let Some(issuer) = token_issuer {
+            if issuer != expected_issuer {
+                error!("Issuer mismatch: expected {}, got {}", expected_issuer, issuer);
+                return Err(anyhow!("Token issuer mismatch"));
+            }
+        }
+
         decoded_token.validate(validation_options)?;
 
         let payload = decoded_token.payload()?;

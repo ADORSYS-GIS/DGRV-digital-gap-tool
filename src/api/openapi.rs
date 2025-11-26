@@ -1,6 +1,6 @@
 use axum::Router;
 use utoipa::OpenApi;
-use crate::entities::reports::ReportFormat;
+use crate::{entities::reports::ReportFormat, config::Config};
 use utoipa_swagger_ui::SwaggerUi;
 
 use crate::api::dto::action_plan::*;
@@ -233,17 +233,20 @@ use crate::models::keycloak::KeycloakUser;
 )]
 pub struct ApiDoc;
 
-pub fn docs_routes<S>() -> Router<S>
+pub fn docs_routes<S>(config: Config) -> Router<S>
 where
     S: Clone + Send + Sync + 'static,
 {
     let mut openapi = ApiDoc::openapi();
+    let mut server = utoipa::openapi::Server::new(config.server_url);
+    server.description = Some("DGAT Backend Server".to_string());
+    openapi.servers = Some(vec![server]);
 
     let paths = std::mem::take(&mut openapi.paths.paths);
 
     for (path, item) in paths {
-        openapi.paths.paths.insert(format!("/api{}", path), item);
+        openapi.paths.paths.insert(path, item);
     }
 
-    Router::new().merge(SwaggerUi::new("/api/docs").url("/api/docs/openapi.json", openapi.clone()))
+    Router::new().merge(SwaggerUi::new("/docs").url("/docs/openapi.json", openapi.clone()))
 }
