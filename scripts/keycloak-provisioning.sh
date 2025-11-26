@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Install curl if it's not already present
+if ! command -v curl &> /dev/null; then
+    echo "curl could not be found, installing it..."
+    microdnf install -y curl
+fi
+
 # ==== CONFIGURATION ====
 export KEYCLOAK_BIN_DIR=/opt/keycloak/bin
 export KEYCLOAK_SERVER=${KEYCLOAK_SERVER:-http://keycloak:8080/keycloak}
