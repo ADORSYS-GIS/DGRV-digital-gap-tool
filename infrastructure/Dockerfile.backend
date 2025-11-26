@@ -1,42 +1,24 @@
-FROM rust:1.88.0-slim-bookworm as builder
-
+FROM rust:1.88.0-slim-bookworm as builder-base
 WORKDIR /app
-
-# Install build dependencies
 RUN apt-get update && \
     apt-get install -y pkg-config libssl-dev build-essential && \
     rm -rf /var/lib/apt/lists/*
 
-# Create a new empty project to cache dependencies
-RUN USER=root cargo init --bin .
+FROM builder-base as dependencies
 COPY Cargo.toml Cargo.lock ./
-COPY migration/ ./migration/
-
-# Build dependencies
+RUN mkdir src && echo "fn main() {}" > src/main.rs
 RUN cargo build --release
-RUN rm src/*.rs
+RUN rm -f target/release/dgat-backend
 
-# Copy source code
+FROM dependencies as builder
 COPY src/ ./src/
-
-# Build the application
 RUN cargo build --release
 
-# Runtime stage
 FROM debian:bookworm-slim
-
 WORKDIR /app
-
-# Install runtime dependencies
 RUN apt-get update && \
     apt-get install -y libssl-dev ca-certificates curl && \
     rm -rf /var/lib/apt/lists/*
-
-# Copy the built binary from the builder stage
 COPY --from=builder /app/target/release/dgat-backend /app/dgrv-digital-gap-tool
-
-# Copy the docs directory
 COPY doc/ /app/doc/
-
-# Set the entrypoint
 ENTRYPOINT ["/app/dgrv-digital-gap-tool"]
