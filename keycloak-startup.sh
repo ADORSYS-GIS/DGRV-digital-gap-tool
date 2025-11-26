@@ -17,8 +17,16 @@ cleanup() {
 }
 trap cleanup INT TERM
 
-# Wait for readiness and run provisioning
-bash "/scripts/keycloak-provisioning.sh"
+# Wait for Keycloak to be ready before provisioning
+log "Waiting for Keycloak to be ready on port 8080..."
+while ! bash -c "exec 6<>/dev/tcp/localhost/8080" 2>/dev/null; do
+  echo "Keycloak is not yet available on port 8080. Retrying in 2 seconds..."
+  sleep 2
+done
+log "Keycloak is ready. Starting provisioning..."
+
+# Run provisioning
+bash "/scripts/keycloak-provisioning.sh" || true
 
 # Keep the container/process alive with Keycloak in foreground
 wait "$KC_PID"

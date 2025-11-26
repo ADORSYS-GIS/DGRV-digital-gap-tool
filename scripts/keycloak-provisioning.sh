@@ -1,11 +1,5 @@
 #!/bin/bash
 
-# Install curl if it's not already present
-if ! command -v curl &> /dev/null; then
-    echo "curl could not be found, installing it..."
-    microdnf install -y curl
-fi
-
 # ==== CONFIGURATION ====
 export KEYCLOAK_BIN_DIR=/opt/keycloak/bin
 export KEYCLOAK_SERVER=${KEYCLOAK_SERVER:-http://keycloak:8080/keycloak}
@@ -36,15 +30,9 @@ fi
 # --- 1. LOG IN AS ADMIN ON MASTER REALM (retry until ready) ---
 login_ok=false
 for i in {1..120}; do
-  # Use curl to check if Keycloak is ready
-  if curl -s --head --fail "${KEYCLOAK_SERVER}/realms/master" > /dev/null; then
-    echo "Keycloak is up!"
-    if ./kcadm.sh config credentials --server "${KEYCLOAK_SERVER}" --realm master --user "${ADMIN_USER}" --password "${ADMIN_PASS}"; then
-        login_ok=true
-        break
-    else
-        echo "Keycloak is up, but login failed. Retrying..."
-    fi
+  if ./kcadm.sh config credentials --server "${KEYCLOAK_SERVER}" --realm master --user "${ADMIN_USER}" --password "${ADMIN_PASS}"; then
+    login_ok=true
+    break
   fi
   echo "Waiting for Keycloak to start... ($i/120)"
   sleep 2
