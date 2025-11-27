@@ -44,7 +44,10 @@ export default function ManageRecommendations() {
               assessment
             </p>
           </div>
-          <Button onClick={() => setAddDialogOpen(true)}>
+          <Button
+            onClick={() => setAddDialogOpen(true)}
+            data-testid="add-recommendation-button-header"
+          >
             <PlusCircle className="mr-2 h-4 w-4" />
             Add Recommendation
           </Button>
@@ -52,7 +55,7 @@ export default function ManageRecommendations() {
       </div>
 
       {/* Loading state */}
-      {isLoading && !recommendations && (
+      {isLoading && recommendations.length === 0 && (
         <div className="flex justify-center items-center h-64">
           <LoadingSpinner size="lg" />
         </div>
@@ -104,7 +107,10 @@ export default function ManageRecommendations() {
           <p className="text-sm text-muted-foreground mb-4">
             Get started by adding a new recommendation
           </p>
-          <Button onClick={() => setAddDialogOpen(true)}>
+          <Button
+            onClick={() => setAddDialogOpen(true)}
+            data-testid="add-recommendation-button-empty-state"
+          >
             <PlusCircle className="mr-2 h-4 w-4" />
             Add Recommendation
           </Button>

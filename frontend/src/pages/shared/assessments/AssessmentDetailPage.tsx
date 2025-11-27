@@ -20,7 +20,11 @@ const AssessmentDetailPage: React.FC = () => {
 
   useEffect(() => {
     const fetchAssessmentDetails = async () => {
-      if (!assessmentId) return;
+      if (!assessmentId) {
+        setError("Assessment ID not found.");
+        setLoading(false);
+        return;
+      }
 
       try {
         setLoading(true);
