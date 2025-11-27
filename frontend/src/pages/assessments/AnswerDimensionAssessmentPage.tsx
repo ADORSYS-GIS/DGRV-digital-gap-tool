@@ -328,7 +328,9 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
             variant="contained"
             color="primary"
             onClick={handleContinue}
-            data-testid="continue-button"
+            data-testid={
+              isLastDimension ? "finish-assessment-button" : "continue-button"
+            }
           >
             {isLastDimension
               ? "Finish Assessment"
