@@ -13,7 +13,11 @@ import { ErrorBoundary } from "./components/shared/ErrorBoundary";
 import { syncService } from "./services/sync/syncService";
 
 const App = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+
+  useEffect(() => {
+    console.log("Current language:", i18n.language);
+  }, [i18n.language]);
 
   useEffect(() => {
     const SYNC_INTERVAL = 5 * 60 * 1000; // 5 minutes

@@ -41,7 +41,7 @@ const renderApp = () => {
   root.render(
     <QueryClientProvider client={queryClient}>
       <I18nextProvider i18n={i18n}>
-        <App />
+        <App key={i18n.language} />
       </I18nextProvider>
     </QueryClientProvider>,
   );

@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/shared/useAuth";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next"; // Import useTranslation
 import {
   BarChart3,
   Target,
@@ -29,6 +30,7 @@ import { ROLES } from "@/constants/roles";
 export const HomePage: React.FC = () => {
   const { isAuthenticated, loading, user, login } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation(); // Initialize t
 
   useEffect(() => {
     if (loading) return;
@@ -94,7 +96,7 @@ export const HomePage: React.FC = () => {
                 className="border-blue-600 text-blue-600 hover:bg-blue-50 hover:text-blue-700"
                 onClick={() => login()}
               >
-                Login
+                {t("home.login")}
               </Button>
             ) : null}
           </div>
@@ -107,15 +109,13 @@ export const HomePage: React.FC = () => {
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div className="text-center lg:text-left">
               <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-6 leading-tight">
-                Digital Gap Assessment Tool
+                {t("home.hero.title")}
               </h1>
               <h2 className="text-2xl md:text-3xl font-semibold text-blue-600 mb-6">
-                Empowering Cooperatives Through Digital Transformation
+                {t("home.hero.subtitle")}
               </h2>
               <p className="text-lg text-gray-600 max-w-2xl mx-auto lg:mx-0 mb-10 leading-relaxed">
-                A comprehensive tool by DGRV and BMZ to help cooperatives
-                measure, analyze, and close digitalization gaps with strategic
-                assessments and actionable recommendations.
+                {t("home.hero.description")}
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start items-center">
                 <Button
@@ -123,7 +123,7 @@ export const HomePage: React.FC = () => {
                   className="group px-8 py-6 text-lg font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-lg transition-all duration-300 transform hover:scale-105"
                   onClick={handleGetStarted}
                 >
-                  {isAuthenticated ? "Continue to Dashboard" : "Get Started"}
+                  {isAuthenticated ? t("home.continueToDashboard") : t("home.getStarted")}
                   <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                 </Button>
               </div>
@@ -131,7 +131,7 @@ export const HomePage: React.FC = () => {
             <div className="hidden lg:block">
               <img
                 src="/dgat.jpg"
-                alt="Digital Transformation"
+                alt={t("home.hero.imageAlt")}
                 className="rounded-lg w-full h-auto object-cover"
               />
             </div>
@@ -144,27 +144,27 @@ export const HomePage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
-              Key Features
+              {t("home.features.title")}
             </h2>
             <p className="text-lg text-gray-600 mt-4 max-w-3xl mx-auto">
-              Everything you need to drive your cooperative's digital journey.
+              {t("home.features.description")}
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
             <FeatureCard
               icon={<BarChart3 className="h-10 w-10" />}
-              title="Digital Gap Assessment"
-              description="Comprehensive evaluation across 8 key perspectives to measure your current digital maturity level."
+              title={t("home.features.assessmentTitle")}
+              description={t("home.features.assessmentDescription")}
             />
             <FeatureCard
               icon={<Target className="h-10 w-10" />}
-              title="Digital Strategy Planning"
-              description="Define your target digital state and create actionable plans to bridge the gaps."
+              title={t("home.features.planningTitle")}
+              description={t("home.features.planningDescription")}
             />
             <FeatureCard
               icon={<TrendingUp className="h-10 w-10" />}
-              title="Progress Tracking"
-              description="Monitor your digital transformation journey with annual comparisons and performance metrics."
+              title={t("home.features.trackingTitle")}
+              description={t("home.features.trackingDescription")}
             />
           </div>
         </div>
@@ -175,27 +175,27 @@ export const HomePage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
-              Why Choose Our Tool?
+              {t("home.benefits.title")}
             </h2>
             <p className="text-lg text-gray-600 mt-4 max-w-3xl mx-auto">
-              Built with the unique needs of cooperatives in mind.
+              {t("home.benefits.description")}
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
             <BenefitCard
               icon={<Users className="h-12 w-12 text-blue-600" />}
-              title="Cooperative Empowerment"
-              description="Designed specifically for cooperatives in Southern Africa and beyond."
+              title={t("home.benefits.empowermentTitle")}
+              description={t("home.benefits.empowermentDescription")}
             />
             <BenefitCard
               icon={<Shield className="h-12 w-12 text-blue-600" />}
-              title="Secure & Reliable"
-              description="Enterprise-grade security with encrypted data storage and regular backups."
+              title={t("home.benefits.securityTitle")}
+              description={t("home.benefits.securityDescription")}
             />
             <BenefitCard
               icon={<Globe className="h-12 w-12 text-blue-600" />}
-              title="Accessible Everywhere"
-              description="Works online and offline, optimized for low-bandwidth environments."
+              title={t("home.benefits.accessibilityTitle")}
+              description={t("home.benefits.accessibilityDescription")}
             />
           </div>
         </div>
@@ -205,24 +205,24 @@ export const HomePage: React.FC = () => {
       <section id="partners" className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl font-bold text-gray-900 mb-4">
-            Developed with Support From
+            {t("home.partners.title")}
           </h2>
           <p className="text-lg text-gray-600 mb-12">
-            A collaborative effort to foster digital inclusion.
+            {t("home.partners.description")}
           </p>
           <div className="flex flex-col md:flex-row justify-center items-center gap-16">
             <div className="flex flex-col items-center">
               <Building2 className="h-16 w-16 text-gray-500 mb-4" />
               <h3 className="text-xl font-semibold text-gray-800">DGRV</h3>
               <p className="text-gray-600">
-                German Cooperative and Raiffeisen Confederation
+                {t("home.partners.dgrvDescription")}
               </p>
             </div>
             <div className="flex flex-col items-center">
               <HeartHandshake className="h-16 w-16 text-gray-500 mb-4" />
               <h3 className="text-xl font-semibold text-gray-800">BMZ</h3>
               <p className="text-gray-600">
-                Federal Ministry for Economic Cooperation and Development
+                {t("home.partners.bmzDescription")}
               </p>
             </div>
           </div>
@@ -234,18 +234,17 @@ export const HomePage: React.FC = () => {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-gradient-to-r from-blue-600 to-blue-800 rounded-2xl p-10 md:p-16 text-center text-white shadow-xl">
             <h2 className="text-3xl md:text-4xl font-bold mb-6">
-              Ready to Transform Your Cooperative?
+              {t("home.cta.title")}
             </h2>
             <p className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">
-              Start your digital transformation journey today and unlock new
-              opportunities for growth and efficiency.
+              {t("home.cta.description")}
             </p>
             <Button
               size="lg"
               className="px-8 py-6 text-lg font-semibold bg-white text-blue-600 hover:bg-blue-50 rounded-lg transform hover:scale-105 transition-transform"
               onClick={handleGetStarted}
             >
-              {isAuthenticated ? "Go to Dashboard" : "Get Started Now"}
+              {isAuthenticated ? t("home.goToDashboard") : t("home.getStartedNow")}
             </Button>
           </div>
         </div>
@@ -255,18 +254,17 @@ export const HomePage: React.FC = () => {
       <footer className="bg-white border-t border-gray-200">
         <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 text-center text-gray-500">
           <p className="mb-4">
-            © {new Date().getFullYear()} Digital Gap Assessment Tool. All
-            rights reserved.
+            © {new Date().getFullYear()} {t("home.footer.copyright")}. {t("home.footer.allRightsReserved")}
           </p>
           <div className="flex justify-center gap-6">
             <a href="#" className="hover:text-blue-600 transition-colors">
-              Privacy Policy
+              {t("home.footer.privacyPolicy")}
             </a>
             <a href="#" className="hover:text-blue-600 transition-colors">
-              Terms of Service
+              {t("home.footer.termsOfService")}
             </a>
             <a href="#" className="hover:text-blue-600 transition-colors">
-              Contact
+              {t("home.footer.contact")}
             </a>
           </div>
         </div>
