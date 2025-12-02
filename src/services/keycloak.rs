@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::json;
 use tracing::{debug, error, info, warn};
 use anyhow::{anyhow, Result};
+use tokio::time::{sleep, Duration};
 
 use crate::api::dto::group::KeycloakGroup;
 use crate::api::dto::organization::{KeycloakOrganization, OrganizationDomain};
@@ -600,6 +601,58 @@ impl KeycloakService {
             }
         }
     }
+
+    /// Waits for a user to be available via the Keycloak Admin API.
+    async fn wait_for_user_to_be_available(&self, token: &str, user_id: &str) -> Result<()> {
+        let max_attempts = 10;
+        let mut delay = Duration::from_secs(1);
+        for attempt in 1..=max_attempts {
+            info!(user_id = %user_id, attempt = attempt, "Checking if user is available in Keycloak");
+            match self.get_user_by_id(token, user_id).await {
+                Ok(_) => {
+                    info!(user_id = %user_id, "User is available in Keycloak.");
+                    return Ok(());
+                }
+                Err(e) => {
+                    warn!(user_id = %user_id, error = %e, "User not yet available. Retrying in {:?}...", delay);
+                    sleep(delay).await;
+                    delay *= 2; // Exponential backoff
+                }
+            }
+        }
+        Err(anyhow!("User {} was not available after {} attempts", user_id, max_attempts))
+    }
+
+    /// Add a user to an organization
+    pub async fn add_user_to_organization(&self, token: &str, org_id: &str, user_id: &str) -> Result<()> {
+        // First, wait until the user is actually available via the API
+        self.wait_for_user_to_be_available(token, user_id).await?;
+
+        let url = format!("{}/admin/realms/{}/organizations/{}/members",
+                          self.config.keycloak.url, self.config.keycloak.realm, org_id);
+
+        info!(url = %url, user_id = %user_id, org_id = %org_id, "Attempting to add user to organization with raw user ID in body");
+
+        let response = self.client.post(&url)
+            .bearer_auth(token)
+            .header("Content-Type", "application/json")
+            .body(format!("\"{}\"", user_id)) // Send as a JSON string literal
+            .send()
+            .await?;
+
+        match response.status() {
+            StatusCode::NO_CONTENT | StatusCode::CREATED => {
+                info!(user_id = %user_id, org_id = %org_id, "Successfully added user to organization");
+                Ok(())
+            },
+            _ => {
+                let status = response.status();
+                let error_text = response.text().await?;
+                error!(status = %status, "Failed to add user to organization: {}", error_text);
+                Err(anyhow!("Failed to add user to organization (status: {}): {}", status, error_text))
+            }
+        }
+    }
     /// Delete a user by ID
     pub async fn delete_user(&self, token: &str, user_id: &str) -> Result<()> {
         let url = format!("{}/admin/realms/{}/users/{}",
@@ -745,6 +798,42 @@ impl KeycloakService {
             }
         }
 
+        Ok(group)
+    }
+
+    /// Get a specific group by path
+    pub async fn get_group_by_path(&self, access_token: &str, group_path: &str) -> Result<Option<KeycloakGroup>> {
+        let mut url = format!(
+            "{}/admin/realms/{}/groups",
+            self.config.keycloak.url, self.config.keycloak.realm
+        );
+        info!(url = %url, "Constructed Keycloak URL for getting groups");
+
+        let response = self
+            .client
+            .get(&url)
+            .bearer_auth(access_token)
+            .send()
+            .await?
+            .error_for_status()?;
+
+        let raw_groups: Vec<RawKeycloakGroup> = response.json().await?;
+        let group = raw_groups.into_iter().find(|g| g.path == group_path).map(|g| {
+            let mut clean_name = g.name.clone();
+            let parts: Vec<&str> = g.name.splitn(6, '-').collect();
+            if parts.len() == 6 {
+                // Basic check for UUID structure
+                if parts[0].len() == 8 && parts[1].len() == 4 && parts[2].len() == 4 && parts[3].len() == 4 && parts[4].len() == 12 {
+                     clean_name = parts[5].to_string();
+                }
+            }
+            KeycloakGroup {
+                id: g.id,
+                name: clean_name,
+                path: g.path,
+                description: g.description,
+            }
+        });
         Ok(group)
     }
 

@@ -30,3 +30,5 @@ dist-ssr
 *.env
 /src/openapi-client/
 /CODE_IMPROVEMENTS.md
+.cursorrules.md
+docs

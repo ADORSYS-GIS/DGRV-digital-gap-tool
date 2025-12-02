@@ -1,10 +1,10 @@
 use crate::{
-    api::dto::group::{GroupCreateRequest, GroupUpdateRequest},
+    api::dto::group::{GetGroupByPathParams, GroupCreateRequest, GroupUpdateRequest},
     error::{AppError, AppResult},
     AppState,
 };
 use axum::{
-    extract::{Path, State},
+    extract::{Path, State, Query},
     http::StatusCode,
     response::IntoResponse,
     Json,
@@ -93,6 +93,36 @@ pub async fn get_group(
             tracing::error!("Failed to get group: {}", e);
             Err(AppError::InternalServerError(
                 "Failed to get group".to_string(),
+            ))
+        }
+    }
+}
+
+// Get a specific group by path
+#[utoipa::path(
+    get,
+    path = "/admin/groups/path",
+    tag = "Group",
+    params(
+        ("path" = String, Query, description = "Group Path")
+    ),
+    responses((status = 200, description = "Success", body = KeycloakGroup))
+)]
+pub async fn get_group_by_path(
+    State(state): State<AppState>,
+    axum::Extension(token): axum::Extension<String>,
+    Query(params): Query<GetGroupByPathParams>,
+) -> AppResult<impl IntoResponse> {
+    let keycloak_service = state.keycloak_service;
+    tracing::info!("Received get group request for path {}", params.path);
+
+    match keycloak_service.get_group_by_path(&token, &params.path).await {
+        Ok(Some(group)) => Ok((StatusCode::OK, Json(group))),
+        Ok(None) => Err(AppError::NotFound("Group not found".to_string())),
+        Err(e) => {
+            tracing::error!("Failed to get group by path: {}", e);
+            Err(AppError::InternalServerError(
+                "Failed to get group by path".to_string(),
             ))
         }
     }

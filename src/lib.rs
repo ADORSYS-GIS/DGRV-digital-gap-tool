@@ -17,7 +17,6 @@ use axum::Router;
 use sea_orm::DatabaseConnection;
 use std::net::SocketAddr;
 use std::sync::Arc;
-use tower_http::cors::CorsLayer;
 use tracing::{info, warn, Level};
 use tracing_subscriber::FmtSubscriber;
 use crate::auth::jwt_validator::JwtValidator;
@@ -66,10 +65,13 @@ pub async fn run() -> anyhow::Result<()> {
 
 fn create_app(db: DatabaseConnection, config: Config) -> Router {
     use http::header::{AUTHORIZATION, CONTENT_TYPE};
-    use tower_http::cors::{Any, CorsLayer};
+    use tower_http::cors::CorsLayer;
 
     let cors = CorsLayer::new()
-        .allow_origin(["https://localhost".parse().unwrap()])
+        .allow_origin([
+            "https://localhost".parse().unwrap(),
+            "http://localhost:8000".parse().unwrap(),
+        ])
         .allow_methods(vec![
             http::Method::GET,
             http::Method::POST,

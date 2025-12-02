@@ -98,6 +98,7 @@ impl JwtValidator {
             preferred_username: private_claims.preferred_username,
             email: private_claims.email,
             name: private_claims.name,
+            organization_id: private_claims.organization_id,
         };
 
         Ok(claims)
