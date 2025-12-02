@@ -123,7 +123,9 @@ export const HomePage: React.FC = () => {
                   className="group px-8 py-6 text-lg font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-lg transition-all duration-300 transform hover:scale-105"
                   onClick={handleGetStarted}
                 >
-                  {isAuthenticated ? t("home.continueToDashboard") : t("home.getStarted")}
+                  {isAuthenticated
+                    ? t("home.continueToDashboard")
+                    : t("home.getStarted")}
                   <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                 </Button>
               </div>
@@ -244,7 +246,9 @@ export const HomePage: React.FC = () => {
               className="px-8 py-6 text-lg font-semibold bg-white text-blue-600 hover:bg-blue-50 rounded-lg transform hover:scale-105 transition-transform"
               onClick={handleGetStarted}
             >
-              {isAuthenticated ? t("home.goToDashboard") : t("home.getStartedNow")}
+              {isAuthenticated
+                ? t("home.goToDashboard")
+                : t("home.getStartedNow")}
             </Button>
           </div>
         </div>
@@ -254,7 +258,8 @@ export const HomePage: React.FC = () => {
       <footer className="bg-white border-t border-gray-200">
         <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 text-center text-gray-500">
           <p className="mb-4">
-            © {new Date().getFullYear()} {t("home.footer.copyright")}. {t("home.footer.allRightsReserved")}
+            © {new Date().getFullYear()} {t("home.footer.copyright")}.{" "}
+            {t("home.footer.allRightsReserved")}
           </p>
           <div className="flex justify-center gap-6">
             <a href="#" className="hover:text-blue-600 transition-colors">

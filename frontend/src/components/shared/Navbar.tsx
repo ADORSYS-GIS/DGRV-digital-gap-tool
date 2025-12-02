@@ -40,7 +40,9 @@ export const Navbar = () => {
   // Helper to get user display name
   const getUserDisplay = () => {
     if (!user) return t("navbar.profile");
-    return user.name || user.preferred_username || user.email || t("navbar.profile");
+    return (
+      user.name || user.preferred_username || user.email || t("navbar.profile")
+    );
   };
 
   // Helper to determine the appropriate home route based on user role
@@ -257,7 +259,9 @@ export const Navbar = () => {
                   }}
                 >
                   <Building2 className="w-5 h-5" />
-                  <span className="font-medium">{t("navbar.cooperativeDashboard")}</span>
+                  <span className="font-medium">
+                    {t("navbar.cooperativeDashboard")}
+                  </span>
                 </Button>
               )}
             </div>
