@@ -6,6 +6,9 @@
     "license": { "name": "" },
     "version": "0.1.0"
   },
+  "servers": [
+    { "url": "http://0.0.0.0:3001", "description": "DGAT Backend Server" }
+  ],
   "paths": {
     "/action-plans": {
       "get": {
@@ -112,6 +115,31 @@
         "security": [{ "jwt": [] }]
       }
     },
+    "/admin/groups/path": {
+      "get": {
+        "tags": ["Group"],
+        "operationId": "get_group_by_path",
+        "parameters": [
+          {
+            "name": "path",
+            "in": "query",
+            "description": "Group Path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/KeycloakGroup" }
+              }
+            }
+          }
+        }
+      }
+    },
     "/admin/groups/{group_id}": {
       "get": {
         "tags": ["Group"],
@@ -203,22 +231,15 @@
       },
       "post": {
         "tags": ["User"],
-        "summary": "Add a member to a group",
+        "summary": "Add a member to a group (cooperation)",
         "operationId": "add_member",
         "parameters": [
           {
             "name": "group_id",
             "in": "path",
-            "description": "Group ID",
+            "description": "Cooperation Group ID",
             "required": true,
             "schema": { "type": "string" }
-          },
-          {
-            "name": "redirect_uri",
-            "in": "query",
-            "description": "Redirect URI for email verification",
-            "required": false,
-            "schema": { "type": "string", "nullable": true }
           }
         ],
         "requestBody": {
@@ -3952,6 +3973,11 @@
           "report_type": { "$ref": "#/components/schemas/ReportType" },
           "title": { "type": "string" }
         }
+      },
+      "GetGroupByPathParams": {
+        "type": "object",
+        "required": ["path"],
+        "properties": { "path": { "type": "string" } }
       },
       "GroupCreateRequest": {
         "type": "object",

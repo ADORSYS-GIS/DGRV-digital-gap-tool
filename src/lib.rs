@@ -17,7 +17,6 @@ use axum::Router;
 use sea_orm::DatabaseConnection;
 use std::net::SocketAddr;
 use std::sync::Arc;
-use tower_http::cors::CorsLayer;
 use tracing::{info, warn, Level};
 use tracing_subscriber::FmtSubscriber;
 use crate::auth::jwt_validator::JwtValidator;
@@ -39,10 +38,11 @@ pub async fn run() -> anyhow::Result<()> {
     info!("Starting DGAT Backend Server");
 
     // Validate OpenAPI specification at startup
-    validate_openapi_spec();
-
     // Load configuration
     let config = config::load_config()?;
+
+    // Validate OpenAPI specification at startup
+    validate_openapi_spec(&config);
 
     // Initialize database connection
     let db = database::init_db(&config.database_url).await?;
@@ -54,7 +54,7 @@ pub async fn run() -> anyhow::Result<()> {
     let app = create_app(db, config.clone());
 
     // Run the server
-    let addr = SocketAddr::from(([0, 0, 0, 0], config.port));
+    let addr: SocketAddr = (config.host.parse::<std::net::IpAddr>()?, config.port).into();
     info!("Server listening on {}", addr);
 
     let listener = tokio::net::TcpListener::bind(addr).await?;
@@ -65,10 +65,13 @@ pub async fn run() -> anyhow::Result<()> {
 
 fn create_app(db: DatabaseConnection, config: Config) -> Router {
     use http::header::{AUTHORIZATION, CONTENT_TYPE};
-    use tower_http::cors::{Any, CorsLayer};
+    use tower_http::cors::CorsLayer;
 
     let cors = CorsLayer::new()
-        .allow_origin(["https://localhost".parse().unwrap()])
+        .allow_origin([
+            "https://localhost".parse().unwrap(),
+            "http://localhost:8000".parse().unwrap(),
+        ])
         .allow_methods(vec![
             http::Method::GET,
             http::Method::POST,
@@ -82,17 +85,17 @@ fn create_app(db: DatabaseConnection, config: Config) -> Router {
     let state = AppState {
         db: Arc::new(db),
         keycloak_service: Arc::new(KeycloakService::new(config.clone())),
-        jwt_validator: Arc::new(JwtValidator::new(config.keycloak)),
+        jwt_validator: Arc::new(JwtValidator::new(config.keycloak.clone())),
     };
 
     // Create API router with all routes
     let api_router = routes::api::create_api_routes(state.clone())
         .layer(axum::middleware::from_fn_with_state(state.clone(), crate::auth::middleware::auth_middleware));
 
-    // Combine all routers without the /api prefix
+    // Combine all routers
     Router::new()
         .merge(api_router)
-        .merge(api::openapi::docs_routes())
+        .merge(api::openapi::docs_routes(config))
         .with_state(state)
         .layer(cors)
         
@@ -105,13 +108,16 @@ fn create_app(db: DatabaseConnection, config: Config) -> Router {
 /// This ensures that invalid OpenAPI specs are caught immediately during development
 /// and deployment, rather than being discovered by API consumers.
 #[cfg(not(debug_assertions))]
-fn validate_openapi_spec() {
+fn validate_openapi_spec(config: &Config) {
     use api::openapi::ApiDoc;
     use utoipa::OpenApi;
 
     info!("Validating OpenAPI specification...");
 
-    let spec = ApiDoc::openapi();
+    let mut spec = ApiDoc::openapi();
+    let mut server = utoipa::openapi::Server::new(&config.server_url);
+    server.description = Some("DGAT Backend Server".to_string());
+    spec.servers = Some(vec![server]);
 
     // Serialize to JSON
     let json = match serde_json::to_string(&spec) {
@@ -162,13 +168,16 @@ fn validate_openapi_spec() {
 /// In debug mode, only warn about OpenAPI validation failures
 /// This allows development to continue even with invalid specs
 #[cfg(debug_assertions)]
-fn validate_openapi_spec() {
+fn validate_openapi_spec(config: &Config) {
     use api::openapi::ApiDoc;
     use utoipa::OpenApi;
 
     info!("Validating OpenAPI specification (debug mode)...");
 
-    let spec = ApiDoc::openapi();
+    let mut spec = ApiDoc::openapi();
+    let mut server = utoipa::openapi::Server::new(&config.server_url);
+    server.description = Some("DGAT Backend Server".to_string());
+    spec.servers = Some(vec![server]);
 
     let json = match serde_json::to_string(&spec) {
         Ok(j) => j,

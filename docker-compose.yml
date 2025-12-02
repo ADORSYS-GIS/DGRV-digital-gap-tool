@@ -14,7 +14,8 @@ services:
       RUST_LOG: "debug,hyper=info,sea_orm=info"
       DGAT_DATABASE_URL: "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}"
       DGAT_PORT: 3001
-      DGAT_KEYCLOAK_URL: "http://keycloak:8080"
+      DGAT_KEYCLOAK_URL: "${DGAT_KEYCLOAK_URL:-http://keycloak:8080/keycloak}"
+      DGAT_KEYCLOAK_PUBLIC_URL: "${DGAT_KEYCLOAK_PUBLIC_URL:-https://ec2-3-120-98-172.eu-central-1.compute.amazonaws.com/keycloak}"
       DGAT_KEYCLOAK_REALM: "digital-gap"
       DGAT_KEYCLOAK_CLIENT_ID: "dgrv-client"
       DGAT_KEYCLOAK_CLIENT_SECRET: "${DGAT_KEYCLOAK_CLIENT_SECRET}"
@@ -104,13 +105,14 @@ services:
       KEYCLOAK_ADMIN: "${KEYCLOAK_ADMIN:-admin}"
       KEYCLOAK_ADMIN_PASSWORD: "${KEYCLOAK_ADMIN_PASSWORD:-admin123}"
       KEYCLOAK_REALM: "dgrv-realm"
-      KEYCLOAK_FRONTEND_URL: "${KEYCLOAK_FRONTEND_URL:-https://localhost/keycloak}"
-      KEYCLOAK_SERVER: "${KEYCLOAK_SERVER:-https://localhost}"
+      KEYCLOAK_FRONTEND_URL: "${VITE_KEYCLOAK_URL:-https://ec2-3-120-98-172.eu-central-1.compute.amazonaws.com/keycloak}"
+      KEYCLOAK_SERVER: "${KEYCLOAK_SERVER:-https://ec2-3-120-98-172.eu-central-1.compute.amazonaws.com/keycloak}"
       KC_PROXY_HEADERS: "xforwarded"
       KC_PROXY: "edge"
       KC_FEATURES: "preview,organization"
-      KC_HOSTNAME: "${KC_HOSTNAME:-localhost}"
-      KC_HOSTNAME_URL: "${KC_HOSTNAME_URL:-https://localhost/keycloak}"
+      KC_HOSTNAME: "${KC_HOSTNAME:-https://ec2-3-120-98-172.eu-central-1.compute.amazonaws.com/keycloak}"
+      KC_HOSTNAME_URL: "${KC_HOSTNAME_URL:-https://ec2-3-120-98-172.eu-central-1.compute.amazonaws.com/keycloak}"
+      KC_HOSTNAME_ADMIN_URL: "${KC_HOSTNAME_ADMIN_URL:-https://ec2-3-120-98-172.eu-central-1.compute.amazonaws.com/keycloak}"
       KC_HOSTNAME_PATH: "/keycloak"
       KC_HOSTNAME_STRICT: "true"
       KC_HOSTNAME_STRICT_HTTPS: "true"
@@ -133,7 +135,8 @@ services:
       KC_SPI_EMAIL_DEFAULT_STARTTLS: "${EMAIL_STARTTLS:-true}"
       KC_SPI_EMAIL_DEFAULT_AUTH: "${EMAIL_AUTH:-true}"
 
-      KEYCLOAK_START_CMD: "/opt/keycloak/bin/kc.sh start-dev --import-realm --spi-import-ignore-unknown=true --http-relative-path=/keycloak"
+      KC_HTTP_RELATIVE_PATH: "/keycloak"
+      KEYCLOAK_START_CMD: "/opt/keycloak/bin/kc.sh start-dev --import-realm --spi-import-ignore-unknown=true"
     entrypoint: ["/bin/bash", "/keycloak-startup.sh"]
     volumes:
       - ./infrastructure/keycloak:/opt/keycloak/data/import:rw
@@ -141,6 +144,7 @@ services:
       - ./ssl/nginx.crt:/etc/x509/https/nginx.crt:ro
       - ./ssl/nginx.key:/etc/x509/https/nginx.key:ro
       - ./keycloak-startup.sh:/keycloak-startup.sh:ro
+      - ./scripts:/scripts:ro
     depends_on:
       db:
         condition: service_healthy
@@ -162,10 +166,10 @@ services:
       context: .
       dockerfile: ./infrastructure/Dockerfile.frontend
       args:
-        VITE_KEYCLOAK_URL: "${VITE_KEYCLOAK_URL:-http://localhost:8080/keycloak}"
+        VITE_KEYCLOAK_URL: "${VITE_KEYCLOAK_URL:-https://ec2-3-120-98-172.eu-central-1.compute.amazonaws.com/keycloak}"
         VITE_KEYCLOAK_REALM: "${VITE_KEYCLOAK_REALM:-digital-gap}"
         VITE_KEYCLOAK_CLIENT_ID: "${VITE_KEYCLOAK_CLIENT_ID:-dgat-client}"
-        VITE_API_BASE_URL: "${VITE_API_BASE_URL:-http://localhost:3001}"
+        VITE_API_BASE_URL: "${VITE_API_BASE_URL:-https://ec2-3-120-98-172.eu-central-1.compute.amazonaws.com/keycloak/backend}"
 
     image: dgrv-digital-gap-tool-frontend:latest
     container_name: dgrv-digital-gap-tool-frontend

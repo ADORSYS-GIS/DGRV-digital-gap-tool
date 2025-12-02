@@ -31,14 +31,24 @@ impl JwtValidator {
             "{}/realms/{}/.well-known/openid-configuration",
             self.config.url, self.config.realm
         );
-        let oidc_config: serde_json::Value = reqwest::get(&oidc_config_url).await?.json().await?;
-        let jwks_uri = oidc_config["jwks_uri"]
+        let response = reqwest::get(&oidc_config_url).await?;
+        let response_text = response.text().await?;
+        info!("[AUTH] OIDC Config Response: {}", response_text);
+        let oidc_config: serde_json::Value = serde_json::from_str(&response_text)?;
+        let public_issuer = oidc_config["issuer"]
             .as_str()
-            .ok_or_else(|| anyhow!("jwks_uri not found in OIDC config"))?;
+            .ok_or_else(|| anyhow!("'issuer' not found in OIDC config"))?;
 
-        info!("Fetching JWKS from {}", jwks_uri);
+        let jwks_uri_public = oidc_config["jwks_uri"]
+            .as_str()
+            .ok_or_else(|| anyhow!("'jwks_uri' not found in OIDC config"))?;
+
+        let internal_issuer = format!("{}/realms/{}", self.config.url, self.config.realm);
+        let jwks_uri_internal = jwks_uri_public.replace(public_issuer, &internal_issuer);
+
+        info!("[AUTH] Fetching JWKS from internal URL: {}", jwks_uri_internal);
         let fetched_jwks: biscuit::jwk::JWKSet<biscuit::Empty> =
-            reqwest::get(jwks_uri).await?.json().await?;
+            reqwest::get(jwks_uri_internal).await?.json().await?;
         *jwks_guard = Some(fetched_jwks.clone());
         Ok(fetched_jwks)
     }
@@ -56,9 +66,24 @@ impl JwtValidator {
         };
 
         let validation_options = ValidationOptions {
-            issuer: Validation::Validate(format!("{}/realms/{}", self.config.url, self.config.realm)),
+            issuer: Validation::Validate(format!("{}/realms/{}", self.config.public_url, self.config.realm)),
             ..Default::default()
         };
+
+        let expected_issuer = format!("{}/realms/{}", self.config.public_url, self.config.realm);
+        let token_issuer = decoded_token.payload().ok().and_then(|p| p.registered.issuer.clone());
+
+        // --- JWT ISSUER VALIDATION LOGS ---
+        info!("[AUTH] Expected issuer: {}", expected_issuer);
+        info!("[AUTH] Received issuer: {:?}", token_issuer.as_deref().unwrap_or("N/A"));
+        // --- END LOGS ---
+
+        if let Some(issuer) = token_issuer.as_deref() {
+            if issuer != expected_issuer {
+                error!("[AUTH] Issuer mismatch: expected '{}', got '{}'", expected_issuer, issuer);
+                return Err(anyhow!("Token issuer mismatch"));
+            }
+        }
 
         decoded_token.validate(validation_options)?;
 
@@ -73,6 +98,7 @@ impl JwtValidator {
             preferred_username: private_claims.preferred_username,
             email: private_claims.email,
             name: private_claims.name,
+            organization_id: private_claims.organization_id,
         };
 
         Ok(claims)

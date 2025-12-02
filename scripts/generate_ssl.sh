@@ -44,7 +44,7 @@ openssl req -x509 -nodes -days 365 \
   -keyout "$KEY_FILE" \
   -out "$CERT_FILE" \
   -subj "/CN=$SERVER_DN" \
-  -addext "subjectAltName=DNS:$SERVER_DN"
+  -addext "subjectAltName=DNS:localhost,DNS:ec2-3-120-98-172.eu-central-1.compute.amazonaws.com"
 
 # Set permissions: readable by nginx, not world-writable
 chmod 644 "$CERT_FILE"

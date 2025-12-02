@@ -1,29 +1,24 @@
 use axum::{
-    extract::{Path, State, Extension, Query},
+    extract::{Path, State, Extension},
     http::StatusCode,
     response::IntoResponse,
     Json,
 };
 use crate::{
     api::dto::member::AddMemberRequest,
-    error::AppResult,
-    AppState, models::keycloak::CreateUserRequest,
+    error::{AppError, AppResult},
+    AppState,
+    models::keycloak::CreateUserRequest,
 };
-use serde::Deserialize;
+use tokio::time::{sleep, Duration};
 
-#[derive(Deserialize)]
-pub struct AddMemberParams {
-    redirect_uri: Option<String>,
-}
-
-/// Add a member to a group
+/// Add a member to a group (cooperation)
 #[utoipa::path(
     post,
     path = "/admin/groups/{group_id}/members",
     tag = "User",
     params(
-        ("group_id" = String, Path, description = "Group ID"),
-        ("redirect_uri" = Option<String>, Query, description = "Redirect URI for email verification")
+        ("group_id" = String, Path, description = "Cooperation Group ID")
     ),
     request_body = AddMemberRequest,
     responses((status = 201, description = "Created"))
@@ -32,41 +27,59 @@ pub async fn add_member(
     State(state): State<AppState>,
     Extension(token): Extension<String>,
     Path(group_id): Path<String>,
-    Query(params): Query<AddMemberParams>,
     Json(payload): Json<AddMemberRequest>,
 ) -> AppResult<impl IntoResponse> {
-    let user_request = CreateUserRequest {
-        username: payload.email.clone(),
-        email: payload.email,
-        first_name: payload.first_name,
-        last_name: payload.last_name,
-        email_verified: Some(false),
-        enabled: Some(true),
-        attributes: None,
-        credentials: None,
-        required_actions: None,
-    };
-
-    let user_id = state
+    // Find user by email
+    let existing_user = state
         .keycloak_service
-        .create_user(&token, &user_request)
+        .find_user_by_username_or_email(&token, &payload.email)
         .await?;
 
+    let user_id = if let Some(user) = existing_user {
+        user.id
+    } else {
+        // Create user if not exists
+        let user_request = CreateUserRequest {
+            username: payload.email.clone(),
+            email: payload.email.clone(),
+            first_name: payload.first_name,
+            last_name: payload.last_name,
+            email_verified: Some(true),
+            enabled: Some(true),
+            attributes: None,
+            credentials: None,
+            required_actions: None,
+        };
+
+        let new_user = state
+            .keycloak_service
+            .create_user_with_email_verification(&token, &user_request)
+            .await?;
+        new_user.id
+    };
+
+    // Assign specified roles
     for role in payload.roles {
         state
             .keycloak_service
             .assign_realm_role_to_user(&token, &user_id, &role)
             .await?;
+
+        if role == "coop_admin" {
+            let client_roles = vec!["view-groups", "manage-users", "view-users", "query-users"];
+            for client_role in client_roles {
+                state
+                    .keycloak_service
+                    .assign_client_role_to_user(&token, &user_id, client_role)
+                    .await?;
+            }
+        }
     }
 
+    // Add user to the cooperation group
     state
         .keycloak_service
         .add_user_to_group(&token, &user_id, &group_id)
-        .await?;
-
-    state
-        .keycloak_service
-        .trigger_email_verification(&token, &user_id, params.redirect_uri.as_deref())
         .await?;
 
     Ok(StatusCode::CREATED)

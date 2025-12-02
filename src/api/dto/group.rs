@@ -13,6 +13,11 @@ pub struct GroupUpdateRequest {
     pub description: Option<String>,
 }
 
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+pub struct GetGroupByPathParams {
+    pub path: String,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 pub struct KeycloakGroup {
     pub id: String,
