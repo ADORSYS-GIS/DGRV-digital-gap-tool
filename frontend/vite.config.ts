@@ -10,12 +10,14 @@ export default defineConfig(({ mode }) => ({
     port: 8000,
     proxy: {
       "/realms": {
-        target: "https://ec2-3-120-98-172.eu-central-1.compute.amazonaws.com/keycloak",
+        target:
+          "https://ec2-3-120-98-172.eu-central-1.compute.amazonaws.com/keycloak",
         changeOrigin: true,
         secure: false,
       },
       "/resources": {
-        target: "https://ec2-3-120-98-172.eu-central-1.compute.amazonaws.com/keycloak",
+        target:
+          "https://ec2-3-120-98-172.eu-central-1.compute.amazonaws.com/keycloak",
         changeOrigin: true,
         secure: false,
       },
