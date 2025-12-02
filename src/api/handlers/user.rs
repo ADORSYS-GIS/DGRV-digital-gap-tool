@@ -6,7 +6,6 @@ use axum::{
 };
 use crate::{
     api::dto::member::AddMemberRequest,
-    auth::claims::Claims,
     error::{AppError, AppResult},
     AppState,
     models::keycloak::CreateUserRequest,
@@ -27,14 +26,9 @@ use tokio::time::{sleep, Duration};
 pub async fn add_member(
     State(state): State<AppState>,
     Extension(token): Extension<String>,
-    Extension(claims): Extension<Claims>,
     Path(group_id): Path<String>,
     Json(payload): Json<AddMemberRequest>,
 ) -> AppResult<impl IntoResponse> {
-    let org_id = claims.get_organization_id().ok_or_else(|| {
-        AppError::BadRequest("Organization ID not found in token".to_string())
-    })?;
-
     // Find user by email
     let existing_user = state
         .keycloak_service
@@ -63,12 +57,6 @@ pub async fn add_member(
             .await?;
         new_user.id
     };
-
-    // Add user to the organization in Keycloak
-    state
-        .keycloak_service
-        .add_user_to_organization(&token, &org_id, &user_id)
-        .await?;
 
     // Assign specified roles
     for role in payload.roles {
