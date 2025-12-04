@@ -18,62 +18,6 @@ use crate::api::handlers::common::{
 use crate::error::AppError;
 use crate::repositories::reports::ReportsRepository;
 
-/// Create a new report
-#[utoipa::path(
-    post,
-    path = "/reports",
-    request_body = GenerateReportRequest,
-    responses(
-        (status = 200, description = "Report created", body = ApiResponseReportResponse)
-    )
-)]
-pub async fn create_report(
-    State(state): State<AppState>,
-    Json(request): Json<GenerateReportRequest>,
-) -> Result<Json<ApiResponse<ReportResponse>>, (StatusCode, Json<serde_json::Value>)> {
-    // Create report record first
-    let active_model = crate::entities::reports::ActiveModel {
-        assessment_id: sea_orm::Set(request.assessment_id),
-        report_type: sea_orm::Set(convert_dto_report_type_to_entity(request.report_type)),
-        title: sea_orm::Set(request.title),
-        format: sea_orm::Set(convert_dto_report_format_to_entity(request.format)),
-        summary: sea_orm::Set(None),
-        report_data: sea_orm::Set(request.custom_sections.map(|sections| {
-            serde_json::json!({
-                "include_recommendations": request.include_recommendations.unwrap_or(true),
-                "include_action_plans": request.include_action_plans.unwrap_or(true),
-                "custom_sections": sections
-            })
-        })),
-        status: sea_orm::Set(crate::entities::reports::ReportStatus::Pending),
-        generated_at: sea_orm::Set(chrono::Utc::now()),
-        ..Default::default()
-    };
-
-    let report = ReportsRepository::create(&state.db, active_model)
-        .await
-        .map_err(crate::api::handlers::common::handle_error)?;
-
-    let response = ReportResponse {
-        report_id: report.report_id,
-        assessment_id: report.assessment_id,
-        report_type: convert_entity_report_type_to_dto(report.report_type),
-        title: report.title,
-        format: convert_entity_report_format_to_dto(report.format),
-        summary: report.summary,
-        report_data: report.report_data,
-        file_path: None, // Will be set when file is actually generated
-        status: convert_entity_report_status_to_dto(report.status),
-        generated_at: report.generated_at,
-        created_at: report.created_at,
-        updated_at: report.updated_at,
-    };
-
-    Ok(success_response_with_message(
-        response,
-        "Report created successfully".to_string(),
-    ))
-}
 
 // Conversion functions for report enums
 fn convert_entity_report_type_to_dto(
@@ -138,72 +82,52 @@ pub async fn generate_report(
     State(state): State<AppState>,
     Json(request): Json<GenerateReportRequest>,
 ) -> Result<Json<ApiResponse<ReportResponse>>, (StatusCode, Json<serde_json::Value>)> {
-    // Handle PDF generation and storage
-    if matches!(request.format, ReportFormat::Pdf) {
-        // Generate PDF bytes
-        let pdf_bytes = crate::services::pdf_generator::PdfGeneratorService::generate_assessment_pdf(
+    tracing::info!(
+        assessment_id = %request.assessment_id,
+        report_type = ?request.report_type,
+        format = ?request.format,
+        "Received request to generate new report"
+    );
+
+    let pdf_bytes_result =
+        crate::services::pdf_generator::PdfGeneratorService::generate_assessment_pdf(
             &state.db,
             request.assessment_id,
         )
-        .await
-        .map_err(crate::api::handlers::common::handle_error)?;
+        .await;
 
-        // Store report using ReportService (uploads to S3 and creates DB record)
-        let report = state
-            .report_service
-            .generate_and_store_report(
-                request.assessment_id,
-                convert_dto_report_type_to_entity(request.report_type),
-                request.title,
-                convert_dto_report_format_to_entity(request.format),
-                pdf_bytes,
-            )
-            .await
-            .map_err(crate::api::handlers::common::handle_error)?;
-
-        let response = ReportResponse {
-            report_id: report.report_id,
-            assessment_id: report.assessment_id,
-            report_type: convert_entity_report_type_to_dto(report.report_type),
-            title: report.title,
-            format: convert_entity_report_format_to_dto(report.format),
-            summary: report.summary,
-            report_data: report.report_data,
-            file_path: report.file_path,
-            status: convert_entity_report_status_to_dto(report.status),
-            generated_at: report.generated_at,
-            created_at: report.created_at,
-            updated_at: report.updated_at,
-        };
-
-        return Ok(success_response_with_message(
-            response,
-            "Report generated and stored successfully".to_string(),
-        ));
-    }
-
-    // Fallback for other formats (keep existing logic for now)
-    let active_model = crate::entities::reports::ActiveModel {
-        assessment_id: sea_orm::Set(request.assessment_id),
-        report_type: sea_orm::Set(convert_dto_report_type_to_entity(request.report_type)),
-        title: sea_orm::Set(request.title),
-        format: sea_orm::Set(convert_dto_report_format_to_entity(request.format)),
-        summary: sea_orm::Set(None),
-        report_data: sea_orm::Set(request.custom_sections.map(|sections| {
-            serde_json::json!({
-                "include_recommendations": request.include_recommendations.unwrap_or(true),
-                "include_action_plans": request.include_action_plans.unwrap_or(true),
-                "custom_sections": sections
-            })
-        })),
-        status: sea_orm::Set(crate::entities::reports::ReportStatus::Pending),
-        generated_at: sea_orm::Set(chrono::Utc::now()),
-        ..Default::default()
+    let pdf_bytes = match pdf_bytes_result {
+        Ok(bytes) => {
+            tracing::info!("PDF bytes generated successfully.");
+            bytes
+        }
+        Err(e) => {
+            tracing::error!(error = %e, "Failed to generate PDF bytes");
+            return Err(crate::api::handlers::common::handle_error(e));
+        }
     };
 
-    let report = ReportsRepository::create(&state.db, active_model)
-        .await
-        .map_err(crate::api::handlers::common::handle_error)?;
+    let report_result = state
+        .report_service
+        .generate_and_store_report(
+            request.assessment_id,
+            convert_dto_report_type_to_entity(request.report_type),
+            request.title,
+            convert_dto_report_format_to_entity(request.format),
+            pdf_bytes,
+        )
+        .await;
+
+    let report = match report_result {
+        Ok(r) => {
+            tracing::info!(report_id = %r.report_id, "Report generation and storage successful");
+            r
+        }
+        Err(e) => {
+            tracing::error!(error = %e, "Failed to generate and store report");
+            return Err(crate::api::handlers::common::handle_error(e));
+        }
+    };
 
     let response = ReportResponse {
         report_id: report.report_id,
@@ -222,7 +146,7 @@ pub async fn generate_report(
 
     Ok(success_response_with_message(
         response,
-        "Report generation started".to_string(),
+        "Report generated and stored successfully".to_string(),
     ))
 }
 
@@ -632,20 +556,48 @@ pub async fn download_latest_report_by_assessment(
     State(state): State<AppState>,
     Path(assessment_id): Path<Uuid>,
 ) -> Result<impl axum::response::IntoResponse, (StatusCode, Json<serde_json::Value>)> {
-    let report = ReportsRepository::find_latest_pdf_by_assessment(&state.db, assessment_id)
-        .await
-        .map_err(crate::api::handlers::common::handle_error)?
-        .ok_or_else(|| {
-            crate::api::handlers::common::handle_error(AppError::NotFound(
-                "Report not found".to_string(),
-            ))
-        })?;
+    tracing::info!(assessment_id = %assessment_id, "Request to download latest report");
 
+    // Use the optimized repository method to find the latest completed PDF report
+    let report_option = ReportsRepository::find_latest_pdf_by_assessment(&state.db, assessment_id)
+        .await
+        .map_err(crate::api::handlers::common::handle_error)?;
+
+    let report = match report_option {
+        Some(r) => {
+            tracing::info!(report_id = %r.report_id, "Latest report found");
+            r
+        }
+        None => {
+            // Fallback: Check if ANY reports exist for this assessment to provide better logging
+            let all_reports = ReportsRepository::find_by_assessment(&state.db, assessment_id)
+                .await
+                .unwrap_or_default();
+            
+            tracing::warn!(
+                assessment_id = %assessment_id, 
+                total_reports_found = %all_reports.len(),
+                "No completed PDF reports found for this assessment"
+            );
+            
+            return Err(crate::api::handlers::common::handle_error(
+                AppError::NotFound("No completed PDF reports found for this assessment.".to_string()),
+            ));
+        }
+    };
+
+    tracing::info!(report_id = %report.report_id, "Fetching report file");
     let (_report, file_bytes) = state
         .report_service
         .get_report_file(report.report_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?;
+
+    tracing::info!(
+        report_id = %report.report_id,
+        file_size_bytes = %file_bytes.len(),
+        "Sending PDF file to client"
+    );
 
     let content_type = "application/pdf";
     let filename = format!(

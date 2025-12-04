@@ -70,6 +70,7 @@ use crate::models::keycloak::KeycloakUser;
         crate::api::handlers::report::download_report,
         crate::api::handlers::report::list_reports,
         crate::api::handlers::report::list_reports_by_assessment,
+        crate::api::handlers::report::download_latest_report_by_assessment,
         crate::api::handlers::action_plan::list_action_plans,
         crate::api::handlers::action_plan::get_action_plan_by_assessment_id,
         // Recommendation endpoints

@@ -89,11 +89,7 @@ pub fn create_api_routes(_app_state: AppState) -> Router<AppState> {
             delete(delete_desired_state),
         )
         // Report routes
-        .route("/reports", post(create_report))
-        .route("/reports", get(list_reports))
-        .route("/reports/:id", get(get_report))
-        .route("/reports/:id", put(update_report))
-        .route("/reports/:id", delete(delete_report))
+        .nest("/reports", crate::api::routes::report::create_report_routes())
         // Gap routes
         .route("/gaps", get(list_gaps))
         .route("/gaps/:id", get(get_gap))

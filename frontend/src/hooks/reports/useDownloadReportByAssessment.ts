@@ -1,17 +1,18 @@
 import { useMutation } from "@tanstack/react-query";
-import { listReportsByAssessment } from "@/openapi-client/services.gen";
 import { toast } from "sonner";
+import { ApiError } from "@/openapi-client/core/ApiError";
+import { downloadLatestReportByAssessment } from "@/openapi-client/services.gen";
 
 export const useDownloadReportByAssessment = () => {
   return useMutation({
     mutationFn: async (assessmentId: string) => {
-      const response = await listReportsByAssessment({
+      // The OpenAPI client already returns a Blob for binary responses
+      const blob = await downloadLatestReportByAssessment({
         assessmentId,
       });
 
-      // Create a blob from the response
-      const blob = new Blob([response as unknown as BlobPart], { type: "application/pdf" });
-      const url = window.URL.createObjectURL(blob);
+      // Create a URL from the blob
+      const url = window.URL.createObjectURL(blob as Blob);
 
       // Create a link and click it to trigger download
       const link = document.createElement("a");
@@ -24,13 +25,17 @@ export const useDownloadReportByAssessment = () => {
       link.parentNode?.removeChild(link);
       window.URL.revokeObjectURL(url);
 
-      return response;
+      return blob;
     },
     onSuccess: () => {
       toast.success("Report downloaded successfully");
     },
-    onError: (error) => {
-      toast.error("Failed to download report");
+    onError: (error: unknown) => {
+      if (error instanceof ApiError && error.status === 404) {
+        toast.error("Report not found. Please generate it first.");
+      } else {
+        toast.error("Failed to download report");
+      }
       console.error(error);
     },
   });

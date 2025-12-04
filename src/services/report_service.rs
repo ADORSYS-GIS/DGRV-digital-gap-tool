@@ -75,18 +75,28 @@ impl ReportService {
         &self,
         report_id: Uuid,
     ) -> Result<(crate::entities::reports::Model, Bytes), AppError> {
-        // Get report metadata
-        let report = ReportsRepository::find_by_id(&self.db, report_id)
-            .await?
-            .ok_or_else(|| AppError::NotFound("Report not found".to_string()))?;
+        tracing::info!(report_id = %report_id, "Attempting to get report file");
+        let report = match ReportsRepository::find_by_id(&self.db, report_id).await {
+            Ok(Some(r)) => {
+                tracing::info!(report_id = %report_id, "Found report metadata in database");
+                r
+            }
+            Ok(None) => {
+                tracing::warn!(report_id = %report_id, "Report metadata not found in database");
+                return Err(AppError::NotFound("Report not found".to_string()));
+            }
+            Err(e) => {
+                tracing::error!(error = %e, "Database error while fetching report metadata");
+                return Err(e);
+            }
+        };
 
-        // Expect object key in file_path
         let object_name = report
             .file_path
             .as_ref()
             .ok_or_else(|| AppError::NotFound("Report file not available".to_string()))?;
 
-        // Download file from S3/MinIO
+        tracing::info!(object_name = %object_name, "Downloading file from S3");
         let file_data = self.storage_service.download_file(object_name).await?;
 
         Ok((report, file_data))
