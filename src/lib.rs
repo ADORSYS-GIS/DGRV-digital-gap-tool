@@ -21,11 +21,14 @@ use tracing::{info, warn, Level};
 use tracing_subscriber::FmtSubscriber;
 use crate::auth::jwt_validator::JwtValidator;
 
+use crate::services::report_service::ReportService;
+
 #[derive(Clone)]
 pub struct AppState {
     pub db: Arc<DatabaseConnection>,
     pub keycloak_service: Arc<KeycloakService>,
     pub jwt_validator: Arc<JwtValidator>,
+    pub report_service: Arc<ReportService>,
 }
 
 pub async fn run() -> anyhow::Result<()> {
@@ -50,8 +53,11 @@ pub async fn run() -> anyhow::Result<()> {
     // Run migrations
     database::run_migrations(&db).await?;
 
+    // Initialize Report Service
+    let report_service = Arc::new(ReportService::new(&config.minio, db.clone()).await?);
+
     // Build our application with routes
-    let app = create_app(db, config.clone());
+    let app = create_app(db, config.clone(), report_service);
 
     // Run the server
     let addr: SocketAddr = (config.host.parse::<std::net::IpAddr>()?, config.port).into();
@@ -63,7 +69,7 @@ pub async fn run() -> anyhow::Result<()> {
     Ok(())
 }
 
-fn create_app(db: DatabaseConnection, config: Config) -> Router {
+fn create_app(db: DatabaseConnection, config: Config, report_service: Arc<ReportService>) -> Router {
     use http::header::{AUTHORIZATION, CONTENT_TYPE};
     use tower_http::cors::CorsLayer;
 
@@ -86,6 +92,7 @@ fn create_app(db: DatabaseConnection, config: Config) -> Router {
         db: Arc::new(db),
         keycloak_service: Arc::new(KeycloakService::new(config.clone())),
         jwt_validator: Arc::new(JwtValidator::new(config.keycloak.clone())),
+        report_service,
     };
 
     // Create API router with all routes

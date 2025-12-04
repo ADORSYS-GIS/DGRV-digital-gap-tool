@@ -33,7 +33,7 @@ services:
       keycloak:
         condition: service_healthy
       minio:
-        condition: service_started
+        condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "curl http://localhost:3001/health || exit 1"]
       interval: 30s

@@ -21,6 +21,7 @@ import {
   ClipboardList,
   ClipboardCheck,
   History,
+  Download,
 } from "lucide-react";
 import React from "react";
 import { Link } from "react-router-dom";
@@ -29,12 +30,15 @@ import { SubmissionList } from "@/components/shared/submissions/SubmissionList";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { Button } from "@/components/ui/button";
 import { useOrganizationId } from "@/hooks/organizations/useOrganizationId";
+import { ReportActions } from "@/components/shared/reports/ReportActions";
+import { AssessmentSummary } from "@/types/assessment";
+import { SyncStatus } from "@/types/sync";
 
 const SecondAdminDashboard: React.FC = () => {
   const { user } = useAuth();
   const organizationId = useOrganizationId();
   const {
-    data: submissions = [],
+    data: submissionsData = [],
     isLoading,
     error,
   } = useSubmissionsByOrganization(organizationId || "", {
@@ -43,9 +47,18 @@ const SecondAdminDashboard: React.FC = () => {
     refetchOnWindowFocus: false,
   });
 
-  // Log for debugging
-  console.log("Organization ID:", organizationId);
-  console.log("Submissions:", submissions);
+  const submissions: AssessmentSummary[] = submissionsData.map((s) => ({
+    ...s,
+    id: s.assessment.assessment_id,
+    syncStatus: SyncStatus.SYNCED,
+    assessment: {
+      ...s.assessment,
+      started_at: s.assessment.started_at || null,
+      completed_at: s.assessment.completed_at || null,
+      dimensions_id: s.assessment.dimensions_id as string[],
+    },
+    overall_score: s.overall_score ?? null,
+  }));
 
   return (
     <div className="space-y-6">
@@ -104,6 +117,22 @@ const SecondAdminDashboard: React.FC = () => {
           />
         </Link>
       </div>
+
+      {/* Report Actions */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <Download className="mr-2 h-5 w-5" />
+            Export Reports
+          </CardTitle>
+          <CardDescription>
+            Generate and download assessment reports.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ReportActions />
+        </CardContent>
+      </Card>
 
       {/* Recent Submissions */}
       <Card>

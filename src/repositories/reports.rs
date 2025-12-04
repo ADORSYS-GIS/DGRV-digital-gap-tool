@@ -22,8 +22,9 @@ impl ReportsRepository {
 
     pub async fn create(
         db: &DbConn,
-        report_data: reports::ActiveModel,
+        mut report_data: reports::ActiveModel,
     ) -> Result<reports::Model, AppError> {
+        report_data.report_id = Set(Uuid::new_v4());
         report_data.insert(db).await.map_err(AppError::from)
     }
 
@@ -89,6 +90,20 @@ impl ReportsRepository {
         Reports::find()
             .filter(reports::Column::AssessmentId.eq(assessment_id))
             .all(db)
+            .await
+            .map_err(AppError::from)
+    }
+
+    pub async fn find_latest_pdf_by_assessment(
+        db: &DbConn,
+        assessment_id: Uuid,
+    ) -> Result<Option<reports::Model>, AppError> {
+        Reports::find()
+            .filter(reports::Column::AssessmentId.eq(assessment_id))
+            .filter(reports::Column::Format.eq(crate::entities::reports::ReportFormat::Pdf))
+            .filter(reports::Column::Status.eq(crate::entities::reports::ReportStatus::Completed))
+            .order_by_desc(reports::Column::GeneratedAt)
+            .one(db)
             .await
             .map_err(AppError::from)
     }

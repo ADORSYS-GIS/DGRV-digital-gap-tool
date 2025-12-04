@@ -138,7 +138,51 @@ pub async fn generate_report(
     State(state): State<AppState>,
     Json(request): Json<GenerateReportRequest>,
 ) -> Result<Json<ApiResponse<ReportResponse>>, (StatusCode, Json<serde_json::Value>)> {
-    // Create report record first
+    // Handle PDF generation and storage
+    if matches!(request.format, ReportFormat::Pdf) {
+        // Generate PDF bytes
+        let pdf_bytes = crate::services::pdf_generator::PdfGeneratorService::generate_assessment_pdf(
+            &state.db,
+            request.assessment_id,
+        )
+        .await
+        .map_err(crate::api::handlers::common::handle_error)?;
+
+        // Store report using ReportService (uploads to S3 and creates DB record)
+        let report = state
+            .report_service
+            .generate_and_store_report(
+                request.assessment_id,
+                convert_dto_report_type_to_entity(request.report_type),
+                request.title,
+                convert_dto_report_format_to_entity(request.format),
+                pdf_bytes,
+            )
+            .await
+            .map_err(crate::api::handlers::common::handle_error)?;
+
+        let response = ReportResponse {
+            report_id: report.report_id,
+            assessment_id: report.assessment_id,
+            report_type: convert_entity_report_type_to_dto(report.report_type),
+            title: report.title,
+            format: convert_entity_report_format_to_dto(report.format),
+            summary: report.summary,
+            report_data: report.report_data,
+            file_path: report.file_path,
+            status: convert_entity_report_status_to_dto(report.status),
+            generated_at: report.generated_at,
+            created_at: report.created_at,
+            updated_at: report.updated_at,
+        };
+
+        return Ok(success_response_with_message(
+            response,
+            "Report generated and stored successfully".to_string(),
+        ));
+    }
+
+    // Fallback for other formats (keep existing logic for now)
     let active_model = crate::entities::reports::ActiveModel {
         assessment_id: sea_orm::Set(request.assessment_id),
         report_type: sea_orm::Set(convert_dto_report_type_to_entity(request.report_type)),
@@ -160,10 +204,6 @@ pub async fn generate_report(
     let report = ReportsRepository::create(&state.db, active_model)
         .await
         .map_err(crate::api::handlers::common::handle_error)?;
-
-    // Initialize report service (you'll need to pass the storage service)
-    // For now, we'll just return the created report
-    // In a real implementation, you'd start the report generation process here
 
     let response = ReportResponse {
         report_id: report.report_id,
@@ -318,11 +358,8 @@ pub async fn download_report(
         updated_at: report.updated_at,
     };
 
-    // Generate a simple download URL based on object key (file_path)
-    let download_url = report
-        .file_path
-        .as_ref()
-        .map(|key| format!("/api/v1/reports/{report_id}/objects/{key}"));
+    // Generate a simple download URL
+    let download_url = Some(format!("/api/v1/reports/{}/file", report_id));
 
     let response = ReportDownloadResponse {
         report: report_response,
@@ -341,6 +378,57 @@ pub async fn download_report(
     };
 
     Ok(success_response(response))
+}
+
+/// Serve report file content
+#[utoipa::path(
+    get,
+    path = "/reports/{id}/file",
+    params(("id" = Uuid, Path, description = "Report ID")),
+    responses(
+        (status = 200, description = "Report file content", body = Vec<u8>),
+        (status = 404, description = "Report not found")
+    )
+)]
+pub async fn serve_report_file(
+    State(state): State<AppState>,
+    Path(report_id): Path<Uuid>,
+) -> Result<impl axum::response::IntoResponse, (StatusCode, Json<serde_json::Value>)> {
+    let (report, file_bytes) = state
+        .report_service
+        .get_report_file(report_id)
+        .await
+        .map_err(crate::api::handlers::common::handle_error)?;
+
+    let content_type = match report.format {
+        crate::entities::reports::ReportFormat::Pdf => "application/pdf",
+        crate::entities::reports::ReportFormat::Excel => {
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        }
+        crate::entities::reports::ReportFormat::Json => "application/json",
+    };
+
+    let filename = format!(
+        "{}.{}",
+        report.title.replace(" ", "_"),
+        match report.format {
+            crate::entities::reports::ReportFormat::Pdf => "pdf",
+            crate::entities::reports::ReportFormat::Excel => "xlsx",
+            crate::entities::reports::ReportFormat::Json => "json",
+        }
+    );
+
+    let mut headers = http::HeaderMap::new();
+    headers.insert(
+        http::header::CONTENT_TYPE,
+        http::HeaderValue::from_static(content_type),
+    );
+    headers.insert(
+        http::header::CONTENT_DISPOSITION,
+        http::HeaderValue::from_str(&format!("attachment; filename=\"{}\"", filename)).unwrap(),
+    );
+
+    Ok((headers, file_bytes))
 }
 
 /// List reports with pagination
@@ -528,4 +616,52 @@ pub async fn delete_report(
         (),
         "Report deleted successfully".to_string(),
     ))
+}
+
+/// Download latest PDF report by assessment ID
+#[utoipa::path(
+    get,
+    path = "/reports/assessment/{assessment_id}/download",
+    params(("assessment_id" = Uuid, Path, description = "Assessment ID")),
+    responses(
+        (status = 200, description = "Report file content", body = Vec<u8>),
+        (status = 404, description = "Report not found")
+    )
+)]
+pub async fn download_latest_report_by_assessment(
+    State(state): State<AppState>,
+    Path(assessment_id): Path<Uuid>,
+) -> Result<impl axum::response::IntoResponse, (StatusCode, Json<serde_json::Value>)> {
+    let report = ReportsRepository::find_latest_pdf_by_assessment(&state.db, assessment_id)
+        .await
+        .map_err(crate::api::handlers::common::handle_error)?
+        .ok_or_else(|| {
+            crate::api::handlers::common::handle_error(AppError::NotFound(
+                "Report not found".to_string(),
+            ))
+        })?;
+
+    let (_report, file_bytes) = state
+        .report_service
+        .get_report_file(report.report_id)
+        .await
+        .map_err(crate::api::handlers::common::handle_error)?;
+
+    let content_type = "application/pdf";
+    let filename = format!(
+        "{}.pdf",
+        report.title.replace(" ", "_")
+    );
+
+    let mut headers = http::HeaderMap::new();
+    headers.insert(
+        http::header::CONTENT_TYPE,
+        http::HeaderValue::from_static(content_type),
+    );
+    headers.insert(
+        http::header::CONTENT_DISPOSITION,
+        http::HeaderValue::from_str(&format!("attachment; filename=\"{}\"", filename)).unwrap(),
+    );
+
+    Ok((headers, file_bytes))
 }

@@ -224,7 +224,26 @@ export const authService = {
     try {
       if (!keycloak.tokenParsed) return null;
       const token = keycloak.tokenParsed as CustomKeycloakTokenParsed;
-      return token.cooperation?.[0] || null;
+      // First, try the dedicated 'cooperation' claim
+      if (token.cooperation && token.cooperation.length > 0) {
+        const cooperationPath = token.cooperation[0];
+        if (cooperationPath) {
+          return cooperationPath;
+        }
+      }
+      // If not found, try to derive it from the 'organizations' claim
+      const orgs = token.organizations;
+      if (orgs) {
+        const orgPaths = Object.keys(orgs);
+        const firstPath = orgPaths[0];
+        if (firstPath) {
+          const pathParts = firstPath.split("/").filter((p) => p);
+          if (pathParts.length > 1) {
+            return `/${pathParts[0]}`;
+          }
+        }
+      }
+      return null;
     } catch (error) {
       console.error("Error getting cooperation path from token:", error);
       return null;
