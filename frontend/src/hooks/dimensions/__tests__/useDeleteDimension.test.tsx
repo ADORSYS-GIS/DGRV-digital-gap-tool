@@ -3,7 +3,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { vi, describe, it, expect, beforeEach, Mock } from "vitest";
 import { useDeleteDimension } from "../useDeleteDimension";
 import { db } from "@/services/db";
-import { Table } from "dexie";
 
 const queryClient = new QueryClient({
   defaultOptions: {
