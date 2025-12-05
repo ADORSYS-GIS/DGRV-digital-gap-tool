@@ -115,7 +115,7 @@ export function RecommendationList({
                                   ? "destructive"
                                   : recommendation.priority === "MEDIUM"
                                     ? "default"
-                                    : "secondary"
+                                    : "success"
                               }
                               className="capitalize font-medium px-2 py-1 text-xs"
                             >

@@ -41,7 +41,7 @@ interface AddLevelFormProps {
   existingLevels: IDigitalisationLevel[];
 }
 
-const currentStateDescriptions: Record<string, string[]> = {
+export const currentStateDescriptions: Record<string, string[]> = {
   Technology: [
     "Legacy Systems",
     "Basic Digital Tools",
@@ -100,7 +100,7 @@ const currentStateDescriptions: Record<string, string[]> = {
   ],
 };
 
-const desiredStateDescriptions: Record<string, string[]> = {
+export const desiredStateDescriptions: Record<string, string[]> = {
   Technology: [
     "Legacy Systems",
     "Basic Digital Tools",
@@ -196,7 +196,7 @@ export const AddLevelForm = ({
       dimension_id: dimensionId,
       score: data.state as LevelState,
       description: data.description ?? null,
-      level: `Level ${data.state}`,
+      level: descriptions?.[data.state - 1] ?? `Level ${data.state}`,
     };
 
     addLevelMutation.mutate(
@@ -227,9 +227,6 @@ export const AddLevelForm = ({
   const handleStateChange = (value: string) => {
     const state = parseInt(value, 10);
     setValue("state", state);
-    if (descriptions) {
-      setValue("description", descriptions[state - 1] ?? "");
-    }
   };
 
   return (

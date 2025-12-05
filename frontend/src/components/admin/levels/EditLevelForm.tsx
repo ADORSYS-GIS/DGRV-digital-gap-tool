@@ -1,17 +1,11 @@
-import { useEffect } from "react";
-import { useForm, Controller, SubmitHandler } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -19,8 +13,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { useUpdateDigitalisationLevel } from "@/hooks/digitalisationLevels/useUpdateDigitalisationLevel";
+import { useDimension } from "@/hooks/dimensions/useDimension";
 import { IDigitalisationLevel, LevelState } from "@/types/digitalisationLevel";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect } from "react";
+import { Controller, SubmitHandler, useForm } from "react-hook-form";
+import * as z from "zod";
+import {
+  currentStateDescriptions,
+  desiredStateDescriptions,
+} from "./AddLevelForm";
 
 const formSchema = z.object({
   description: z.string().optional(),
@@ -42,6 +46,8 @@ export const EditLevelForm = ({
   level,
   existingLevels,
 }: EditLevelFormProps) => {
+  const { data: dimension } = useDimension(level.dimensionId);
+
   const {
     register,
     handleSubmit,
@@ -71,7 +77,7 @@ export const EditLevelForm = ({
     const changes = {
       score: data.state as LevelState,
       description: data.description ?? null,
-      level: `Level ${data.state}`,
+      level: descriptions?.[data.state - 1] ?? `Level ${data.state}`,
     };
 
     updateLevelMutation.mutate(
@@ -93,6 +99,13 @@ export const EditLevelForm = ({
     (state) =>
       !existingLevels.some((l) => l.state === state && l.id !== level.id),
   );
+
+  const descriptions =
+    dimension && level.levelType === "current"
+      ? currentStateDescriptions[dimension.name]
+      : dimension
+        ? desiredStateDescriptions[dimension.name]
+        : undefined;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -117,7 +130,9 @@ export const EditLevelForm = ({
                 <SelectContent>
                   {availableStates.map((state) => (
                     <SelectItem key={state} value={String(state)}>
-                      State {state}
+                      {descriptions
+                        ? `${descriptions[state - 1]}`
+                        : `State ${state}`}
                     </SelectItem>
                   ))}
                 </SelectContent>

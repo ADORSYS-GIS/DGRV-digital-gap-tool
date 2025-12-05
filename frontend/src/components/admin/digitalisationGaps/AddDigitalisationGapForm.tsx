@@ -89,20 +89,29 @@ export function AddDigitalisationGapForm({
   const updateMutation = useUpdateDigitalisationGap();
 
   useEffect(() => {
-    if (digitalisationGap) {
+    if (!isOpen) {
+      // Reset form when dialog is closed
+      form.reset({
+        dimensionId: "",
+        gap_severity: Gap.MEDIUM,
+        scope: "",
+      });
+    } else if (digitalisationGap) {
+      // Populate form for editing
       form.reset({
         dimensionId: digitalisationGap.dimensionId,
         gap_severity: digitalisationGap.gap_severity,
         scope: digitalisationGap.scope,
       });
     } else {
+      // Reset to default for adding new gap when dialog is opened
       form.reset({
         dimensionId: "",
         gap_severity: Gap.MEDIUM,
         scope: "",
       });
     }
-  }, [digitalisationGap, form]);
+  }, [isOpen, digitalisationGap, form]);
 
   const onSubmit = (values: AddDigitalisationGapFormValues) => {
     const handleSuccess = () => {

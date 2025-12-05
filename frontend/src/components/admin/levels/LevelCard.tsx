@@ -55,7 +55,7 @@ export const LevelCard = ({ level, existingLevels }: LevelCardProps) => {
     <Card className="flex flex-col">
       <CardHeader>
         <div className="flex justify-between items-start">
-          <CardTitle>State {level.state}</CardTitle>
+          <CardTitle>{level.level || `State ${level.state}`}</CardTitle>
           <Badge variant="secondary">{level.level}</Badge>
         </div>
       </CardHeader>
