@@ -64,6 +64,9 @@ config = "0.15.19"
 rand = "0.8.5"
 http = "1.4.0"
 printpdf = "0.7"
+tera = "1.19"
+base64 = "0.22.1"
+headless_chrome = "1.0.18"
 
 [dev-dependencies]
 sea-orm = { version = "0.12", features = ["mock"] }

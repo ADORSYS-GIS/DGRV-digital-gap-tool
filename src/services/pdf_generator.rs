@@ -1,32 +1,48 @@
 use crate::error::AppError;
 use crate::repositories::{
-    action_items::ActionItemsRepository, 
+    action_items::ActionItemsRepository,
     assessments::AssessmentsRepository,
+    current_states::CurrentStatesRepository,
+    desired_states::DesiredStatesRepository,
     dimension_assessments::DimensionAssessmentsRepository,
     dimensions::DimensionsRepository,
     gaps::GapsRepository,
     recommendations::RecommendationsRepository,
 };
+use base64::{engine::general_purpose, Engine as _};
 use bytes::Bytes;
-use printpdf::*;
+use headless_chrome::{Browser, LaunchOptions};
 use sea_orm::DatabaseConnection;
-use std::io::BufWriter;
+use serde::Serialize;
+use std::ffi::OsStr;
+use tera::{Context, Tera};
 use uuid::Uuid;
 
 /// Data structure for a single row in the PDF report
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct PdfReportRow {
     pub category: String,
     pub gap: String,
+    pub gap_class: String, // "high", "medium", or "low" for CSS class
     pub result: String,
     pub recommendations: Vec<String>,
 }
 
+/// Chart data structure
+#[derive(Debug, Clone, Serialize)]
+pub struct ChartData {
+    pub labels: Vec<String>,
+    pub current_state: Vec<i32>,
+    pub desired_state: Vec<i32>,
+}
+
 /// Complete data structure for the PDF report
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct PdfReportData {
     pub assessment_title: String,
     pub rows: Vec<PdfReportRow>,
+    pub chart_data: Option<String>, // JSON string for Chart.js
+    pub generation_date: String,
 }
 
 pub struct PdfGeneratorService;
@@ -39,10 +55,13 @@ impl PdfGeneratorService {
     ) -> Result<Bytes, AppError> {
         // Fetch all required data
         let report_data = Self::fetch_report_data(db, assessment_id).await?;
-        
-        // Generate the PDF document
-        let pdf_bytes = Self::create_pdf_document(&report_data)?;
-        
+
+        // Generate HTML from template
+        let html = Self::render_html_template(&report_data)?;
+
+        // Convert HTML to PDF using headless Chrome
+        let pdf_bytes = Self::html_to_pdf(&html).await?;
+
         Ok(pdf_bytes)
     }
 
@@ -61,6 +80,9 @@ impl PdfGeneratorService {
             DimensionAssessmentsRepository::find_by_assessment_id(db, assessment_id).await?;
 
         let mut rows = Vec::new();
+        let mut chart_labels = Vec::new();
+        let mut chart_current = Vec::new();
+        let mut chart_desired = Vec::new();
 
         for dim_assessment in dimension_assessments {
             // Get dimension name
@@ -90,98 +112,117 @@ impl PdfGeneratorService {
                 }
             }
 
+            // Get current and desired state levels for chart
+            let current_state_level = if let Some(current_state) =
+                CurrentStatesRepository::find_by_id(db, dim_assessment.current_state_id).await?
+            {
+                current_state.score
+            } else {
+                0
+            };
+
+            let desired_state_level = if let Some(desired_state) =
+                DesiredStatesRepository::find_by_id(db, dim_assessment.desired_state_id).await?
+            {
+                desired_state.score
+            } else {
+                0
+            };
+
+            // Determine gap class for CSS styling
+            let gap_severity_str = format!("{:?}", gap.gap_severity).to_uppercase();
+            let gap_class = match gap_severity_str.as_str() {
+                "HIGH" => "high",
+                "MEDIUM" => "medium",
+                "LOW" => "low",
+                _ => "medium",
+            };
+
             rows.push(PdfReportRow {
-                category: dimension.name,
-                gap: format!("{:?}", gap.gap_severity).to_uppercase(),
+                category: dimension.name.clone(),
+                gap: gap_severity_str,
+                gap_class: gap_class.to_string(),
                 result: gap.gap_description.unwrap_or_else(|| "No description".to_string()),
                 recommendations,
             });
+
+            // Add to chart data
+            chart_labels.push(dimension.name);
+            chart_current.push(current_state_level);
+            chart_desired.push(desired_state_level);
         }
+
+        // Create chart data JSON
+        let chart_data = if !chart_labels.is_empty() {
+            let chart = ChartData {
+                labels: chart_labels,
+                current_state: chart_current,
+                desired_state: chart_desired,
+            };
+            Some(serde_json::to_string(&chart).unwrap_or_default())
+        } else {
+            None
+        };
 
         Ok(PdfReportData {
             assessment_title: assessment.document_title,
             rows,
+            chart_data,
+            generation_date: chrono::Utc::now().format("%Y-%m-%d %H:%M UTC").to_string(),
         })
     }
 
-    /// Creates the PDF document from the report data
-    fn create_pdf_document(data: &PdfReportData) -> Result<Bytes, AppError> {
-        // Create a new PDF document
-        let (doc, page1, layer1) =
-            PdfDocument::new(&data.assessment_title, Mm(210.0), Mm(297.0), "Layer 1");
-        let current_layer = doc.get_page(page1).get_layer(layer1);
+    /// Renders the HTML template with the report data
+    fn render_html_template(data: &PdfReportData) -> Result<String, AppError> {
+        let tera = Tera::new("templates/**/*.html")
+            .map_err(|e| AppError::InternalServerError(format!("Template error: {}", e)))?;
 
-        // Load a built-in font
-        let font = doc.add_builtin_font(BuiltinFont::Helvetica)
-            .map_err(|e| AppError::InternalServerError(format!("Failed to load font: {}", e)))?;
-        let font_bold = doc.add_builtin_font(BuiltinFont::HelveticaBold)
-            .map_err(|e| AppError::InternalServerError(format!("Failed to load font: {}", e)))?;
+        let mut context = Context::new();
+        context.insert("assessment_title", &data.assessment_title);
+        context.insert("rows", &data.rows);
+        context.insert("chart_data", &data.chart_data);
+        context.insert("generation_date", &data.generation_date);
 
-        // Title
-        current_layer.use_text(
-            &data.assessment_title,
-            18.0,
-            Mm(20.0),
-            Mm(270.0),
-            &font_bold,
+        tera.render("report.html", &context)
+            .map_err(|e| AppError::InternalServerError(format!("Template render error: {}", e)))
+    }
+
+    /// Converts HTML to PDF using a headless browser
+    async fn html_to_pdf(html: &str) -> Result<Bytes, AppError> {
+        let browser = Browser::new(LaunchOptions {
+            headless: true,
+            sandbox: true,
+            args: vec![
+                OsStr::new("--no-sandbox"),
+                OsStr::new("--disable-gpu"),
+            ],
+            ..Default::default()
+        })
+        .map_err(|e| AppError::InternalServerError(format!("Failed to launch browser: {}", e)))?;
+
+        let tab = browser
+            .new_tab()
+            .map_err(|e| AppError::InternalServerError(format!("Failed to create new tab: {}", e)))?;
+
+        // Navigate to a data URL to load the HTML content
+        let data_url = format!(
+            "data:text/html;base64,{}",
+            general_purpose::STANDARD.encode(html)
         );
+        tab.navigate_to(&data_url)
+            .map_err(|e| AppError::InternalServerError(format!("Failed to navigate: {}", e)))?;
 
-        // Table header
-        let header_y = 250.0;
-        current_layer.use_text("Category", 12.0, Mm(20.0), Mm(header_y), &font_bold);
-        current_layer.use_text("Gap", 12.0, Mm(70.0), Mm(header_y), &font_bold);
-        current_layer.use_text("Result", 12.0, Mm(100.0), Mm(header_y), &font_bold);
-        current_layer.use_text("Recommendations", 12.0, Mm(150.0), Mm(header_y), &font_bold);
+        // Wait for the chart to be rendered before printing
+        // Wait for the static chart image to be rendered before printing
+        tab.wait_for_element("img#chartImage")
+            .map_err(|e| {
+                AppError::InternalServerError(format!("Failed to wait for chart image: {}", e))
+            })?;
 
-        // Table rows
-        let mut current_y = header_y - 10.0;
-        for row in &data.rows {
-            // Check if we need a new page
-            if current_y < 30.0 {
-                // Add new page logic here if needed
-                break;
-            }
+        let pdf_data = tab
+            .print_to_pdf(None)
+            .map_err(|e| AppError::InternalServerError(format!("Failed to print to PDF: {}", e)))?;
 
-            // Category
-            current_layer.use_text(&row.category, 10.0, Mm(20.0), Mm(current_y), &font);
-
-            // Gap
-            current_layer.use_text(&row.gap, 10.0, Mm(70.0), Mm(current_y), &font);
-
-            // Result (truncate if too long)
-            let result_text = if row.result.len() > 30 {
-                format!("{}...", &row.result[..30])
-            } else {
-                row.result.clone()
-            };
-            current_layer.use_text(&result_text, 10.0, Mm(100.0), Mm(current_y), &font);
-
-            // Recommendations (join multiple recommendations)
-            let recommendations_text = if row.recommendations.is_empty() {
-                "No recommendations".to_string()
-            } else if row.recommendations.len() == 1 {
-                let rec = &row.recommendations[0];
-                if rec.len() > 30 {
-                    format!("{}...", &rec[..30])
-                } else {
-                    rec.clone()
-                }
-            } else {
-                format!("{} recommendations", row.recommendations.len())
-            };
-            current_layer.use_text(&recommendations_text, 10.0, Mm(150.0), Mm(current_y), &font);
-
-            current_y -= 8.0;
-        }
-
-        // Save PDF to bytes
-        let mut buffer = BufWriter::new(Vec::new());
-        doc.save(&mut buffer)
-            .map_err(|e| AppError::InternalServerError(format!("Failed to save PDF: {}", e)))?;
-
-        let bytes = buffer.into_inner()
-            .map_err(|e| AppError::InternalServerError(format!("Failed to get PDF bytes: {}", e)))?;
-
-        Ok(Bytes::from(bytes))
+        Ok(Bytes::from(pdf_data))
     }
 }

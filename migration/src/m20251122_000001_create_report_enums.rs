@@ -11,13 +11,15 @@ impl MigrationTrait for Migration {
             .execute_unprepared(
                 "CREATE TYPE report_type AS ENUM ('summary', 'detailed', 'action_plan')",
             )
-            .await?;
+            .await
+            .ok();
 
         // Create report_format enum
         manager
             .get_connection()
             .execute_unprepared("CREATE TYPE report_format AS ENUM ('pdf', 'excel', 'json')")
-            .await?;
+            .await
+            .ok();
 
         // Alter reports table to use the new enums
         manager
@@ -39,13 +41,19 @@ impl MigrationTrait for Migration {
             .execute_unprepared(
                 "CREATE TYPE report_status AS ENUM ('pending', 'generating', 'completed', 'failed')",
             )
-            .await?;
+            .await
+            .ok();
 
-        // Add status column to reports table
+        // Alter the existing status column to use the new enum
         manager
             .get_connection()
             .execute_unprepared(
-                "ALTER TABLE reports ADD COLUMN status report_status NOT NULL DEFAULT 'pending'",
+                r#"
+                ALTER TABLE "reports" ALTER COLUMN "status" DROP DEFAULT;
+                ALTER TABLE "reports" ALTER COLUMN "status" TYPE report_status USING "status"::text::report_status;
+                ALTER TABLE "reports" ALTER COLUMN "status" SET NOT NULL;
+                ALTER TABLE "reports" ALTER COLUMN "status" SET DEFAULT 'pending'::report_status;
+                "#,
             )
             .await?;
 
@@ -56,13 +64,13 @@ impl MigrationTrait for Migration {
         // Remove the status column
         manager
             .get_connection()
-            .execute_unprepared("ALTER TABLE reports DROP COLUMN status")
+            .execute_unprepared("ALTER TABLE reports DROP COLUMN IF EXISTS status")
             .await?;
 
         // Drop the report_status enum
         manager
             .get_connection()
-            .execute_unprepared("DROP TYPE report_status")
+            .execute_unprepared("DROP TYPE IF EXISTS report_status")
             .await?;
 
         // Revert the column types to string
@@ -78,11 +86,11 @@ impl MigrationTrait for Migration {
         // Drop the enums
         manager
             .get_connection()
-            .execute_unprepared("DROP TYPE report_type")
+            .execute_unprepared("DROP TYPE IF EXISTS report_type")
             .await?;
         manager
             .get_connection()
-            .execute_unprepared("DROP TYPE report_format")
+            .execute_unprepared("DROP TYPE IF EXISTS report_format")
             .await?;
 
         Ok(())
