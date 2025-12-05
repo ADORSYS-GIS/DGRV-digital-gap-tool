@@ -31,13 +31,41 @@ import {
   ClipboardList,
   FilePlus2,
   History,
+  Download,
 } from "lucide-react";
 import React from "react";
 import { Link } from "react-router-dom";
+import { ReportActions } from "@/components/shared/reports/ReportActions";
+import { AssessmentSummary } from "@/types/assessment";
+import { SyncStatus } from "@/types/sync";
 
 const UserDashboard: React.FC = () => {
   const { user } = useAuth();
-  const { data: submissions, isLoading, error } = useSubmissions();
+  const { data: submissionsData, isLoading, error } = useSubmissions();
+
+  const submissions: AssessmentSummary[] =
+    submissionsData?.map((s) => ({
+      id: s.id,
+      assessment: {
+        assessment_id: s.id,
+        name: s.name,
+        organization_id: s.organization_id,
+        cooperation_id: s.cooperation_id ?? null,
+        created_at: s.created_at,
+        status: s.status,
+        lastError: s.lastError,
+        started_at: null,
+        completed_at: null,
+        dimensions_id: s.dimensionIds || [],
+        document_title: "",
+        updated_at: "",
+      },
+      dimension_assessments: [],
+      gaps_count: 0,
+      recommendations_count: 0,
+      overall_score: null,
+      syncStatus: SyncStatus.SYNCED,
+    })) || [];
 
   return (
     <div className="space-y-6">
@@ -80,6 +108,22 @@ const UserDashboard: React.FC = () => {
           />
         </Link>
       </div>
+
+      {/* Report Actions */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <Download className="mr-2 h-5 w-5" />
+            Export Reports
+          </CardTitle>
+          <CardDescription>
+            Generate and download assessment reports.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ReportActions />
+        </CardContent>
+      </Card>
 
       {/* Recent Submissions */}
       <Card>

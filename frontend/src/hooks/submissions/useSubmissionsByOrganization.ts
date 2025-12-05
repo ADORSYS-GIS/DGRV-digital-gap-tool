@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { submissionRepository } from "@/services/assessments/submissionRepository";
-import { AssessmentSummary } from "@/types/assessment";
+import { listSubmissionsByOrganization } from "@/openapi-client";
+import type { AssessmentSummaryResponse } from "@/openapi-client";
 
 export interface UseSubmissionsByOrganizationOptions {
   enabled?: boolean;
@@ -29,44 +29,35 @@ export const useSubmissionsByOrganization = (
     options?.status,
   ];
 
-  return useQuery<AssessmentSummary[]>({
+  return useQuery<AssessmentSummaryResponse[]>({
     queryKey,
     queryFn: async () => {
-      console.log("Fetching submissions for organization:", organizationId);
+      if (!organizationId) return [];
+      const response = await listSubmissionsByOrganization({ organizationId });
 
-      if (!organizationId) {
-        console.warn(
-          "No organization ID provided to useSubmissionsByOrganization",
+      // The API is returning a single object instead of an array.
+      // We'll check if it's an array, if not, we'll wrap the object in an array.
+      const submissionsData = response.data || [];
+      const submissions = Array.isArray(submissionsData)
+        ? submissionsData
+        : [submissionsData];
+
+      // Apply client-side filtering if needed
+      let filtered = [...submissions];
+
+      if (options?.status?.length) {
+        filtered = filtered.filter(
+          (submission) =>
+            submission.assessment.status &&
+            options.status?.includes(submission.assessment.status),
         );
-        return [];
       }
 
-      try {
-        const submissions =
-          await submissionRepository.listByOrganization(organizationId);
-        console.log("Fetched submissions:", submissions);
-
-        // Apply client-side filtering if needed
-        let filtered = [...submissions];
-
-        if (options?.status?.length) {
-          filtered = filtered.filter(
-            (submission) =>
-              submission.assessment.status &&
-              options.status?.includes(submission.assessment.status),
-          );
-        }
-
-        if (options?.limit) {
-          filtered = filtered.slice(0, options.limit);
-        }
-
-        return filtered;
-      } catch (error) {
-        console.error("Failed to fetch organization submissions:", error);
-        // Return empty array instead of throwing to prevent UI errors
-        return [];
+      if (options?.limit) {
+        filtered = filtered.slice(0, options.limit);
       }
+
+      return filtered;
     },
     enabled: options?.enabled !== false && !!organizationId,
     refetchOnMount: options?.refetchOnMount ?? true,

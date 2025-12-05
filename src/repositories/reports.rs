@@ -1,6 +1,7 @@
 use crate::entities::reports::{self, Entity as Reports};
 use crate::error::AppError;
 use sea_orm::*;
+use sea_orm::sea_query::{Alias, Expr};
 use uuid::Uuid;
 
 pub struct ReportsRepository;
@@ -24,7 +25,12 @@ impl ReportsRepository {
         db: &DbConn,
         report_data: reports::ActiveModel,
     ) -> Result<reports::Model, AppError> {
-        report_data.insert(db).await.map_err(AppError::from)
+        let report_id = report_data.report_id.as_ref().clone();
+        tracing::debug!(report_id = %report_id, "Creating new report in database");
+        report_data.insert(db).await.map_err(|e| {
+            tracing::error!(error = %e, "Database error creating report");
+            AppError::from(e)
+        })
     }
 
     pub async fn update(
@@ -89,6 +95,22 @@ impl ReportsRepository {
         Reports::find()
             .filter(reports::Column::AssessmentId.eq(assessment_id))
             .all(db)
+            .await
+            .map_err(AppError::from)
+    }
+
+    pub async fn find_latest_pdf_by_assessment(
+        db: &DbConn,
+        assessment_id: Uuid,
+    ) -> Result<Option<reports::Model>, AppError> {
+        // We cast columns to text to handle both Enum and Varchar types safely.
+        // This resolves "operator does not exist" errors caused by schema inconsistencies.
+        Reports::find()
+            .filter(reports::Column::AssessmentId.eq(assessment_id))
+            .filter(Expr::col(reports::Column::Format).cast_as(Alias::new("text")).eq("pdf"))
+            .filter(Expr::col(reports::Column::Status).cast_as(Alias::new("text")).eq("completed"))
+            .order_by_desc(reports::Column::GeneratedAt)
+            .one(db)
             .await
             .map_err(AppError::from)
     }

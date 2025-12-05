@@ -614,6 +614,37 @@
         "responses": { "204": { "description": "No Content" } }
       }
     },
+    "/api/submissions/submit": {
+      "post": {
+        "tags": ["Submissions"],
+        "summary": "Submit an assessment",
+        "description": "This endpoint submits an assessment and triggers the generation of a report.",
+        "operationId": "submit_assessment",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmitAssessmentRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Assessment submitted successfully",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ReportResponse" }
+              }
+            }
+          },
+          "400": { "description": "Bad request" },
+          "404": { "description": "Assessment not found" },
+          "500": { "description": "Internal server error" }
+        }
+      }
+    },
     "/assessments": {
       "get": {
         "tags": ["crate::api::handlers::assessment"],
@@ -1947,6 +1978,33 @@
               }
             }
           }
+        }
+      }
+    },
+    "/reports/assessment/{assessment_id}/download": {
+      "get": {
+        "tags": ["crate::api::handlers::report"],
+        "summary": "Download latest PDF report by assessment ID",
+        "operationId": "download_latest_report_by_assessment",
+        "parameters": [
+          {
+            "name": "assessment_id",
+            "in": "path",
+            "description": "Assessment ID",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Report file content",
+            "content": {
+              "application/octet-stream": {
+                "schema": { "type": "string", "format": "binary" }
+              }
+            }
+          },
+          "404": { "description": "Report not found" }
         }
       }
     },
@@ -4598,6 +4656,13 @@
         "description": "Sort order enumeration",
         "enum": ["Asc", "Desc"]
       },
+      "SubmitAssessmentRequest": {
+        "type": "object",
+        "required": ["assessment_id"],
+        "properties": {
+          "assessment_id": { "type": "string", "format": "uuid" }
+        }
+      },
       "UpdateAssessmentRequest": {
         "type": "object",
         "description": "Assessment update request",
@@ -4755,6 +4820,7 @@
       "name": "Admin",
       "description": "Administrative configuration endpoints"
     },
-    { "name": "User", "description": "User management endpoints" }
+    { "name": "User", "description": "User management endpoints" },
+    { "name": "Submissions", "description": "Submission management endpoints" }
   ]
 }

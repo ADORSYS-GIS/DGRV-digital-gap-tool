@@ -8,6 +8,7 @@ interface SubmissionListProps {
   limit?: number;
   basePath: string;
   showOrganization?: boolean;
+  onSubmissionSelect?: (submission: AssessmentSummary) => void;
 }
 
 const getStatusVariant = (status: string) => {
@@ -40,8 +41,15 @@ export const SubmissionList = ({
   limit,
   basePath,
   showOrganization = false,
+  onSubmissionSelect,
 }: SubmissionListProps) => {
   const items = limit ? submissions.slice(0, limit) : submissions;
+
+  const handleSubmissionClick = (submission: AssessmentSummary) => {
+    if (onSubmissionSelect) {
+      onSubmissionSelect(submission);
+    }
+  };
 
   // Transform AssessmentSummary to the format expected by the list item
   const getSubmissionData = (
@@ -92,14 +100,12 @@ export const SubmissionList = ({
 
   return (
     <div className="space-y-3">
-      {validItems.map(({ data: submissionData }) => (
-        <div
-          key={submissionData.id}
-          className="border rounded-lg p-4 hover:bg-gray-50 transition-colors"
-        >
-          <Link
-            to={`${basePath}/submissions/${submissionData.id}`}
-            className="block"
+      {validItems.map(({ submission, data: submissionData }) =>
+        onSubmissionSelect ? (
+          <button
+            key={submissionData.id}
+            onClick={() => handleSubmissionClick(submission)}
+            className="w-full text-left border rounded-lg p-4 hover:bg-gray-50 transition-colors"
           >
             <div className="flex items-center justify-between">
               <div className="flex items-start space-x-4">
@@ -155,9 +161,74 @@ export const SubmissionList = ({
                 View details →
               </div>
             </div>
-          </Link>
-        </div>
-      ))}
+          </button>
+        ) : (
+          <div
+            key={submissionData.id}
+            className="border rounded-lg p-4 hover:bg-gray-50 transition-colors"
+          >
+            <Link
+              to={`${basePath}/submissions/${submissionData.id}`}
+              className="block"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-start space-x-4">
+                  <div className="p-2 bg-blue-50 rounded-full mt-1">
+                    <Leaf className="h-5 w-5 text-blue-600" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-2">
+                      <h3 className="font-medium text-gray-900 hover:underline">
+                        {submissionData.name}
+                      </h3>
+                      <Badge
+                        variant={getStatusVariant(submissionData.status)}
+                        className="text-xs"
+                      >
+                        {submissionData.status}
+                      </Badge>
+                    </div>
+
+                    <p className="text-sm text-gray-500 mt-1">
+                      Submitted on{" "}
+                      {new Date(submissionData.created_at).toLocaleDateString()}
+                    </p>
+
+                    <div className="mt-2 flex items-center space-x-4 text-sm">
+                      {submissionData.overall_score !== null && (
+                        <div className="flex items-center">
+                          <span className="font-medium text-gray-700">
+                            {submissionData.overall_score.toFixed(1)}%
+                          </span>
+                          <span className="ml-1 text-gray-500">
+                            overall score
+                          </span>
+                        </div>
+                      )}
+
+                      {submissionData.gaps_count > 0 && (
+                        <div className="flex items-center">
+                          <span className="font-medium text-gray-700">
+                            {submissionData.gaps_count}
+                          </span>
+                          <span className="ml-1 text-gray-500">
+                            gap{submissionData.gaps_count !== 1 ? "s" : ""}{" "}
+                            identified
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="text-sm text-gray-500 self-start">
+                  View details →
+                </div>
+              </div>
+            </Link>
+          </div>
+        ),
+      )}
     </div>
   );
 };
