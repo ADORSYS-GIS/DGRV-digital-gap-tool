@@ -111,7 +111,8 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
     setIsSubmitting(false);
   }, [dimensionId]);
 
-  const { mutateAsync: submitDimensionAssessment } = useSubmitDimensionAssessment();
+  const { mutateAsync: submitDimensionAssessment } =
+    useSubmitDimensionAssessment();
   const { mutateAsync: submitFullAssessment } = useSubmitAssessment();
 
   const handleSuccess = (data: IDimensionAssessment) => {

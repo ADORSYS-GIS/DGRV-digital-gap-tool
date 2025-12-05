@@ -46,7 +46,11 @@ const ThirdAdminDashboard: React.FC = () => {
   });
 
   const submissions: AssessmentSummary[] = (
-    Array.isArray(submissionsData) ? submissionsData : submissionsData ? [submissionsData] : []
+    Array.isArray(submissionsData)
+      ? submissionsData
+      : submissionsData
+        ? [submissionsData]
+        : []
   ).map((s) => ({
     ...s,
     id: s.assessment.assessment_id,
