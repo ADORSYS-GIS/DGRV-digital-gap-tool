@@ -1,12 +1,27 @@
-import { ActionPlan } from "@/types/actionPlan";
+import { useActionPlan } from "@/hooks/action_plans/useActionPlan";
 import { ActionItemCard } from "./ActionItemCard";
 import { Clock, CirclePlay, CircleCheck, ThumbsUp } from "lucide-react";
+import { LoadingSpinner } from "../LoadingSpinner";
 
 interface KanbanBoardProps {
-  actionPlan: ActionPlan;
+  submissionId: string;
 }
 
-export function KanbanBoard({ actionPlan }: KanbanBoardProps) {
+export function KanbanBoard({ submissionId }: KanbanBoardProps) {
+  const { data: actionPlan, isLoading, error } = useActionPlan(submissionId);
+
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
+
+  if (error) {
+    return <p className="text-red-500">Error loading action plan.</p>;
+  }
+
+  if (!actionPlan) {
+    return <p>No action plan found for this submission.</p>;
+  }
+
   const columns = {
     todo: actionPlan.action_items.filter((item) => item.status === "todo"),
     in_progress: actionPlan.action_items.filter(

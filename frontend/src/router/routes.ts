@@ -35,6 +35,9 @@ const ManageRecommendations = React.lazy(
 const ManageActionPlan = React.lazy(
   () => import("../pages/admin/ManageActionPlan"),
 );
+const ActionPlansPage = React.lazy(
+  () => import("../pages/admin/ActionPlansPage"),
+);
 const ManageDigitalGaps = React.lazy(
   () => import("../pages/admin/ManageDigitalGaps"),
 );
@@ -120,8 +123,8 @@ const routes = [
         element: React.createElement(ManageRecommendations),
       },
       {
-        path: "action-plan",
-        element: React.createElement(ManageActionPlan),
+        path: "action-plans",
+        element: React.createElement(ActionPlansPage),
       },
       {
         path: "digital-gaps",

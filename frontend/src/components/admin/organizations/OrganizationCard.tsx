@@ -32,12 +32,14 @@ import { EditOrganizationForm } from "./EditOrganizationForm";
 
 interface OrganizationCardProps {
   organization: Organization;
-  onAssignDimension: (organization: Organization) => void;
+  onAssignDimension?: (organization: Organization) => void;
+  isSelectable?: boolean;
 }
 
 export const OrganizationCard: React.FC<OrganizationCardProps> = ({
   organization,
   onAssignDimension,
+  isSelectable,
 }) => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const deleteMutation = useDeleteOrganization();
@@ -47,7 +49,9 @@ export const OrganizationCard: React.FC<OrganizationCardProps> = ({
   };
 
   const handleAssignDimension = () => {
-    onAssignDimension(organization);
+    if (onAssignDimension) {
+      onAssignDimension(organization);
+    }
   };
 
   return (
@@ -66,65 +70,70 @@ export const OrganizationCard: React.FC<OrganizationCardProps> = ({
             <span className="font-medium">Domain:</span> {organization.domain}
           </p>
         </div>
-        <div className="mt-6 pt-4 border-t border-gray-100">
-          <div className="flex w-full gap-2 mb-2">
-            <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-              <DialogTrigger asChild>
-                <Button variant="outline" size="sm" className="w-full">
-                  <FilePenLine className="mr-2 h-4 w-4" /> Edit
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Edit Organization</DialogTitle>
-                </DialogHeader>
-                <EditOrganizationForm
-                  organization={organization}
-                  onSuccess={() => setIsEditDialogOpen(false)}
-                />
-              </DialogContent>
-            </Dialog>
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="destructive" size="sm" className="w-full">
-                  <Trash2 className="mr-2 h-4 w-4" /> Delete
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This action cannot be undone. This will permanently delete
-                    the organization and remove its data from our servers.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleDelete}>
-                    Continue
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+        {!isSelectable && (
+          <div className="mt-6 pt-4 border-t border-gray-100">
+            <div className="flex w-full gap-2 mb-2">
+              <Dialog
+                open={isEditDialogOpen}
+                onOpenChange={setIsEditDialogOpen}
+              >
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="sm" className="w-full">
+                    <FilePenLine className="mr-2 h-4 w-4" /> Edit
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Edit Organization</DialogTitle>
+                  </DialogHeader>
+                  <EditOrganizationForm
+                    organization={organization}
+                    onSuccess={() => setIsEditDialogOpen(false)}
+                  />
+                </DialogContent>
+              </Dialog>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="destructive" size="sm" className="w-full">
+                    <Trash2 className="mr-2 h-4 w-4" /> Delete
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. This will permanently delete
+                      the organization and remove its data from our servers.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleDelete}>
+                      Continue
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full"
+                    onClick={handleAssignDimension}
+                  >
+                    <Users className="mr-2 h-4 w-4" /> Assign Dimension
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Assign dimensions to this organization</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full"
-                  onClick={handleAssignDimension}
-                >
-                  <Users className="mr-2 h-4 w-4" /> Assign Dimension
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Assign dimensions to this organization</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </div>
+        )}
       </CardContent>
     </Card>
   );
