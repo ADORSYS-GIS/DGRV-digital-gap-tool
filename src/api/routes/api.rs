@@ -8,7 +8,7 @@ use crate::api::handlers::{
     assessment::*, dimension::*, gap::*, report::*,
 };
 use crate::api::routes::{
-    action_plan::create_action_plan_routes, group::create_group_routes, organization::create_organization_routes, recommendation::create_recommendation_routes, user::user_routes,
+    action_plan::create_action_plan_routes, group::create_group_routes, organization::create_organization_routes, recommendation::create_recommendation_routes, user::user_routes, submissions::create_submission_routes,
 };
 
 /// Create the main API routes
@@ -19,6 +19,7 @@ pub fn create_api_routes(_app_state: AppState) -> Router<AppState> {
         .nest("/admin/groups", create_group_routes())
         .nest("/admin/users", user_routes())
         .nest("/recommendations", create_recommendation_routes())
+        .nest("/api/submissions", create_submission_routes())
         // Assessment routes
         .route("/assessments", post(create_assessment))
         .route("/assessments", get(list_assessments))

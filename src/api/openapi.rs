@@ -92,10 +92,12 @@ use crate::models::keycloak::KeycloakUser;
         crate::api::handlers::user::delete_user,
         crate::api::handlers::user::add_member,
         crate::api::handlers::user::get_group_members,
+        crate::api::handlers::submission::submit_assessment,
     ),
     components(
         schemas(
             // Common
+            crate::api::handlers::submission::SubmitAssessmentRequest,
             PaginationParams,
             SortOrder,
             EmptyResponse,
@@ -231,7 +233,8 @@ use crate::models::keycloak::KeycloakUser;
         (name = "Action Plans", description = "Action plan endpoints"),
         (name = "Gaps", description = "Gap endpoints"),
         (name = "Admin", description = "Administrative configuration endpoints"),
-        (name = "User", description = "User management endpoints")
+        (name = "User", description = "User management endpoints"),
+        (name = "Submissions", description = "Submission management endpoints")
     )
 )]
 pub struct ApiDoc;

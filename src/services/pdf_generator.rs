@@ -16,6 +16,7 @@ use sea_orm::DatabaseConnection;
 use serde::Serialize;
 use std::ffi::OsStr;
 use tera::{Context, Tera};
+use tracing::{error, info, instrument, warn};
 use uuid::Uuid;
 
 /// Data structure for a single row in the PDF report
@@ -49,23 +50,33 @@ pub struct PdfGeneratorService;
 
 impl PdfGeneratorService {
     /// Main entry point to generate a PDF report for an assessment
+    #[instrument(skip(db), fields(assessment_id = %assessment_id))]
     pub async fn generate_assessment_pdf(
         db: &DatabaseConnection,
         assessment_id: Uuid,
     ) -> Result<Bytes, AppError> {
+        info!("Starting PDF generation process for assessment.");
+
         // Fetch all required data
+        info!("Fetching report data from database.");
         let report_data = Self::fetch_report_data(db, assessment_id).await?;
+        info!("Successfully fetched report data.");
 
         // Generate HTML from template
+        info!("Rendering HTML template.");
         let html = Self::render_html_template(&report_data)?;
+        info!("Successfully rendered HTML template.");
 
         // Convert HTML to PDF using headless Chrome
+        info!("Converting HTML to PDF.");
         let pdf_bytes = Self::html_to_pdf(&html).await?;
+        info!("Successfully converted HTML to PDF.");
 
         Ok(pdf_bytes)
     }
 
     /// Aggregates all data needed for the PDF report
+    #[instrument(skip(db), fields(assessment_id = %assessment_id))]
     async fn fetch_report_data(
         db: &DatabaseConnection,
         assessment_id: Uuid,
@@ -73,11 +84,16 @@ impl PdfGeneratorService {
         // Get assessment
         let assessment = AssessmentsRepository::find_by_id(db, assessment_id)
             .await?
-            .ok_or_else(|| AppError::NotFound("Assessment not found".to_string()))?;
+            .ok_or_else(|| {
+                error!("Assessment with ID {} not found.", assessment_id);
+                AppError::NotFound("Assessment not found".to_string())
+            })?;
+        info!(assessment_title = %assessment.document_title, "Found assessment.");
 
         // Get dimension assessments
         let dimension_assessments =
             DimensionAssessmentsRepository::find_by_assessment_id(db, assessment_id).await?;
+        info!(count = dimension_assessments.len(), "Found dimension assessments.");
 
         let mut rows = Vec::new();
         let mut chart_labels = Vec::new();
@@ -88,12 +104,18 @@ impl PdfGeneratorService {
             // Get dimension name
             let dimension = DimensionsRepository::find_by_id(db, dim_assessment.dimension_id)
                 .await?
-                .ok_or_else(|| AppError::NotFound("Dimension not found".to_string()))?;
+                .ok_or_else(|| {
+                    error!(dimension_id = %dim_assessment.dimension_id, "Dimension not found.");
+                    AppError::NotFound("Dimension not found".to_string())
+                })?;
 
             // Get gap details
-            let gap = GapsRepository::find_by_id(db, dim_assessment.gap_id)
-                .await?
-                .ok_or_else(|| AppError::NotFound("Gap not found".to_string()))?;
+            let gap = GapsRepository::find_by_id(db, dim_assessment.gap_id).await?.ok_or_else(
+                || {
+                    error!(gap_id = %dim_assessment.gap_id, "Gap not found.");
+                    AppError::NotFound("Gap not found".to_string())
+                },
+            )?;
 
             // Get action items for this dimension assessment
             let action_items = ActionItemsRepository::find_by_dimension_assessment_id(
@@ -173,9 +195,18 @@ impl PdfGeneratorService {
     }
 
     /// Renders the HTML template with the report data
+    #[instrument(skip(data))]
     fn render_html_template(data: &PdfReportData) -> Result<String, AppError> {
-        let tera = Tera::new("templates/**/*.html")
-            .map_err(|e| AppError::InternalServerError(format!("Template error: {}", e)))?;
+        let tera = match Tera::new("templates/**/*.html") {
+            Ok(t) => t,
+            Err(e) => {
+                error!(error = %e, "Failed to parse templates.");
+                return Err(AppError::InternalServerError(format!(
+                    "Template error: {}",
+                    e
+                )));
+            }
+        };
 
         let mut context = Context::new();
         context.insert("assessment_title", &data.assessment_title);
@@ -183,12 +214,22 @@ impl PdfGeneratorService {
         context.insert("chart_data", &data.chart_data);
         context.insert("generation_date", &data.generation_date);
 
-        tera.render("report.html", &context)
-            .map_err(|e| AppError::InternalServerError(format!("Template render error: {}", e)))
+        match tera.render("report.html", &context) {
+            Ok(html) => Ok(html),
+            Err(e) => {
+                error!(error = %e, "Failed to render HTML template.");
+                Err(AppError::InternalServerError(format!(
+                    "Template render error: {}",
+                    e
+                )))
+            }
+        }
     }
 
     /// Converts HTML to PDF using a headless browser
+    #[instrument(skip(html))]
     async fn html_to_pdf(html: &str) -> Result<Bytes, AppError> {
+        info!("Initializing headless browser for PDF conversion.");
         let browser = Browser::new(LaunchOptions {
             headless: true,
             sandbox: true,
@@ -198,30 +239,43 @@ impl PdfGeneratorService {
             ],
             ..Default::default()
         })
-        .map_err(|e| AppError::InternalServerError(format!("Failed to launch browser: {}", e)))?;
+        .map_err(|e| {
+            error!(error = %e, "Failed to launch headless browser.");
+            AppError::InternalServerError(format!("Failed to launch browser: {}", e))
+        })?;
+        info!("Browser launched successfully.");
 
-        let tab = browser
-            .new_tab()
-            .map_err(|e| AppError::InternalServerError(format!("Failed to create new tab: {}", e)))?;
+        let tab = browser.new_tab().map_err(|e| {
+            error!(error = %e, "Failed to create new browser tab.");
+            AppError::InternalServerError(format!("Failed to create new tab: {}", e))
+        })?;
+        info!("New browser tab created.");
 
         // Navigate to a data URL to load the HTML content
         let data_url = format!(
             "data:text/html;base64,{}",
             general_purpose::STANDARD.encode(html)
         );
-        tab.navigate_to(&data_url)
-            .map_err(|e| AppError::InternalServerError(format!("Failed to navigate: {}", e)))?;
+        tab.navigate_to(&data_url).map_err(|e| {
+            error!(error = %e, "Failed to navigate to data URL in headless browser.");
+            AppError::InternalServerError(format!("Failed to navigate: {}", e))
+        })?;
+        info!("Navigated to data URL.");
 
         // Wait for the chart to be rendered before printing
-        // Wait for the static chart image to be rendered before printing
-        tab.wait_for_element("img#chartImage")
-            .map_err(|e| {
-                AppError::InternalServerError(format!("Failed to wait for chart image: {}", e))
-            })?;
+        info!("Waiting for chart image element to be ready.");
+        if let Err(e) = tab.wait_for_element("img#chartImage") {
+            warn!(error = %e, "Failed to wait for chart image. This might be okay if there is no chart.");
+        } else {
+            info!("Chart image element found.");
+        }
 
-        let pdf_data = tab
-            .print_to_pdf(None)
-            .map_err(|e| AppError::InternalServerError(format!("Failed to print to PDF: {}", e)))?;
+        info!("Printing page to PDF.");
+        let pdf_data = tab.print_to_pdf(None).map_err(|e| {
+            error!(error = %e, "Failed to print to PDF.");
+            AppError::InternalServerError(format!("Failed to print to PDF: {}", e))
+        })?;
+        info!("PDF data generated successfully.");
 
         Ok(Bytes::from(pdf_data))
     }

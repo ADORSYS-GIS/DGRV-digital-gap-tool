@@ -1,10 +1,12 @@
 use crate::entities::reports::{ReportFormat, ReportStatus, ReportType};
 use crate::error::AppError;
 use crate::repositories::reports::ReportsRepository;
+use crate::services::pdf_generator::PdfGeneratorService;
 use crate::services::s3_storage::{FileStorageService, S3StorageService};
 use async_trait::async_trait;
 use bytes::Bytes;
 use sea_orm::DatabaseConnection;
+use tracing::{error, info, instrument};
 use uuid::Uuid;
 
 pub struct ReportService {
@@ -115,6 +117,82 @@ impl ReportService {
 
         // Delete report from database
         ReportsRepository::delete(&self.db, report_id).await
+    }
+    #[instrument(skip(self), fields(report_id = %report_id))]
+    pub async fn generate_report_for_submission(&self, report_id: Uuid) -> Result<(), AppError> {
+        info!("Starting report generation for submission.");
+
+        // 1. Fetch the report to get the assessment_id
+        let report = match ReportsRepository::find_by_id(&self.db, report_id).await {
+            Ok(Some(r)) => r,
+            Ok(None) => {
+                error!("Report not found in database.");
+                return Err(AppError::NotFound("Report not found".to_string()));
+            }
+            Err(e) => {
+                error!(error = %e, "Database error while fetching report.");
+                return Err(e.into());
+            }
+        };
+
+        // Wrap the generation logic in a block to handle errors and update status
+        let generation_result = async {
+            // 2. Generate the PDF using the PdfGeneratorService
+            info!(assessment_id = %report.assessment_id, "Generating PDF for assessment.");
+            let pdf_bytes =
+                PdfGeneratorService::generate_assessment_pdf(&self.db, report.assessment_id).await?;
+
+            // 3. Store the report file in S3/MinIO
+            info!("Uploading generated PDF to storage.");
+            let object_name = self
+                .storage_service
+                .generate_object_name(&report.report_id, &ReportFormat::Pdf.to_string());
+            self.storage_service
+                .upload_file(&object_name, pdf_bytes, "application/pdf")
+                .await?;
+            info!(object_name = %object_name, "PDF uploaded successfully.");
+
+            // 4. Update the report status to 'Completed'
+            info!("Updating report status to 'Completed'.");
+            let mut updated_report: crate::entities::reports::ActiveModel = report.into();
+            updated_report.status = sea_orm::ActiveValue::Set(ReportStatus::Completed);
+            updated_report.file_path = sea_orm::ActiveValue::Set(Some(object_name));
+            updated_report.generated_at = sea_orm::ActiveValue::Set(chrono::Utc::now());
+            updated_report.updated_at = sea_orm::ActiveValue::Set(chrono::Utc::now());
+            ReportsRepository::update(
+                &self.db,
+                updated_report.report_id.clone().unwrap(),
+                updated_report,
+            )
+            .await?;
+            info!("Report status updated to 'Completed'.");
+
+            Ok(())
+        }
+        .await;
+
+        if let Err(e) = generation_result {
+            error!(error = %e, "Report generation failed. Updating status to 'Failed'.");
+            let report_to_fail = ReportsRepository::find_by_id(&self.db, report_id)
+                .await?
+                .ok_or_else(|| {
+                    AppError::NotFound("Report disappeared during failure handling".to_string())
+                })?;
+
+            let mut updated_report: crate::entities::reports::ActiveModel = report_to_fail.into();
+            updated_report.status = sea_orm::ActiveValue::Set(ReportStatus::Failed);
+            updated_report.updated_at = sea_orm::ActiveValue::Set(chrono::Utc::now());
+            ReportsRepository::update(
+                &self.db,
+                updated_report.report_id.clone().unwrap(),
+                updated_report,
+            )
+            .await?;
+            return Err(e);
+        }
+
+        info!("Report generation process completed successfully.");
+        Ok(())
     }
 }
 
