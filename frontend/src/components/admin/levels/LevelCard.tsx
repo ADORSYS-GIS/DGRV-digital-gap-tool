@@ -1,16 +1,3 @@
-import { useState } from "react";
-import { IDigitalisationLevel } from "@/types/digitalisationLevel";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Edit, Trash2 } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,7 +9,18 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { useDeleteDigitalisationLevel } from "@/hooks/digitalisationLevels/useDeleteDigitalisationLevel";
+import { IDigitalisationLevel } from "@/types/digitalisationLevel";
+import { Edit, Trash2 } from "lucide-react";
+import { useState } from "react";
 import { EditLevelForm } from "./EditLevelForm";
 
 interface LevelCardProps {
@@ -56,7 +54,6 @@ export const LevelCard = ({ level, existingLevels }: LevelCardProps) => {
       <CardHeader>
         <div className="flex justify-between items-start">
           <CardTitle>{level.level || `State ${level.state}`}</CardTitle>
-          <Badge variant="secondary">{level.level}</Badge>
         </div>
       </CardHeader>
       <CardContent className="flex-grow">

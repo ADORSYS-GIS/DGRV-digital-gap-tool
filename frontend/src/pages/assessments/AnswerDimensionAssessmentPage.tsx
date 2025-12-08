@@ -58,7 +58,7 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
   const { user } = useAuth();
   const organizationId = useOrganizationId();
   const cooperationId = useCooperationId() || null; // Ensure null instead of undefined
-  const userRoles = user?.roles || [];
+  const userRoles = useMemo(() => user?.roles || [], [user?.roles]);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showResult, setShowResult] = useState(false);
@@ -210,7 +210,7 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
       const basePath = location.pathname.split("/")[1];
       navigate(`/${basePath}/assessments`);
     }
-  }, [navigate, fromAssessmentDetail, assessmentId]);
+  }, [navigate, fromAssessmentDetail, assessmentId, location.pathname]);
 
   const handleContinue = useCallback(async () => {
     if (assessment && assessment.dimensionIds && dimensionId) {
@@ -233,7 +233,14 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
         }
       }
     }
-  }, [assessment, dimensionId, assessmentId, navigate, submitFullAssessment]);
+  }, [
+    assessment,
+    dimensionId,
+    assessmentId,
+    navigate,
+    submitFullAssessment,
+    location.pathname,
+  ]);
 
   const handleCloseError = useCallback(() => {
     setError(null);

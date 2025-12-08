@@ -74,7 +74,7 @@ export const HomePage: React.FC = () => {
         navigate("/onboarding", { replace: true });
       }
     }
-  }, [isAuthenticated, loading]);
+  }, [isAuthenticated, loading, navigate, user]);
 
   const handleGetStarted = async () => {
     if (!isAuthenticated) {

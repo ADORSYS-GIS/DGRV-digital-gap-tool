@@ -33,7 +33,7 @@ import {
 
 const formSchema = z.object({
   description: z.string().optional(),
-  state: z.coerce.number().min(1, "Please select a state").max(5),
+  state: z.number().min(1, "Please select a state").max(5),
   levelName: z.string().optional(),
 });
 
@@ -63,7 +63,8 @@ export const AddLevelForm = ({
     reset,
     control,
     setValue,
-  } = useForm({
+    setError,
+  } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       state: 0,
@@ -81,14 +82,22 @@ export const AddLevelForm = ({
   }, [isOpen, reset]);
 
   const onSubmit: SubmitHandler<FormValues> = (data) => {
+    if (!descriptions && (!data.levelName || data.levelName.trim() === "")) {
+      setError("levelName", {
+        type: "manual",
+        message: "Level Name is required for custom dimensions",
+      });
+      return;
+    }
+
     const levelData = {
       dimension_id: dimensionId,
       score: data.state as LevelState,
       description: data.description ?? null,
       level:
-        descriptions?.[data.state - 1] ??
-        data.levelName ??
-        `Level ${data.state}`,
+        data.levelName && data.levelName.trim() !== ""
+          ? data.levelName
+          : (descriptions?.[data.state - 1] ?? `Level ${data.state}`),
     };
 
     addLevelMutation.mutate(
@@ -130,40 +139,80 @@ export const AddLevelForm = ({
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <Controller
-            name="state"
-            control={control}
-            render={({ field }) => (
-              <Select
-                onValueChange={handleStateChange}
-                defaultValue={field.value ? String(field.value) : ""}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a state" />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableStates.map((state) => (
-                    <SelectItem key={state} value={String(state)}>
-                      {descriptions
-                        ? `${descriptions[state - 1]}`
-                        : `State ${state}`}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-          />
-          {errors.state && (
-            <p className="text-red-500 text-sm mt-1">{errors.state.message}</p>
-          )}
-
-          <div>
-            <Input
-              {...register("levelName")}
-              placeholder="Level Name (e.g., Initial Phase)"
-              className="mb-2"
+          {descriptions && availableStates.length > 0 ? (
+            <Controller
+              name="state"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  onValueChange={handleStateChange}
+                  defaultValue={field.value ? String(field.value) : ""}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a state" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableStates.map((state) => (
+                      <SelectItem key={state} value={String(state)}>
+                        {descriptions[state - 1]}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             />
-          </div>
+          ) : (
+            <>
+              <Controller
+                name="state"
+                control={control}
+                rules={{
+                  validate: (value) => {
+                    if (typeof value !== "number" || isNaN(value)) {
+                      return "State must be a number";
+                    }
+                    return (
+                      availableStates.includes(value) ||
+                      "State already exists or is invalid"
+                    );
+                  },
+                }}
+                render={({ field }) => (
+                  <div>
+                    <Input
+                      {...field}
+                      type="number"
+                      placeholder="State Number (1-5)"
+                      min={1}
+                      max={5}
+                      onChange={(e) => {
+                        const value = parseInt(e.target.value, 10);
+                        field.onChange(isNaN(value) ? undefined : value); // Pass undefined if not a valid number
+                      }}
+                      value={field.value ?? ""} // Use nullish coalescing for controlled component
+                    />
+                    {errors.state && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.state.message}
+                      </p>
+                    )}
+                  </div>
+                )}
+              />
+              <div>
+                <Input
+                  {...register("levelName")}
+                  placeholder="Level Name (e.g., Initial Phase)"
+                  className="mb-2"
+                />
+                {errors.levelName && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.levelName.message}
+                  </p>
+                )}
+              </div>
+            </>
+          )}
 
           <Textarea {...register("description")} placeholder="Description" />
 
