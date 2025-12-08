@@ -24,7 +24,7 @@ jobs:
       with:
         path: |
           ~/.cargo
-          ./backend/target
+          ./target
         key: ${{ runner.os }}-cargo-${{hashFiles('**/Cargo.lock') }}
 
   Build:
@@ -39,10 +39,10 @@ jobs:
       with:
         path: |
           ~/.cargo
-          ./backend/target
+          ./target
         key: ${{ runner.os }}-cargo-${{hashFiles('**/Cargo.lock') }}
     - name: Cargo Build
-      working-directory: backend
+      working-directory: .
       run: cargo build --workspace --all-targets --all-features
 
   test:
@@ -57,14 +57,14 @@ jobs:
       with:
         path: |
           ~/.cargo
-          ./backend/target
+          ./target
         key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
     - name: Install cargo-nextest
       uses: taiki-e/install-action@v2
       with:
         tool: cargo-nextest
     - name: Run Cargo Tests
-      working-directory: backend
+      working-directory: .
       run: cargo nextest run --workspace --all-targets --all-features --no-fail-fast
 
   lint:
@@ -79,13 +79,13 @@ jobs:
         with:
           path: |
             ~/.cargo
-            ./backend/target
+            ./target
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
       - name: Cargo Format Check
-        working-directory: backend
+        working-directory: .
         run: cargo fmt --all --check
       - name: Cargo Clippy Check
-        working-directory: backend
+        working-directory: .
         run: cargo clippy --workspace --all-targets --all-features -- -D warnings
 
   docs:
@@ -100,8 +100,8 @@ jobs:
       with:
         path: |
           ~/.cargo
-          ./backend/target
+          ./target
         key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
     - name: Cargo Doc
-      working-directory: backend
+      working-directory: .
       run: cargo doc --workspace --all-features --no-deps
