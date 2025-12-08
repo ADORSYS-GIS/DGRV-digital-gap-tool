@@ -27,12 +27,14 @@ import { useOrganizations } from "@/hooks/organizations/useOrganizations";
 import { useAllOrganizationMembers } from "@/hooks/users/useAllOrganizationMembers";
 import { useOrganizationId } from "@/hooks/organizations/useOrganizationId";
 import { useSubmissionsByOrganization } from "@/hooks/submissions/useSubmissionsByOrganization";
+import { AssessmentSummary } from "@/types/assessment";
+import { SyncStatus } from "@/types/sync";
 
 const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
   const organizationId = useOrganizationId();
   const {
-    data: submissions = [],
+    data: submissionsData = [],
     isLoading,
     error,
   } = useSubmissionsByOrganization(organizationId || "", {
@@ -40,6 +42,19 @@ const AdminDashboard: React.FC = () => {
     refetchOnMount: true,
     refetchOnWindowFocus: false,
   });
+
+  const submissions: AssessmentSummary[] = submissionsData.map((s) => ({
+    ...s,
+    id: s.assessment.assessment_id,
+    syncStatus: SyncStatus.SYNCED,
+    assessment: {
+      ...s.assessment,
+      started_at: s.assessment.started_at || null,
+      completed_at: s.assessment.completed_at || null,
+      dimensions_id: s.assessment.dimensions_id as string[],
+    },
+    overall_score: s.overall_score ?? null,
+  }));
   const { data: dimensions } = useDimensions();
   const { data: assessments } = useAssessments();
   const { data: organizations } = useOrganizations();
@@ -147,10 +162,10 @@ const AdminDashboard: React.FC = () => {
               variant="default"
             />
           </Link>
-          <Link to="/admin/action-plan">
+          <Link to="/admin/action-plans">
             <DashboardCard
-              title="Manage Action Plan"
-              description="Create, edit, and manage action plans"
+              title="View Action Plans"
+              description="View action plans by organization and submission"
               icon={Settings}
               variant="default"
             />

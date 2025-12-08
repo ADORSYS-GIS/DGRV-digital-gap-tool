@@ -10,6 +10,7 @@ export interface UserProfile {
   realm_access?: { roles: string[] } | undefined;
   organization_name?: string;
   organization?: string;
+  cooperation?: string;
 }
 
 /**

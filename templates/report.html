@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Gap Analysis Report</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            padding: 40px;
+            background: white;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #2563eb;
+        }
+
+        .header h1 {
+            color: #1e40af;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header .subtitle {
+            color: #64748b;
+            font-size: 16px;
+        }
+
+        .table-container {
+            margin: 30px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 40px;
+        }
+
+        thead {
+            background: #1e40af;
+            color: white;
+        }
+
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 13px;
+        }
+
+        tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        .gap-high {
+            background: #fecaca !important;
+            color: #991b1b;
+            font-weight: 600;
+        }
+
+        .gap-medium {
+            background: #fef08a !important;
+            color: #854d0e;
+            font-weight: 600;
+        }
+
+        .gap-low {
+            background: #bbf7d0 !important;
+            color: #166534;
+            font-weight: 600;
+        }
+
+        .chart-container {
+            margin: 40px 0;
+        }
+
+        .chart-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e40af;
+            margin-bottom: 20px;
+        }
+
+        canvas {
+            max-width: 100%;
+            height: auto !important;
+        }
+
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #e2e8f0;
+            text-align: center;
+            color: #64748b;
+            font-size: 12px;
+        }
+
+        @media print {
+            body {
+                padding: 20px;
+            }
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <div class="header">
+        <h1>Digital Gap Analysis Report</h1>
+        <p class="subtitle">{{ assessment_title }}</p>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>CATEGORY</th>
+                    <th>GAP</th>
+                    <th>RESULT</th>
+                    <th>RECOMMENDATIONS</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in rows %}
+                <tr>
+                    <td>{{ row.category }}</td>
+                    <td class="gap-{{ row.gap_class }}">{{ row.gap }}</td>
+                    <td>{{ row.result }}</td>
+                    <td>
+                        {% if row.recommendations | length == 0 %}
+                            None
+                        {% elif row.recommendations | length == 1 %}
+                            {{ row.recommendations[0] }}
+                        {% else %}
+                            {{ row.recommendations | length }} items
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if chart_data %}
+    <div class="chart-container">
+        <h2 class="chart-title">Current vs Desired State by Dimension</h2>
+        <canvas id="gapChart" width="800" height="400"></canvas>
+    </div>
+
+    <script>
+        const ctx = document.getElementById('gapChart').getContext('2d');
+        const chartData = {{ chart_data | safe }};
+        
+        const gapChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: chartData.labels,
+                datasets: [
+                    {
+                        label: 'Current State',
+                        data: chartData.current_state,
+                        backgroundColor: '#3b82f6',
+                        borderColor: '#2563eb',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Desired State',
+                        data: chartData.desired_state,
+                        backgroundColor: '#f97316',
+                        borderColor: '#ea580c',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 10,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    }
+                }
+            }
+        });
+
+        // Convert chart to static image to prevent rendering issues in PDF
+        const canvas = document.getElementById('gapChart');
+        const img = new Image();
+        img.src = gapChart.toBase64Image();
+        img.id = 'chartImage';
+        img.style.width = '100%';
+        img.style.height = 'auto';
+        
+        const container = canvas.parentElement;
+        if (container) {
+            container.appendChild(img);
+            canvas.style.display = 'none';
+        }
+    </script>
+    {% endif %}
+
+    <div class="footer">
+        <p>Generated: {{ generation_date }}</p>
+    </div>
+</body>
+</html>

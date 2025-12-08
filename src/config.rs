@@ -4,7 +4,9 @@ use serde::Deserialize;
 #[derive(Debug, Deserialize, Clone)]
 pub struct Config {
     pub database_url: String,
+    pub host: String,
     pub port: u16,
+    pub server_url: String,
     pub keycloak: KeycloakConfigs,
     pub jwt_secret: String,
     pub keycloak_admin_token: String,
@@ -14,6 +16,7 @@ pub struct Config {
 #[derive(Debug, Clone, Deserialize)]
 pub struct KeycloakConfigs {
     pub url: String,
+    pub public_url: String,
     pub realm: String,
     pub client_id: String,
     pub client_secret: String,
@@ -36,11 +39,17 @@ struct ConfigEnv {
     )]
     database_url: String,
 
-    #[envconfig(from = "DGAT_PORT", default = "8080")]
+    #[envconfig(from = "DGAT_HOST", default = "0.0.0.0")]
+    host: String,
+
+    #[envconfig(from = "DGAT_PORT", default = "3001")]
     port: u16,
 
     #[envconfig(from = "DGAT_KEYCLOAK_URL", default = "http://localhost:8080")]
     keycloak_url: String,
+
+    #[envconfig(from = "DGAT_KEYCLOAK_PUBLIC_URL", default = "http://localhost:8080")]
+    keycloak_public_url: String,
 
     #[envconfig(from = "DGAT_KEYCLOAK_REALM", default = "sustainability-realm")]
     keycloak_realm: String,
@@ -82,9 +91,12 @@ impl Config {
         let e = ConfigEnv::init_from_env()?;
         Ok(Self {
             database_url: e.database_url,
+            host: e.host.clone(),
             port: e.port,
+            server_url: format!("http://{}:{}", e.host, e.port),
             keycloak: KeycloakConfigs {
                 url: e.keycloak_url,
+                public_url: e.keycloak_public_url,
                 realm: e.keycloak_realm,
                 client_id: e.keycloak_client_id,
                 client_secret: e.keycloak_client_secret,

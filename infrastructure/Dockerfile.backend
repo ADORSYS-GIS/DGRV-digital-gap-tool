@@ -1,0 +1,25 @@
+FROM rust:1.88.0-slim-bookworm as builder-base
+WORKDIR /app
+RUN apt-get update && \
+    apt-get install -y pkg-config libssl-dev build-essential && \
+    rm -rf /var/lib/apt/lists/*
+
+FROM builder-base as dependencies
+COPY Cargo.toml Cargo.lock ./
+COPY migration/ ./migration/
+RUN mkdir src && echo "fn main() {}" > src/main.rs
+RUN cargo build --release
+RUN rm -f target/release/dgat-backend
+
+FROM dependencies as builder
+COPY src/ ./src/
+RUN cargo build --release
+
+FROM debian:bookworm-slim
+WORKDIR /app
+RUN apt-get update && \
+    apt-get install -y libssl-dev ca-certificates curl && \
+    rm -rf /var/lib/apt/lists/*
+COPY --from=builder /app/target/release/dgat-backend /app/dgrv-digital-gap-tool
+COPY doc/ /app/doc/
+ENTRYPOINT ["/app/dgrv-digital-gap-tool"]

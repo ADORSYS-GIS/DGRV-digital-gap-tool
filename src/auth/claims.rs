@@ -1,8 +1,13 @@
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize};
 use std::collections::HashMap;
+use async_trait::async_trait;
+use axum::{
+    extract::{FromRequestParts},
+    http::{request::Parts, StatusCode},
+};
+use crate::error::AppError;
 
 /// Represents the private claims portion of the JWT from Keycloak.
-/// This struct is used for deserialization.
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct PrivateClaims {
     #[serde(rename = "realm_access")]
@@ -15,6 +20,7 @@ pub struct PrivateClaims {
     pub email: String,
     #[serde(rename = "name")]
     pub name: String,
+    pub organization_id: Option<String>,
 }
 
 /// Represents the combined claims (registered + private) to be used
@@ -27,8 +33,24 @@ pub struct Claims {
     pub preferred_username: String,
     pub email: String,
     pub name: String,
+    pub organization_id: Option<String>,
 }
 
+#[async_trait]
+impl<S> FromRequestParts<S> for Claims
+where
+    S: Send + Sync,
+{
+    type Rejection = AppError;
+
+    async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, Self::Rejection> {
+        parts
+            .extensions
+            .get::<Claims>()
+            .cloned()
+            .ok_or_else(|| AppError::Unauthorized("Missing JWT claims".to_string()))
+    }
+}
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct RealmAccess {
@@ -45,5 +67,8 @@ impl Claims {
             return realm_access.roles.iter().any(|r| r == role);
         }
         false
+    }
+    pub fn get_organization_id(&self) -> Option<String> {
+        self.organization_id.clone()
     }
 }

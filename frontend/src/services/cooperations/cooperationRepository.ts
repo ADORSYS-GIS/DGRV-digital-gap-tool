@@ -2,6 +2,7 @@ import { db } from "@/services/db";
 import { Cooperation } from "@/types/cooperation";
 import { v4 as uuidv4 } from "uuid";
 import { cooperationSyncService } from "@/services/sync/cooperationSyncService";
+import { getGroupByPath } from "@/openapi-client";
 
 export const cooperationRepository = {
   async getAll() {
@@ -10,6 +11,19 @@ export const cooperationRepository = {
 
   async getById(id: string) {
     return await db.cooperations.get(id);
+  },
+
+  async getByPath(path: string): Promise<Cooperation | undefined> {
+    try {
+      // The generated client returns a KeycloakGroup, which is compatible with Cooperation
+      const cooperation = (await getGroupByPath({
+        path,
+      })) as Cooperation;
+      return cooperation;
+    } catch (error) {
+      console.error(`Failed to fetch cooperation with path ${path}:`, error);
+      return undefined;
+    }
   },
 
   async add(

@@ -6,6 +6,9 @@
     "license": { "name": "" },
     "version": "0.1.0"
   },
+  "servers": [
+    { "url": "http://0.0.0.0:3001", "description": "DGAT Backend Server" }
+  ],
   "paths": {
     "/action-plans": {
       "get": {
@@ -112,6 +115,31 @@
         "security": [{ "jwt": [] }]
       }
     },
+    "/admin/groups/path": {
+      "get": {
+        "tags": ["Group"],
+        "operationId": "get_group_by_path",
+        "parameters": [
+          {
+            "name": "path",
+            "in": "query",
+            "description": "Group Path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/KeycloakGroup" }
+              }
+            }
+          }
+        }
+      }
+    },
     "/admin/groups/{group_id}": {
       "get": {
         "tags": ["Group"],
@@ -203,22 +231,15 @@
       },
       "post": {
         "tags": ["User"],
-        "summary": "Add a member to a group",
+        "summary": "Add a member to a group (cooperation)",
         "operationId": "add_member",
         "parameters": [
           {
             "name": "group_id",
             "in": "path",
-            "description": "Group ID",
+            "description": "Cooperation Group ID",
             "required": true,
             "schema": { "type": "string" }
-          },
-          {
-            "name": "redirect_uri",
-            "in": "query",
-            "description": "Redirect URI for email verification",
-            "required": false,
-            "schema": { "type": "string", "nullable": true }
           }
         ],
         "requestBody": {
@@ -591,6 +612,37 @@
           }
         ],
         "responses": { "204": { "description": "No Content" } }
+      }
+    },
+    "/api/submissions/submit": {
+      "post": {
+        "tags": ["Submissions"],
+        "summary": "Submit an assessment",
+        "description": "This endpoint submits an assessment and triggers the generation of a report.",
+        "operationId": "submit_assessment",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmitAssessmentRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Assessment submitted successfully",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ReportResponse" }
+              }
+            }
+          },
+          "400": { "description": "Bad request" },
+          "404": { "description": "Assessment not found" },
+          "500": { "description": "Internal server error" }
+        }
       }
     },
     "/assessments": {
@@ -1926,6 +1978,33 @@
               }
             }
           }
+        }
+      }
+    },
+    "/reports/assessment/{assessment_id}/download": {
+      "get": {
+        "tags": ["crate::api::handlers::report"],
+        "summary": "Download latest PDF report by assessment ID",
+        "operationId": "download_latest_report_by_assessment",
+        "parameters": [
+          {
+            "name": "assessment_id",
+            "in": "path",
+            "description": "Assessment ID",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Report file content",
+            "content": {
+              "application/octet-stream": {
+                "schema": { "type": "string", "format": "binary" }
+              }
+            }
+          },
+          "404": { "description": "Report not found" }
         }
       }
     },
@@ -3953,6 +4032,11 @@
           "title": { "type": "string" }
         }
       },
+      "GetGroupByPathParams": {
+        "type": "object",
+        "required": ["path"],
+        "properties": { "path": { "type": "string" } }
+      },
       "GroupCreateRequest": {
         "type": "object",
         "required": ["name"],
@@ -4572,6 +4656,13 @@
         "description": "Sort order enumeration",
         "enum": ["Asc", "Desc"]
       },
+      "SubmitAssessmentRequest": {
+        "type": "object",
+        "required": ["assessment_id"],
+        "properties": {
+          "assessment_id": { "type": "string", "format": "uuid" }
+        }
+      },
       "UpdateAssessmentRequest": {
         "type": "object",
         "description": "Assessment update request",
@@ -4729,6 +4820,7 @@
       "name": "Admin",
       "description": "Administrative configuration endpoints"
     },
-    { "name": "User", "description": "User management endpoints" }
+    { "name": "User", "description": "User management endpoints" },
+    { "name": "Submissions", "description": "Submission management endpoints" }
   ]
 }
