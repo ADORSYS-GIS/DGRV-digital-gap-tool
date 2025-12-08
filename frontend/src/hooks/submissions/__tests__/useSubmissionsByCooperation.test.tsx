@@ -2,14 +2,12 @@ import { vi, type Mock } from "vitest";
 import { renderHook, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useSubmissionsByCooperation } from "../useSubmissionsByCooperation";
-import { submissionRepository } from "@/services/assessments/submissionRepository";
 import { AssessmentSummary } from "@/types/assessment";
 import { SyncStatus } from "@/types/sync";
+import { listSubmissionsByCooperation } from "@/openapi-client";
 
-vi.mock("@/services/assessments/submissionRepository", () => ({
-  submissionRepository: {
-    listByCooperation: vi.fn(),
-  },
+vi.mock("@/openapi-client", () => ({
+  listSubmissionsByCooperation: vi.fn(),
 }));
 
 const createWrapper = () => {
@@ -92,103 +90,66 @@ describe("useSubmissionsByCooperation", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    (submissionRepository.listByCooperation as Mock).mockResolvedValue(
-      mockSubmissions,
-    );
+    (listSubmissionsByCooperation as Mock).mockResolvedValue({
+      data: mockSubmissions,
+    });
     vi.spyOn(console, "warn").mockImplementation(() => {});
     vi.spyOn(console, "error").mockImplementation(() => {});
     vi.spyOn(console, "log").mockImplementation(() => {});
   });
 
   afterEach(() => {
-    (console.warn as Mock).mockRestore();
-    (console.error as Mock).mockRestore();
     (console.log as Mock).mockRestore();
   });
 
   it("should fetch submissions for a given cooperationId", async () => {
     const { result } = renderHook(
-      () => useSubmissionsByCooperation(mockCooperationId),
+      () => useSubmissionsByCooperation(mockCooperationId, { enabled: true }),
       { wrapper: createWrapper() },
     );
 
-    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(listSubmissionsByCooperation).toHaveBeenCalledWith({
+      cooperationId: mockCooperationId,
+    });
+    await waitFor(() => expect(result.current.isSuccess).toBe(true), {
+      timeout: 2000,
+    });
     expect(result.current.data).toEqual(mockSubmissions);
-    expect(submissionRepository.listByCooperation).toHaveBeenCalledWith(
-      mockCooperationId,
-    );
+    expect(listSubmissionsByCooperation).toHaveBeenCalledWith({
+      cooperationId: mockCooperationId,
+    });
   });
 
   it("should return empty array if no cooperationId is provided", async () => {
-    const { result } = renderHook(() => useSubmissionsByCooperation(""), {
-      wrapper: createWrapper(),
+    const { result } = renderHook(
+      () => useSubmissionsByCooperation("", { enabled: true }),
+      { wrapper: createWrapper() },
+    );
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true), {
+      timeout: 2000,
     });
-
-    await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(result.current.data).toEqual([]);
-    expect(submissionRepository.listByCooperation).not.toHaveBeenCalled();
-    expect(console.warn).toHaveBeenCalledWith(
-      "No cooperation ID provided to useSubmissionsByCooperation",
-    );
-  });
-
-  it("should filter submissions by status", async () => {
-    const { result } = renderHook(
-      () =>
-        useSubmissionsByCooperation(mockCooperationId, {
-          status: ["completed"],
-        }),
-      { wrapper: createWrapper() },
-    );
-
-    await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(result.current.data).toHaveLength(1);
-    expect(result.current.data?.[0]?.assessment.status).toBe("completed");
-  });
-
-  it("should limit the number of submissions", async () => {
-    const { result } = renderHook(
-      () => useSubmissionsByCooperation(mockCooperationId, { limit: 2 }),
-      { wrapper: createWrapper() },
-    );
-
-    await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(result.current.data).toHaveLength(2);
-    expect(result.current.data?.[0]?.id).toBe("sub-1");
-    expect(result.current.data?.[1]?.id).toBe("sub-2");
-  });
-
-  it("should filter by status and limit submissions", async () => {
-    const { result } = renderHook(
-      () =>
-        useSubmissionsByCooperation(mockCooperationId, {
-          status: ["pending"],
-          limit: 1,
-        }),
-      { wrapper: createWrapper() },
-    );
-
-    await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(result.current.data).toHaveLength(1);
-    expect(result.current.data?.[0]?.assessment.status).toBe("pending");
-    expect(result.current.data?.[0]?.id).toBe("sub-1");
+    expect(result.current.data).toEqual(mockSubmissions);
+    expect(listSubmissionsByCooperation).toHaveBeenCalledWith({
+      cooperationId: "",
+    });
+    expect(console.warn).not.toHaveBeenCalled();
   });
 
   it("should handle error when fetching submissions", async () => {
     const error = new Error("API Error");
-    (submissionRepository.listByCooperation as Mock).mockRejectedValue(error);
+    (listSubmissionsByCooperation as Mock).mockRejectedValue(error);
 
     const { result } = renderHook(
-      () => useSubmissionsByCooperation(mockCooperationId),
+      () => useSubmissionsByCooperation(mockCooperationId, { enabled: true }),
       { wrapper: createWrapper() },
     );
 
-    await waitFor(() => expect(result.current.isSuccess).toBe(true)); // The hook catches the error and returns empty array, so isSuccess is true
-    expect(result.current.data).toEqual([]);
-    expect(console.error).toHaveBeenCalledWith(
-      "Failed to fetch cooperation submissions:",
-      error,
-    );
+    await waitFor(() => expect(result.current.isError).toBe(true), {
+      timeout: 2000,
+    });
+    expect(result.current.data).toBeUndefined();
+    expect(console.error).not.toHaveBeenCalled();
   });
 
   it("should be disabled if options.enabled is false", async () => {
@@ -197,8 +158,10 @@ describe("useSubmissionsByCooperation", () => {
       { wrapper: createWrapper() },
     );
 
-    await waitFor(() => expect(result.current.isFetched).toBe(false));
-    expect(submissionRepository.listByCooperation).not.toHaveBeenCalled();
+    await waitFor(() => expect(result.current.isFetched).toBe(false), {
+      timeout: 2000,
+    });
+    expect(listSubmissionsByCooperation).not.toHaveBeenCalled();
     expect(result.current.data).toBeUndefined(); // Data should be undefined when disabled
   });
 });

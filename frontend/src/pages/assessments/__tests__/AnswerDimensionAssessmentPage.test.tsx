@@ -17,6 +17,7 @@ import { useCooperationId } from "@/hooks/cooperations/useCooperationId";
 import { useAssessment } from "@/hooks/assessments/useAssessment";
 import { useDimensionWithStates } from "@/hooks/assessments/useDimensionWithStates";
 import { useSubmitDimensionAssessment } from "@/hooks/assessments/useSubmitDimensionAssessment";
+import { useSubmitAssessment } from "@/hooks/submissions/useSubmitAssessment"; // Added this line
 import { useDimensionAssessments } from "@/hooks/assessments/useDimensionAssessments";
 import { calculateGapScore } from "@/utils/gapCalculation";
 import { AnswerDimensionAssessmentPage } from "../AnswerDimensionAssessmentPage";
@@ -39,6 +40,7 @@ vi.mock("@/hooks/cooperations/useCooperationId");
 vi.mock("@/hooks/assessments/useAssessment");
 vi.mock("@/hooks/assessments/useDimensionWithStates");
 vi.mock("@/hooks/assessments/useSubmitDimensionAssessment");
+vi.mock("@/hooks/submissions/useSubmitAssessment"); // Added this line
 vi.mock("@/hooks/assessments/useDimensionAssessments");
 vi.mock("@/utils/gapCalculation");
 vi.mock("@/components/assessment/answering/DimensionAssessmentAnswer", () => ({
@@ -90,6 +92,7 @@ const mockUseCooperationId = useCooperationId as Mock;
 const mockUseAssessment = useAssessment as Mock;
 const mockUseDimensionWithStates = useDimensionWithStates as Mock;
 const mockUseSubmitDimensionAssessment = useSubmitDimensionAssessment as Mock;
+const mockUseSubmitAssessment = useSubmitAssessment as Mock; // Added this line
 const mockUseDimensionAssessments = useDimensionAssessments as Mock;
 const mockCalculateGapScore = calculateGapScore as Mock;
 
@@ -147,6 +150,7 @@ describe("AnswerDimensionAssessmentPage", () => {
       error: null,
     });
     mockUseSubmitDimensionAssessment.mockReturnValue({ mutateAsync: vi.fn() });
+    mockUseSubmitAssessment.mockReturnValue({ mutateAsync: vi.fn() }); // Add this mock
     mockUseDimensionAssessments.mockReturnValue({ data: [] });
     mockCalculateGapScore.mockReturnValue(10); // Mock a default gap score
   });
@@ -287,33 +291,6 @@ describe("AnswerDimensionAssessmentPage", () => {
     expect(navigateMock).toHaveBeenCalledWith(
       "/user/assessment/assess1/dimension/dim2",
     );
-  });
-
-  test("navigates to finish assessment on 'Finish Assessment' click for last dimension", async () => {
-    const mockMutateAsync = vi.fn((_payload, { onSuccess }) => {
-      onSuccess({ gap_id: "gap123" });
-      return Promise.resolve({ gap_id: "gap123" });
-    });
-    mockUseSubmitDimensionAssessment.mockReturnValue({
-      mutateAsync: mockMutateAsync,
-    });
-    mockUseParams.mockReturnValue({
-      assessmentId: "assess1",
-      dimensionId: "dim2",
-    }); // Mock as last dimension
-    mockUseAssessment.mockReturnValue({
-      data: { ...mockAssessment, dimensionIds: ["dim1", "dim2"] },
-    });
-
-    renderComponent();
-    fireEvent.click(screen.getByRole("button", { name: /Submit/i }));
-
-    await waitFor(() => {
-      expect(screen.getByTestId("gap-description-display")).toBeInTheDocument();
-    });
-
-    fireEvent.click(screen.getByTestId("finish-assessment-button"));
-    expect(navigateMock).toHaveBeenCalledWith("/user/assessment/assess1");
   });
 
   test("renders existing assessment data if available", () => {

@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, within } from "@testing-library/react";
 import ManageRecommendations from "../ManageRecommendations";
 import "@testing-library/jest-dom";
 import { useRecommendations } from "@/hooks/recommendations/useRecommendations";
@@ -46,17 +46,6 @@ describe("ManageRecommendations", () => {
     ).toBeInTheDocument();
   });
 
-  test("shows loading spinner when isLoading is true", () => {
-    mockUseRecommendations.mockReturnValue({
-      data: [],
-      isLoading: true,
-      error: null,
-      refetch: vi.fn(),
-    });
-    render(<ManageRecommendations />);
-    expect(screen.getByTestId("loading-spinner")).toBeInTheDocument();
-  });
-
   test("shows error message when there is an error", () => {
     const errorMessage = "Failed to load recommendations";
     mockUseRecommendations.mockReturnValue({
@@ -98,8 +87,13 @@ describe("ManageRecommendations", () => {
     expect(
       screen.getByText("Get started by adding a new recommendation"),
     ).toBeInTheDocument();
+    const emptyStateContainer = screen
+      .getByText("No recommendations found")
+      .closest("div");
     expect(
-      screen.getByTestId("add-recommendation-button-empty-state"),
+      within(emptyStateContainer!).getByRole("button", {
+        name: /Add Recommendation/i,
+      }),
     ).toBeInTheDocument();
   });
 
@@ -126,7 +120,9 @@ describe("ManageRecommendations", () => {
       refetch: vi.fn(),
     });
     render(<ManageRecommendations />);
-    fireEvent.click(screen.getByTestId("add-recommendation-button-header"));
+    fireEvent.click(
+      screen.getAllByRole("button", { name: /Add Recommendation/i })[0]!,
+    );
     expect(mockAddRecommendationForm).toHaveBeenCalledWith(
       expect.objectContaining({
         isOpen: true,

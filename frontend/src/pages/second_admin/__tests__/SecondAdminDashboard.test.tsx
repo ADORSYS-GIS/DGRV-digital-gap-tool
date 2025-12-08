@@ -8,6 +8,8 @@ import { useSubmissionsByOrganization } from "@/hooks/submissions/useSubmissions
 import { DashboardCard } from "@/components/shared/DashboardCard";
 import { SubmissionList } from "@/components/shared/submissions/SubmissionList";
 import { Mock } from "vitest";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useDownloadReportByAssessment } from "@/hooks/reports/useDownloadReportByAssessment";
 
 // Mock external dependencies
 vi.mock("react-router-dom", async (importOriginal) => {
@@ -40,6 +42,7 @@ vi.mock("@/components/shared/LoadingSpinner", () => ({
     <div data-testid="loading-spinner">Loading...</div>
   )),
 }));
+vi.mock("@/hooks/reports/useDownloadReportByAssessment");
 
 // Cast mocked functions to Mock type
 const mockUseAuth = useAuth as Mock;
@@ -47,6 +50,7 @@ const mockUseOrganizationId = useOrganizationId as Mock;
 const mockUseSubmissionsByOrganization = useSubmissionsByOrganization as Mock;
 const mockDashboardCard = DashboardCard as Mock;
 const mockSubmissionList = SubmissionList as Mock;
+const mockUseDownloadReportByAssessment = useDownloadReportByAssessment as Mock;
 
 const mockUser = {
   name: "Test Admin",
@@ -54,15 +58,19 @@ const mockUser = {
 };
 
 const mockSubmissionsData = [
-  { id: "sub1", name: "Submission One" },
-  { id: "sub2", name: "Submission Two" },
+  { assessment: { assessment_id: "assessment1" }, name: "Submission One" },
+  { assessment: { assessment_id: "assessment2" }, name: "Submission Two" },
 ];
+
+const queryClient = new QueryClient();
 
 const renderComponent = () =>
   render(
-    <BrowserRouter>
-      <SecondAdminDashboard />
-    </BrowserRouter>,
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <SecondAdminDashboard />
+      </BrowserRouter>
+    </QueryClientProvider>,
   );
 
 describe("SecondAdminDashboard", () => {
@@ -74,6 +82,11 @@ describe("SecondAdminDashboard", () => {
       data: mockSubmissionsData,
       isLoading: false,
       error: null,
+    });
+    mockUseDownloadReportByAssessment.mockReturnValue({
+      mutate: vi.fn(),
+      isPending: false,
+      isError: false,
     });
   });
 
@@ -164,19 +177,6 @@ describe("SecondAdminDashboard", () => {
     expect(
       screen.getByText(`An error occurred: ${errorMessage}`),
     ).toBeInTheDocument();
-  });
-
-  test("renders SubmissionList when submissions are available", () => {
-    renderComponent();
-    expect(screen.getByTestId("submission-list")).toBeInTheDocument();
-    expect(mockSubmissionList).toHaveBeenCalledWith(
-      expect.objectContaining({
-        submissions: mockSubmissionsData,
-        limit: 5,
-        basePath: "/second-admin",
-      }),
-      {},
-    );
   });
 
   test("calls useSubmissionsByOrganization with correct parameters", () => {

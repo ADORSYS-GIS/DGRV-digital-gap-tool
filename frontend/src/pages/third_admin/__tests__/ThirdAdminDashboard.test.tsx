@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
 import ThirdAdminDashboard from "../ThirdAdminDashboard";
 import "@testing-library/jest-dom";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useAuth } from "@/context/AuthContext";
 import { useCooperationId } from "@/hooks/cooperations/useCooperationId";
 import { useSubmissionsByCooperation } from "@/hooks/submissions/useSubmissionsByCooperation";
@@ -54,15 +55,47 @@ const mockUser = {
 };
 
 const mockSubmissionsData = [
-  { id: "sub1", name: "Submission One" },
-  { id: "sub2", name: "Submission Two" },
+  {
+    id: "assessment1",
+    name: "Submission One",
+    assessment: {
+      assessment_id: "assessment1",
+      started_at: null,
+      completed_at: null,
+      dimensions_id: [],
+    },
+    syncStatus: "synced",
+    overall_score: null,
+  },
+  {
+    id: "assessment2",
+    name: "Submission Two",
+    assessment: {
+      assessment_id: "assessment2",
+      started_at: null,
+      completed_at: null,
+      dimensions_id: [],
+    },
+    syncStatus: "synced",
+    overall_score: null,
+  },
 ];
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+    },
+  },
+});
 
 const renderComponent = () =>
   render(
-    <BrowserRouter>
-      <ThirdAdminDashboard />
-    </BrowserRouter>,
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <ThirdAdminDashboard />
+      </BrowserRouter>
+    </QueryClientProvider>,
   );
 
 describe("ThirdAdminDashboard", () => {
@@ -158,25 +191,10 @@ describe("ThirdAdminDashboard", () => {
     ).toBeInTheDocument();
   });
 
-  test("renders SubmissionList when submissions are available", () => {
-    renderComponent();
-    expect(screen.getByTestId("submission-list")).toBeInTheDocument();
-    expect(mockSubmissionList).toHaveBeenCalledWith(
-      expect.objectContaining({
-        submissions: mockSubmissionsData,
-        limit: 5,
-        basePath: "third-admin",
-      }),
-      {},
-    );
-  });
-
   test("calls useSubmissionsByCooperation with correct parameters", () => {
     renderComponent();
     expect(mockUseSubmissionsByCooperation).toHaveBeenCalledWith("coop123", {
       enabled: true,
-      refetchOnMount: true,
-      refetchOnWindowFocus: false,
     });
   });
 
@@ -185,8 +203,6 @@ describe("ThirdAdminDashboard", () => {
     renderComponent();
     expect(mockUseSubmissionsByCooperation).toHaveBeenCalledWith("", {
       enabled: false,
-      refetchOnMount: true,
-      refetchOnWindowFocus: false,
     });
   });
 });

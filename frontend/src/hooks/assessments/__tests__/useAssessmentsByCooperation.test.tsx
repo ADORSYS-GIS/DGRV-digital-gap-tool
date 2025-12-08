@@ -8,7 +8,7 @@ import { assessmentRepository } from "@/services/assessments/assessmentRepositor
 
 vi.mock("@/openapi-client/services.gen", () => ({
   ...vi.importActual("@/openapi-client/services.gen"),
-  listAssessments: vi.fn(),
+  listAssessmentsByCooperation: vi.fn(),
 }));
 
 vi.mock("@/services/assessments/assessmentRepository", () => ({
@@ -42,6 +42,11 @@ describe("useAssessmentsByCooperation", () => {
   });
 
   it("should return empty array if no cooperationId is provided", async () => {
+    (openapiServices.listAssessmentsByCooperation as Mock).mockResolvedValue({
+      data: { assessments: [] },
+    });
+    (assessmentRepository.syncAssessments as Mock).mockResolvedValue([]);
+
     const { result } = renderHook(() => useAssessmentsByCooperation(""), {
       wrapper: createWrapper(),
     });
@@ -104,7 +109,7 @@ describe("useAssessmentsByCooperation", () => {
         },
       ];
 
-      (openapiServices.listAssessments as Mock).mockResolvedValue(
+      (openapiServices.listAssessmentsByCooperation as Mock).mockResolvedValue(
         mockApiResponse,
       );
       (assessmentRepository.syncAssessments as Mock).mockImplementation(
@@ -124,7 +129,11 @@ describe("useAssessmentsByCooperation", () => {
       await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
       // Assertions
-      expect(openapiServices.listAssessments).toHaveBeenCalledWith({});
+      expect(openapiServices.listAssessmentsByCooperation).toHaveBeenCalledWith(
+        {
+          cooperationId: mockCooperationId,
+        },
+      );
 
       // Verify syncAssessments was called with the correct arguments
       expect(assessmentRepository.syncAssessments).toHaveBeenCalledWith(
@@ -141,7 +150,7 @@ describe("useAssessmentsByCooperation", () => {
 
     it("should return empty array on API failure (catch block)", async () => {
       // Force API error
-      (openapiServices.listAssessments as Mock).mockRejectedValue(
+      (openapiServices.listAssessmentsByCooperation as Mock).mockRejectedValue(
         new Error("API Error"),
       );
       (assessmentRepository.syncAssessments as Mock).mockResolvedValue([]); // Explicitly mock to return empty array
@@ -183,7 +192,9 @@ describe("useAssessmentsByCooperation", () => {
       await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
       // Ensure API was NOT called
-      expect(openapiServices.listAssessments).not.toHaveBeenCalled();
+      expect(
+        openapiServices.listAssessmentsByCooperation,
+      ).not.toHaveBeenCalled();
 
       // Ensure Local DB WAS called via syncAssessments
       expect(assessmentRepository.syncAssessments).toHaveBeenCalledWith(
