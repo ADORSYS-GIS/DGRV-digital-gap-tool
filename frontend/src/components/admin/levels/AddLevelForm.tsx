@@ -6,6 +6,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -25,10 +26,15 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import * as z from "zod";
+import {
+  currentStateDescriptions,
+  desiredStateDescriptions,
+} from "@/constants/level-descriptions";
 
 const formSchema = z.object({
   description: z.string().optional(),
   state: z.coerce.number().min(1, "Please select a state").max(5),
+  levelName: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -40,124 +46,6 @@ interface AddLevelFormProps {
   levelType: LevelType;
   existingLevels: IDigitalisationLevel[];
 }
-
-export const currentStateDescriptions: Record<string, string[]> = {
-  Technology: [
-    "Legacy Systems",
-    "Basic Digital Tools",
-    "Partial Automation",
-    "Cloud-Enabled",
-    "Highly Scalable & Integrated",
-  ],
-  "Digital Culture": [
-    "Digital Resistance",
-    "Basic minimal Adoption",
-    "Willing but Inconsistent",
-    "Adoption with Leadership Support",
-    "Fully Embedded Digital Culture",
-  ],
-  Skills: [
-    "Insufficient Digital Skills",
-    "Basic Digital Skills",
-    "Moderate Skills, Limited to Certain Areas",
-    "Widespread Digital Proficiency",
-    "Advanced Expertise",
-  ],
-  Processes: [
-    "Manual and inefficient processes.",
-    "Efficient but manual",
-    "Partially Automated",
-    "Fully Automated inefficient",
-    "Fully Automated efficient / integrated",
-  ],
-  Cybersecurity: [
-    "No Cybersecurity Measures",
-    "Basic Security",
-    "Standard Security Protocols",
-    "Proactive Cybersecurity",
-    "Comprehensive Security Framework",
-  ],
-  "Customer Experience": [
-    "No Digital Customer Interaction",
-    "Basic Digital Presence",
-    "Limited Digital Channels",
-    "Multiple Digital Channels",
-    "Seamless Omnichannel Experience",
-  ],
-  "Data & Analytics": [
-    "No Data Collection or Use",
-    "Basic Data Collection",
-    "Data for Operational Reporting",
-    "Advanced Data Analytics",
-    "Data-Driven Organization",
-  ],
-  Innovation: [
-    "No Innovation",
-    "Occasional Innovation",
-    "Innovation with Limited Scope",
-    "Proactive Innovation Culture",
-    "Innovation Leader",
-  ],
-};
-
-export const desiredStateDescriptions: Record<string, string[]> = {
-  Technology: [
-    "Legacy Systems",
-    "Basic Digital Tools",
-    "Partial Automation",
-    "Cloud-Enabled",
-    "Highly Scalable & Integrated",
-  ],
-  "Digital Culture": [
-    "Traditional Mindset (Analogue Culture)",
-    "Digital Experimentation (Explorative Digital Culture)",
-    "Digital Collaboration (Engaging Digital Culture)",
-    "Adoption of Member-Centric Digitalization with Leadership Support (Integrative Digital Culture)",
-    "Culture of Continuous Innovation and Digital Leadership (Transformative Digital Culture)",
-  ],
-  Skills: [
-    "Insufficient Digital Literacy",
-    "Basic Digital Literacy",
-    "Functional Digital skills with limitations in certain areas",
-    "Cross-functional and departmental Digital Competency",
-    "Future-Ready Workforce with specialized expertise",
-  ],
-  Processes: [
-    "Fully Manual Processes",
-    "Digitized but Manual",
-    "Partially Automated Processes",
-    "Fully Automated Processes",
-    "Integrated Automation through Digital Transformation",
-  ],
-  Cybersecurity: [
-    "No Cybersecurity Measures",
-    "Basic Security Measures",
-    "Reactive Cybersecurity",
-    "Proactive Cybersecurity",
-    "Comprehensive Security Framework",
-  ],
-  "Customer Experience": [
-    "No Digital Customer Interaction",
-    "Basic Digital Presence",
-    "Limited Digital Channels",
-    "Multi-Channel Engagement",
-    "Omnichannel Excellence",
-  ],
-  "Data & Analytics": [
-    "No Data Collection or Use",
-    "Basic Data Collection & Storage",
-    "Operational Reporting Only",
-    "Advanced Analytics & Insights",
-    "Data-Driven Decision Making Culture",
-  ],
-  Innovation: [
-    "No Focus on Innovation",
-    "Occasional Innovation Efforts",
-    "Focused Innovation Initiatives",
-    "Proactive Innovation Culture",
-    "Continuous Innovation & Disruption Leadership",
-  ],
-};
 
 export const AddLevelForm = ({
   isOpen,
@@ -180,6 +68,7 @@ export const AddLevelForm = ({
     defaultValues: {
       state: 0,
       description: "",
+      levelName: "",
     },
   });
 
@@ -196,7 +85,10 @@ export const AddLevelForm = ({
       dimension_id: dimensionId,
       score: data.state as LevelState,
       description: data.description ?? null,
-      level: descriptions?.[data.state - 1] ?? `Level ${data.state}`,
+      level:
+        descriptions?.[data.state - 1] ??
+        data.levelName ??
+        `Level ${data.state}`,
     };
 
     addLevelMutation.mutate(
@@ -264,6 +156,14 @@ export const AddLevelForm = ({
           {errors.state && (
             <p className="text-red-500 text-sm mt-1">{errors.state.message}</p>
           )}
+
+          <div>
+            <Input
+              {...register("levelName")}
+              placeholder="Level Name (e.g., Initial Phase)"
+              className="mb-2"
+            />
+          </div>
 
           <Textarea {...register("description")} placeholder="Description" />
 
