@@ -32,3 +32,4 @@ dist-ssr
 /CODE_IMPROVEMENTS.md
 .cursorrules.md
 docs
+.github/workflows/active-deployment.yml
