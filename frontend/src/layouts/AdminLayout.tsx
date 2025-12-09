@@ -26,7 +26,7 @@ const AdminLayout: React.FC = () => {
     { to: "/admin/recommendations", icon: FileText, text: "Recommendations" },
     { to: "/admin/action-plan", icon: Settings, text: "Action Plan" },
     { to: "/admin/digital-gaps", icon: Settings, text: "Digital Gaps" },
-    { to: "/admin/users", icon: Users, text: "Manage Users" },
+    { to: "/admin/manage-users", icon: Users, text: "Manage Users" },
     { to: "/admin/reports", icon: BarChart3, text: "View Reports" },
   ];
 
