@@ -7,12 +7,18 @@
  * - Loading states during authentication initialization
  */
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import AppRouter from "./router/AppRouter";
 import { ErrorBoundary } from "./components/shared/ErrorBoundary";
-import { AuthProvider } from "./context/AuthContext";
 import { syncService } from "./services/sync/syncService";
 
 const App = () => {
+  const { t, i18n } = useTranslation();
+
+  useEffect(() => {
+    console.log("Current language:", i18n.language);
+  }, [i18n.language]);
+
   useEffect(() => {
     const SYNC_INTERVAL = 5 * 60 * 1000; // 5 minutes
 
@@ -27,7 +33,7 @@ const App = () => {
 
     // Listen for online/offline events to trigger sync
     const handleOnline = () => {
-      console.log("App is online, attempting to sync...");
+      console.log(t("app.onlineSyncMessage"));
       syncService.processSyncQueue();
     };
 
@@ -38,13 +44,11 @@ const App = () => {
       clearInterval(intervalId);
       window.removeEventListener("online", handleOnline);
     };
-  }, []);
+  }, [t]);
 
   return (
     <ErrorBoundary>
-      <AuthProvider>
-        <AppRouter />
-      </AuthProvider>
+      <AppRouter />
     </ErrorBoundary>
   );
 };

@@ -11,10 +11,11 @@
  * - logout: Function to initiate logout
  * - loading: Boolean indicating if authentication state is being determined
  */
+import React, { useContext } from "react";
 import { AuthState } from "@/types/auth";
-import React from "react";
 import { authService } from "../../services/shared/authService";
 import { keycloak } from "../../services/shared/keycloakConfig";
+import { AuthContext } from "./authContext";
 
 interface AuthHookState extends AuthState {
   login: () => void;
@@ -76,4 +77,12 @@ export const useProvideAuth = (): AuthHookState => {
     login,
     logout,
   };
+};
+
+export const useAuth = (): AuthHookState => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
 };
