@@ -111,12 +111,41 @@ impl AssessmentsRepository {
             .map_err(AppError::from)
     }
  
+    pub async fn find_all_completed_by_organization_id(
+        db: &DbConn,
+        organization_id: String,
+    ) -> Result<Vec<assessments::Model>, AppError> {
+        Assessments::find()
+            .filter(assessments::Column::OrganizationId.eq(organization_id))
+            .filter(
+                assessments::Column::Status.eq(crate::entities::assessments::AssessmentStatus::Completed),
+            )
+            .order_by_desc(assessments::Column::CreatedAt)
+            .all(db)
+            .await
+            .map_err(AppError::from)
+    }
+
     pub async fn find_by_cooperation_id(
         db: &DbConn,
         cooperation_id: String,
     ) -> Result<Vec<assessments::Model>, AppError> {
         Assessments::find()
             .filter(assessments::Column::CooperationId.eq(cooperation_id))
+            .all(db)
+            .await
+            .map_err(AppError::from)
+    }
+    pub async fn find_all_completed_by_cooperation_id(
+        db: &DbConn,
+        cooperation_id: String,
+    ) -> Result<Vec<assessments::Model>, AppError> {
+        Assessments::find()
+            .filter(assessments::Column::CooperationId.eq(cooperation_id))
+            .filter(
+                assessments::Column::Status.eq(crate::entities::assessments::AssessmentStatus::Completed),
+            )
+            .order_by_desc(assessments::Column::CreatedAt)
             .all(db)
             .await
             .map_err(AppError::from)

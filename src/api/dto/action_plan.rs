@@ -1,4 +1,8 @@
-use crate::entities::{action_items, recommendations};
+use crate::entities::{
+    action_items,
+    dimension_assessments::{self},
+    dimensions, recommendations,
+};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
@@ -28,19 +32,34 @@ pub struct ActionItemResponse {
     pub priority: String,
     pub title: String,
     pub description: String,
+    pub dimension: String,
 }
 
 impl
-    From<(action_items::Model, Option<recommendations::Model>)> for ActionItemResponse
+    From<(
+        action_items::Model,
+        Option<recommendations::Model>,
+        Option<(
+            dimension_assessments::Model,
+            Option<dimensions::Model>,
+        )>,
+    )> for ActionItemResponse
 {
     fn from(
-        (item, recommendation): (
+        (item, recommendation, dimension_assessment_info): (
             action_items::Model,
             Option<recommendations::Model>,
+            Option<(
+                dimension_assessments::Model,
+                Option<dimensions::Model>,
+            )>,
         ),
     ) -> Self {
         let description = recommendation
             .map(|r| r.description)
+            .unwrap_or_else(|| "".to_string());
+        let dimension = dimension_assessment_info
+            .and_then(|(_, dim_opt)| dim_opt.map(|dim| dim.name))
             .unwrap_or_else(|| "".to_string());
 
         Self {
@@ -50,6 +69,7 @@ impl
             priority: item.priority.to_string(),
             title: description.clone(),
             description,
+            dimension,
         }
     }
 }

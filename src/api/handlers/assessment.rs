@@ -626,72 +626,32 @@ pub async fn list_assessments_by_cooperation(
 pub async fn list_submissions_by_organization(
     State(state): State<AppState>,
     Path(organization_id): Path<String>,
-) -> Result<Json<ApiResponse<AssessmentSummaryResponse>>, (StatusCode, Json<serde_json::Value>)> {
+) -> Result<Json<ApiResponse<AssessmentsResponse>>, (StatusCode, Json<serde_json::Value>)> {
     let db = &state.db;
-    let assessment = AssessmentsRepository::find_latest_by_organization_id(db.as_ref(), organization_id)
-        .await
-        .map_err(crate::api::handlers::common::handle_error)?
-        .ok_or_else(|| {
-            crate::api::handlers::common::handle_error(AppError::NotFound(
-                "No assessment found for this organization".to_string(),
-            ))
-        })?;
-
-    let assessment_id = assessment.assessment_id;
-
-    // Get dimension assessments
-    let dimension_assessments =
-        DimensionAssessmentsRepository::find_by_assessment_id(db.as_ref(), assessment_id)
+    let assessments =
+        AssessmentsRepository::find_all_completed_by_organization_id(db.as_ref(), organization_id)
             .await
             .map_err(crate::api::handlers::common::handle_error)?;
 
-    // Get gaps count
-    let gaps =
-        crate::repositories::gaps::GapsRepository::find_by_assessment(db.as_ref(), assessment_id)
-            .await
-            .map_err(crate::api::handlers::common::handle_error)?;
-
-    let recommendations: Vec<()> = vec![]; // Placeholder
-
-    let assessment_response = AssessmentResponse {
-        assessment_id: assessment.assessment_id,
-        organization_id: assessment.organization_id,
-        cooperation_id: assessment.cooperation_id,
-        document_title: assessment.document_title,
-        status: convert_entity_assessment_status_to_dto(assessment.status),
-        started_at: assessment.started_at,
-        completed_at: assessment.completed_at,
-        created_at: assessment.created_at,
-        updated_at: assessment.updated_at,
-        dimensions_id: assessment.dimensions_id,
+    let response = AssessmentsResponse {
+        assessments: assessments
+            .into_iter()
+            .map(|assessment| AssessmentResponse {
+                assessment_id: assessment.assessment_id,
+                organization_id: assessment.organization_id,
+                cooperation_id: assessment.cooperation_id,
+                document_title: assessment.document_title,
+                status: convert_entity_assessment_status_to_dto(assessment.status),
+                started_at: assessment.started_at,
+                completed_at: assessment.completed_at,
+                created_at: assessment.created_at,
+                updated_at: assessment.updated_at,
+                dimensions_id: assessment.dimensions_id,
+            })
+            .collect(),
     };
 
-    let dimension_assessments_response: Vec<DimensionAssessmentResponse> = dimension_assessments
-        .into_iter()
-        .map(|da| DimensionAssessmentResponse {
-            dimension_assessment_id: da.dimension_assessment_id,
-            assessment_id: da.assessment_id,
-            dimension_id: da.dimension_id,
-            created_at: da.created_at,
-            updated_at: da.updated_at,
-            current_state_id: da.current_state_id,
-            desired_state_id: da.desired_state_id,
-            gap_score: da.gap_score,
-            gap_id: da.gap_id,
-            organization_id: da.organization_id,
-            cooperation_id: da.cooperation_id,
-        })
-        .collect();
-
-    let summary = AssessmentSummaryResponse {
-        assessment: assessment_response,
-        dimension_assessments: dimension_assessments_response,
-        gaps_count: gaps.len() as u32,
-        recommendations_count: recommendations.len() as u32,
-        overall_score: None,
-    };
-
-    Ok(success_response(summary))
+    Ok(success_response(response))
 }
 
 #[utoipa::path(
@@ -706,72 +666,32 @@ pub async fn list_submissions_by_organization(
 pub async fn list_submissions_by_cooperation(
     State(state): State<AppState>,
     Path(cooperation_id): Path<String>,
-) -> Result<Json<ApiResponse<AssessmentSummaryResponse>>, (StatusCode, Json<serde_json::Value>)> {
+) -> Result<Json<ApiResponse<AssessmentsResponse>>, (StatusCode, Json<serde_json::Value>)> {
     let db = &state.db;
-    let assessment = AssessmentsRepository::find_latest_by_cooperation_id(db.as_ref(), cooperation_id)
-        .await
-        .map_err(crate::api::handlers::common::handle_error)?
-        .ok_or_else(|| {
-            crate::api::handlers::common::handle_error(AppError::NotFound(
-                "No assessment found for this cooperation".to_string(),
-            ))
-        })?;
-
-    let assessment_id = assessment.assessment_id;
-
-    // Get dimension assessments
-    let dimension_assessments =
-        DimensionAssessmentsRepository::find_by_assessment_id(db.as_ref(), assessment_id)
+    let assessments =
+        AssessmentsRepository::find_all_completed_by_cooperation_id(db.as_ref(), cooperation_id)
             .await
             .map_err(crate::api::handlers::common::handle_error)?;
 
-    // Get gaps count
-    let gaps =
-        crate::repositories::gaps::GapsRepository::find_by_assessment(db.as_ref(), assessment_id)
-            .await
-            .map_err(crate::api::handlers::common::handle_error)?;
-
-    let recommendations: Vec<()> = vec![]; // Placeholder
-
-    let assessment_response = AssessmentResponse {
-        assessment_id: assessment.assessment_id,
-        organization_id: assessment.organization_id,
-        cooperation_id: assessment.cooperation_id,
-        document_title: assessment.document_title,
-        status: convert_entity_assessment_status_to_dto(assessment.status),
-        started_at: assessment.started_at,
-        completed_at: assessment.completed_at,
-        created_at: assessment.created_at,
-        updated_at: assessment.updated_at,
-        dimensions_id: assessment.dimensions_id,
+    let response = AssessmentsResponse {
+        assessments: assessments
+            .into_iter()
+            .map(|assessment| AssessmentResponse {
+                assessment_id: assessment.assessment_id,
+                organization_id: assessment.organization_id,
+                cooperation_id: assessment.cooperation_id,
+                document_title: assessment.document_title,
+                status: convert_entity_assessment_status_to_dto(assessment.status),
+                started_at: assessment.started_at,
+                completed_at: assessment.completed_at,
+                created_at: assessment.created_at,
+                updated_at: assessment.updated_at,
+                dimensions_id: assessment.dimensions_id,
+            })
+            .collect(),
     };
 
-    let dimension_assessments_response: Vec<DimensionAssessmentResponse> = dimension_assessments
-        .into_iter()
-        .map(|da| DimensionAssessmentResponse {
-            dimension_assessment_id: da.dimension_assessment_id,
-            assessment_id: da.assessment_id,
-            dimension_id: da.dimension_id,
-            created_at: da.created_at,
-            updated_at: da.updated_at,
-            current_state_id: da.current_state_id,
-            desired_state_id: da.desired_state_id,
-            gap_score: da.gap_score,
-            gap_id: da.gap_id,
-            organization_id: da.organization_id,
-            cooperation_id: da.cooperation_id,
-        })
-        .collect();
-
-    let summary = AssessmentSummaryResponse {
-        assessment: assessment_response,
-        dimension_assessments: dimension_assessments_response,
-        gaps_count: gaps.len() as u32,
-        recommendations_count: recommendations.len() as u32,
-        overall_score: None,
-    };
-
-    Ok(success_response(summary))
+    Ok(success_response(response))
 }
 
 

@@ -1,4 +1,12 @@
 import { ActionItem } from "@/types/actionPlan";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
 interface ActionItemCardProps {
   item: ActionItem;
@@ -29,23 +37,43 @@ export function ActionItemCard({ item }: ActionItemCardProps) {
   };
 
   const { label, className, borderColor } = statusStyles[item.status];
+  const truncateDescription = (description: string) => {
+    if (description.length > 100) {
+      return `${description.substring(0, 100)}...`;
+    }
+    return description;
+  };
 
   return (
-    <div
-      className={`p-4 mb-4 bg-white rounded-lg border-l-4 ${borderColor} shadow-sm hover:shadow-md transition-shadow duration-200`}
-    >
-      <h3 className="font-semibold text-md mb-2 text-gray-800">{item.title}</h3>
-      <p className="text-sm text-gray-600 mb-4">{item.description}</p>
-      <div className="flex justify-between items-center">
-        <span className="text-xs text-gray-500">
-          Created: {new Date().toLocaleDateString()}
-        </span>
-        <span
-          className={`px-2.5 py-1 text-xs font-bold rounded-full ${className}`}
+    <Dialog>
+      <DialogTrigger asChild>
+        <div
+          className={`p-4 mb-4 bg-white rounded-lg border-l-4 ${borderColor} shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer`}
         >
-          {label}
-        </span>
-      </div>
-    </div>
+          <h3 className="font-semibold text-md mb-2 text-gray-800">
+            {item.dimension}
+          </h3>
+          <p className="text-sm text-gray-600 mb-4">
+            {truncateDescription(item.description)}
+          </p>
+          <div className="flex justify-between items-center">
+            <span className="text-xs text-gray-500">
+              Created: {new Date().toLocaleDateString()}
+            </span>
+            <span
+              className={`px-2.5 py-1 text-xs font-bold rounded-full ${className}`}
+            >
+              {label}
+            </span>
+          </div>
+        </div>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{item.dimension}</DialogTitle>
+        </DialogHeader>
+        <DialogDescription>{item.description}</DialogDescription>
+      </DialogContent>
+    </Dialog>
   );
 }
