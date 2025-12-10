@@ -66,11 +66,19 @@ pub async fn add_member(
             .await?;
 
         if role == "coop_admin" {
-            let client_roles = vec!["view-groups", "manage-users", "view-users", "query-users"];
-            for client_role in client_roles {
+            let realm_management_roles = vec!["manage-users", "view-users", "query-users"];
+            for role in realm_management_roles {
                 state
                     .keycloak_service
-                    .assign_client_role_to_user(&token, &user_id, client_role)
+                    .assign_client_role_to_user(&token, &user_id, "realm-management", role)
+                    .await?;
+            }
+
+            let account_roles = vec!["view-groups"];
+            for role in account_roles {
+                state
+                    .keycloak_service
+                    .assign_client_role_to_user(&token, &user_id, "account", role)
                     .await?;
             }
         }

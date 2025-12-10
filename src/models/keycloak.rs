@@ -16,6 +16,8 @@ pub struct KeycloakUser {
     pub enabled: bool,
     #[serde(default)]
     pub attributes: Option<serde_json::Value>,
+    #[serde(default)]
+    pub roles: Option<serde_json::Value>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

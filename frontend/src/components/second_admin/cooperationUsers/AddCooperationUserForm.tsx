@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -22,12 +23,16 @@ export const AddCooperationUserForm = () => {
   const [lastName, setLastName] = useState("");
   const { mutate: addUser, isPending } = useAddCooperationUser();
   const { user: currentUser } = useAuth();
+  const { cooperationId } = useParams<{ cooperationId: string }>();
 
   const getNewUserRole = () => {
     if (currentUser?.roles?.includes(ROLES.COOP_ADMIN)) {
       return "coop_user";
     }
-    if (currentUser?.roles?.includes(ROLES.ORG_ADMIN)) {
+    if (
+      currentUser?.roles?.includes(ROLES.ORG_ADMIN) ||
+      currentUser?.roles?.includes(ROLES.ADMIN)
+    ) {
       return "coop_admin";
     }
     return null;
@@ -37,7 +42,7 @@ export const AddCooperationUserForm = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newUserRole) return;
+    if (!newUserRole || !cooperationId) return;
 
     const user: AddCooperationUser = {
       email,
@@ -45,14 +50,17 @@ export const AddCooperationUserForm = () => {
       lastName,
       roles: [newUserRole],
     };
-    addUser(user, {
-      onSuccess: () => {
-        setIsOpen(false);
-        setEmail("");
-        setFirstName("");
-        setLastName("");
-      },
-    });
+    addUser(
+      { user, cooperationId },
+      {
+        onSuccess: () => {
+          setIsOpen(false);
+          setEmail("");
+          setFirstName("");
+          setLastName("");
+        },
+      }
+    );
   };
 
   return (

@@ -78,7 +78,7 @@ pub async fn invite_user_to_organization(
         .assign_realm_role_to_user(&token, &user.id, "org_admin")
         .await?;
 
-    let client_roles = vec![
+    let realm_management_roles = vec![
         "view-users",
         "query-users",
         "manage-users",
@@ -87,9 +87,9 @@ pub async fn invite_user_to_organization(
         "manage-realm",
     ];
 
-    for role in client_roles {
+    for role in realm_management_roles {
         app_state.keycloak_service
-            .assign_client_role_to_user(&token, &user.id, role)
+            .assign_client_role_to_user(&token, &user.id, "realm-management", role)
             .await?;
     }
 

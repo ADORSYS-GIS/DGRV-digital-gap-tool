@@ -322,9 +322,9 @@ impl KeycloakService {
     }
 
     /// Assign a client role to a user by role name
-    pub async fn assign_client_role_to_user(&self, token: &str, user_id: &str, role_name: &str) -> Result<()> {
-        // 1. Get the client ID for "realm-management"
-        let clients_url = format!("{}/admin/realms/{}/clients?clientId=realm-management", self.config.keycloak.url, self.config.keycloak.realm);
+    pub async fn assign_client_role_to_user(&self, token: &str, user_id: &str, client_id: &str, role_name: &str) -> Result<()> {
+        // 1. Get the client's internal ID
+        let clients_url = format!("{}/admin/realms/{}/clients?clientId={}", self.config.keycloak.url, self.config.keycloak.realm, client_id);
         let clients: Vec<serde_json::Value> = self.client.get(&clients_url)
             .bearer_auth(token)
             .send()
@@ -334,12 +334,12 @@ impl KeycloakService {
             .await?;
         
         let client = clients.into_iter()
-            .find(|c| c["clientId"] == "realm-management")
-            .ok_or_else(|| anyhow!("Could not find 'realm-management' client"))?;
-        let client_id = client["id"].as_str().ok_or_else(|| anyhow!("Client ID is not a string"))?;
+            .find(|c| c["clientId"] == client_id)
+            .ok_or_else(|| anyhow!("Could not find '{}' client", client_id))?;
+        let internal_client_id = client["id"].as_str().ok_or_else(|| anyhow!("Client ID is not a string"))?;
 
         // 2. Get the role object by name from the client
-        let role_url = format!("{}/admin/realms/{}/clients/{}/roles/{}", self.config.keycloak.url, self.config.keycloak.realm, client_id, role_name);
+        let role_url = format!("{}/admin/realms/{}/clients/{}/roles/{}", self.config.keycloak.url, self.config.keycloak.realm, internal_client_id, role_name);
         let role: serde_json::Value = self.client.get(&role_url)
             .bearer_auth(token)
             .send()
@@ -349,7 +349,7 @@ impl KeycloakService {
             .await?;
 
         // 3. Assign the role to the user
-        let assign_url = format!("{}/admin/realms/{}/users/{}/role-mappings/clients/{}", self.config.keycloak.url, self.config.keycloak.realm, user_id, client_id);
+        let assign_url = format!("{}/admin/realms/{}/users/{}/role-mappings/clients/{}", self.config.keycloak.url, self.config.keycloak.realm, user_id, internal_client_id);
         let roles_payload = serde_json::json!([role]);
         
         let response = self.client.post(&assign_url)
@@ -999,7 +999,19 @@ impl KeycloakService {
 
         match response.status() {
             StatusCode::OK => {
-                let users: Vec<KeycloakUser> = response.json().await?;
+                let mut users: Vec<KeycloakUser> = response.json().await?;
+                for user in &mut users {
+                    let roles_url = format!("{}/admin/realms/{}/users/{}/role-mappings",
+                                            self.config.keycloak.url, self.config.keycloak.realm, user.id);
+                    let roles_response = self.client.get(&roles_url)
+                        .bearer_auth(token)
+                        .send()
+                        .await?;
+                    if roles_response.status() == StatusCode::OK {
+                        let roles: serde_json::Value = roles_response.json().await?;
+                        user.roles = Some(roles);
+                    }
+                }
                 info!(group_id = %group_id, count = users.len(), "Successfully retrieved group members");
                 Ok(users)
             },
