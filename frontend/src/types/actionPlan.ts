@@ -5,6 +5,7 @@ export interface ActionItem {
   priority: "low" | "medium" | "high";
   title: string;
   description: string;
+  dimension: string;
 }
 
 export interface ActionPlan {

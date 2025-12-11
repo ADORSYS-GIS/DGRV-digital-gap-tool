@@ -31,4 +31,3 @@ impl Related<super::dimensions::Entity> for Entity {
 }
 
 impl ActiveModelBehavior for ActiveModel {}
-

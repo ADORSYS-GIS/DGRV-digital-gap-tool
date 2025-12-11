@@ -11,11 +11,7 @@ impl MigrationTrait for Migration {
             .alter_table(
                 Table::alter()
                     .table(Assessments::Table)
-                    .add_column(
-                        ColumnDef::new(Assessments::CooperationId)
-                            .string()
-                            .null(),
-                    )
+                    .add_column(ColumnDef::new(Assessments::CooperationId).string().null())
                     .to_owned(),
             )
             .await?;

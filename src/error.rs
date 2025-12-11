@@ -51,7 +51,9 @@ impl IntoResponse for AppError {
             AppError::FileStorageError(_) => {
                 (StatusCode::INTERNAL_SERVER_ERROR, "File storage error")
             }
-            AppError::AnyhowError(_) => (StatusCode::INTERNAL_SERVER_ERROR, "Internal server error"),
+            AppError::AnyhowError(_) => {
+                (StatusCode::INTERNAL_SERVER_ERROR, "Internal server error")
+            }
         };
 
         let body = Json(json!({

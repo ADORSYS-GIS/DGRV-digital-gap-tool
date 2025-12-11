@@ -7,16 +7,17 @@
  * - Error routes for handling 404s and unauthorized access
  */
 import { ROLES } from "@/constants/roles";
+import AdminLayout from "@/layouts/AdminLayout";
+import SecondAdminLayout from "@/layouts/SecondAdminLayout";
+import ThirdAdminLayout from "@/layouts/ThirdAdminLayout";
+import UserLayout from "@/layouts/UserLayout";
+import AnswerDimensionAssessmentPage from "@/pages/assessments/AnswerDimensionAssessmentPage";
 import * as React from "react";
 import { HomePage } from "../pages/HomePage";
-import OnboardingFlow from "../pages/OnboardingFlow";
 import NotFound from "../pages/NotFound";
+import OnboardingFlow from "../pages/OnboardingFlow";
 import Dashboard from "../pages/user/Dashboard";
 import { ProtectedRoute } from "./ProtectedRoute";
-import AdminLayout from "@/layouts/AdminLayout";
-import ThirdAdminLayout from "@/layouts/ThirdAdminLayout";
-import SecondAdminLayout from "@/layouts/SecondAdminLayout";
-import UserLayout from "@/layouts/UserLayout";
 const ManageOrganizations = React.lazy(
   () => import("../pages/admin/ManageOrganizationsPage"),
 );
@@ -66,7 +67,6 @@ const ActionPlansListPage = React.lazy(
 const ActionPlanPage = React.lazy(
   () => import("../pages/shared/action_plans/ActionPlanPage"),
 );
-import AnswerDimensionAssessmentPage from "@/pages/assessments/AnswerDimensionAssessmentPage";
 const ThirdAdminDashboard = React.lazy(
   () => import("../pages/third_admin/ThirdAdminDashboard"),
 );
@@ -125,6 +125,10 @@ const routes = [
       {
         path: "action-plans",
         element: React.createElement(ActionPlansPage),
+      },
+      {
+        path: "action-plans/:assessmentId",
+        element: React.createElement(ActionPlanPage),
       },
       {
         path: "digital-gaps",

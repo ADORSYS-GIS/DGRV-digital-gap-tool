@@ -1,13 +1,9 @@
 use crate::error::AppError;
 use crate::repositories::{
-    action_items::ActionItemsRepository,
-    assessments::AssessmentsRepository,
-    current_states::CurrentStatesRepository,
-    desired_states::DesiredStatesRepository,
-    dimension_assessments::DimensionAssessmentsRepository,
-    dimensions::DimensionsRepository,
-    gaps::GapsRepository,
-    recommendations::RecommendationsRepository,
+    action_items::ActionItemsRepository, assessments::AssessmentsRepository,
+    current_states::CurrentStatesRepository, desired_states::DesiredStatesRepository,
+    dimension_assessments::DimensionAssessmentsRepository, dimensions::DimensionsRepository,
+    gaps::GapsRepository, recommendations::RecommendationsRepository,
 };
 use base64::{engine::general_purpose, Engine as _};
 use bytes::Bytes;
@@ -93,7 +89,10 @@ impl PdfGeneratorService {
         // Get dimension assessments
         let dimension_assessments =
             DimensionAssessmentsRepository::find_by_assessment_id(db, assessment_id).await?;
-        info!(count = dimension_assessments.len(), "Found dimension assessments.");
+        info!(
+            count = dimension_assessments.len(),
+            "Found dimension assessments."
+        );
 
         let mut rows = Vec::new();
         let mut chart_labels = Vec::new();
@@ -110,12 +109,12 @@ impl PdfGeneratorService {
                 })?;
 
             // Get gap details
-            let gap = GapsRepository::find_by_id(db, dim_assessment.gap_id).await?.ok_or_else(
-                || {
+            let gap = GapsRepository::find_by_id(db, dim_assessment.gap_id)
+                .await?
+                .ok_or_else(|| {
                     error!(gap_id = %dim_assessment.gap_id, "Gap not found.");
                     AppError::NotFound("Gap not found".to_string())
-                },
-            )?;
+                })?;
 
             // Get action items for this dimension assessment
             let action_items = ActionItemsRepository::find_by_dimension_assessment_id(
@@ -164,7 +163,9 @@ impl PdfGeneratorService {
                 category: dimension.name.clone(),
                 gap: gap_severity_str,
                 gap_class: gap_class.to_string(),
-                result: gap.gap_description.unwrap_or_else(|| "No description".to_string()),
+                result: gap
+                    .gap_description
+                    .unwrap_or_else(|| "No description".to_string()),
                 recommendations,
             });
 
@@ -233,10 +234,7 @@ impl PdfGeneratorService {
         let browser = Browser::new(LaunchOptions {
             headless: true,
             sandbox: true,
-            args: vec![
-                OsStr::new("--no-sandbox"),
-                OsStr::new("--disable-gpu"),
-            ],
+            args: vec![OsStr::new("--no-sandbox"), OsStr::new("--disable-gpu")],
             ..Default::default()
         })
         .map_err(|e| {

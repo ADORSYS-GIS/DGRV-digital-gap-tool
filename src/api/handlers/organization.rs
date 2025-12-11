@@ -103,10 +103,7 @@ pub async fn get_organization(
     let keycloak_service = state.keycloak_service;
     tracing::info!("Received get organization request for id {}", org_id);
 
-    match keycloak_service
-        .get_organization(&token, &org_id)
-        .await
-    {
+    match keycloak_service.get_organization(&token, &org_id).await {
         Ok(organization) => Ok((StatusCode::OK, Json(organization))),
         Err(e) => {
             tracing::error!("Failed to get organization: {}", e);
@@ -136,7 +133,8 @@ pub async fn update_organization(
     let keycloak_service = state.keycloak_service;
     tracing::info!(
         ?request,
-        "Received organization update request for id {}", org_id
+        "Received organization update request for id {}",
+        org_id
     );
 
     match keycloak_service
@@ -176,10 +174,7 @@ pub async fn delete_organization(
     let keycloak_service = state.keycloak_service;
     tracing::info!("Received delete organization request for id {}", org_id);
 
-    match keycloak_service
-        .delete_organization(&token, &org_id)
-        .await
-    {
+    match keycloak_service.delete_organization(&token, &org_id).await {
         Ok(_) => Ok(StatusCode::NO_CONTENT),
         Err(e) => {
             tracing::error!("Failed to delete organization: {}", e);
@@ -227,10 +222,8 @@ pub async fn assign_dimension_to_organization(
 ) -> AppResult<impl IntoResponse> {
     let assigned_dimensions =
         OrganisationDimensionRepository::assign(&state.db, &org_id, request.dimension_ids).await?;
-    let response: Vec<OrganisationDimensionResponse> = assigned_dimensions
-        .into_iter()
-        .map(Into::into)
-        .collect();
+    let response: Vec<OrganisationDimensionResponse> =
+        assigned_dimensions.into_iter().map(Into::into).collect();
     Ok((StatusCode::CREATED, Json(response)))
 }
 
@@ -285,11 +278,7 @@ pub async fn update_organization_dimensions(
     Path(org_id): Path<String>,
     Json(request): Json<UpdateOrganisationDimensionsRequest>,
 ) -> AppResult<impl IntoResponse> {
-    OrganisationDimensionRepository::update_assignments(
-        &state.db,
-        &org_id,
-        request.dimension_ids,
-    )
-    .await?;
+    OrganisationDimensionRepository::update_assignments(&state.db, &org_id, request.dimension_ids)
+        .await?;
     Ok(StatusCode::NO_CONTENT)
 }

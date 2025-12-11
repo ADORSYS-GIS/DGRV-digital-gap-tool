@@ -1,5 +1,5 @@
 use axum::{
-    extract::{Extension, State, Path},
+    extract::{Extension, Path, State},
     http::StatusCode,
     response::IntoResponse,
     Json,
@@ -32,7 +32,11 @@ pub async fn invite_user_to_organization(
     Path(org_id): Path<String>,
     Json(request): Json<UserInvitationRequest>,
 ) -> Result<impl IntoResponse, AppError> {
-    tracing::info!(?request, "Received user invitation request for organization {}", org_id);
+    tracing::info!(
+        ?request,
+        "Received user invitation request for organization {}",
+        org_id
+    );
     let token = get_token_from_extensions(&token)?;
 
     if !claims.is_application_admin() {
@@ -40,7 +44,8 @@ pub async fn invite_user_to_organization(
     }
 
     // Check if user already exists
-    let existing_user = app_state.keycloak_service
+    let existing_user = app_state
+        .keycloak_service
         .find_user_by_username_or_email(&token, &request.email)
         .await
         .map_err(|e| {
@@ -64,7 +69,8 @@ pub async fn invite_user_to_organization(
             required_actions: Some(vec!["VERIFY_EMAIL".to_string()]),
         };
 
-        app_state.keycloak_service
+        app_state
+            .keycloak_service
             .create_user_with_email_verification(&token, &create_user_request)
             .await
             .map_err(|e| {
@@ -74,11 +80,12 @@ pub async fn invite_user_to_organization(
     };
 
     // Assign roles
-    app_state.keycloak_service
+    app_state
+        .keycloak_service
         .assign_realm_role_to_user(&token, &user.id, "org_admin")
         .await?;
 
-    let client_roles = vec![
+    let realm_management_roles = vec![
         "view-users",
         "query-users",
         "manage-users",
@@ -87,14 +94,16 @@ pub async fn invite_user_to_organization(
         "manage-realm",
     ];
 
-    for role in client_roles {
-        app_state.keycloak_service
-            .assign_client_role_to_user(&token, &user.id, role)
+    for role in realm_management_roles {
+        app_state
+            .keycloak_service
+            .assign_client_role_to_user(&token, &user.id, "realm-management", role)
             .await?;
     }
 
     // Create invitation
-    match app_state.keycloak_service
+    match app_state
+        .keycloak_service
         .create_invitation(&token, &org_id, &request.email, request.roles.clone(), None)
         .await
     {
@@ -106,10 +115,12 @@ pub async fn invite_user_to_organization(
                 message: "Invitation sent successfully".to_string(),
             };
             Ok((StatusCode::CREATED, Json(response)))
-        },
+        }
         Err(e) => {
             tracing::error!("Failed to create invitation: {}", e);
-            Err(AppError::InternalServerError("Failed to create invitation".to_string()))
+            Err(AppError::InternalServerError(
+                "Failed to create invitation".to_string(),
+            ))
         }
     }
 }

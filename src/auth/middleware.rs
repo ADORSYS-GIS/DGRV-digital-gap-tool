@@ -25,7 +25,10 @@ pub async fn auth_middleware(
     };
 
     let token = if let Some(header_value) = auth_header {
-        info!("[AUTH_MIDDLEWARE] Authorization header value: '{}'", header_value);
+        info!(
+            "[AUTH_MIDDLEWARE] Authorization header value: '{}'",
+            header_value
+        );
         if let Some(token) = header_value.strip_prefix("Bearer ") {
             info!("[AUTH_MIDDLEWARE] Bearer token extracted successfully.");
             token

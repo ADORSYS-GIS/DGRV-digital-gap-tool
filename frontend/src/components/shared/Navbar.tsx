@@ -7,7 +7,6 @@
  * - Mobile-friendly hamburger menu
  * - Logo and branding elements
  */
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -21,6 +20,11 @@ import { useNavigate } from "react-router-dom";
 import { ROLES } from "@/constants/roles";
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "./LanguageSwitcher";
+import { ROLES } from "@/constants/roles";
+import { useAuth } from "@/context/AuthContext";
+import { Home, LogOut, Menu, User, X } from "lucide-react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export const Navbar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -100,18 +104,6 @@ export const Navbar = () => {
                 <Home className="w-5 h-5" />
                 <span>{t("navbar.home")}</span>
               </Button>
-              {hasAdminRole && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="ml-4 hidden md:flex items-center space-x-2"
-                  onClick={() => navigate("/second-admin/dashboard")}
-                  aria-label="Cooperative Dashboard"
-                >
-                  <Building2 className="w-5 h-5" />
-                  <span>{t("navbar.cooperativeDashboard")}</span>
-                </Button>
-              )}
             </div>
 
             {/* Right side */}
@@ -248,22 +240,6 @@ export const Navbar = () => {
                 <Home className="w-5 h-5" />
                 <span className="font-medium">{t("navbar.home")}</span>
               </Button>
-              {hasAdminRole && (
-                <Button
-                  variant="ghost"
-                  size="lg"
-                  className="w-full justify-start items-center space-x-4 h-12 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-lg"
-                  onClick={() => {
-                    navigate("/second-admin/dashboard");
-                    closeSidebar();
-                  }}
-                >
-                  <Building2 className="w-5 h-5" />
-                  <span className="font-medium">
-                    {t("navbar.cooperativeDashboard")}
-                  </span>
-                </Button>
-              )}
             </div>
             <div className="space-y-3">
               <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">

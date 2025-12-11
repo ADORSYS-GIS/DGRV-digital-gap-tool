@@ -13,10 +13,8 @@ impl MigrationTrait for Migration {
         )
         .await?;
 
-        conn.execute_unprepared(
-            "DROP INDEX IF EXISTS \"idx_gaps_dimension_assessment_id\"",
-        )
-        .await?;
+        conn.execute_unprepared("DROP INDEX IF EXISTS \"idx_gaps_dimension_assessment_id\"")
+            .await?;
 
         conn.execute_unprepared(
             "ALTER TABLE \"gaps\" DROP COLUMN IF EXISTS \"dimension_assessment_id\"",
@@ -32,11 +30,7 @@ impl MigrationTrait for Migration {
             .alter_table(
                 Table::alter()
                     .table(Gaps::Table)
-                    .add_column(
-                        ColumnDef::new(Gaps::DimensionAssessmentId)
-                            .uuid()
-                            .null(),
-                    )
+                    .add_column(ColumnDef::new(Gaps::DimensionAssessmentId).uuid().null())
                     .to_owned(),
             )
             .await?;
@@ -46,7 +40,10 @@ impl MigrationTrait for Migration {
                 ForeignKey::create()
                     .name("fk_gaps_dimension_assessments")
                     .from(Gaps::Table, Gaps::DimensionAssessmentId)
-                    .to(DimensionAssessments::Table, DimensionAssessments::DimensionAssessmentId)
+                    .to(
+                        DimensionAssessments::Table,
+                        DimensionAssessments::DimensionAssessmentId,
+                    )
                     .on_delete(ForeignKeyAction::Cascade)
                     .on_update(ForeignKeyAction::Cascade)
                     .to_owned(),

@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import { MultiSelect } from "@/components/ui/multi-select";
 import {
   Dialog,
   DialogContent,
@@ -35,8 +35,8 @@ import { LoadingSpinner } from "../../shared/LoadingSpinner";
 
 const formSchema = z.object({
   name: z.string().min(1, "Assessment name is required"),
-  dimensionIds: z.array(z.string()).min(1, "Select at least one dimension"),
   cooperationId: z.string().min(1, "Please select a cooperation"),
+  dimensionIds: z.array(z.string()).min(1, "Select at least one dimension"),
 });
 
 type AddAssessmentFormValues = z.infer<typeof formSchema>;
@@ -142,43 +142,20 @@ export function AddAssessmentForm({ isOpen, onClose }: AddAssessmentFormProps) {
               name="dimensionIds"
               render={({ field }) => (
                 <FormItem>
-                  <div className="mb-4">
-                    <FormLabel>Dimensions</FormLabel>
-                  </div>
+                  <FormLabel>Dimensions</FormLabel>
                   {isLoadingDimensions || isLoadingAssigned ? (
                     <LoadingSpinner />
                   ) : (
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-                      {assignedDimensions.map((dimension) => (
-                        <FormItem
-                          key={dimension.id}
-                          className="flex flex-row items-start space-x-3 space-y-0"
-                        >
-                          <FormControl>
-                            <Checkbox
-                              checked={field.value?.includes(dimension.id)}
-                              onCheckedChange={(checked) => {
-                                if (checked) {
-                                  field.onChange([
-                                    ...(field.value ?? []),
-                                    dimension.id,
-                                  ]);
-                                } else {
-                                  field.onChange(
-                                    field.value?.filter(
-                                      (value) => value !== dimension.id,
-                                    ),
-                                  );
-                                }
-                              }}
-                            />
-                          </FormControl>
-                          <FormLabel className="font-normal">
-                            {dimension.name}
-                          </FormLabel>
-                        </FormItem>
-                      ))}
-                    </div>
+                    <MultiSelect
+                      options={assignedDimensions.map((d) => ({
+                        value: d.id,
+                        label: d.name,
+                      }))}
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                      placeholder="Select dimensions"
+                      maxCount={3}
+                    />
                   )}
                   <FormMessage />
                 </FormItem>

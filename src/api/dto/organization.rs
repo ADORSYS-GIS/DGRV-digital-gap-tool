@@ -19,7 +19,6 @@ pub struct OrganizationCreateRequest {
     pub attributes: Option<HashMap<String, Vec<String>>>,
 }
 
-
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct OrganizationUpdateRequest {
     pub name: String,

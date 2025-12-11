@@ -14,7 +14,7 @@ impl MigrationTrait for Migration {
                         ColumnDef::new(Dimensions::Weight)
                             .integer()
                             .null()
-                            .check(Expr::col(Dimensions::Weight).between(0, 100))
+                            .check(Expr::col(Dimensions::Weight).between(0, 100)),
                     )
                     .to_owned(),
             )

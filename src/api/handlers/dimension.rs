@@ -223,8 +223,8 @@ pub async fn list_dimensions(
             is_active: dimension.is_active,
             created_at: DateTime::from_naive_utc_and_offset(dimension.created_at, Utc),
             updated_at: DateTime::from_naive_utc_and_offset(dimension.updated_at, Utc),
-            })
-            .collect();
+        })
+        .collect();
 
     let response = PaginatedResponse::new(paginated_dimensions, total, page, limit);
     Ok(success_response(response))
@@ -266,13 +266,13 @@ pub async fn update_dimension(
     if let Some(description) = request.description.clone() {
         active_model.description = sea_orm::Set(Some(description));
     }
-    if let Some(weight) = request.weight.clone() {
+    if let Some(weight) = request.weight {
         active_model.weight = sea_orm::Set(Some(weight));
     }
     if let Some(category) = request.category.clone() {
         active_model.category = sea_orm::Set(Some(category));
     }
-    if let Some(is_active) = request.is_active.clone() {
+    if let Some(is_active) = request.is_active {
         active_model.is_active = sea_orm::Set(Some(is_active));
     }
 

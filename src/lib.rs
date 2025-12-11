@@ -1,16 +1,17 @@
 #![allow(dead_code)]
 
 pub mod api;
+pub mod auth;
 pub mod config;
 pub mod database;
 pub mod entities;
 pub mod error;
+pub mod models;
 pub mod repositories;
 pub mod services;
-pub mod models;
-pub mod auth;
 
 use crate::api::routes;
+use crate::auth::jwt_validator::JwtValidator;
 use crate::config::Config;
 use crate::services::keycloak::KeycloakService;
 use axum::Router;
@@ -19,7 +20,6 @@ use std::net::SocketAddr;
 use std::sync::Arc;
 use tracing::{info, warn, Level};
 use tracing_subscriber::FmtSubscriber;
-use crate::auth::jwt_validator::JwtValidator;
 
 use crate::services::report_service::ReportService;
 
@@ -48,7 +48,7 @@ pub async fn run() -> anyhow::Result<()> {
     validate_openapi_spec(&config);
 
     // Initialize database connection
-    let db = database::init_db(&config.database_url).await?;
+    let db = Arc::new(database::init_db(&config.database_url).await?);
 
     // Run migrations
     database::run_migrations(&db).await?;
@@ -69,7 +69,11 @@ pub async fn run() -> anyhow::Result<()> {
     Ok(())
 }
 
-fn create_app(db: DatabaseConnection, config: Config, report_service: Arc<ReportService>) -> Router {
+fn create_app(
+    db: Arc<DatabaseConnection>,
+    config: Config,
+    report_service: Arc<ReportService>,
+) -> Router {
     use http::header::{AUTHORIZATION, CONTENT_TYPE};
     use tower_http::cors::CorsLayer;
 
@@ -89,15 +93,18 @@ fn create_app(db: DatabaseConnection, config: Config, report_service: Arc<Report
         .allow_credentials(true);
 
     let state = AppState {
-        db: Arc::new(db),
+        db,
         keycloak_service: Arc::new(KeycloakService::new(config.clone())),
         jwt_validator: Arc::new(JwtValidator::new(config.keycloak.clone())),
         report_service,
     };
 
     // Create API router with all routes
-    let api_router = routes::api::create_api_routes(state.clone())
-        .layer(axum::middleware::from_fn_with_state(state.clone(), crate::auth::middleware::auth_middleware));
+    let api_router =
+        routes::api::create_api_routes(state.clone()).layer(axum::middleware::from_fn_with_state(
+            state.clone(),
+            crate::auth::middleware::auth_middleware,
+        ));
 
     // Combine all routers
     Router::new()
@@ -105,7 +112,6 @@ fn create_app(db: DatabaseConnection, config: Config, report_service: Arc<Report
         .merge(api::openapi::docs_routes(config))
         .with_state(state)
         .layer(cors)
-        
 }
 
 /// Validates the OpenAPI specification at startup

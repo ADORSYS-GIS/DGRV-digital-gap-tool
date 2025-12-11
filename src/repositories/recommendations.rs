@@ -144,10 +144,10 @@ impl RecommendationsRepository {
         let paginator = Recommendations::find()
             .order_by_asc(recommendations::Column::CreatedAt)
             .paginate(db, page_size);
-        
+
         let total = paginator.num_items().await?;
         let recommendations = paginator.fetch_page(page - 1).await?;
-        
+
         Ok((recommendations, total))
     }
 
@@ -162,10 +162,10 @@ impl RecommendationsRepository {
             .filter(recommendations::Column::DimensionId.eq(dimension_id))
             .order_by_asc(recommendations::Column::CreatedAt)
             .paginate(db, page_size);
-        
+
         let total = paginator.num_items().await?;
         let recommendations = paginator.fetch_page(page - 1).await?;
-        
+
         Ok((recommendations, total))
     }
 }
