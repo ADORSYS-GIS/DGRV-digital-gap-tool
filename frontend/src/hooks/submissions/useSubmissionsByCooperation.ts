@@ -1,16 +1,37 @@
-import { listSubmissionsByCooperation } from "@/openapi-client";
+import {
+  AssessmentResponse,
+  AssessmentsResponse,
+  AssessmentSummaryResponse,
+  listSubmissionsByCooperation,
+} from "@/openapi-client";
 import { useQuery } from "@tanstack/react-query";
 
 export const useSubmissionsByCooperation = (
   cooperationId: string,
   options?: { enabled?: boolean },
 ) => {
-  return useQuery({
+  return useQuery<AssessmentSummaryResponse[]>({
     queryKey: ["submissions", "cooperation", cooperationId],
     queryFn: async () => {
-      const response = await listSubmissionsByCooperation({ cooperationId });
-      return response.data || [];
+      if (!cooperationId) return [];
+      const response = (await listSubmissionsByCooperation({
+        cooperationId,
+      })) as unknown as { data: AssessmentsResponse };
+
+      const submissionsData = response.data?.assessments || [];
+      const submissions = submissionsData.map(
+        (assessment: AssessmentResponse) =>
+          ({
+            assessment,
+            dimension_assessments: [],
+            gaps_count: 0,
+            recommendations_count: 0,
+            overall_score: null,
+          }) as AssessmentSummaryResponse,
+      );
+
+      return submissions;
     },
-    enabled: !!options?.enabled,
+    enabled: !!cooperationId && options?.enabled !== false,
   });
 };

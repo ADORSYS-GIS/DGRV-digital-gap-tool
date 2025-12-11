@@ -1,5 +1,5 @@
-use sea_orm_migration::prelude::*;
 use sea_orm_migration::prelude::extension::postgres::Type;
+use sea_orm_migration::prelude::*;
 
 #[derive(DeriveMigrationName)]
 pub struct Migration;
@@ -24,9 +24,7 @@ impl MigrationTrait for Migration {
 
         manager
             .get_connection()
-            .execute_unprepared(
-                "ALTER TABLE \"assessments\" ALTER COLUMN \"status\" DROP DEFAULT",
-            )
+            .execute_unprepared("ALTER TABLE \"assessments\" ALTER COLUMN \"status\" DROP DEFAULT")
             .await?;
 
         manager
@@ -38,9 +36,7 @@ impl MigrationTrait for Migration {
 
         manager
             .get_connection()
-            .execute_unprepared(
-                "ALTER TABLE \"assessments\" ALTER COLUMN \"status\" SET NOT NULL",
-            )
+            .execute_unprepared("ALTER TABLE \"assessments\" ALTER COLUMN \"status\" SET NOT NULL")
             .await?;
 
         manager
@@ -68,7 +64,11 @@ impl MigrationTrait for Migration {
             .await?;
 
         manager
-            .drop_type(Type::drop().name(AssessmentStatus::AssessmentStatusEnum).to_owned())
+            .drop_type(
+                Type::drop()
+                    .name(AssessmentStatus::AssessmentStatusEnum)
+                    .to_owned(),
+            )
             .await
     }
 }

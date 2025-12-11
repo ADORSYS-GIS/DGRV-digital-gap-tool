@@ -23,13 +23,13 @@ impl MigrationTrait for Migration {
                         ColumnDef::new(Recommendations::MinGapSize)
                             .integer()
                             .not_null()
-                            .default(0)
+                            .default(0),
                     )
                     .add_column(
                         ColumnDef::new(Recommendations::MaxGapSize)
                             .integer()
                             .not_null()
-                            .default(0)
+                            .default(0),
                     )
                     .to_owned(),
             )

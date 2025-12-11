@@ -23,7 +23,7 @@ impl MigrationTrait for Migration {
                         ColumnDef::new(AssessmentRecommendations::IsSelected)
                             .boolean()
                             .not_null()
-                            .default(false)
+                            .default(false),
                     )
                     .to_owned(),
             )

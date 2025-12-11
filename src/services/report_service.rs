@@ -9,15 +9,17 @@ use sea_orm::DatabaseConnection;
 use tracing::{error, info, instrument};
 use uuid::Uuid;
 
+use std::sync::Arc;
+
 pub struct ReportService {
     storage_service: S3StorageService,
-    db: DatabaseConnection,
+    db: Arc<DatabaseConnection>,
 }
 
 impl ReportService {
     pub async fn new(
         config: &crate::config::MinioConfig,
-        db: DatabaseConnection,
+        db: Arc<DatabaseConnection>,
     ) -> Result<Self, AppError> {
         let storage_service = S3StorageService::new(config).await?;
         Ok(Self {
@@ -70,7 +72,7 @@ impl ReportService {
             updated_at: sea_orm::ActiveValue::Set(chrono::Utc::now()),
         };
 
-        ReportsRepository::create(&self.db, report).await
+        ReportsRepository::create(self.db.as_ref(), report).await
     }
 
     pub async fn get_report_file(
@@ -78,7 +80,7 @@ impl ReportService {
         report_id: Uuid,
     ) -> Result<(crate::entities::reports::Model, Bytes), AppError> {
         tracing::info!(report_id = %report_id, "Attempting to get report file");
-        let report = match ReportsRepository::find_by_id(&self.db, report_id).await {
+        let report = match ReportsRepository::find_by_id(self.db.as_ref(), report_id).await {
             Ok(Some(r)) => {
                 tracing::info!(report_id = %report_id, "Found report metadata in database");
                 r
@@ -106,7 +108,7 @@ impl ReportService {
 
     pub async fn delete_report(&self, report_id: Uuid) -> Result<bool, AppError> {
         // Get report metadata
-        let report = ReportsRepository::find_by_id(&self.db, report_id)
+        let report = ReportsRepository::find_by_id(self.db.as_ref(), report_id)
             .await?
             .ok_or_else(|| AppError::NotFound("Report not found".to_string()))?;
 
@@ -116,14 +118,14 @@ impl ReportService {
         }
 
         // Delete report from database
-        ReportsRepository::delete(&self.db, report_id).await
+        ReportsRepository::delete(self.db.as_ref(), report_id).await
     }
     #[instrument(skip(self), fields(report_id = %report_id))]
     pub async fn generate_report_for_submission(&self, report_id: Uuid) -> Result<(), AppError> {
         info!("Starting report generation for submission.");
 
         // 1. Fetch the report to get the assessment_id
-        let report = match ReportsRepository::find_by_id(&self.db, report_id).await {
+        let report = match ReportsRepository::find_by_id(self.db.as_ref(), report_id).await {
             Ok(Some(r)) => r,
             Ok(None) => {
                 error!("Report not found in database.");
@@ -131,7 +133,7 @@ impl ReportService {
             }
             Err(e) => {
                 error!(error = %e, "Database error while fetching report.");
-                return Err(e.into());
+                return Err(e);
             }
         };
 
@@ -139,8 +141,11 @@ impl ReportService {
         let generation_result = async {
             // 2. Generate the PDF using the PdfGeneratorService
             info!(assessment_id = %report.assessment_id, "Generating PDF for assessment.");
-            let pdf_bytes =
-                PdfGeneratorService::generate_assessment_pdf(&self.db, report.assessment_id).await?;
+            let pdf_bytes = PdfGeneratorService::generate_assessment_pdf(
+                self.db.as_ref(),
+                report.assessment_id,
+            )
+            .await?;
 
             // 3. Store the report file in S3/MinIO
             info!("Uploading generated PDF to storage.");
@@ -160,7 +165,7 @@ impl ReportService {
             updated_report.generated_at = sea_orm::ActiveValue::Set(chrono::Utc::now());
             updated_report.updated_at = sea_orm::ActiveValue::Set(chrono::Utc::now());
             ReportsRepository::update(
-                &self.db,
+                self.db.as_ref(),
                 updated_report.report_id.clone().unwrap(),
                 updated_report,
             )
@@ -173,7 +178,7 @@ impl ReportService {
 
         if let Err(e) = generation_result {
             error!(error = %e, "Report generation failed. Updating status to 'Failed'.");
-            let report_to_fail = ReportsRepository::find_by_id(&self.db, report_id)
+            let report_to_fail = ReportsRepository::find_by_id(self.db.as_ref(), report_id)
                 .await?
                 .ok_or_else(|| {
                     AppError::NotFound("Report disappeared during failure handling".to_string())
@@ -183,7 +188,7 @@ impl ReportService {
             updated_report.status = sea_orm::ActiveValue::Set(ReportStatus::Failed);
             updated_report.updated_at = sea_orm::ActiveValue::Set(chrono::Utc::now());
             ReportsRepository::update(
-                &self.db,
+                self.db.as_ref(),
                 updated_report.report_id.clone().unwrap(),
                 updated_report,
             )

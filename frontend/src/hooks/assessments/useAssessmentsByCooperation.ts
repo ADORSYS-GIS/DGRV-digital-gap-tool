@@ -1,8 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
-import { assessmentRepository } from "@/services/assessments/assessmentRepository";
 import { listAssessmentsByCooperation } from "@/openapi-client/services.gen";
-import type { AssessmentResponse } from "@/openapi-client/types.gen";
-import { Assessment } from "@/types/assessment";
+import { assessmentRepository } from "@/services/assessments/assessmentRepository";
+import { useQuery } from "@tanstack/react-query";
 
 export const useAssessmentsByCooperation = (
   cooperationId: string,

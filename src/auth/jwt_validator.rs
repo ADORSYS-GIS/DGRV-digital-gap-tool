@@ -4,8 +4,8 @@ use std::sync::Arc;
 use tokio::sync::RwLock;
 use tracing::{error, info};
 
-use crate::config::KeycloakConfigs;
 use crate::auth::claims::{Claims, PrivateClaims};
+use crate::config::KeycloakConfigs;
 
 #[derive(Debug, Clone)]
 pub struct JwtValidator {
@@ -46,7 +46,10 @@ impl JwtValidator {
         let internal_issuer = format!("{}/realms/{}", self.config.url, self.config.realm);
         let jwks_uri_internal = jwks_uri_public.replace(public_issuer, &internal_issuer);
 
-        info!("[AUTH] Fetching JWKS from internal URL: {}", jwks_uri_internal);
+        info!(
+            "[AUTH] Fetching JWKS from internal URL: {}",
+            jwks_uri_internal
+        );
         let fetched_jwks: biscuit::jwk::JWKSet<biscuit::Empty> =
             reqwest::get(jwks_uri_internal).await?.json().await?;
         *jwks_guard = Some(fetched_jwks.clone());
@@ -66,21 +69,33 @@ impl JwtValidator {
         };
 
         let validation_options = ValidationOptions {
-            issuer: Validation::Validate(format!("{}/realms/{}", self.config.public_url, self.config.realm)),
+            issuer: Validation::Validate(format!(
+                "{}/realms/{}",
+                self.config.public_url, self.config.realm
+            )),
             ..Default::default()
         };
 
         let expected_issuer = format!("{}/realms/{}", self.config.public_url, self.config.realm);
-        let token_issuer = decoded_token.payload().ok().and_then(|p| p.registered.issuer.clone());
+        let token_issuer = decoded_token
+            .payload()
+            .ok()
+            .and_then(|p| p.registered.issuer.clone());
 
         // --- JWT ISSUER VALIDATION LOGS ---
         info!("[AUTH] Expected issuer: {}", expected_issuer);
-        info!("[AUTH] Received issuer: {:?}", token_issuer.as_deref().unwrap_or("N/A"));
+        info!(
+            "[AUTH] Received issuer: {:?}",
+            token_issuer.as_deref().unwrap_or("N/A")
+        );
         // --- END LOGS ---
 
         if let Some(issuer) = token_issuer.as_deref() {
             if issuer != expected_issuer {
-                error!("[AUTH] Issuer mismatch: expected '{}', got '{}'", expected_issuer, issuer);
+                error!(
+                    "[AUTH] Issuer mismatch: expected '{}', got '{}'",
+                    expected_issuer, issuer
+                );
                 return Err(anyhow!("Token issuer mismatch"));
             }
         }
@@ -89,7 +104,11 @@ impl JwtValidator {
 
         let payload = decoded_token.payload()?;
         let private_claims = payload.private.clone();
-        let subject = payload.registered.subject.clone().ok_or_else(|| anyhow!("Subject not found in token"))?;
+        let subject = payload
+            .registered
+            .subject
+            .clone()
+            .ok_or_else(|| anyhow!("Subject not found in token"))?;
 
         let claims = Claims {
             subject,

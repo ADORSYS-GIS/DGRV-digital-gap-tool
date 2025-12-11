@@ -80,7 +80,9 @@ async fn test_file_upload_download() {
 async fn test_report_generation_and_storage() {
     let config = setup_test_config().await;
     let db = setup_test_db().await;
-    let report_service = ReportService::new(&config, db).await.unwrap();
+    let report_service = ReportService::new(&config, std::sync::Arc::new(db))
+        .await
+        .unwrap();
 
     let assessment_id = Uuid::new_v4();
     let report_content = Bytes::from("Sample PDF report content");

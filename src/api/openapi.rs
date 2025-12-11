@@ -1,6 +1,6 @@
+use crate::{config::Config, entities::reports::ReportFormat};
 use axum::Router;
 use utoipa::OpenApi;
-use crate::{entities::reports::ReportFormat, config::Config};
 use utoipa_swagger_ui::SwaggerUi;
 
 use crate::api::dto::action_plan::*;
@@ -9,12 +9,12 @@ use crate::api::dto::common::*;
 use crate::api::dto::dimension::*;
 use crate::api::dto::gap::*;
 use crate::api::dto::group::*;
+use crate::api::dto::invitation::*;
 use crate::api::dto::member::*;
+use crate::api::dto::organization::*;
+use crate::api::dto::organization_dimension::*;
 use crate::api::dto::recommendation::*;
 use crate::api::dto::report::*;
-use crate::api::dto::organization::*;
-use crate::api::dto::invitation::*;
-use crate::api::dto::organization_dimension::*;
 use crate::models::keycloak::KeycloakUser;
 
 #[derive(OpenApi)]
@@ -123,7 +123,7 @@ use crate::models::keycloak::KeycloakUser;
             ApiResponseReportDownloadResponse,
             ApiResponseReportStatusResponse,
             ApiResponsePaginatedReportResponse,
-            
+
             // Report related schemas
             ReportType,
             ReportFormat,
@@ -146,8 +146,6 @@ use crate::models::keycloak::KeycloakUser;
             ApiResponsePaginatedGapResponse,
             ApiResponseAdminCreateGapRequest,
             // ApiResponse aliases for Recommendations
-            ApiResponseRecommendationResponse,
-            ApiResponsePaginatedRecommendationResponse,
             ApiResponseCreateRecommendationRequest,
             ApiResponseUpdateRecommendationRequest,
             // Paginated alias types
@@ -181,9 +179,7 @@ use crate::models::keycloak::KeycloakUser;
             DimensionListResponse,
             // Reports
             GenerateReportRequest,
-            ReportFormat,
             ReportResponse,
-            ReportStatus,
             // Recommendations
             CreateRecommendationRequest,
             UpdateRecommendationRequest,

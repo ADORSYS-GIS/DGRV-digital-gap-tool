@@ -11,12 +11,10 @@ impl MigrationTrait for Migration {
                 Table::alter()
                     .table(Assessments::Table)
                     .modify_column(
-                        ColumnDef::new(Assessments::StartedAt)
-                            .timestamp_with_time_zone(),
+                        ColumnDef::new(Assessments::StartedAt).timestamp_with_time_zone(),
                     )
                     .modify_column(
-                        ColumnDef::new(Assessments::CompletedAt)
-                            .timestamp_with_time_zone(),
+                        ColumnDef::new(Assessments::CompletedAt).timestamp_with_time_zone(),
                     )
                     .modify_column(
                         ColumnDef::new(Assessments::CreatedAt)
@@ -40,14 +38,8 @@ impl MigrationTrait for Migration {
             .alter_table(
                 Table::alter()
                     .table(Assessments::Table)
-                    .modify_column(
-                        ColumnDef::new(Assessments::StartedAt)
-                            .timestamp(),
-                    )
-                    .modify_column(
-                        ColumnDef::new(Assessments::CompletedAt)
-                            .timestamp(),
-                    )
+                    .modify_column(ColumnDef::new(Assessments::StartedAt).timestamp())
+                    .modify_column(ColumnDef::new(Assessments::CompletedAt).timestamp())
                     .modify_column(
                         ColumnDef::new(Assessments::CreatedAt)
                             .timestamp()

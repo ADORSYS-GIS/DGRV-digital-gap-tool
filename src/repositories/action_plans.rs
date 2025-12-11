@@ -2,6 +2,8 @@ use crate::{
     api::dto::action_plan::ActionPlanResponse,
     entities::{
         action_items, action_plans,
+        dimension_assessments::{self},
+        dimensions,
         recommendations::{self},
     },
     error::AppError,
@@ -44,19 +46,60 @@ impl ActionPlansRepository {
                     .map(|rec| (rec.recommendation_id, rec))
                     .collect();
 
+            let dimension_assessment_ids: Vec<Uuid> = items
+                .iter()
+                .map(|item| item.dimension_assessment_id)
+                .collect();
+
+            let dimension_assessments = dimension_assessments::Entity::find()
+                .filter(
+                    dimension_assessments::Column::DimensionAssessmentId
+                        .is_in(dimension_assessment_ids),
+                )
+                .all(db)
+                .await?;
+
+            let dimension_ids: Vec<Uuid> = dimension_assessments
+                .iter()
+                .map(|da| da.dimension_id)
+                .collect();
+
+            let dimensions = dimensions::Entity::find()
+                .filter(dimensions::Column::DimensionId.is_in(dimension_ids))
+                .all(db)
+                .await?;
+
+            let dimensions_map: std::collections::HashMap<Uuid, dimensions::Model> = dimensions
+                .into_iter()
+                .map(|dim| (dim.dimension_id, dim))
+                .collect();
+
+            let dimension_assessments_map: std::collections::HashMap<
+                Uuid,
+                (dimension_assessments::Model, Option<dimensions::Model>),
+            > = dimension_assessments
+                .into_iter()
+                .map(|da| {
+                    let dimension = dimensions_map.get(&da.dimension_id).cloned();
+                    (da.dimension_assessment_id, (da, dimension))
+                })
+                .collect();
+
             let action_items_response = items
                 .into_iter()
                 .map(|item| {
-                    let recommendation =
-                        recommendations_map.get(&item.recommendation_id).cloned();
-                    (item, recommendation).into()
+                    let recommendation = recommendations_map.get(&item.recommendation_id).cloned();
+                    let dimension_assessment_info = dimension_assessments_map
+                        .get(&item.dimension_assessment_id)
+                        .cloned();
+                    (item, recommendation, dimension_assessment_info).into()
                 })
                 .collect();
 
             Ok(Some(ActionPlanResponse {
                 action_plan_id: plan.id,
                 assessment_id: plan.assessment_id,
-                created_at: plan.created_at.into(),
+                created_at: plan.created_at,
                 action_items: action_items_response,
             }))
         } else {

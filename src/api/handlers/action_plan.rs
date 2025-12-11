@@ -29,20 +29,20 @@ pub async fn get_action_plan_by_assessment_id(
     Path(assessment_id): Path<Uuid>,
 ) -> Result<Json<ApiResponse<ActionPlanResponse>>, (StatusCode, Json<serde_json::Value>)> {
     let db = &state.db;
-    let action_plan =
-        ActionPlansRepository::find_action_plan_with_items_by_assessment_id(db.as_ref(), assessment_id)
-            .await
-            .map_err(crate::api::handlers::common::handle_error)?
-            .ok_or_else(|| {
-                crate::api::handlers::common::handle_error(AppError::NotFound(
-                    "Action plan not found".to_string(),
-                ))
-            })?;
+    let action_plan = ActionPlansRepository::find_action_plan_with_items_by_assessment_id(
+        db.as_ref(),
+        assessment_id,
+    )
+    .await
+    .map_err(crate::api::handlers::common::handle_error)?
+    .ok_or_else(|| {
+        crate::api::handlers::common::handle_error(AppError::NotFound(
+            "Action plan not found".to_string(),
+        ))
+    })?;
 
     Ok(success_response(action_plan))
 }
-
-
 
 #[utoipa::path(
     get,
@@ -58,7 +58,10 @@ pub async fn get_action_plan_by_assessment_id(
 pub async fn list_action_plans(
     State(state): State<AppState>,
     Query(params): Query<PaginationParams>,
-) -> Result<Json<ApiResponse<PaginatedResponse<ActionPlanResponse>>>, (StatusCode, Json<serde_json::Value>)> {
+) -> Result<
+    Json<ApiResponse<PaginatedResponse<ActionPlanResponse>>>,
+    (StatusCode, Json<serde_json::Value>),
+> {
     let db = &state.db;
     let (page, limit, _sort_by, _sort_order) = extract_pagination(Query(params));
 
@@ -92,4 +95,3 @@ pub async fn list_action_plans(
     let response = PaginatedResponse::new(paginated_action_plans, total, page, limit);
     Ok(success_response(response))
 }
-

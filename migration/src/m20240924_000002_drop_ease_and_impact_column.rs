@@ -19,11 +19,7 @@ impl MigrationTrait for Migration {
             .alter_table(
                 Table::alter()
                     .table(Gaps::Table)
-                    .add_column(
-                        ColumnDef::new(Gaps::EaseAndImpact)
-                            .boolean()
-                            .null()
-                    )
+                    .add_column(ColumnDef::new(Gaps::EaseAndImpact).boolean().null())
                     .to_owned(),
             )
             .await?;

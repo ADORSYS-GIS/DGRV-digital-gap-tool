@@ -1,9 +1,6 @@
-import { useAuth } from "@/context/AuthContext";
+import { useParams } from "react-router-dom";
 
 export const useCooperationId = (): string | null => {
-  const { user } = useAuth();
-  if (user?.cooperation) {
-    return user.cooperation;
-  }
-  return null;
+  const { cooperationId } = useParams<{ cooperationId: string }>();
+  return cooperationId || null;
 };

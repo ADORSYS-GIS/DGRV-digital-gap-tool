@@ -127,7 +127,6 @@ pub struct AssessmentListResponse {
     pub total_pages: u32,
 }
 
-
 /// A list of assessments
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct AssessmentsResponse {

@@ -1,6 +1,6 @@
 use crate::entities::gaps::{self, Entity as Gaps};
-use crate::repositories::dimension_assessments::DimensionAssessmentsRepository;
 use crate::error::AppError;
+use crate::repositories::dimension_assessments::DimensionAssessmentsRepository;
 use sea_orm::*;
 use uuid::Uuid;
 
@@ -67,7 +67,9 @@ impl GapsRepository {
         dimension_assessment_id: Uuid,
     ) -> Result<Vec<gaps::Model>, AppError> {
         // Map the dimension assessment to its dimension_id, then query gaps by dimension_id
-        if let Some(da) = DimensionAssessmentsRepository::find_by_id(db, dimension_assessment_id).await? {
+        if let Some(da) =
+            DimensionAssessmentsRepository::find_by_id(db, dimension_assessment_id).await?
+        {
             Gaps::find()
                 .filter(gaps::Column::DimensionId.eq(da.dimension_id))
                 .all(db)
@@ -100,7 +102,6 @@ impl GapsRepository {
             .await
             .map_err(AppError::from)
     }
-
 
     pub async fn find_high_impact_gaps(
         db: &DbConn,
@@ -137,8 +138,12 @@ impl GapsRepository {
         assessment_id: Uuid,
     ) -> Result<Vec<gaps::Model>, AppError> {
         // Get dimensions involved in this assessment and query gaps by dimension_id
-        let dimension_assessments = DimensionAssessmentsRepository::find_by_assessment_id(db, assessment_id).await?;
-        let dimension_ids: Vec<Uuid> = dimension_assessments.into_iter().map(|da| da.dimension_id).collect();
+        let dimension_assessments =
+            DimensionAssessmentsRepository::find_by_assessment_id(db, assessment_id).await?;
+        let dimension_ids: Vec<Uuid> = dimension_assessments
+            .into_iter()
+            .map(|da| da.dimension_id)
+            .collect();
         if dimension_ids.is_empty() {
             return Ok(Vec::new());
         }

@@ -1,5 +1,5 @@
-use sea_orm_migration::prelude::*;
 use sea_orm_migration::prelude::extension::postgres::Type;
+use sea_orm_migration::prelude::*;
 
 #[derive(DeriveMigrationName)]
 pub struct Migration;
@@ -13,10 +13,25 @@ impl MigrationTrait for Migration {
                 Table::create()
                     .table(ActionPlans::Table)
                     .if_not_exists()
-                    .col(ColumnDef::new(ActionPlans::Id).uuid().not_null().primary_key())
+                    .col(
+                        ColumnDef::new(ActionPlans::Id)
+                            .uuid()
+                            .not_null()
+                            .primary_key(),
+                    )
                     .col(ColumnDef::new(ActionPlans::AssessmentId).uuid().not_null())
-                    .col(ColumnDef::new(ActionPlans::CreatedAt).timestamp_with_time_zone().not_null().default(Expr::current_timestamp()))
-                    .col(ColumnDef::new(ActionPlans::UpdatedAt).timestamp_with_time_zone().not_null().default(Expr::current_timestamp()))
+                    .col(
+                        ColumnDef::new(ActionPlans::CreatedAt)
+                            .timestamp_with_time_zone()
+                            .not_null()
+                            .default(Expr::current_timestamp()),
+                    )
+                    .col(
+                        ColumnDef::new(ActionPlans::UpdatedAt)
+                            .timestamp_with_time_zone()
+                            .not_null()
+                            .default(Expr::current_timestamp()),
+                    )
                     .foreign_key(
                         ForeignKey::create()
                             .name("fk_action_plans_assessment_id")
@@ -63,10 +78,23 @@ impl MigrationTrait for Migration {
                 Table::create()
                     .table(ActionItems::Table)
                     .if_not_exists()
-                    .col(ColumnDef::new(ActionItems::Id).uuid().not_null().primary_key())
+                    .col(
+                        ColumnDef::new(ActionItems::Id)
+                            .uuid()
+                            .not_null()
+                            .primary_key(),
+                    )
                     .col(ColumnDef::new(ActionItems::ActionPlanId).uuid().not_null())
-                    .col(ColumnDef::new(ActionItems::DimensionAssessmentId).uuid().not_null())
-                    .col(ColumnDef::new(ActionItems::RecommendationId).uuid().not_null())
+                    .col(
+                        ColumnDef::new(ActionItems::DimensionAssessmentId)
+                            .uuid()
+                            .not_null(),
+                    )
+                    .col(
+                        ColumnDef::new(ActionItems::RecommendationId)
+                            .uuid()
+                            .not_null(),
+                    )
                     .col(
                         ColumnDef::new(ActionItems::Status)
                             .enumeration(
@@ -94,8 +122,18 @@ impl MigrationTrait for Migration {
                             .not_null()
                             .default(Value::String(Some(Box::new("medium".to_owned())))),
                     )
-                    .col(ColumnDef::new(ActionItems::CreatedAt).timestamp_with_time_zone().not_null().default(Expr::current_timestamp()))
-                    .col(ColumnDef::new(ActionItems::UpdatedAt).timestamp_with_time_zone().not_null().default(Expr::current_timestamp()))
+                    .col(
+                        ColumnDef::new(ActionItems::CreatedAt)
+                            .timestamp_with_time_zone()
+                            .not_null()
+                            .default(Expr::current_timestamp()),
+                    )
+                    .col(
+                        ColumnDef::new(ActionItems::UpdatedAt)
+                            .timestamp_with_time_zone()
+                            .not_null()
+                            .default(Expr::current_timestamp()),
+                    )
                     .foreign_key(
                         ForeignKey::create()
                             .name("fk_action_items_action_plan_id")
@@ -107,7 +145,10 @@ impl MigrationTrait for Migration {
                         ForeignKey::create()
                             .name("fk_action_items_dimension_assessment_id")
                             .from(ActionItems::Table, ActionItems::DimensionAssessmentId)
-                            .to(DimensionAssessments::Table, DimensionAssessments::DimensionAssessmentId)
+                            .to(
+                                DimensionAssessments::Table,
+                                DimensionAssessments::DimensionAssessmentId,
+                            )
                             .on_delete(ForeignKeyAction::Cascade),
                     )
                     .foreign_key(
@@ -127,19 +168,39 @@ impl MigrationTrait for Migration {
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         // Drop the tables in reverse order of creation to respect foreign key constraints.
         manager
-            .drop_table(Table::drop().table(ActionItems::Table).if_exists().to_owned())
+            .drop_table(
+                Table::drop()
+                    .table(ActionItems::Table)
+                    .if_exists()
+                    .to_owned(),
+            )
             .await?;
 
         manager
-            .drop_table(Table::drop().table(ActionPlans::Table).if_exists().to_owned())
+            .drop_table(
+                Table::drop()
+                    .table(ActionPlans::Table)
+                    .if_exists()
+                    .to_owned(),
+            )
             .await?;
 
         // Drop the enum types
         manager
-            .drop_type(Type::drop().name(ActionItemStatus::Table).if_exists().to_owned())
+            .drop_type(
+                Type::drop()
+                    .name(ActionItemStatus::Table)
+                    .if_exists()
+                    .to_owned(),
+            )
             .await?;
         manager
-            .drop_type(Type::drop().name(ActionItemPriority::Table).if_exists().to_owned())
+            .drop_type(
+                Type::drop()
+                    .name(ActionItemPriority::Table)
+                    .if_exists()
+                    .to_owned(),
+            )
             .await?;
 
         Ok(())

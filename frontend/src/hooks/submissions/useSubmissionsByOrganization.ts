@@ -1,6 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { listSubmissionsByOrganization } from "@/openapi-client";
-import type { AssessmentSummaryResponse } from "@/openapi-client";
+import type {
+  AssessmentResponse,
+  AssessmentSummaryResponse,
+  AssessmentsResponse,
+} from "@/openapi-client";
 
 export interface UseSubmissionsByOrganizationOptions {
   enabled?: boolean;
@@ -33,16 +37,22 @@ export const useSubmissionsByOrganization = (
     queryKey,
     queryFn: async () => {
       if (!organizationId) return [];
-      const response = await listSubmissionsByOrganization({ organizationId });
+      const response = (await listSubmissionsByOrganization({
+        organizationId,
+      })) as unknown as { data: AssessmentsResponse };
 
-      // The API is returning a single object instead of an array.
-      // We'll check if it's an array, if not, we'll wrap the object in an array.
-      const submissionsData = response.data || [];
-      const submissions = Array.isArray(submissionsData)
-        ? submissionsData
-        : [submissionsData];
+      const submissionsData = response.data?.assessments || [];
+      const submissions = submissionsData.map(
+        (assessment: AssessmentResponse) =>
+          ({
+            assessment,
+            dimension_assessments: [],
+            gaps_count: 0,
+            recommendations_count: 0,
+            overall_score: null,
+          }) as AssessmentSummaryResponse,
+      );
 
-      // Apply client-side filtering if needed
       let filtered = [...submissions];
 
       if (options?.status?.length) {

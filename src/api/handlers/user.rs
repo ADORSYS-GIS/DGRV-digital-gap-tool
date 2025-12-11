@@ -1,16 +1,13 @@
+use crate::{
+    api::dto::member::AddMemberRequest, error::AppResult, models::keycloak::CreateUserRequest,
+    AppState,
+};
 use axum::{
-    extract::{Path, State, Extension},
+    extract::{Extension, Path, State},
     http::StatusCode,
     response::IntoResponse,
     Json,
 };
-use crate::{
-    api::dto::member::AddMemberRequest,
-    error::{AppError, AppResult},
-    AppState,
-    models::keycloak::CreateUserRequest,
-};
-use tokio::time::{sleep, Duration};
 
 /// Add a member to a group (cooperation)
 #[utoipa::path(
@@ -66,11 +63,19 @@ pub async fn add_member(
             .await?;
 
         if role == "coop_admin" {
-            let client_roles = vec!["view-groups", "manage-users", "view-users", "query-users"];
-            for client_role in client_roles {
+            let realm_management_roles = vec!["manage-users", "view-users", "query-users"];
+            for role in realm_management_roles {
                 state
                     .keycloak_service
-                    .assign_client_role_to_user(&token, &user_id, client_role)
+                    .assign_client_role_to_user(&token, &user_id, "realm-management", role)
+                    .await?;
+            }
+
+            let account_roles = vec!["view-groups"];
+            for role in account_roles {
+                state
+                    .keycloak_service
+                    .assign_client_role_to_user(&token, &user_id, "account", role)
                     .await?;
             }
         }
@@ -105,7 +110,6 @@ pub async fn get_group_members(
     Ok(Json(members))
 }
 
-
 /// Delete a user by ID
 #[utoipa::path(
     delete,
@@ -119,9 +123,6 @@ pub async fn delete_user(
     Extension(token): Extension<String>,
     Path(user_id): Path<String>,
 ) -> AppResult<impl IntoResponse> {
-    state
-        .keycloak_service
-        .delete_user(&token, &user_id)
-        .await?;
+    state.keycloak_service.delete_user(&token, &user_id).await?;
     Ok(StatusCode::NO_CONTENT)
 }

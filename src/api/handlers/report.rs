@@ -18,7 +18,6 @@ use crate::api::handlers::common::{
 use crate::error::AppError;
 use crate::repositories::reports::ReportsRepository;
 
-
 // Conversion functions for report enums
 fn convert_entity_report_type_to_dto(
     entity_type: crate::entities::reports::ReportType,
@@ -573,15 +572,17 @@ pub async fn download_latest_report_by_assessment(
             let all_reports = ReportsRepository::find_by_assessment(&state.db, assessment_id)
                 .await
                 .unwrap_or_default();
-            
+
             tracing::warn!(
-                assessment_id = %assessment_id, 
+                assessment_id = %assessment_id,
                 total_reports_found = %all_reports.len(),
                 "No completed PDF reports found for this assessment"
             );
-            
+
             return Err(crate::api::handlers::common::handle_error(
-                AppError::NotFound("No completed PDF reports found for this assessment.".to_string()),
+                AppError::NotFound(
+                    "No completed PDF reports found for this assessment.".to_string(),
+                ),
             ));
         }
     };
@@ -600,10 +601,7 @@ pub async fn download_latest_report_by_assessment(
     );
 
     let content_type = "application/pdf";
-    let filename = format!(
-        "{}.pdf",
-        report.title.replace(" ", "_")
-    );
+    let filename = format!("{}.pdf", report.title.replace(" ", "_"));
 
     let mut headers = http::HeaderMap::new();
     headers.insert(

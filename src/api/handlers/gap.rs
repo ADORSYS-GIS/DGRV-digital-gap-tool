@@ -9,9 +9,7 @@ use uuid::Uuid;
 
 use crate::api::dto::{
     common::{ApiResponse, EmptyResponse, PaginatedResponse, PaginationParams},
-    gap::{
-        AdminCreateGapRequest, GapResponse, GapSeverity, UpdateGapRequest,
-    },
+    gap::{AdminCreateGapRequest, GapResponse, GapSeverity, UpdateGapRequest},
 };
 use crate::api::handlers::common::{
     extract_pagination, success_response, success_response_with_message,
@@ -91,7 +89,7 @@ pub async fn admin_create_gap(
 }
 
 /// Get a specific gap by ID
-/// 
+///
 /// Retrieves the details of a specific gap using its unique identifier.
 #[utoipa::path(
     get,
@@ -127,7 +125,7 @@ pub async fn get_gap(
 }
 
 /// Update an existing gap
-/// 
+///
 /// Optionally updates gap size (and recalculates severity) and/or description.
 #[utoipa::path(
     put,
@@ -204,14 +202,14 @@ pub async fn delete_gap(
         .await
         .map_err(crate::api::handlers::common::handle_error)?;
     if !deleted {
-        return Err(crate::api::handlers::common::handle_error(AppError::NotFound(
-            "Gap not found".to_string(),
-        )));
+        return Err(crate::api::handlers::common::handle_error(
+            AppError::NotFound("Gap not found".to_string()),
+        ));
     }
     Ok(success_response(EmptyResponse {}))
 }
 /// List all gaps with pagination
-/// 
+///
 /// Retrieves a paginated list of all gaps in the system.
 #[utoipa::path(
     get,
@@ -256,7 +254,7 @@ pub async fn list_gaps(
 }
 
 /// List gaps by dimension assessment
-/// 
+///
 /// Retrieves a paginated list of gaps for a specific dimension assessment.
 #[utoipa::path(
     get,
@@ -280,7 +278,8 @@ pub async fn list_gaps_by_dimension_assessment(
     State(state): State<AppState>,
     Path(dimension_assessment_id): Path<Uuid>,
     Query(params): Query<PaginationParams>,
-) -> Result<Json<ApiResponse<PaginatedResponse<GapResponse>>>, (StatusCode, Json<serde_json::Value>)> {
+) -> Result<Json<ApiResponse<PaginatedResponse<GapResponse>>>, (StatusCode, Json<serde_json::Value>)>
+{
     let db = &state.db;
     let (page, limit, _sort_by, _sort_order) = extract_pagination(Query(params));
     let offset = ((page - 1) * limit) as u64;
@@ -303,7 +302,7 @@ pub async fn list_gaps_by_dimension_assessment(
 }
 
 /// List gaps by assessment
-/// 
+///
 /// Retrieves a paginated list of gaps for a specific assessment across all dimensions.
 #[utoipa::path(
     get,
@@ -327,7 +326,8 @@ pub async fn list_gaps_by_assessment(
     State(state): State<AppState>,
     Path(assessment_id): Path<Uuid>,
     Query(params): Query<PaginationParams>,
-) -> Result<Json<ApiResponse<PaginatedResponse<GapResponse>>>, (StatusCode, Json<serde_json::Value>)> {
+) -> Result<Json<ApiResponse<PaginatedResponse<GapResponse>>>, (StatusCode, Json<serde_json::Value>)>
+{
     let db = &state.db;
     let (page, limit, _sort_by, _sort_order) = extract_pagination(Query(params));
     let offset = ((page - 1) * limit) as u64;

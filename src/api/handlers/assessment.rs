@@ -15,12 +15,12 @@ use crate::api::handlers::common::{
 };
 use crate::error::AppError;
 use crate::repositories::{
-    assessments::AssessmentsRepository, dimension_assessments::DimensionAssessmentsRepository,
-    gaps::GapsRepository,
-};
-use crate::repositories::{
     action_items::ActionItemsRepository, action_plans::ActionPlansRepository,
     recommendations::RecommendationsRepository,
+};
+use crate::repositories::{
+    assessments::AssessmentsRepository, dimension_assessments::DimensionAssessmentsRepository,
+    gaps::GapsRepository,
 };
 
 // Conversion functions between entity and DTO types
@@ -400,19 +400,18 @@ pub async fn create_dimension_assessment(
         ))
     })?;
 
-    let dimension_assessment_active_model =
-        crate::entities::dimension_assessments::ActiveModel {
-            dimension_assessment_id: sea_orm::Set(Uuid::new_v4()),
-            assessment_id: sea_orm::Set(assessment_id),
-            dimension_id: sea_orm::Set(request.dimension_id),
-            current_state_id: sea_orm::Set(request.current_state_id),
-            desired_state_id: sea_orm::Set(request.desired_state_id),
-            gap_score: sea_orm::Set(request.gap_score),
-            gap_id: sea_orm::Set(gap.gap_id),
-            organization_id: sea_orm::Set(request.organization_id),
-            cooperation_id: sea_orm::Set(request.cooperation_id),
-            ..Default::default()
-        };
+    let dimension_assessment_active_model = crate::entities::dimension_assessments::ActiveModel {
+        dimension_assessment_id: sea_orm::Set(Uuid::new_v4()),
+        assessment_id: sea_orm::Set(assessment_id),
+        dimension_id: sea_orm::Set(request.dimension_id),
+        current_state_id: sea_orm::Set(request.current_state_id),
+        desired_state_id: sea_orm::Set(request.desired_state_id),
+        gap_score: sea_orm::Set(request.gap_score),
+        gap_id: sea_orm::Set(gap.gap_id),
+        organization_id: sea_orm::Set(request.organization_id),
+        cooperation_id: sea_orm::Set(request.cooperation_id),
+        ..Default::default()
+    };
 
     let dimension_assessment =
         DimensionAssessmentsRepository::create(db.as_ref(), dimension_assessment_active_model)
@@ -510,7 +509,7 @@ pub async fn update_dimension_assessment(
     if let Some(gap_score) = request.gap_score {
         active_model.gap_score = sea_orm::Set(gap_score);
     }
-    
+
     let updated_dimension_assessment =
         DimensionAssessmentsRepository::update(db.as_ref(), dimension_assessment_id, active_model)
             .await
@@ -626,72 +625,32 @@ pub async fn list_assessments_by_cooperation(
 pub async fn list_submissions_by_organization(
     State(state): State<AppState>,
     Path(organization_id): Path<String>,
-) -> Result<Json<ApiResponse<AssessmentSummaryResponse>>, (StatusCode, Json<serde_json::Value>)> {
+) -> Result<Json<ApiResponse<AssessmentsResponse>>, (StatusCode, Json<serde_json::Value>)> {
     let db = &state.db;
-    let assessment = AssessmentsRepository::find_latest_by_organization_id(db.as_ref(), organization_id)
-        .await
-        .map_err(crate::api::handlers::common::handle_error)?
-        .ok_or_else(|| {
-            crate::api::handlers::common::handle_error(AppError::NotFound(
-                "No assessment found for this organization".to_string(),
-            ))
-        })?;
-
-    let assessment_id = assessment.assessment_id;
-
-    // Get dimension assessments
-    let dimension_assessments =
-        DimensionAssessmentsRepository::find_by_assessment_id(db.as_ref(), assessment_id)
+    let assessments =
+        AssessmentsRepository::find_all_completed_by_organization_id(db.as_ref(), organization_id)
             .await
             .map_err(crate::api::handlers::common::handle_error)?;
 
-    // Get gaps count
-    let gaps =
-        crate::repositories::gaps::GapsRepository::find_by_assessment(db.as_ref(), assessment_id)
-            .await
-            .map_err(crate::api::handlers::common::handle_error)?;
-
-    let recommendations: Vec<()> = vec![]; // Placeholder
-
-    let assessment_response = AssessmentResponse {
-        assessment_id: assessment.assessment_id,
-        organization_id: assessment.organization_id,
-        cooperation_id: assessment.cooperation_id,
-        document_title: assessment.document_title,
-        status: convert_entity_assessment_status_to_dto(assessment.status),
-        started_at: assessment.started_at,
-        completed_at: assessment.completed_at,
-        created_at: assessment.created_at,
-        updated_at: assessment.updated_at,
-        dimensions_id: assessment.dimensions_id,
+    let response = AssessmentsResponse {
+        assessments: assessments
+            .into_iter()
+            .map(|assessment| AssessmentResponse {
+                assessment_id: assessment.assessment_id,
+                organization_id: assessment.organization_id,
+                cooperation_id: assessment.cooperation_id,
+                document_title: assessment.document_title,
+                status: convert_entity_assessment_status_to_dto(assessment.status),
+                started_at: assessment.started_at,
+                completed_at: assessment.completed_at,
+                created_at: assessment.created_at,
+                updated_at: assessment.updated_at,
+                dimensions_id: assessment.dimensions_id,
+            })
+            .collect(),
     };
 
-    let dimension_assessments_response: Vec<DimensionAssessmentResponse> = dimension_assessments
-        .into_iter()
-        .map(|da| DimensionAssessmentResponse {
-            dimension_assessment_id: da.dimension_assessment_id,
-            assessment_id: da.assessment_id,
-            dimension_id: da.dimension_id,
-            created_at: da.created_at,
-            updated_at: da.updated_at,
-            current_state_id: da.current_state_id,
-            desired_state_id: da.desired_state_id,
-            gap_score: da.gap_score,
-            gap_id: da.gap_id,
-            organization_id: da.organization_id,
-            cooperation_id: da.cooperation_id,
-        })
-        .collect();
-
-    let summary = AssessmentSummaryResponse {
-        assessment: assessment_response,
-        dimension_assessments: dimension_assessments_response,
-        gaps_count: gaps.len() as u32,
-        recommendations_count: recommendations.len() as u32,
-        overall_score: None,
-    };
-
-    Ok(success_response(summary))
+    Ok(success_response(response))
 }
 
 #[utoipa::path(
@@ -706,74 +665,33 @@ pub async fn list_submissions_by_organization(
 pub async fn list_submissions_by_cooperation(
     State(state): State<AppState>,
     Path(cooperation_id): Path<String>,
-) -> Result<Json<ApiResponse<AssessmentSummaryResponse>>, (StatusCode, Json<serde_json::Value>)> {
+) -> Result<Json<ApiResponse<AssessmentsResponse>>, (StatusCode, Json<serde_json::Value>)> {
     let db = &state.db;
-    let assessment = AssessmentsRepository::find_latest_by_cooperation_id(db.as_ref(), cooperation_id)
-        .await
-        .map_err(crate::api::handlers::common::handle_error)?
-        .ok_or_else(|| {
-            crate::api::handlers::common::handle_error(AppError::NotFound(
-                "No assessment found for this cooperation".to_string(),
-            ))
-        })?;
-
-    let assessment_id = assessment.assessment_id;
-
-    // Get dimension assessments
-    let dimension_assessments =
-        DimensionAssessmentsRepository::find_by_assessment_id(db.as_ref(), assessment_id)
+    let assessments =
+        AssessmentsRepository::find_all_completed_by_cooperation_id(db.as_ref(), cooperation_id)
             .await
             .map_err(crate::api::handlers::common::handle_error)?;
 
-    // Get gaps count
-    let gaps =
-        crate::repositories::gaps::GapsRepository::find_by_assessment(db.as_ref(), assessment_id)
-            .await
-            .map_err(crate::api::handlers::common::handle_error)?;
-
-    let recommendations: Vec<()> = vec![]; // Placeholder
-
-    let assessment_response = AssessmentResponse {
-        assessment_id: assessment.assessment_id,
-        organization_id: assessment.organization_id,
-        cooperation_id: assessment.cooperation_id,
-        document_title: assessment.document_title,
-        status: convert_entity_assessment_status_to_dto(assessment.status),
-        started_at: assessment.started_at,
-        completed_at: assessment.completed_at,
-        created_at: assessment.created_at,
-        updated_at: assessment.updated_at,
-        dimensions_id: assessment.dimensions_id,
+    let response = AssessmentsResponse {
+        assessments: assessments
+            .into_iter()
+            .map(|assessment| AssessmentResponse {
+                assessment_id: assessment.assessment_id,
+                organization_id: assessment.organization_id,
+                cooperation_id: assessment.cooperation_id,
+                document_title: assessment.document_title,
+                status: convert_entity_assessment_status_to_dto(assessment.status),
+                started_at: assessment.started_at,
+                completed_at: assessment.completed_at,
+                created_at: assessment.created_at,
+                updated_at: assessment.updated_at,
+                dimensions_id: assessment.dimensions_id,
+            })
+            .collect(),
     };
 
-    let dimension_assessments_response: Vec<DimensionAssessmentResponse> = dimension_assessments
-        .into_iter()
-        .map(|da| DimensionAssessmentResponse {
-            dimension_assessment_id: da.dimension_assessment_id,
-            assessment_id: da.assessment_id,
-            dimension_id: da.dimension_id,
-            created_at: da.created_at,
-            updated_at: da.updated_at,
-            current_state_id: da.current_state_id,
-            desired_state_id: da.desired_state_id,
-            gap_score: da.gap_score,
-            gap_id: da.gap_id,
-            organization_id: da.organization_id,
-            cooperation_id: da.cooperation_id,
-        })
-        .collect();
-
-    let summary = AssessmentSummaryResponse {
-        assessment: assessment_response,
-        dimension_assessments: dimension_assessments_response,
-        gaps_count: gaps.len() as u32,
-        recommendations_count: recommendations.len() as u32,
-        overall_score: None,
-    };
-
-    Ok(success_response(summary))
+    Ok(success_response(response))
 }
-
 
 #[utoipa::path(
     delete,
@@ -793,9 +711,13 @@ pub async fn delete_organization_assessment(
     Path((organization_id, assessment_id)): Path<(String, Uuid)>,
 ) -> Result<Json<ApiResponse<()>>, (StatusCode, Json<serde_json::Value>)> {
     let db = &state.db;
-    let deleted = AssessmentsRepository::delete_by_organization_and_id(db.as_ref(), organization_id, assessment_id)
-        .await
-        .map_err(crate::api::handlers::common::handle_error)?;
+    let deleted = AssessmentsRepository::delete_by_organization_and_id(
+        db.as_ref(),
+        organization_id,
+        assessment_id,
+    )
+    .await
+    .map_err(crate::api::handlers::common::handle_error)?;
 
     if deleted {
         Ok(success_response_with_message(
@@ -803,8 +725,8 @@ pub async fn delete_organization_assessment(
             "Assessment deleted successfully".to_string(),
         ))
     } else {
-        Err(crate::api::handlers::common::handle_error(AppError::NotFound(
-            "Assessment not found".to_string(),
-        )))
+        Err(crate::api::handlers::common::handle_error(
+            AppError::NotFound("Assessment not found".to_string()),
+        ))
     }
 }

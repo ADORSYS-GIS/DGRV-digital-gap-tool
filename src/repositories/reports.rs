@@ -1,7 +1,7 @@
 use crate::entities::reports::{self, Entity as Reports};
 use crate::error::AppError;
-use sea_orm::*;
 use sea_orm::sea_query::{Alias, Expr};
+use sea_orm::*;
 use uuid::Uuid;
 
 pub struct ReportsRepository;
@@ -25,7 +25,7 @@ impl ReportsRepository {
         db: &DbConn,
         report_data: reports::ActiveModel,
     ) -> Result<reports::Model, AppError> {
-        let report_id = report_data.report_id.as_ref().clone();
+        let report_id = *report_data.report_id.as_ref();
         tracing::debug!(report_id = %report_id, "Creating new report in database");
         report_data.insert(db).await.map_err(|e| {
             tracing::error!(error = %e, "Database error creating report");
@@ -107,8 +107,16 @@ impl ReportsRepository {
         // This resolves "operator does not exist" errors caused by schema inconsistencies.
         Reports::find()
             .filter(reports::Column::AssessmentId.eq(assessment_id))
-            .filter(Expr::col(reports::Column::Format).cast_as(Alias::new("text")).eq("pdf"))
-            .filter(Expr::col(reports::Column::Status).cast_as(Alias::new("text")).eq("completed"))
+            .filter(
+                Expr::col(reports::Column::Format)
+                    .cast_as(Alias::new("text"))
+                    .eq("pdf"),
+            )
+            .filter(
+                Expr::col(reports::Column::Status)
+                    .cast_as(Alias::new("text"))
+                    .eq("completed"),
+            )
             .order_by_desc(reports::Column::GeneratedAt)
             .one(db)
             .await

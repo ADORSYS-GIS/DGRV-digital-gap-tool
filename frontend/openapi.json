@@ -3,11 +3,16 @@
   "info": {
     "title": "dgat-backend",
     "description": "",
-    "license": { "name": "" },
+    "license": {
+      "name": ""
+    },
     "version": "0.1.0"
   },
   "servers": [
-    { "url": "http://0.0.0.0:3001", "description": "DGAT Backend Server" }
+    {
+      "url": "https://ec2-3-127-149-67.eu-central-1.compute.amazonaws.com/api",
+      "description": "DGAT Backend Server"
+    }
   ],
   "paths": {
     "/action-plans": {
@@ -65,7 +70,10 @@
             "in": "path",
             "description": "Assessment ID",
             "required": true,
-            "schema": { "type": "string", "format": "uuid" }
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         ],
         "responses": {
@@ -79,7 +87,9 @@
               }
             }
           },
-          "404": { "description": "Action plan not found" }
+          "404": {
+            "description": "Action plan not found"
+          }
         }
       }
     },
@@ -92,7 +102,9 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/AdminCreateGapRequest" }
+              "schema": {
+                "$ref": "#/components/schemas/AdminCreateGapRequest"
+              }
             }
           },
           "required": true
@@ -108,11 +120,21 @@
               }
             }
           },
-          "400": { "description": "Invalid input data" },
-          "401": { "description": "Unauthorized" },
-          "404": { "description": "Dimension assessment not found" }
+          "400": {
+            "description": "Invalid input data"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Dimension assessment not found"
+          }
         },
-        "security": [{ "jwt": [] }]
+        "security": [
+          {
+            "jwt": []
+          }
+        ]
       }
     },
     "/admin/groups/path": {
@@ -125,7 +147,9 @@
             "in": "query",
             "description": "Group Path",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -133,7 +157,9 @@
             "description": "Success",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/KeycloakGroup" }
+                "schema": {
+                  "$ref": "#/components/schemas/KeycloakGroup"
+                }
               }
             }
           }
@@ -150,7 +176,9 @@
             "in": "path",
             "description": "Group ID",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -158,7 +186,9 @@
             "description": "Success",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/KeycloakGroup" }
+                "schema": {
+                  "$ref": "#/components/schemas/KeycloakGroup"
+                }
               }
             }
           }
@@ -173,18 +203,26 @@
             "in": "path",
             "description": "Group ID",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/GroupUpdateRequest" }
+              "schema": {
+                "$ref": "#/components/schemas/GroupUpdateRequest"
+              }
             }
           },
           "required": true
         },
-        "responses": { "204": { "description": "No Content" } }
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
       },
       "delete": {
         "tags": ["Group"],
@@ -195,10 +233,16 @@
             "in": "path",
             "description": "Group ID",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
-        "responses": { "204": { "description": "No Content" } }
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
       }
     },
     "/admin/groups/{group_id}/members": {
@@ -212,7 +256,9 @@
             "in": "path",
             "description": "Group ID",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -222,7 +268,9 @@
               "application/json": {
                 "schema": {
                   "type": "array",
-                  "items": { "$ref": "#/components/schemas/KeycloakUser" }
+                  "items": {
+                    "$ref": "#/components/schemas/KeycloakUser"
+                  }
                 }
               }
             }
@@ -239,18 +287,26 @@
             "in": "path",
             "description": "Cooperation Group ID",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/AddMemberRequest" }
+              "schema": {
+                "$ref": "#/components/schemas/AddMemberRequest"
+              }
             }
           },
           "required": true
         },
-        "responses": { "201": { "description": "Created" } }
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        }
       }
     },
     "/admin/organizations": {
@@ -313,7 +369,9 @@
             "in": "path",
             "description": "Organization ID",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -339,7 +397,9 @@
             "in": "path",
             "description": "Organization ID",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
@@ -352,7 +412,11 @@
           },
           "required": true
         },
-        "responses": { "204": { "description": "No Content" } }
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
       },
       "delete": {
         "tags": ["Organization"],
@@ -364,10 +428,16 @@
             "in": "path",
             "description": "Organization ID",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
-        "responses": { "204": { "description": "No Content" } }
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
       }
     },
     "/admin/organizations/{org_id}/dimensions": {
@@ -381,7 +451,9 @@
             "in": "path",
             "description": "Organization ID",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -391,7 +463,10 @@
               "application/json": {
                 "schema": {
                   "type": "array",
-                  "items": { "type": "string", "format": "uuid" }
+                  "items": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
                 }
               }
             }
@@ -408,7 +483,9 @@
             "in": "path",
             "description": "Organization ID",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
@@ -421,7 +498,11 @@
           },
           "required": true
         },
-        "responses": { "201": { "description": "Created" } }
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        }
       },
       "put": {
         "tags": ["Organization"],
@@ -433,7 +514,9 @@
             "in": "path",
             "description": "Organization ID",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
@@ -446,7 +529,11 @@
           },
           "required": true
         },
-        "responses": { "204": { "description": "No Content" } }
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
       }
     },
     "/admin/organizations/{org_id}/dimensions/{dimension_id}": {
@@ -460,17 +547,26 @@
             "in": "path",
             "description": "Organization ID",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "name": "dimension_id",
             "in": "path",
             "description": "Dimension ID",
             "required": true,
-            "schema": { "type": "string", "format": "uuid" }
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         ],
-        "responses": { "204": { "description": "No Content" } }
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
       }
     },
     "/admin/organizations/{org_id}/groups": {
@@ -483,7 +579,9 @@
             "in": "path",
             "description": "Organization ID",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -493,7 +591,9 @@
               "application/json": {
                 "schema": {
                   "type": "array",
-                  "items": { "$ref": "#/components/schemas/KeycloakGroup" }
+                  "items": {
+                    "$ref": "#/components/schemas/KeycloakGroup"
+                  }
                 }
               }
             }
@@ -509,13 +609,17 @@
             "in": "path",
             "description": "Organization ID",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/GroupCreateRequest" }
+              "schema": {
+                "$ref": "#/components/schemas/GroupCreateRequest"
+              }
             }
           },
           "required": true
@@ -525,7 +629,9 @@
             "description": "Created",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/KeycloakGroup" }
+                "schema": {
+                  "$ref": "#/components/schemas/KeycloakGroup"
+                }
               }
             }
           }
@@ -543,13 +649,17 @@
             "in": "path",
             "description": "Organization ID",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/UserInvitationRequest" }
+              "schema": {
+                "$ref": "#/components/schemas/UserInvitationRequest"
+              }
             }
           },
           "required": true
@@ -579,7 +689,9 @@
             "in": "path",
             "description": "Organization ID",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -589,7 +701,9 @@
               "application/json": {
                 "schema": {
                   "type": "array",
-                  "items": { "$ref": "#/components/schemas/KeycloakUser" }
+                  "items": {
+                    "$ref": "#/components/schemas/KeycloakUser"
+                  }
                 }
               }
             }
@@ -608,10 +722,16 @@
             "in": "path",
             "description": "User ID",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
-        "responses": { "204": { "description": "No Content" } }
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
       }
     },
     "/api/submissions/submit": {
@@ -635,13 +755,21 @@
             "description": "Assessment submitted successfully",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/ReportResponse" }
+                "schema": {
+                  "$ref": "#/components/schemas/ReportResponse"
+                }
               }
             }
           },
-          "400": { "description": "Bad request" },
-          "404": { "description": "Assessment not found" },
-          "500": { "description": "Internal server error" }
+          "400": {
+            "description": "Bad request"
+          },
+          "404": {
+            "description": "Assessment not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
         }
       }
     },
@@ -728,7 +856,9 @@
             "in": "path",
             "description": "Cooperation ID",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -756,7 +886,9 @@
             "in": "path",
             "description": "Cooperation ID",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -784,7 +916,9 @@
             "in": "path",
             "description": "Organization ID",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -812,7 +946,9 @@
             "in": "path",
             "description": "Organization ID",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -840,19 +976,28 @@
             "in": "path",
             "description": "Organization ID",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "name": "assessment_id",
             "in": "path",
             "description": "Assessment ID",
             "required": true,
-            "schema": { "type": "string", "format": "uuid" }
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         ],
         "responses": {
-          "200": { "description": "Assessment deleted" },
-          "404": { "description": "Assessment not found" }
+          "200": {
+            "description": "Assessment deleted"
+          },
+          "404": {
+            "description": "Assessment not found"
+          }
         }
       }
     },
@@ -867,14 +1012,20 @@
             "in": "path",
             "description": "Assessment ID",
             "required": true,
-            "schema": { "type": "string", "format": "uuid" }
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
           },
           {
             "name": "dimension_assessment_id",
             "in": "path",
             "description": "Dimension assessment ID",
             "required": true,
-            "schema": { "type": "string", "format": "uuid" }
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         ],
         "requestBody": {
@@ -898,7 +1049,9 @@
               }
             }
           },
-          "404": { "description": "Dimension assessment not found" }
+          "404": {
+            "description": "Dimension assessment not found"
+          }
         }
       }
     },
@@ -914,21 +1067,32 @@
             "in": "path",
             "description": "Assessment ID",
             "required": true,
-            "schema": { "type": "string", "format": "uuid" }
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
           },
           {
             "name": "page",
             "in": "query",
             "description": "Page number (1-based)",
             "required": false,
-            "schema": { "type": "integer", "format": "int64", "nullable": true }
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "nullable": true
+            }
           },
           {
             "name": "limit",
             "in": "query",
             "description": "Number of items per page",
             "required": false,
-            "schema": { "type": "integer", "format": "int64", "nullable": true }
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "nullable": true
+            }
           }
         ],
         "responses": {
@@ -942,10 +1106,18 @@
               }
             }
           },
-          "401": { "description": "Unauthorized" },
-          "404": { "description": "Assessment not found" }
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Assessment not found"
+          }
         },
-        "security": [{ "jwt": [] }]
+        "security": [
+          {
+            "jwt": []
+          }
+        ]
       }
     },
     "/assessments/{id}": {
@@ -959,7 +1131,10 @@
             "in": "path",
             "description": "Assessment ID",
             "required": true,
-            "schema": { "type": "string", "format": "uuid" }
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         ],
         "responses": {
@@ -973,7 +1148,9 @@
               }
             }
           },
-          "404": { "description": "Assessment not found" }
+          "404": {
+            "description": "Assessment not found"
+          }
         }
       },
       "put": {
@@ -986,7 +1163,10 @@
             "in": "path",
             "description": "Assessment ID",
             "required": true,
-            "schema": { "type": "string", "format": "uuid" }
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         ],
         "requestBody": {
@@ -1010,7 +1190,9 @@
               }
             }
           },
-          "404": { "description": "Assessment not found" }
+          "404": {
+            "description": "Assessment not found"
+          }
         }
       },
       "delete": {
@@ -1023,10 +1205,17 @@
             "in": "path",
             "description": "Assessment ID",
             "required": true,
-            "schema": { "type": "string", "format": "uuid" }
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         ],
-        "responses": { "200": { "description": "Assessment deleted" } }
+        "responses": {
+          "200": {
+            "description": "Assessment deleted"
+          }
+        }
       }
     },
     "/assessments/{id}/dimension-assessments": {
@@ -1040,7 +1229,10 @@
             "in": "path",
             "description": "Assessment ID",
             "required": true,
-            "schema": { "type": "string", "format": "uuid" }
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         ],
         "requestBody": {
@@ -1064,7 +1256,9 @@
               }
             }
           },
-          "404": { "description": "Assessment not found" }
+          "404": {
+            "description": "Assessment not found"
+          }
         }
       }
     },
@@ -1079,7 +1273,10 @@
             "in": "path",
             "description": "Assessment ID",
             "required": true,
-            "schema": { "type": "string", "format": "uuid" }
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         ],
         "responses": {
@@ -1093,7 +1290,9 @@
               }
             }
           },
-          "404": { "description": "Assessment not found" }
+          "404": {
+            "description": "Assessment not found"
+          }
         }
       }
     },
@@ -1109,21 +1308,32 @@
             "in": "path",
             "description": "Dimension Assessment ID",
             "required": true,
-            "schema": { "type": "string", "format": "uuid" }
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
           },
           {
             "name": "page",
             "in": "query",
             "description": "Page number (1-based)",
             "required": false,
-            "schema": { "type": "integer", "format": "int64", "nullable": true }
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "nullable": true
+            }
           },
           {
             "name": "limit",
             "in": "query",
             "description": "Number of items per page",
             "required": false,
-            "schema": { "type": "integer", "format": "int64", "nullable": true }
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "nullable": true
+            }
           }
         ],
         "responses": {
@@ -1137,10 +1347,18 @@
               }
             }
           },
-          "401": { "description": "Unauthorized" },
-          "404": { "description": "Dimension assessment not found" }
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Dimension assessment not found"
+          }
         },
-        "security": [{ "jwt": [] }]
+        "security": [
+          {
+            "jwt": []
+          }
+        ]
       }
     },
     "/dimensions": {
@@ -1226,14 +1444,20 @@
             "in": "path",
             "description": "Dimension ID",
             "required": true,
-            "schema": { "type": "string", "format": "uuid" }
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
           },
           {
             "name": "current_state_id",
             "in": "path",
             "description": "Current state ID",
             "required": true,
-            "schema": { "type": "string", "format": "uuid" }
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         ],
         "requestBody": {
@@ -1257,7 +1481,9 @@
               }
             }
           },
-          "404": { "description": "Current state not found" }
+          "404": {
+            "description": "Current state not found"
+          }
         }
       },
       "delete": {
@@ -1270,17 +1496,27 @@
             "in": "path",
             "description": "Dimension ID",
             "required": true,
-            "schema": { "type": "string", "format": "uuid" }
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
           },
           {
             "name": "current_state_id",
             "in": "path",
             "description": "Current state ID",
             "required": true,
-            "schema": { "type": "string", "format": "uuid" }
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         ],
-        "responses": { "200": { "description": "Current state deleted" } }
+        "responses": {
+          "200": {
+            "description": "Current state deleted"
+          }
+        }
       }
     },
     "/dimensions/{dimension_id}/desired-states/{desired_state_id}": {
@@ -1294,14 +1530,20 @@
             "in": "path",
             "description": "Dimension ID",
             "required": true,
-            "schema": { "type": "string", "format": "uuid" }
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
           },
           {
             "name": "desired_state_id",
             "in": "path",
             "description": "Desired state ID",
             "required": true,
-            "schema": { "type": "string", "format": "uuid" }
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         ],
         "requestBody": {
@@ -1325,7 +1567,9 @@
               }
             }
           },
-          "404": { "description": "Desired state not found" }
+          "404": {
+            "description": "Desired state not found"
+          }
         }
       },
       "delete": {
@@ -1338,17 +1582,27 @@
             "in": "path",
             "description": "Dimension ID",
             "required": true,
-            "schema": { "type": "string", "format": "uuid" }
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
           },
           {
             "name": "desired_state_id",
             "in": "path",
             "description": "Desired state ID",
             "required": true,
-            "schema": { "type": "string", "format": "uuid" }
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         ],
-        "responses": { "200": { "description": "Desired state deleted" } }
+        "responses": {
+          "200": {
+            "description": "Desired state deleted"
+          }
+        }
       }
     },
     "/dimensions/{id}": {
@@ -1362,7 +1616,10 @@
             "in": "path",
             "description": "Dimension ID",
             "required": true,
-            "schema": { "type": "string", "format": "uuid" }
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         ],
         "responses": {
@@ -1376,7 +1633,9 @@
               }
             }
           },
-          "404": { "description": "Dimension not found" }
+          "404": {
+            "description": "Dimension not found"
+          }
         }
       },
       "put": {
@@ -1389,7 +1648,10 @@
             "in": "path",
             "description": "Dimension ID",
             "required": true,
-            "schema": { "type": "string", "format": "uuid" }
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         ],
         "requestBody": {
@@ -1413,7 +1675,9 @@
               }
             }
           },
-          "404": { "description": "Dimension not found" }
+          "404": {
+            "description": "Dimension not found"
+          }
         }
       },
       "delete": {
@@ -1426,10 +1690,17 @@
             "in": "path",
             "description": "Dimension ID",
             "required": true,
-            "schema": { "type": "string", "format": "uuid" }
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         ],
-        "responses": { "200": { "description": "Dimension deleted" } }
+        "responses": {
+          "200": {
+            "description": "Dimension deleted"
+          }
+        }
       }
     },
     "/dimensions/{id}/current-states": {
@@ -1443,7 +1714,10 @@
             "in": "path",
             "description": "Dimension ID",
             "required": true,
-            "schema": { "type": "string", "format": "uuid" }
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         ],
         "requestBody": {
@@ -1467,7 +1741,9 @@
               }
             }
           },
-          "404": { "description": "Dimension not found" }
+          "404": {
+            "description": "Dimension not found"
+          }
         }
       }
     },
@@ -1482,7 +1758,10 @@
             "in": "path",
             "description": "Dimension ID",
             "required": true,
-            "schema": { "type": "string", "format": "uuid" }
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         ],
         "requestBody": {
@@ -1506,7 +1785,9 @@
               }
             }
           },
-          "404": { "description": "Dimension not found" }
+          "404": {
+            "description": "Dimension not found"
+          }
         }
       }
     },
@@ -1522,21 +1803,32 @@
             "in": "path",
             "description": "Dimension ID",
             "required": true,
-            "schema": { "type": "string", "format": "uuid" }
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
           },
           {
             "name": "page",
             "in": "query",
             "description": "Page number (starts from 1)",
             "required": false,
-            "schema": { "type": "integer", "format": "int64", "nullable": true }
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "nullable": true
+            }
           },
           {
             "name": "page_size",
             "in": "query",
             "description": "Number of items per page (default: 10, max: 100)",
             "required": false,
-            "schema": { "type": "integer", "format": "int64", "nullable": true }
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "nullable": true
+            }
           }
         ],
         "responses": {
@@ -1550,7 +1842,9 @@
               }
             }
           },
-          "500": { "description": "Internal server error" }
+          "500": {
+            "description": "Internal server error"
+          }
         }
       }
     },
@@ -1565,7 +1859,10 @@
             "in": "path",
             "description": "Dimension ID",
             "required": true,
-            "schema": { "type": "string", "format": "uuid" }
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         ],
         "responses": {
@@ -1579,7 +1876,9 @@
               }
             }
           },
-          "404": { "description": "Dimension not found" }
+          "404": {
+            "description": "Dimension not found"
+          }
         }
       }
     },
@@ -1595,14 +1894,22 @@
             "in": "query",
             "description": "Page number (1-based)",
             "required": false,
-            "schema": { "type": "integer", "format": "int64", "nullable": true }
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "nullable": true
+            }
           },
           {
             "name": "limit",
             "in": "query",
             "description": "Number of items per page",
             "required": false,
-            "schema": { "type": "integer", "format": "int64", "nullable": true }
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "nullable": true
+            }
           }
         ],
         "responses": {
@@ -1616,9 +1923,15 @@
               }
             }
           },
-          "401": { "description": "Unauthorized" }
+          "401": {
+            "description": "Unauthorized"
+          }
         },
-        "security": [{ "jwt": [] }]
+        "security": [
+          {
+            "jwt": []
+          }
+        ]
       }
     },
     "/gaps/{id}": {
@@ -1633,7 +1946,10 @@
             "in": "path",
             "description": "Gap ID",
             "required": true,
-            "schema": { "type": "string", "format": "uuid" }
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         ],
         "responses": {
@@ -1647,10 +1963,18 @@
               }
             }
           },
-          "401": { "description": "Unauthorized" },
-          "404": { "description": "Gap not found" }
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Gap not found"
+          }
         },
-        "security": [{ "jwt": [] }]
+        "security": [
+          {
+            "jwt": []
+          }
+        ]
       },
       "put": {
         "tags": ["Gaps"],
@@ -1663,13 +1987,18 @@
             "in": "path",
             "description": "Gap ID",
             "required": true,
-            "schema": { "type": "string", "format": "uuid" }
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         ],
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/UpdateGapRequest" }
+              "schema": {
+                "$ref": "#/components/schemas/UpdateGapRequest"
+              }
             }
           },
           "required": true
@@ -1685,10 +2014,18 @@
               }
             }
           },
-          "401": { "description": "Unauthorized" },
-          "404": { "description": "Gap not found" }
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Gap not found"
+          }
         },
-        "security": [{ "jwt": [] }]
+        "security": [
+          {
+            "jwt": []
+          }
+        ]
       },
       "delete": {
         "tags": ["Gaps"],
@@ -1700,7 +2037,10 @@
             "in": "path",
             "description": "Gap ID",
             "required": true,
-            "schema": { "type": "string", "format": "uuid" }
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         ],
         "responses": {
@@ -1708,14 +2048,24 @@
             "description": "Gap deleted successfully",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/ApiResponseEmpty" }
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseEmpty"
+                }
               }
             }
           },
-          "401": { "description": "Unauthorized" },
-          "404": { "description": "Gap not found" }
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Gap not found"
+          }
         },
-        "security": [{ "jwt": [] }]
+        "security": [
+          {
+            "jwt": []
+          }
+        ]
       }
     },
     "/recommendations": {
@@ -1730,14 +2080,22 @@
             "in": "query",
             "description": "Page number (starts from 1)",
             "required": false,
-            "schema": { "type": "integer", "format": "int64", "nullable": true }
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "nullable": true
+            }
           },
           {
             "name": "page_size",
             "in": "query",
             "description": "Number of items per page (default: 10, max: 100)",
             "required": false,
-            "schema": { "type": "integer", "format": "int64", "nullable": true }
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "nullable": true
+            }
           }
         ],
         "responses": {
@@ -1751,7 +2109,9 @@
               }
             }
           },
-          "500": { "description": "Internal server error" }
+          "500": {
+            "description": "Internal server error"
+          }
         }
       },
       "post": {
@@ -1780,8 +2140,12 @@
               }
             }
           },
-          "400": { "description": "Invalid input data" },
-          "500": { "description": "Internal server error" }
+          "400": {
+            "description": "Invalid input data"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
         }
       }
     },
@@ -1797,7 +2161,10 @@
             "in": "path",
             "description": "Recommendation ID",
             "required": true,
-            "schema": { "type": "string", "format": "uuid" }
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         ],
         "responses": {
@@ -1811,8 +2178,12 @@
               }
             }
           },
-          "404": { "description": "Recommendation not found" },
-          "500": { "description": "Internal server error" }
+          "404": {
+            "description": "Recommendation not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
         }
       },
       "put": {
@@ -1826,7 +2197,10 @@
             "in": "path",
             "description": "Recommendation ID",
             "required": true,
-            "schema": { "type": "string", "format": "uuid" }
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         ],
         "requestBody": {
@@ -1850,9 +2224,15 @@
               }
             }
           },
-          "400": { "description": "Invalid input data" },
-          "404": { "description": "Recommendation not found" },
-          "500": { "description": "Internal server error" }
+          "400": {
+            "description": "Invalid input data"
+          },
+          "404": {
+            "description": "Recommendation not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
         }
       },
       "delete": {
@@ -1866,7 +2246,10 @@
             "in": "path",
             "description": "Recommendation ID",
             "required": true,
-            "schema": { "type": "string", "format": "uuid" }
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         ],
         "responses": {
@@ -1874,12 +2257,18 @@
             "description": "Recommendation deleted successfully",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/ApiResponseEmpty" }
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseEmpty"
+                }
               }
             }
           },
-          "404": { "description": "Recommendation not found" },
-          "500": { "description": "Internal server error" }
+          "404": {
+            "description": "Recommendation not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
         }
       }
     },
@@ -1934,7 +2323,9 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/GenerateReportRequest" }
+              "schema": {
+                "$ref": "#/components/schemas/GenerateReportRequest"
+              }
             }
           },
           "required": true
@@ -1964,7 +2355,10 @@
             "in": "path",
             "description": "Assessment ID",
             "required": true,
-            "schema": { "type": "string", "format": "uuid" }
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         ],
         "responses": {
@@ -1992,7 +2386,10 @@
             "in": "path",
             "description": "Assessment ID",
             "required": true,
-            "schema": { "type": "string", "format": "uuid" }
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         ],
         "responses": {
@@ -2000,11 +2397,16 @@
             "description": "Report file content",
             "content": {
               "application/octet-stream": {
-                "schema": { "type": "string", "format": "binary" }
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
               }
             }
           },
-          "404": { "description": "Report not found" }
+          "404": {
+            "description": "Report not found"
+          }
         }
       }
     },
@@ -2019,7 +2421,10 @@
             "in": "path",
             "description": "Report ID",
             "required": true,
-            "schema": { "type": "string", "format": "uuid" }
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         ],
         "responses": {
@@ -2033,7 +2438,9 @@
               }
             }
           },
-          "404": { "description": "Report not found" }
+          "404": {
+            "description": "Report not found"
+          }
         }
       },
       "put": {
@@ -2046,13 +2453,18 @@
             "in": "path",
             "description": "Report ID",
             "required": true,
-            "schema": { "type": "string", "format": "uuid" }
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         ],
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/UpdateReportRequest" }
+              "schema": {
+                "$ref": "#/components/schemas/UpdateReportRequest"
+              }
             }
           },
           "required": true
@@ -2068,7 +2480,9 @@
               }
             }
           },
-          "404": { "description": "Report not found" }
+          "404": {
+            "description": "Report not found"
+          }
         }
       },
       "delete": {
@@ -2081,10 +2495,17 @@
             "in": "path",
             "description": "Report ID",
             "required": true,
-            "schema": { "type": "string", "format": "uuid" }
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         ],
-        "responses": { "200": { "description": "Report deleted" } }
+        "responses": {
+          "200": {
+            "description": "Report deleted"
+          }
+        }
       }
     },
     "/reports/{id}/download": {
@@ -2098,7 +2519,10 @@
             "in": "path",
             "description": "Report ID",
             "required": true,
-            "schema": { "type": "string", "format": "uuid" }
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         ],
         "responses": {
@@ -2112,7 +2536,9 @@
               }
             }
           },
-          "404": { "description": "Report not found" }
+          "404": {
+            "description": "Report not found"
+          }
         }
       }
     },
@@ -2127,7 +2553,10 @@
             "in": "path",
             "description": "Report ID",
             "required": true,
-            "schema": { "type": "string", "format": "uuid" }
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         ],
         "responses": {
@@ -2141,7 +2570,9 @@
               }
             }
           },
-          "404": { "description": "Report not found" }
+          "404": {
+            "description": "Report not found"
+          }
         }
       }
     }
@@ -2159,12 +2590,26 @@
           "description"
         ],
         "properties": {
-          "action_item_id": { "type": "string", "format": "uuid" },
-          "description": { "type": "string" },
-          "dimension_assessment_id": { "type": "string", "format": "uuid" },
-          "priority": { "type": "string" },
-          "status": { "type": "string" },
-          "title": { "type": "string" }
+          "action_item_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": {
+            "type": "string"
+          },
+          "dimension_assessment_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "priority": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
         }
       },
       "ActionPlanResponse": {
@@ -2178,21 +2623,45 @@
         "properties": {
           "action_items": {
             "type": "array",
-            "items": { "$ref": "#/components/schemas/ActionItemResponse" }
+            "items": {
+              "$ref": "#/components/schemas/ActionItemResponse"
+            }
           },
-          "action_plan_id": { "type": "string", "format": "uuid" },
-          "assessment_id": { "type": "string", "format": "uuid" },
-          "created_at": { "type": "string", "format": "date-time" }
+          "action_plan_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "assessment_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
         }
       },
       "AddMemberRequest": {
         "type": "object",
         "required": ["email", "roles"],
         "properties": {
-          "email": { "type": "string" },
-          "first_name": { "type": "string", "nullable": true },
-          "last_name": { "type": "string", "nullable": true },
-          "roles": { "type": "array", "items": { "type": "string" } }
+          "email": {
+            "type": "string"
+          },
+          "first_name": {
+            "type": "string",
+            "nullable": true
+          },
+          "last_name": {
+            "type": "string",
+            "nullable": true
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
         }
       },
       "AdminCreateGapRequest": {
@@ -2210,7 +2679,9 @@
             "description": "explicit description to override",
             "example": "Significant gap"
           },
-          "gap_severity": { "$ref": "#/components/schemas/GapSeverity" }
+          "gap_severity": {
+            "$ref": "#/components/schemas/GapSeverity"
+          }
         },
         "example": {
           "dimension_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
@@ -2236,23 +2707,42 @@
                   "description"
                 ],
                 "properties": {
-                  "action_item_id": { "type": "string", "format": "uuid" },
-                  "description": { "type": "string" },
+                  "action_item_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
                   "dimension_assessment_id": {
                     "type": "string",
                     "format": "uuid"
                   },
-                  "priority": { "type": "string" },
-                  "status": { "type": "string" },
-                  "title": { "type": "string" }
+                  "priority": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": "string"
+                  }
                 }
               }
             ],
             "nullable": true
           },
-          "error": { "type": "string", "nullable": true },
-          "message": { "type": "string", "nullable": true },
-          "success": { "type": "boolean" }
+          "error": {
+            "type": "string",
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "success": {
+            "type": "boolean"
+          }
         }
       },
       "ApiResponseActionPlanResponse": {
@@ -2277,17 +2767,34 @@
                       "$ref": "#/components/schemas/ActionItemResponse"
                     }
                   },
-                  "action_plan_id": { "type": "string", "format": "uuid" },
-                  "assessment_id": { "type": "string", "format": "uuid" },
-                  "created_at": { "type": "string", "format": "date-time" }
+                  "action_plan_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "assessment_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "created_at": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
                 }
               }
             ],
             "nullable": true
           },
-          "error": { "type": "string", "nullable": true },
-          "message": { "type": "string", "nullable": true },
-          "success": { "type": "boolean" }
+          "error": {
+            "type": "string",
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "success": {
+            "type": "boolean"
+          }
         }
       },
       "ApiResponseActionPlanWithItemsResponse": {
@@ -2312,17 +2819,34 @@
                       "$ref": "#/components/schemas/ActionItemResponse"
                     }
                   },
-                  "action_plan_id": { "type": "string", "format": "uuid" },
-                  "assessment_id": { "type": "string", "format": "uuid" },
-                  "created_at": { "type": "string", "format": "date-time" }
+                  "action_plan_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "assessment_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "created_at": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
                 }
               }
             ],
             "nullable": true
           },
-          "error": { "type": "string", "nullable": true },
-          "message": { "type": "string", "nullable": true },
-          "success": { "type": "boolean" }
+          "error": {
+            "type": "string",
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "success": {
+            "type": "boolean"
+          }
         }
       },
       "ApiResponseAdminCreateGapRequest": {
@@ -2347,7 +2871,9 @@
                     "description": "explicit description to override",
                     "example": "Significant gap"
                   },
-                  "gap_severity": { "$ref": "#/components/schemas/GapSeverity" }
+                  "gap_severity": {
+                    "$ref": "#/components/schemas/GapSeverity"
+                  }
                 },
                 "example": {
                   "dimension_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
@@ -2358,9 +2884,17 @@
             ],
             "nullable": true
           },
-          "error": { "type": "string", "nullable": true },
-          "message": { "type": "string", "nullable": true },
-          "success": { "type": "boolean" }
+          "error": {
+            "type": "string",
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "success": {
+            "type": "boolean"
+          }
         }
       },
       "ApiResponseAssessmentResponse": {
@@ -2382,32 +2916,60 @@
                   "updated_at"
                 ],
                 "properties": {
-                  "assessment_id": { "type": "string", "format": "uuid" },
+                  "assessment_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
                   "completed_at": {
                     "type": "string",
                     "format": "date-time",
                     "nullable": true
                   },
-                  "cooperation_id": { "type": "string", "nullable": true },
-                  "created_at": { "type": "string", "format": "date-time" },
-                  "dimensions_id": { "nullable": true },
-                  "document_title": { "type": "string" },
-                  "organization_id": { "type": "string" },
+                  "cooperation_id": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "created_at": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "dimensions_id": {
+                    "nullable": true
+                  },
+                  "document_title": {
+                    "type": "string"
+                  },
+                  "organization_id": {
+                    "type": "string"
+                  },
                   "started_at": {
                     "type": "string",
                     "format": "date-time",
                     "nullable": true
                   },
-                  "status": { "$ref": "#/components/schemas/AssessmentStatus" },
-                  "updated_at": { "type": "string", "format": "date-time" }
+                  "status": {
+                    "$ref": "#/components/schemas/AssessmentStatus"
+                  },
+                  "updated_at": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
                 }
               }
             ],
             "nullable": true
           },
-          "error": { "type": "string", "nullable": true },
-          "message": { "type": "string", "nullable": true },
-          "success": { "type": "boolean" }
+          "error": {
+            "type": "string",
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "success": {
+            "type": "boolean"
+          }
         }
       },
       "ApiResponseAssessmentSummaryResponse": {
@@ -2456,9 +3018,17 @@
             ],
             "nullable": true
           },
-          "error": { "type": "string", "nullable": true },
-          "message": { "type": "string", "nullable": true },
-          "success": { "type": "boolean" }
+          "error": {
+            "type": "string",
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "success": {
+            "type": "boolean"
+          }
         }
       },
       "ApiResponseAssessmentsResponse": {
@@ -2484,9 +3054,17 @@
             ],
             "nullable": true
           },
-          "error": { "type": "string", "nullable": true },
-          "message": { "type": "string", "nullable": true },
-          "success": { "type": "boolean" }
+          "error": {
+            "type": "string",
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "success": {
+            "type": "boolean"
+          }
         }
       },
       "ApiResponseCreateRecommendationRequest": {
@@ -2524,9 +3102,17 @@
             ],
             "nullable": true
           },
-          "error": { "type": "string", "nullable": true },
-          "message": { "type": "string", "nullable": true },
-          "success": { "type": "boolean" }
+          "error": {
+            "type": "string",
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "success": {
+            "type": "boolean"
+          }
         }
       },
       "ApiResponseCurrentStateResponse": {
@@ -2547,20 +3133,46 @@
                   "updated_at"
                 ],
                 "properties": {
-                  "created_at": { "type": "string", "format": "date-time" },
-                  "current_state_id": { "type": "string", "format": "uuid" },
-                  "description": { "type": "string", "nullable": true },
-                  "dimension_id": { "type": "string", "format": "uuid" },
-                  "score": { "type": "integer", "format": "int32" },
-                  "updated_at": { "type": "string", "format": "date-time" }
+                  "created_at": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "current_state_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "description": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "dimension_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "score": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "updated_at": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
                 }
               }
             ],
             "nullable": true
           },
-          "error": { "type": "string", "nullable": true },
-          "message": { "type": "string", "nullable": true },
-          "success": { "type": "boolean" }
+          "error": {
+            "type": "string",
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "success": {
+            "type": "boolean"
+          }
         }
       },
       "ApiResponseDesiredStateResponse": {
@@ -2581,20 +3193,46 @@
                   "updated_at"
                 ],
                 "properties": {
-                  "created_at": { "type": "string", "format": "date-time" },
-                  "description": { "type": "string", "nullable": true },
-                  "desired_state_id": { "type": "string", "format": "uuid" },
-                  "dimension_id": { "type": "string", "format": "uuid" },
-                  "score": { "type": "integer", "format": "int32" },
-                  "updated_at": { "type": "string", "format": "date-time" }
+                  "created_at": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "description": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "desired_state_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "dimension_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "score": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "updated_at": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
                 }
               }
             ],
             "nullable": true
           },
-          "error": { "type": "string", "nullable": true },
-          "message": { "type": "string", "nullable": true },
-          "success": { "type": "boolean" }
+          "error": {
+            "type": "string",
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "success": {
+            "type": "boolean"
+          }
         }
       },
       "ApiResponseDimensionAssessmentResponse": {
@@ -2620,28 +3258,65 @@
                   "updated_at"
                 ],
                 "properties": {
-                  "assessment_id": { "type": "string", "format": "uuid" },
-                  "cooperation_id": { "type": "string", "nullable": true },
-                  "created_at": { "type": "string", "format": "date-time" },
-                  "current_state_id": { "type": "string", "format": "uuid" },
-                  "desired_state_id": { "type": "string", "format": "uuid" },
+                  "assessment_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "cooperation_id": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "created_at": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "current_state_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "desired_state_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
                   "dimension_assessment_id": {
                     "type": "string",
                     "format": "uuid"
                   },
-                  "dimension_id": { "type": "string", "format": "uuid" },
-                  "gap_id": { "type": "string", "format": "uuid" },
-                  "gap_score": { "type": "integer", "format": "int32" },
-                  "organization_id": { "type": "string" },
-                  "updated_at": { "type": "string", "format": "date-time" }
+                  "dimension_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "gap_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "gap_score": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "organization_id": {
+                    "type": "string"
+                  },
+                  "updated_at": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
                 }
               }
             ],
             "nullable": true
           },
-          "error": { "type": "string", "nullable": true },
-          "message": { "type": "string", "nullable": true },
-          "success": { "type": "boolean" }
+          "error": {
+            "type": "string",
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "success": {
+            "type": "boolean"
+          }
         }
       },
       "ApiResponseDimensionAssessmentsResponse": {
@@ -2667,9 +3342,17 @@
             ],
             "nullable": true
           },
-          "error": { "type": "string", "nullable": true },
-          "message": { "type": "string", "nullable": true },
-          "success": { "type": "boolean" }
+          "error": {
+            "type": "string",
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "success": {
+            "type": "boolean"
+          }
         }
       },
       "ApiResponseDimensionResponse": {
@@ -2689,13 +3372,33 @@
                   "updated_at"
                 ],
                 "properties": {
-                  "category": { "type": "string", "nullable": true },
-                  "created_at": { "type": "string", "format": "date-time" },
-                  "description": { "type": "string", "nullable": true },
-                  "dimension_id": { "type": "string", "format": "uuid" },
-                  "is_active": { "type": "boolean", "nullable": true },
-                  "name": { "type": "string" },
-                  "updated_at": { "type": "string", "format": "date-time" },
+                  "category": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "created_at": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "description": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "dimension_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "is_active": {
+                    "type": "boolean",
+                    "nullable": true
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "updated_at": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
                   "weight": {
                     "type": "integer",
                     "format": "int32",
@@ -2706,9 +3409,17 @@
             ],
             "nullable": true
           },
-          "error": { "type": "string", "nullable": true },
-          "message": { "type": "string", "nullable": true },
-          "success": { "type": "boolean" }
+          "error": {
+            "type": "string",
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "success": {
+            "type": "boolean"
+          }
         }
       },
       "ApiResponseDimensionWithStatesResponse": {
@@ -2743,9 +3454,17 @@
             ],
             "nullable": true
           },
-          "error": { "type": "string", "nullable": true },
-          "message": { "type": "string", "nullable": true },
-          "success": { "type": "boolean" }
+          "error": {
+            "type": "string",
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "success": {
+            "type": "boolean"
+          }
         }
       },
       "ApiResponseEmpty": {
@@ -2762,9 +3481,17 @@
             ],
             "nullable": true
           },
-          "error": { "type": "string", "nullable": true },
-          "message": { "type": "string", "nullable": true },
-          "success": { "type": "boolean" }
+          "error": {
+            "type": "string",
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "success": {
+            "type": "boolean"
+          }
         }
       },
       "ApiResponseGapResponse": {
@@ -2846,9 +3573,17 @@
             ],
             "nullable": true
           },
-          "error": { "type": "string", "nullable": true },
-          "message": { "type": "string", "nullable": true },
-          "success": { "type": "boolean" }
+          "error": {
+            "type": "string",
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "success": {
+            "type": "boolean"
+          }
         }
       },
       "ApiResponsePaginatedActionPlanResponse": {
@@ -2884,7 +3619,10 @@
                           "type": "string",
                           "format": "uuid"
                         },
-                        "assessment_id": { "type": "string", "format": "uuid" },
+                        "assessment_id": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
                         "created_at": {
                           "type": "string",
                           "format": "date-time"
@@ -2917,9 +3655,17 @@
             ],
             "nullable": true
           },
-          "error": { "type": "string", "nullable": true },
-          "message": { "type": "string", "nullable": true },
-          "success": { "type": "boolean" }
+          "error": {
+            "type": "string",
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "success": {
+            "type": "boolean"
+          }
         }
       },
       "ApiResponsePaginatedAssessmentResponse": {
@@ -2948,7 +3694,10 @@
                         "updated_at"
                       ],
                       "properties": {
-                        "assessment_id": { "type": "string", "format": "uuid" },
+                        "assessment_id": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
                         "completed_at": {
                           "type": "string",
                           "format": "date-time",
@@ -2962,9 +3711,15 @@
                           "type": "string",
                           "format": "date-time"
                         },
-                        "dimensions_id": { "nullable": true },
-                        "document_title": { "type": "string" },
-                        "organization_id": { "type": "string" },
+                        "dimensions_id": {
+                          "nullable": true
+                        },
+                        "document_title": {
+                          "type": "string"
+                        },
+                        "organization_id": {
+                          "type": "string"
+                        },
                         "started_at": {
                           "type": "string",
                           "format": "date-time",
@@ -3005,9 +3760,17 @@
             ],
             "nullable": true
           },
-          "error": { "type": "string", "nullable": true },
-          "message": { "type": "string", "nullable": true },
-          "success": { "type": "boolean" }
+          "error": {
+            "type": "string",
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "success": {
+            "type": "boolean"
+          }
         }
       },
       "ApiResponsePaginatedDimensionResponse": {
@@ -3034,15 +3797,29 @@
                         "updated_at"
                       ],
                       "properties": {
-                        "category": { "type": "string", "nullable": true },
+                        "category": {
+                          "type": "string",
+                          "nullable": true
+                        },
                         "created_at": {
                           "type": "string",
                           "format": "date-time"
                         },
-                        "description": { "type": "string", "nullable": true },
-                        "dimension_id": { "type": "string", "format": "uuid" },
-                        "is_active": { "type": "boolean", "nullable": true },
-                        "name": { "type": "string" },
+                        "description": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "dimension_id": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "is_active": {
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "name": {
+                          "type": "string"
+                        },
                         "updated_at": {
                           "type": "string",
                           "format": "date-time"
@@ -3080,9 +3857,17 @@
             ],
             "nullable": true
           },
-          "error": { "type": "string", "nullable": true },
-          "message": { "type": "string", "nullable": true },
-          "success": { "type": "boolean" }
+          "error": {
+            "type": "string",
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "success": {
+            "type": "boolean"
+          }
         }
       },
       "ApiResponsePaginatedGapResponse": {
@@ -3194,9 +3979,17 @@
             ],
             "nullable": true
           },
-          "error": { "type": "string", "nullable": true },
-          "message": { "type": "string", "nullable": true },
-          "success": { "type": "boolean" }
+          "error": {
+            "type": "string",
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "success": {
+            "type": "boolean"
+          }
         }
       },
       "ApiResponsePaginatedRecommendationResponse": {
@@ -3292,9 +4085,17 @@
             ],
             "nullable": true
           },
-          "error": { "type": "string", "nullable": true },
-          "message": { "type": "string", "nullable": true },
-          "success": { "type": "boolean" }
+          "error": {
+            "type": "string",
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "success": {
+            "type": "boolean"
+          }
         }
       },
       "ApiResponsePaginatedReportResponse": {
@@ -3326,12 +4127,18 @@
                         "updated_at"
                       ],
                       "properties": {
-                        "assessment_id": { "type": "string", "format": "uuid" },
+                        "assessment_id": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
                         "created_at": {
                           "type": "string",
                           "format": "date-time"
                         },
-                        "file_path": { "type": "string", "nullable": true },
+                        "file_path": {
+                          "type": "string",
+                          "nullable": true
+                        },
                         "format": {
                           "$ref": "#/components/schemas/ReportFormat"
                         },
@@ -3339,16 +4146,26 @@
                           "type": "string",
                           "format": "date-time"
                         },
-                        "report_data": { "nullable": true },
-                        "report_id": { "type": "string", "format": "uuid" },
+                        "report_data": {
+                          "nullable": true
+                        },
+                        "report_id": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
                         "report_type": {
                           "$ref": "#/components/schemas/ReportType"
                         },
                         "status": {
                           "$ref": "#/components/schemas/ReportStatus"
                         },
-                        "summary": { "type": "string", "nullable": true },
-                        "title": { "type": "string" },
+                        "summary": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "title": {
+                          "type": "string"
+                        },
                         "updated_at": {
                           "type": "string",
                           "format": "date-time"
@@ -3381,9 +4198,17 @@
             ],
             "nullable": true
           },
-          "error": { "type": "string", "nullable": true },
-          "message": { "type": "string", "nullable": true },
-          "success": { "type": "boolean" }
+          "error": {
+            "type": "string",
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "success": {
+            "type": "boolean"
+          }
         }
       },
       "ApiResponseRecommendationResponse": {
@@ -3449,9 +4274,17 @@
             ],
             "nullable": true
           },
-          "error": { "type": "string", "nullable": true },
-          "message": { "type": "string", "nullable": true },
-          "success": { "type": "boolean" }
+          "error": {
+            "type": "string",
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "success": {
+            "type": "boolean"
+          }
         }
       },
       "ApiResponseReportDownloadResponse": {
@@ -3466,23 +4299,39 @@
                 "description": "Report download response",
                 "required": ["report"],
                 "properties": {
-                  "content_type": { "type": "string", "nullable": true },
-                  "download_url": { "type": "string", "nullable": true },
+                  "content_type": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "download_url": {
+                    "type": "string",
+                    "nullable": true
+                  },
                   "file_size": {
                     "type": "integer",
                     "format": "int64",
                     "nullable": true,
                     "minimum": 0
                   },
-                  "report": { "$ref": "#/components/schemas/ReportResponse" }
+                  "report": {
+                    "$ref": "#/components/schemas/ReportResponse"
+                  }
                 }
               }
             ],
             "nullable": true
           },
-          "error": { "type": "string", "nullable": true },
-          "message": { "type": "string", "nullable": true },
-          "success": { "type": "boolean" }
+          "error": {
+            "type": "string",
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "success": {
+            "type": "boolean"
+          }
         }
       },
       "ApiResponseReportResponse": {
@@ -3507,26 +4356,65 @@
                   "updated_at"
                 ],
                 "properties": {
-                  "assessment_id": { "type": "string", "format": "uuid" },
-                  "created_at": { "type": "string", "format": "date-time" },
-                  "file_path": { "type": "string", "nullable": true },
-                  "format": { "$ref": "#/components/schemas/ReportFormat" },
-                  "generated_at": { "type": "string", "format": "date-time" },
-                  "report_data": { "nullable": true },
-                  "report_id": { "type": "string", "format": "uuid" },
-                  "report_type": { "$ref": "#/components/schemas/ReportType" },
-                  "status": { "$ref": "#/components/schemas/ReportStatus" },
-                  "summary": { "type": "string", "nullable": true },
-                  "title": { "type": "string" },
-                  "updated_at": { "type": "string", "format": "date-time" }
+                  "assessment_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "created_at": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "file_path": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "format": {
+                    "$ref": "#/components/schemas/ReportFormat"
+                  },
+                  "generated_at": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "report_data": {
+                    "nullable": true
+                  },
+                  "report_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "report_type": {
+                    "$ref": "#/components/schemas/ReportType"
+                  },
+                  "status": {
+                    "$ref": "#/components/schemas/ReportStatus"
+                  },
+                  "summary": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "updated_at": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
                 }
               }
             ],
             "nullable": true
           },
-          "error": { "type": "string", "nullable": true },
-          "message": { "type": "string", "nullable": true },
-          "success": { "type": "boolean" }
+          "error": {
+            "type": "string",
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "success": {
+            "type": "boolean"
+          }
         }
       },
       "ApiResponseReportStatusResponse": {
@@ -3546,23 +4434,39 @@
                     "format": "date-time",
                     "nullable": true
                   },
-                  "message": { "type": "string", "nullable": true },
+                  "message": {
+                    "type": "string",
+                    "nullable": true
+                  },
                   "progress": {
                     "type": "integer",
                     "format": "int32",
                     "nullable": true,
                     "minimum": 0
                   },
-                  "report_id": { "type": "string", "format": "uuid" },
-                  "status": { "$ref": "#/components/schemas/ReportStatus" }
+                  "report_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "status": {
+                    "$ref": "#/components/schemas/ReportStatus"
+                  }
                 }
               }
             ],
             "nullable": true
           },
-          "error": { "type": "string", "nullable": true },
-          "message": { "type": "string", "nullable": true },
-          "success": { "type": "boolean" }
+          "error": {
+            "type": "string",
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "success": {
+            "type": "boolean"
+          }
         }
       },
       "ApiResponseUpdateRecommendationRequest": {
@@ -3583,7 +4487,9 @@
                   },
                   "priority": {
                     "allOf": [
-                      { "$ref": "#/components/schemas/RecommendationPriority" }
+                      {
+                        "$ref": "#/components/schemas/RecommendationPriority"
+                      }
                     ],
                     "nullable": true
                   }
@@ -3592,9 +4498,17 @@
             ],
             "nullable": true
           },
-          "error": { "type": "string", "nullable": true },
-          "message": { "type": "string", "nullable": true },
-          "success": { "type": "boolean" }
+          "error": {
+            "type": "string",
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "success": {
+            "type": "boolean"
+          }
         }
       },
       "AssessmentResponse": {
@@ -3609,24 +4523,44 @@
           "updated_at"
         ],
         "properties": {
-          "assessment_id": { "type": "string", "format": "uuid" },
+          "assessment_id": {
+            "type": "string",
+            "format": "uuid"
+          },
           "completed_at": {
             "type": "string",
             "format": "date-time",
             "nullable": true
           },
-          "cooperation_id": { "type": "string", "nullable": true },
-          "created_at": { "type": "string", "format": "date-time" },
-          "dimensions_id": { "nullable": true },
-          "document_title": { "type": "string" },
-          "organization_id": { "type": "string" },
+          "cooperation_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dimensions_id": {
+            "nullable": true
+          },
+          "document_title": {
+            "type": "string"
+          },
+          "organization_id": {
+            "type": "string"
+          },
           "started_at": {
             "type": "string",
             "format": "date-time",
             "nullable": true
           },
-          "status": { "$ref": "#/components/schemas/AssessmentStatus" },
-          "updated_at": { "type": "string", "format": "date-time" }
+          "status": {
+            "$ref": "#/components/schemas/AssessmentStatus"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
         }
       },
       "AssessmentStatus": {
@@ -3644,14 +4578,20 @@
           "recommendations_count"
         ],
         "properties": {
-          "assessment": { "$ref": "#/components/schemas/AssessmentResponse" },
+          "assessment": {
+            "$ref": "#/components/schemas/AssessmentResponse"
+          },
           "dimension_assessments": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/DimensionAssessmentResponse"
             }
           },
-          "gaps_count": { "type": "integer", "format": "int32", "minimum": 0 },
+          "gaps_count": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
           "overall_score": {
             "type": "integer",
             "format": "int32",
@@ -3671,7 +4611,9 @@
         "properties": {
           "assessments": {
             "type": "array",
-            "items": { "$ref": "#/components/schemas/AssessmentResponse" }
+            "items": {
+              "$ref": "#/components/schemas/AssessmentResponse"
+            }
           }
         }
       },
@@ -3681,7 +4623,10 @@
         "properties": {
           "dimension_ids": {
             "type": "array",
-            "items": { "type": "string", "format": "uuid" }
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         }
       },
@@ -3690,10 +4635,22 @@
         "description": "Assessment creation request",
         "required": ["organization_id", "assessment_name", "dimensions_id"],
         "properties": {
-          "assessment_name": { "type": "string" },
-          "cooperation_id": { "type": "string", "nullable": true },
-          "dimensions_id": { "type": "array", "items": { "type": "string" } },
-          "organization_id": { "type": "string" }
+          "assessment_name": {
+            "type": "string"
+          },
+          "cooperation_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "dimensions_id": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "organization_id": {
+            "type": "string"
+          }
         }
       },
       "CreateCurrentStateRequest": {
@@ -3701,9 +4658,18 @@
         "description": "Current state creation request",
         "required": ["dimension_id", "score"],
         "properties": {
-          "description": { "type": "string", "nullable": true },
-          "dimension_id": { "type": "string", "format": "uuid" },
-          "score": { "type": "integer", "format": "int32" }
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "dimension_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "score": {
+            "type": "integer",
+            "format": "int32"
+          }
         }
       },
       "CreateDesiredStateRequest": {
@@ -3711,9 +4677,18 @@
         "description": "Desired state creation request",
         "required": ["dimension_id", "score"],
         "properties": {
-          "description": { "type": "string", "nullable": true },
-          "dimension_id": { "type": "string", "format": "uuid" },
-          "score": { "type": "integer", "format": "int32" }
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "dimension_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "score": {
+            "type": "integer",
+            "format": "int32"
+          }
         }
       },
       "CreateDimensionAssessmentRequest": {
@@ -3727,12 +4702,29 @@
           "organization_id"
         ],
         "properties": {
-          "cooperation_id": { "type": "string", "nullable": true },
-          "current_state_id": { "type": "string", "format": "uuid" },
-          "desired_state_id": { "type": "string", "format": "uuid" },
-          "dimension_id": { "type": "string", "format": "uuid" },
-          "gap_score": { "type": "integer", "format": "int32" },
-          "organization_id": { "type": "string" }
+          "cooperation_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "current_state_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "desired_state_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "dimension_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "gap_score": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "organization_id": {
+            "type": "string"
+          }
         }
       },
       "CreateDimensionRequest": {
@@ -3740,11 +4732,26 @@
         "description": "Dimension creation request",
         "required": ["name"],
         "properties": {
-          "category": { "type": "string", "nullable": true },
-          "description": { "type": "string", "nullable": true },
-          "is_active": { "type": "boolean", "nullable": true },
-          "name": { "type": "string" },
-          "weight": { "type": "integer", "format": "int32", "nullable": true }
+          "category": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "is_active": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "name": {
+            "type": "string"
+          },
+          "weight": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
         }
       },
       "CreateGapRequest": {
@@ -3790,7 +4797,9 @@
             "description": "Unique identifier of the dimension this recommendation is for",
             "example": "550e8400-e29b-41d4-a716-446655440000"
           },
-          "priority": { "$ref": "#/components/schemas/RecommendationPriority" }
+          "priority": {
+            "$ref": "#/components/schemas/RecommendationPriority"
+          }
         },
         "example": {
           "dimension_id": "550e8400-e29b-41d4-a716-446655440000",
@@ -3809,12 +4818,30 @@
           "updated_at"
         ],
         "properties": {
-          "created_at": { "type": "string", "format": "date-time" },
-          "current_state_id": { "type": "string", "format": "uuid" },
-          "description": { "type": "string", "nullable": true },
-          "dimension_id": { "type": "string", "format": "uuid" },
-          "score": { "type": "integer", "format": "int32" },
-          "updated_at": { "type": "string", "format": "date-time" }
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "current_state_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "dimension_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "score": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
         }
       },
       "DescriptionConfig": {
@@ -3827,7 +4854,9 @@
           },
           "rules": {
             "type": "array",
-            "items": { "$ref": "#/components/schemas/SeverityRuleDto" }
+            "items": {
+              "$ref": "#/components/schemas/SeverityRuleDto"
+            }
           }
         }
       },
@@ -3842,12 +4871,30 @@
           "updated_at"
         ],
         "properties": {
-          "created_at": { "type": "string", "format": "date-time" },
-          "description": { "type": "string", "nullable": true },
-          "desired_state_id": { "type": "string", "format": "uuid" },
-          "dimension_id": { "type": "string", "format": "uuid" },
-          "score": { "type": "integer", "format": "int32" },
-          "updated_at": { "type": "string", "format": "date-time" }
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "desired_state_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "dimension_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "score": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
         }
       },
       "DimensionAssessmentResponse": {
@@ -3866,17 +4913,49 @@
           "updated_at"
         ],
         "properties": {
-          "assessment_id": { "type": "string", "format": "uuid" },
-          "cooperation_id": { "type": "string", "nullable": true },
-          "created_at": { "type": "string", "format": "date-time" },
-          "current_state_id": { "type": "string", "format": "uuid" },
-          "desired_state_id": { "type": "string", "format": "uuid" },
-          "dimension_assessment_id": { "type": "string", "format": "uuid" },
-          "dimension_id": { "type": "string", "format": "uuid" },
-          "gap_id": { "type": "string", "format": "uuid" },
-          "gap_score": { "type": "integer", "format": "int32" },
-          "organization_id": { "type": "string" },
-          "updated_at": { "type": "string", "format": "date-time" }
+          "assessment_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "cooperation_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "current_state_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "desired_state_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "dimension_assessment_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "dimension_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "gap_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "gap_score": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "organization_id": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
         }
       },
       "DimensionAssessmentsResponse": {
@@ -3899,12 +4978,30 @@
         "properties": {
           "dimensions": {
             "type": "array",
-            "items": { "$ref": "#/components/schemas/DimensionResponse" }
+            "items": {
+              "$ref": "#/components/schemas/DimensionResponse"
+            }
           },
-          "limit": { "type": "integer", "format": "int32", "minimum": 0 },
-          "page": { "type": "integer", "format": "int32", "minimum": 0 },
-          "total": { "type": "integer", "format": "int64", "minimum": 0 },
-          "total_pages": { "type": "integer", "format": "int32", "minimum": 0 }
+          "limit": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "total_pages": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          }
         }
       },
       "DimensionResponse": {
@@ -3912,14 +5009,38 @@
         "description": "Dimension response",
         "required": ["dimension_id", "name", "created_at", "updated_at"],
         "properties": {
-          "category": { "type": "string", "nullable": true },
-          "created_at": { "type": "string", "format": "date-time" },
-          "description": { "type": "string", "nullable": true },
-          "dimension_id": { "type": "string", "format": "uuid" },
-          "is_active": { "type": "boolean", "nullable": true },
-          "name": { "type": "string" },
-          "updated_at": { "type": "string", "format": "date-time" },
-          "weight": { "type": "integer", "format": "int32", "nullable": true }
+          "category": {
+            "type": "string",
+            "nullable": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "dimension_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "is_active": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "name": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "weight": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
         }
       },
       "DimensionWithStatesResponse": {
@@ -3929,13 +5050,19 @@
         "properties": {
           "current_states": {
             "type": "array",
-            "items": { "$ref": "#/components/schemas/CurrentStateResponse" }
+            "items": {
+              "$ref": "#/components/schemas/CurrentStateResponse"
+            }
           },
           "desired_states": {
             "type": "array",
-            "items": { "$ref": "#/components/schemas/DesiredStateResponse" }
+            "items": {
+              "$ref": "#/components/schemas/DesiredStateResponse"
+            }
           },
-          "dimension": { "$ref": "#/components/schemas/DimensionResponse" }
+          "dimension": {
+            "$ref": "#/components/schemas/DimensionResponse"
+          }
         }
       },
       "EmptyResponse": {
@@ -3984,7 +5111,9 @@
             "description": "Unique identifier for the gap",
             "example": "550e8400-e29b-41d4-a716-446655440000"
           },
-          "gap_severity": { "$ref": "#/components/schemas/GapSeverity" },
+          "gap_severity": {
+            "$ref": "#/components/schemas/GapSeverity"
+          },
           "gap_size": {
             "type": "integer",
             "format": "int32",
@@ -4019,80 +5148,157 @@
         "description": "Report generation request",
         "required": ["assessment_id", "report_type", "format", "title"],
         "properties": {
-          "assessment_id": { "type": "string", "format": "uuid" },
+          "assessment_id": {
+            "type": "string",
+            "format": "uuid"
+          },
           "custom_sections": {
             "type": "array",
-            "items": { "type": "string" },
+            "items": {
+              "type": "string"
+            },
             "nullable": true
           },
-          "format": { "$ref": "#/components/schemas/ReportFormat" },
-          "include_action_plans": { "type": "boolean", "nullable": true },
-          "include_recommendations": { "type": "boolean", "nullable": true },
-          "report_type": { "$ref": "#/components/schemas/ReportType" },
-          "title": { "type": "string" }
+          "format": {
+            "$ref": "#/components/schemas/ReportFormat"
+          },
+          "include_action_plans": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "include_recommendations": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "report_type": {
+            "$ref": "#/components/schemas/ReportType"
+          },
+          "title": {
+            "type": "string"
+          }
         }
       },
       "GetGroupByPathParams": {
         "type": "object",
         "required": ["path"],
-        "properties": { "path": { "type": "string" } }
+        "properties": {
+          "path": {
+            "type": "string"
+          }
+        }
       },
       "GroupCreateRequest": {
         "type": "object",
         "required": ["name"],
         "properties": {
-          "description": { "type": "string", "nullable": true },
-          "name": { "type": "string" }
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string"
+          }
         }
       },
       "GroupUpdateRequest": {
         "type": "object",
         "required": ["name"],
         "properties": {
-          "description": { "type": "string", "nullable": true },
-          "name": { "type": "string" }
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string"
+          }
         }
       },
       "KeycloakGroup": {
         "type": "object",
         "required": ["id", "name", "path"],
         "properties": {
-          "description": { "type": "string", "nullable": true },
-          "id": { "type": "string" },
-          "name": { "type": "string" },
-          "path": { "type": "string" }
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          }
         }
       },
       "KeycloakOrganization": {
         "type": "object",
         "required": ["id", "name", "enabled"],
         "properties": {
-          "alias": { "type": "string", "nullable": true },
-          "attributes": { "nullable": true },
-          "description": { "type": "string", "nullable": true },
-          "domains": {
-            "type": "array",
-            "items": { "$ref": "#/components/schemas/OrganizationDomain" },
+          "alias": {
+            "type": "string",
             "nullable": true
           },
-          "enabled": { "type": "boolean" },
-          "id": { "type": "string" },
-          "name": { "type": "string" },
-          "redirectUrl": { "type": "string", "nullable": true }
+          "attributes": {
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "domains": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrganizationDomain"
+            },
+            "nullable": true
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "redirectUrl": {
+            "type": "string",
+            "nullable": true
+          }
         }
       },
       "KeycloakUser": {
         "type": "object",
         "required": ["id", "username", "email"],
         "properties": {
-          "attributes": { "nullable": true },
-          "email": { "type": "string" },
-          "emailVerified": { "type": "boolean" },
-          "enabled": { "type": "boolean" },
-          "firstName": { "type": "string", "nullable": true },
-          "id": { "type": "string" },
-          "lastName": { "type": "string", "nullable": true },
-          "username": { "type": "string" }
+          "attributes": {
+            "nullable": true
+          },
+          "email": {
+            "type": "string"
+          },
+          "emailVerified": {
+            "type": "boolean"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "firstName": {
+            "type": "string",
+            "nullable": true
+          },
+          "id": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string",
+            "nullable": true
+          },
+          "username": {
+            "type": "string"
+          }
         }
       },
       "OrganisationDimensionResponse": {
@@ -4105,11 +5311,25 @@
           "updated_at"
         ],
         "properties": {
-          "created_at": { "type": "string", "format": "date-time" },
-          "dimension_id": { "type": "string", "format": "uuid" },
-          "organisation_dimension": { "type": "string", "format": "uuid" },
-          "organisation_id": { "type": "string" },
-          "updated_at": { "type": "string", "format": "date-time" }
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dimension_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "organisation_dimension": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "organisation_id": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
         }
       },
       "OrganizationCreateRequest": {
@@ -4120,7 +5340,9 @@
             "type": "object",
             "additionalProperties": {
               "type": "array",
-              "items": { "type": "string" }
+              "items": {
+                "type": "string"
+              }
             },
             "nullable": true
           },
@@ -4130,23 +5352,38 @@
               "$ref": "#/components/schemas/OrganizationDomainRequest"
             }
           },
-          "enabled": { "type": "string" },
-          "name": { "type": "string" },
-          "redirectUrl": { "type": "string" }
+          "enabled": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "redirectUrl": {
+            "type": "string"
+          }
         }
       },
       "OrganizationDomain": {
         "type": "object",
         "required": ["name"],
         "properties": {
-          "name": { "type": "string" },
-          "verified": { "type": "boolean", "nullable": true }
+          "name": {
+            "type": "string"
+          },
+          "verified": {
+            "type": "boolean",
+            "nullable": true
+          }
         }
       },
       "OrganizationDomainRequest": {
         "type": "object",
         "required": ["name"],
-        "properties": { "name": { "type": "string" } }
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
       },
       "OrganizationUpdateRequest": {
         "type": "object",
@@ -4156,7 +5393,9 @@
             "type": "object",
             "additionalProperties": {
               "type": "array",
-              "items": { "type": "string" }
+              "items": {
+                "type": "string"
+              }
             },
             "nullable": true
           },
@@ -4166,7 +5405,9 @@
               "$ref": "#/components/schemas/OrganizationDomainRequest"
             }
           },
-          "name": { "type": "string" }
+          "name": {
+            "type": "string"
+          }
         }
       },
       "PaginatedActionPlanResponse": {
@@ -4187,18 +5428,45 @@
               "properties": {
                 "action_items": {
                   "type": "array",
-                  "items": { "$ref": "#/components/schemas/ActionItemResponse" }
+                  "items": {
+                    "$ref": "#/components/schemas/ActionItemResponse"
+                  }
                 },
-                "action_plan_id": { "type": "string", "format": "uuid" },
-                "assessment_id": { "type": "string", "format": "uuid" },
-                "created_at": { "type": "string", "format": "date-time" }
+                "action_plan_id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "assessment_id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "created_at": {
+                  "type": "string",
+                  "format": "date-time"
+                }
               }
             }
           },
-          "limit": { "type": "integer", "format": "int32", "minimum": 0 },
-          "page": { "type": "integer", "format": "int32", "minimum": 0 },
-          "total": { "type": "integer", "format": "int64", "minimum": 0 },
-          "total_pages": { "type": "integer", "format": "int32", "minimum": 0 }
+          "limit": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "total_pages": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          }
         }
       },
       "PaginatedAssessmentResponse": {
@@ -4220,31 +5488,67 @@
                 "updated_at"
               ],
               "properties": {
-                "assessment_id": { "type": "string", "format": "uuid" },
+                "assessment_id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
                 "completed_at": {
                   "type": "string",
                   "format": "date-time",
                   "nullable": true
                 },
-                "cooperation_id": { "type": "string", "nullable": true },
-                "created_at": { "type": "string", "format": "date-time" },
-                "dimensions_id": { "nullable": true },
-                "document_title": { "type": "string" },
-                "organization_id": { "type": "string" },
+                "cooperation_id": {
+                  "type": "string",
+                  "nullable": true
+                },
+                "created_at": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "dimensions_id": {
+                  "nullable": true
+                },
+                "document_title": {
+                  "type": "string"
+                },
+                "organization_id": {
+                  "type": "string"
+                },
                 "started_at": {
                   "type": "string",
                   "format": "date-time",
                   "nullable": true
                 },
-                "status": { "$ref": "#/components/schemas/AssessmentStatus" },
-                "updated_at": { "type": "string", "format": "date-time" }
+                "status": {
+                  "$ref": "#/components/schemas/AssessmentStatus"
+                },
+                "updated_at": {
+                  "type": "string",
+                  "format": "date-time"
+                }
               }
             }
           },
-          "limit": { "type": "integer", "format": "int32", "minimum": 0 },
-          "page": { "type": "integer", "format": "int32", "minimum": 0 },
-          "total": { "type": "integer", "format": "int64", "minimum": 0 },
-          "total_pages": { "type": "integer", "format": "int32", "minimum": 0 }
+          "limit": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "total_pages": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          }
         }
       },
       "PaginatedDimensionResponse": {
@@ -4259,13 +5563,33 @@
               "description": "Dimension response",
               "required": ["dimension_id", "name", "created_at", "updated_at"],
               "properties": {
-                "category": { "type": "string", "nullable": true },
-                "created_at": { "type": "string", "format": "date-time" },
-                "description": { "type": "string", "nullable": true },
-                "dimension_id": { "type": "string", "format": "uuid" },
-                "is_active": { "type": "boolean", "nullable": true },
-                "name": { "type": "string" },
-                "updated_at": { "type": "string", "format": "date-time" },
+                "category": {
+                  "type": "string",
+                  "nullable": true
+                },
+                "created_at": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "description": {
+                  "type": "string",
+                  "nullable": true
+                },
+                "dimension_id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "is_active": {
+                  "type": "boolean",
+                  "nullable": true
+                },
+                "name": {
+                  "type": "string"
+                },
+                "updated_at": {
+                  "type": "string",
+                  "format": "date-time"
+                },
                 "weight": {
                   "type": "integer",
                   "format": "int32",
@@ -4274,10 +5598,26 @@
               }
             }
           },
-          "limit": { "type": "integer", "format": "int32", "minimum": 0 },
-          "page": { "type": "integer", "format": "int32", "minimum": 0 },
-          "total": { "type": "integer", "format": "int64", "minimum": 0 },
-          "total_pages": { "type": "integer", "format": "int32", "minimum": 0 }
+          "limit": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "total_pages": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          }
         }
       },
       "PaginatedGapResponse": {
@@ -4329,7 +5669,9 @@
                   "description": "Unique identifier for the gap",
                   "example": "550e8400-e29b-41d4-a716-446655440000"
                 },
-                "gap_severity": { "$ref": "#/components/schemas/GapSeverity" },
+                "gap_severity": {
+                  "$ref": "#/components/schemas/GapSeverity"
+                },
                 "gap_size": {
                   "type": "integer",
                   "format": "int32",
@@ -4355,10 +5697,26 @@
               }
             }
           },
-          "limit": { "type": "integer", "format": "int32", "minimum": 0 },
-          "page": { "type": "integer", "format": "int32", "minimum": 0 },
-          "total": { "type": "integer", "format": "int64", "minimum": 0 },
-          "total_pages": { "type": "integer", "format": "int32", "minimum": 0 }
+          "limit": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "total_pages": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          }
         }
       },
       "PaginatedRecommendationResponse": {
@@ -4422,10 +5780,26 @@
               }
             }
           },
-          "limit": { "type": "integer", "format": "int32", "minimum": 0 },
-          "page": { "type": "integer", "format": "int32", "minimum": 0 },
-          "total": { "type": "integer", "format": "int64", "minimum": 0 },
-          "total_pages": { "type": "integer", "format": "int32", "minimum": 0 }
+          "limit": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "total_pages": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          }
         }
       },
       "PaginatedReportResponse": {
@@ -4450,25 +5824,72 @@
                 "updated_at"
               ],
               "properties": {
-                "assessment_id": { "type": "string", "format": "uuid" },
-                "created_at": { "type": "string", "format": "date-time" },
-                "file_path": { "type": "string", "nullable": true },
-                "format": { "$ref": "#/components/schemas/ReportFormat" },
-                "generated_at": { "type": "string", "format": "date-time" },
-                "report_data": { "nullable": true },
-                "report_id": { "type": "string", "format": "uuid" },
-                "report_type": { "$ref": "#/components/schemas/ReportType" },
-                "status": { "$ref": "#/components/schemas/ReportStatus" },
-                "summary": { "type": "string", "nullable": true },
-                "title": { "type": "string" },
-                "updated_at": { "type": "string", "format": "date-time" }
+                "assessment_id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "created_at": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "file_path": {
+                  "type": "string",
+                  "nullable": true
+                },
+                "format": {
+                  "$ref": "#/components/schemas/ReportFormat"
+                },
+                "generated_at": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "report_data": {
+                  "nullable": true
+                },
+                "report_id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "report_type": {
+                  "$ref": "#/components/schemas/ReportType"
+                },
+                "status": {
+                  "$ref": "#/components/schemas/ReportStatus"
+                },
+                "summary": {
+                  "type": "string",
+                  "nullable": true
+                },
+                "title": {
+                  "type": "string"
+                },
+                "updated_at": {
+                  "type": "string",
+                  "format": "date-time"
+                }
               }
             }
           },
-          "limit": { "type": "integer", "format": "int32", "minimum": 0 },
-          "page": { "type": "integer", "format": "int32", "minimum": 0 },
-          "total": { "type": "integer", "format": "int64", "minimum": 0 },
-          "total_pages": { "type": "integer", "format": "int32", "minimum": 0 }
+          "limit": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "total_pages": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          }
         }
       },
       "PaginationParams": {
@@ -4487,9 +5908,16 @@
             "nullable": true,
             "minimum": 0
           },
-          "sort_by": { "type": "string", "nullable": true },
+          "sort_by": {
+            "type": "string",
+            "nullable": true
+          },
           "sort_order": {
-            "allOf": [{ "$ref": "#/components/schemas/SortOrder" }],
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SortOrder"
+              }
+            ],
             "nullable": true
           }
         }
@@ -4527,7 +5955,9 @@
             "description": "Reference to the dimension",
             "example": "550e8400-e29b-41d4-a716-446655440002"
           },
-          "priority": { "$ref": "#/components/schemas/RecommendationPriority" },
+          "priority": {
+            "$ref": "#/components/schemas/RecommendationPriority"
+          },
           "recommendation_id": {
             "type": "string",
             "format": "uuid",
@@ -4555,31 +5985,60 @@
         "description": "Report download response",
         "required": ["report"],
         "properties": {
-          "content_type": { "type": "string", "nullable": true },
-          "download_url": { "type": "string", "nullable": true },
+          "content_type": {
+            "type": "string",
+            "nullable": true
+          },
+          "download_url": {
+            "type": "string",
+            "nullable": true
+          },
           "file_size": {
             "type": "integer",
             "format": "int64",
             "nullable": true,
             "minimum": 0
           },
-          "report": { "$ref": "#/components/schemas/ReportResponse" }
+          "report": {
+            "$ref": "#/components/schemas/ReportResponse"
+          }
         }
       },
-      "ReportFormat": { "type": "string", "enum": ["Pdf", "Excel", "Json"] },
+      "ReportFormat": {
+        "type": "string",
+        "enum": ["Pdf", "Excel", "Json"]
+      },
       "ReportListResponse": {
         "type": "object",
         "description": "Report list response with pagination",
         "required": ["reports", "total", "page", "limit", "total_pages"],
         "properties": {
-          "limit": { "type": "integer", "format": "int32", "minimum": 0 },
-          "page": { "type": "integer", "format": "int32", "minimum": 0 },
+          "limit": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
           "reports": {
             "type": "array",
-            "items": { "$ref": "#/components/schemas/ReportResponse" }
+            "items": {
+              "$ref": "#/components/schemas/ReportResponse"
+            }
           },
-          "total": { "type": "integer", "format": "int64", "minimum": 0 },
-          "total_pages": { "type": "integer", "format": "int32", "minimum": 0 }
+          "total": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "total_pages": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          }
         }
       },
       "ReportResponse": {
@@ -4597,18 +6056,49 @@
           "updated_at"
         ],
         "properties": {
-          "assessment_id": { "type": "string", "format": "uuid" },
-          "created_at": { "type": "string", "format": "date-time" },
-          "file_path": { "type": "string", "nullable": true },
-          "format": { "$ref": "#/components/schemas/ReportFormat" },
-          "generated_at": { "type": "string", "format": "date-time" },
-          "report_data": { "nullable": true },
-          "report_id": { "type": "string", "format": "uuid" },
-          "report_type": { "$ref": "#/components/schemas/ReportType" },
-          "status": { "$ref": "#/components/schemas/ReportStatus" },
-          "summary": { "type": "string", "nullable": true },
-          "title": { "type": "string" },
-          "updated_at": { "type": "string", "format": "date-time" }
+          "assessment_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "file_path": {
+            "type": "string",
+            "nullable": true
+          },
+          "format": {
+            "$ref": "#/components/schemas/ReportFormat"
+          },
+          "generated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "report_data": {
+            "nullable": true
+          },
+          "report_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "report_type": {
+            "$ref": "#/components/schemas/ReportType"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ReportStatus"
+          },
+          "summary": {
+            "type": "string",
+            "nullable": true
+          },
+          "title": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
         }
       },
       "ReportStatus": {
@@ -4626,15 +6116,23 @@
             "format": "date-time",
             "nullable": true
           },
-          "message": { "type": "string", "nullable": true },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
           "progress": {
             "type": "integer",
             "format": "int32",
             "nullable": true,
             "minimum": 0
           },
-          "report_id": { "type": "string", "format": "uuid" },
-          "status": { "$ref": "#/components/schemas/ReportStatus" }
+          "report_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ReportStatus"
+          }
         }
       },
       "ReportType": {
@@ -4646,9 +6144,19 @@
         "type": "object",
         "required": ["min_abs_gap", "max_abs_gap", "gap_severity"],
         "properties": {
-          "gap_severity": { "$ref": "#/components/schemas/GapSeverity" },
-          "max_abs_gap": { "type": "integer", "format": "int32", "example": 0 },
-          "min_abs_gap": { "type": "integer", "format": "int32", "example": 0 }
+          "gap_severity": {
+            "$ref": "#/components/schemas/GapSeverity"
+          },
+          "max_abs_gap": {
+            "type": "integer",
+            "format": "int32",
+            "example": 0
+          },
+          "min_abs_gap": {
+            "type": "integer",
+            "format": "int32",
+            "example": 0
+          }
         }
       },
       "SortOrder": {
@@ -4660,14 +6168,20 @@
         "type": "object",
         "required": ["assessment_id"],
         "properties": {
-          "assessment_id": { "type": "string", "format": "uuid" }
+          "assessment_id": {
+            "type": "string",
+            "format": "uuid"
+          }
         }
       },
       "UpdateAssessmentRequest": {
         "type": "object",
         "description": "Assessment update request",
         "properties": {
-          "assessment_name": { "type": "string", "nullable": true },
+          "assessment_name": {
+            "type": "string",
+            "nullable": true
+          },
           "completed_at": {
             "type": "string",
             "format": "date-time",
@@ -4675,7 +6189,9 @@
           },
           "dimensions_id": {
             "type": "array",
-            "items": { "type": "string" },
+            "items": {
+              "type": "string"
+            },
             "nullable": true
           },
           "started_at": {
@@ -4684,7 +6200,11 @@
             "nullable": true
           },
           "status": {
-            "allOf": [{ "$ref": "#/components/schemas/AssessmentStatus" }],
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AssessmentStatus"
+              }
+            ],
             "nullable": true
           }
         }
@@ -4693,16 +6213,30 @@
         "type": "object",
         "description": "Current state update request",
         "properties": {
-          "description": { "type": "string", "nullable": true },
-          "score": { "type": "integer", "format": "int32", "nullable": true }
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "score": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
         }
       },
       "UpdateDesiredStateRequest": {
         "type": "object",
         "description": "Desired state update request",
         "properties": {
-          "description": { "type": "string", "nullable": true },
-          "score": { "type": "integer", "format": "int32", "nullable": true }
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "score": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
         }
       },
       "UpdateDimensionAssessmentRequest": {
@@ -4710,7 +6244,10 @@
         "description": "Dimension assessment update request",
         "required": ["dimension_id"],
         "properties": {
-          "dimension_id": { "type": "string", "format": "uuid" },
+          "dimension_id": {
+            "type": "string",
+            "format": "uuid"
+          },
           "gap_score": {
             "type": "integer",
             "format": "int32",
@@ -4722,11 +6259,27 @@
         "type": "object",
         "description": "Dimension update request",
         "properties": {
-          "category": { "type": "string", "nullable": true },
-          "description": { "type": "string", "nullable": true },
-          "is_active": { "type": "boolean", "nullable": true },
-          "name": { "type": "string", "nullable": true },
-          "weight": { "type": "integer", "format": "int32", "nullable": true }
+          "category": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "is_active": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "weight": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
         }
       },
       "UpdateGapRequest": {
@@ -4739,7 +6292,11 @@
             "nullable": true
           },
           "gap_severity": {
-            "allOf": [{ "$ref": "#/components/schemas/GapSeverity" }],
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GapSeverity"
+              }
+            ],
             "nullable": true
           },
           "gap_size": {
@@ -4756,7 +6313,10 @@
         "properties": {
           "dimension_ids": {
             "type": "array",
-            "items": { "type": "string", "format": "uuid" }
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         }
       },
@@ -4771,7 +6331,9 @@
           },
           "priority": {
             "allOf": [
-              { "$ref": "#/components/schemas/RecommendationPriority" }
+              {
+                "$ref": "#/components/schemas/RecommendationPriority"
+              }
             ],
             "nullable": true
           }
@@ -4781,46 +6343,102 @@
         "type": "object",
         "description": "Report update request",
         "properties": {
-          "report_data": { "nullable": true },
-          "summary": { "type": "string", "nullable": true },
-          "title": { "type": "string", "nullable": true }
+          "report_data": {
+            "nullable": true
+          },
+          "summary": {
+            "type": "string",
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          }
         }
       },
       "UserInvitationRequest": {
         "type": "object",
         "required": ["email", "roles"],
         "properties": {
-          "email": { "type": "string" },
-          "first_name": { "type": "string", "nullable": true },
-          "last_name": { "type": "string", "nullable": true },
-          "roles": { "type": "array", "items": { "type": "string" } }
+          "email": {
+            "type": "string"
+          },
+          "first_name": {
+            "type": "string",
+            "nullable": true
+          },
+          "last_name": {
+            "type": "string",
+            "nullable": true
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
         }
       },
       "UserInvitationResponse": {
         "type": "object",
         "required": ["user_id", "email", "status", "message"],
         "properties": {
-          "email": { "type": "string" },
-          "message": { "type": "string" },
-          "status": { "type": "string" },
-          "user_id": { "type": "string" }
+          "email": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "user_id": {
+            "type": "string"
+          }
         }
       }
     }
   },
   "tags": [
-    { "name": "Organization", "description": "Organization endpoints" },
-    { "name": "Group", "description": "Group management endpoints" },
-    { "name": "Assessments", "description": "Assessment endpoints" },
-    { "name": "Dimensions", "description": "Dimension endpoints" },
-    { "name": "Reports", "description": "Report endpoints" },
-    { "name": "Action Plans", "description": "Action plan endpoints" },
-    { "name": "Gaps", "description": "Gap endpoints" },
+    {
+      "name": "Organization",
+      "description": "Organization endpoints"
+    },
+    {
+      "name": "Group",
+      "description": "Group management endpoints"
+    },
+    {
+      "name": "Assessments",
+      "description": "Assessment endpoints"
+    },
+    {
+      "name": "Dimensions",
+      "description": "Dimension endpoints"
+    },
+    {
+      "name": "Reports",
+      "description": "Report endpoints"
+    },
+    {
+      "name": "Action Plans",
+      "description": "Action plan endpoints"
+    },
+    {
+      "name": "Gaps",
+      "description": "Gap endpoints"
+    },
     {
       "name": "Admin",
       "description": "Administrative configuration endpoints"
     },
-    { "name": "User", "description": "User management endpoints" },
-    { "name": "Submissions", "description": "Submission management endpoints" }
+    {
+      "name": "User",
+      "description": "User management endpoints"
+    },
+    {
+      "name": "Submissions",
+      "description": "Submission management endpoints"
+    }
   ]
 }

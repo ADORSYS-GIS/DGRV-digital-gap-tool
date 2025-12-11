@@ -20,7 +20,10 @@ pub fn create_report_routes() -> Router<AppState> {
         .route("/:id", axum::routing::delete(delete_report))
         .route("/:id/status", get(get_report_status))
         .route("/:id/download", get(download_report))
-        .route("/:id/file", get(crate::api::handlers::report::serve_report_file))
+        .route(
+            "/:id/file",
+            get(crate::api::handlers::report::serve_report_file),
+        )
         // Assessment-specific reports
         .route(
             "/assessment/:assessment_id",

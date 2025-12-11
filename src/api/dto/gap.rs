@@ -8,11 +8,11 @@ pub struct CreateGapRequest {
     /// Unique identifier of the dimension assessment this gap belongs to
     #[schema(example = "550e8400-e29b-41d4-a716-446655440000")]
     pub dimension_assessment_id: Uuid,
-    
+
     /// The size of the gap (numeric value)
     #[schema(example = 3)]
     pub gap_size: i32,
-    
+
     /// Human-readable description of the gap
     #[schema(example = "Significant gap in digital transformation")]
     pub gap_description: String,
@@ -33,30 +33,30 @@ pub struct GapResponse {
     /// Unique identifier for the gap
     #[schema(example = "550e8400-e29b-41d4-a716-446655440000")]
     pub gap_id: Uuid,
-    
+
     /// Reference to the dimension
     #[schema(example = "550e8400-e29b-41d4-a716-446655440002")]
     pub dimension_id: Uuid,
-    
+
     /// Numeric size of the gap
     #[schema(example = 3)]
     pub gap_size: i32,
-    
+
     /// Severity level of the gap
     pub gap_severity: GapSeverity,
-    
+
     /// Optional description of the gap
     #[schema(example = "Significant gap in digital transformation")]
     pub gap_description: Option<String>,
-    
+
     /// When the gap was calculated
     #[schema(example = "2023-01-01T00:00:00Z")]
     pub calculated_at: chrono::DateTime<chrono::Utc>,
-    
+
     /// When the gap was created
     #[schema(example = "2023-01-01T00:00:00Z")]
     pub created_at: chrono::DateTime<chrono::Utc>,
-    
+
     /// When the gap was last updated
     #[schema(example = "2023-01-01T00:00:00Z")]
     pub updated_at: chrono::DateTime<chrono::Utc>,
@@ -69,11 +69,11 @@ pub enum GapSeverity {
     /// Low severity gap
     #[schema(rename = "LOW")]
     Low,
-    
+
     /// Medium severity gap
     #[schema(rename = "MEDIUM")]
     Medium,
-    
+
     /// High severity gap
     #[schema(rename = "HIGH")]
     High,

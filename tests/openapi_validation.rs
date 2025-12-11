@@ -1,6 +1,5 @@
-use std::fs::read_to_string;
 /// OpenAPI Specification Validation Tests
-/// 
+///
 /// This test module ensures that the generated OpenAPI specification is valid
 /// and can be parsed by standard OpenAPI tools. It validates:
 /// - All schema references ($ref) are resolvable
@@ -10,24 +9,24 @@ use std::fs::read_to_string;
 ///
 /// This test will fail the build if the OpenAPI spec is invalid, preventing
 /// broken specs from being deployed.
-
 use dgat_backend::api::openapi::ApiDoc;
-use utoipa::OpenApi;
 use serde_json::Value;
+use std::fs::read_to_string;
+use utoipa::OpenApi;
 
 #[test]
 fn test_openapi_spec_is_valid() {
     // Generate the OpenAPI document from utoipa annotations
     let spec = ApiDoc::openapi();
-    
+
     // Serialize to JSON string
-    let json = serde_json::to_string_pretty(&spec)
-        .expect("Failed to serialize OpenAPI spec to JSON");
-    
+    let json =
+        serde_json::to_string_pretty(&spec).expect("Failed to serialize OpenAPI spec to JSON");
+
     println!("{}", json);
     // Parse and validate using openapiv3
     let validation_result = serde_json::from_str::<openapiv3::OpenAPI>(&json);
-    
+
     match validation_result {
         Ok(parsed_spec) => {
             // Additional validation: ensure we have paths defined
@@ -35,7 +34,7 @@ fn test_openapi_spec_is_valid() {
                 !parsed_spec.paths.paths.is_empty(),
                 "OpenAPI spec has no paths defined"
             );
-            
+
             // Ensure we have components/schemas defined
             if let Some(components) = &parsed_spec.components {
                 assert!(
@@ -45,12 +44,15 @@ fn test_openapi_spec_is_valid() {
             } else {
                 panic!("OpenAPI spec has no components section");
             }
-            
+
             println!("✓ OpenAPI specification is valid!");
             println!("  - Paths defined: {}", parsed_spec.paths.paths.len());
             if let Some(components) = &parsed_spec.components {
                 println!("  - Schemas defined: {}", components.schemas.len());
-                println!("  - Security schemes: {}", components.security_schemes.len());
+                println!(
+                    "  - Security schemes: {}",
+                    components.security_schemes.len()
+                );
             }
         }
         Err(e) => {
@@ -59,7 +61,7 @@ fn test_openapi_spec_is_valid() {
             eprintln!("Error: {}\n", e);
             eprintln!("Generated OpenAPI JSON (first 2000 chars):");
             eprintln!("{}\n", &json.chars().take(2000).collect::<String>());
-            
+
             panic!(
                 "Invalid OpenAPI specification generated. Error: {}\n\
                  This means the utoipa annotations in the codebase are producing an invalid spec.\n\
@@ -78,11 +80,17 @@ fn test_openapi_spec_is_valid() {
 #[test]
 fn test_openapi_spec_has_required_metadata() {
     let spec = ApiDoc::openapi();
-    
+
     // Verify info section
-    assert!(!spec.info.title.is_empty(), "OpenAPI spec must have a title");
-    assert!(!spec.info.version.is_empty(), "OpenAPI spec must have a version");
-    
+    assert!(
+        !spec.info.title.is_empty(),
+        "OpenAPI spec must have a title"
+    );
+    assert!(
+        !spec.info.version.is_empty(),
+        "OpenAPI spec must have a version"
+    );
+
     println!("✓ OpenAPI metadata is valid");
     println!("  - Title: {}", spec.info.title);
     println!("  - Version: {}", spec.info.version);
@@ -91,7 +99,7 @@ fn test_openapi_spec_has_required_metadata() {
 #[test]
 fn test_openapi_spec_serialization() {
     let spec = ApiDoc::openapi();
-    
+
     // Test JSON serialization
     let json_result = serde_json::to_string(&spec);
     assert!(
@@ -99,7 +107,7 @@ fn test_openapi_spec_serialization() {
         "Failed to serialize OpenAPI spec to JSON: {:?}",
         json_result.err()
     );
-    
+
     // Test pretty JSON serialization
     let pretty_json_result = serde_json::to_string_pretty(&spec);
     assert!(
@@ -107,7 +115,7 @@ fn test_openapi_spec_serialization() {
         "Failed to serialize OpenAPI spec to pretty JSON: {:?}",
         pretty_json_result.err()
     );
-    
+
     println!("✓ OpenAPI spec can be serialized to JSON");
 }
 
@@ -155,10 +163,7 @@ fn assert_all_component_refs_resolve(label: &str, json: &str) {
     });
 
     if !missing.is_empty() {
-        panic!(
-            "Unresolvable $ref entries in {}: {:?}",
-            label, missing
-        );
+        panic!("Unresolvable $ref entries in {}: {:?}", label, missing);
     }
 }
 

@@ -1,28 +1,18 @@
-import { useParams } from "react-router-dom";
-import { useActionPlan } from "@/hooks/action_plans/useActionPlan";
-import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { KanbanBoard } from "@/components/shared/action_plans/KanbanBoard";
 import { useSubmissions } from "@/hooks/submissions/useSubmissions";
+import { useParams } from "react-router-dom";
 
 export default function ActionPlanPage() {
   const { assessmentId } = useParams<{ assessmentId: string }>();
-  const {
-    data: actionPlan,
-    isLoading: isLoadingActionPlan,
-    error: errorActionPlan,
-  } = useActionPlan(assessmentId);
-  const {
-    data: assessments,
-    isLoading: isLoadingAssessments,
-    error: errorAssessments,
-  } = useSubmissions();
-
-  const isLoading = isLoadingActionPlan || isLoadingAssessments;
-  const error = errorActionPlan || errorAssessments;
+  const { data: assessments } = useSubmissions();
 
   const assessmentName = assessments?.find(
     (assessment) => assessment.id === assessmentId,
   )?.name;
+
+  if (!assessmentId) {
+    return <p>Assessment not found.</p>;
+  }
 
   return (
     <div className="container mx-auto p-4 md:p-6 lg:p-8">
@@ -35,11 +25,7 @@ export default function ActionPlanPage() {
         </p>
       </div>
 
-      {isLoading && <LoadingSpinner />}
-      {error && (
-        <p className="text-red-500">An error occurred: {error.message}</p>
-      )}
-      {actionPlan && <KanbanBoard actionPlan={actionPlan} />}
+      <KanbanBoard submissionId={assessmentId} />
     </div>
   );
 }
