@@ -175,7 +175,8 @@ impl KeycloakService {
                 if let Some(serde_json::Value::Array(display_name_vec)) =
                     attributes.get("displayName")
                 {
-                    if let Some(serde_json::Value::String(display_name)) = display_name_vec.first() {
+                    if let Some(serde_json::Value::String(display_name)) = display_name_vec.first()
+                    {
                         org.name = display_name.clone();
                     }
                 }
