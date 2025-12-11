@@ -5,8 +5,8 @@ use axum::{
 };
 
 use crate::api::handlers::report::{
-    delete_report, download_report, generate_report, get_report, get_report_status, list_reports,
-    list_reports_by_assessment, update_report,
+    delete_report, download_latest_report_by_assessment, download_report, generate_report,
+    get_report, get_report_status, list_reports, list_reports_by_assessment, update_report,
 };
 
 /// Create report routes
@@ -20,9 +20,14 @@ pub fn create_report_routes() -> Router<AppState> {
         .route("/:id", axum::routing::delete(delete_report))
         .route("/:id/status", get(get_report_status))
         .route("/:id/download", get(download_report))
+        .route("/:id/file", get(crate::api::handlers::report::serve_report_file))
         // Assessment-specific reports
         .route(
             "/assessment/:assessment_id",
             get(list_reports_by_assessment),
+        )
+        .route(
+            "/assessment/:assessment_id/download",
+            get(download_latest_report_by_assessment),
         )
 }

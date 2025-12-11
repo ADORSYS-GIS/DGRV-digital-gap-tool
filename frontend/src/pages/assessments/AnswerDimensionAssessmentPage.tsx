@@ -13,6 +13,7 @@ import { DimensionIcon } from "@/components/shared/DimensionIcon";
 import { useAssessment } from "@/hooks/assessments/useAssessment";
 import { useDimensionWithStates } from "@/hooks/assessments/useDimensionWithStates";
 import { useSubmitDimensionAssessment } from "@/hooks/assessments/useSubmitDimensionAssessment";
+import { useSubmitAssessment } from "@/hooks/submissions/useSubmitAssessment";
 import { useDimensionAssessments } from "@/hooks/assessments/useDimensionAssessments";
 import {
   IDimensionAssessment,
@@ -112,7 +113,9 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
     setIsSubmitting(false);
   }, [dimensionId]);
 
-  const { mutateAsync: submitAssessment } = useSubmitDimensionAssessment();
+  const { mutateAsync: submitDimensionAssessment } =
+    useSubmitDimensionAssessment();
+  const { mutateAsync: submitFullAssessment } = useSubmitAssessment();
 
   const handleSuccess = (data: IDimensionAssessment) => {
     if (data.gap_id) {
@@ -175,7 +178,7 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
           userRoles,
         };
 
-        await submitAssessment(payload, {
+        await submitDimensionAssessment(payload, {
           onSuccess: handleSuccess,
           onError: handleError,
         });
@@ -191,7 +194,7 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
     [
       assessmentId,
       dimensionId,
-      submitAssessment,
+      submitDimensionAssessment,
       dimension,
       organizationId,
       cooperationId,
@@ -211,7 +214,7 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
     }
   }, [navigate, fromAssessmentDetail, assessmentId]);
 
-  const handleContinue = useCallback(() => {
+  const handleContinue = useCallback(async () => {
     if (assessment && assessment.dimensionIds && dimensionId) {
       const currentIndex = assessment.dimensionIds.indexOf(dimensionId);
       if (
@@ -224,12 +227,15 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
           `/${basePath}/assessment/${assessmentId}/dimension/${nextDimensionId}`,
         );
       } else {
-        // Last dimension, navigate back to the assessment detail page
-        const basePath = location.pathname.split("/")[1];
-        navigate(`/${basePath}/assessment/${assessmentId}`);
+        // Last dimension, submit the full assessment
+        if (assessmentId) {
+          await submitFullAssessment(assessmentId);
+          const basePath = location.pathname.split("/")[1];
+          navigate(`/${basePath}/assessment/${assessmentId}`);
+        }
       }
     }
-  }, [assessment, dimensionId, assessmentId, navigate]);
+  }, [assessment, dimensionId, assessmentId, navigate, submitFullAssessment]);
 
   const handleCloseError = useCallback(() => {
     setError(null);

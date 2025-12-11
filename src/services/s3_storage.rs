@@ -26,7 +26,11 @@ impl S3StorageService {
             .load()
             .await;
 
-        let client = S3Client::new(&sdk_config);
+        let s3_config = aws_sdk_s3::Config::from(&sdk_config)
+            .to_builder()
+            .force_path_style(true)
+            .build();
+        let client = S3Client::from_conf(s3_config);
 
         let service = Self {
             client,
@@ -40,29 +44,23 @@ impl S3StorageService {
     }
 
     async fn ensure_bucket(&self) -> Result<(), AppError> {
-        // Try to create bucket (idempotent operation)
-        match self
+        let bucket_exists = self
             .client
-            .create_bucket()
+            .head_bucket()
             .bucket(&self.bucket_name)
             .send()
-            .await
-        {
-            Ok(_) => Ok(()),
-            Err(e) => {
-                // Check if bucket already exists by error message
-                let error_message = e.to_string();
-                if error_message.contains("BucketAlreadyExists")
-                    || error_message.contains("BucketAlreadyOwnedByYou")
-                {
-                    Ok(())
-                } else {
-                    Err(AppError::FileStorageError(format!(
-                        "Failed to create bucket: {e}"
-                    )))
-                }
-            }
+            .await;
+
+        if bucket_exists.is_err() {
+            self.client
+                .create_bucket()
+                .bucket(&self.bucket_name)
+                .send()
+                .await
+                .map_err(|e| AppError::FileStorageError(format!("Failed to create bucket: {e}")))?;
         }
+
+        Ok(())
     }
 
     pub async fn upload_file(
