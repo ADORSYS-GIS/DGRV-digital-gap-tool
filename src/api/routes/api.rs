@@ -1,14 +1,14 @@
+use crate::AppState;
 use axum::{
     routing::{delete, get, post, put},
     Router,
 };
-use crate::AppState;
 
-use crate::api::handlers::{
-    assessment::*, dimension::*, gap::*, report::*,
-};
+use crate::api::handlers::{assessment::*, dimension::*, gap::*};
 use crate::api::routes::{
-    action_plan::create_action_plan_routes, group::create_group_routes, organization::create_organization_routes, recommendation::create_recommendation_routes, user::user_routes, submissions::create_submission_routes,
+    action_plan::create_action_plan_routes, group::create_group_routes,
+    organization::create_organization_routes, recommendation::create_recommendation_routes,
+    submissions::create_submission_routes, user::user_routes,
 };
 
 /// Create the main API routes
@@ -90,7 +90,10 @@ pub fn create_api_routes(_app_state: AppState) -> Router<AppState> {
             delete(delete_desired_state),
         )
         // Report routes
-        .nest("/reports", crate::api::routes::report::create_report_routes())
+        .nest(
+            "/reports",
+            crate::api::routes::report::create_report_routes(),
+        )
         // Gap routes
         .route("/gaps", get(list_gaps))
         .route("/gaps/:id", get(get_gap))

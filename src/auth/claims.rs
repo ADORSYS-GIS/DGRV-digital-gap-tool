@@ -1,11 +1,8 @@
-use serde::{Deserialize, Deserializer, Serialize};
-use std::collections::HashMap;
-use async_trait::async_trait;
-use axum::{
-    extract::{FromRequestParts},
-    http::{request::Parts, StatusCode},
-};
 use crate::error::AppError;
+use async_trait::async_trait;
+use axum::{extract::FromRequestParts, http::request::Parts};
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 /// Represents the private claims portion of the JWT from Keycloak.
 #[derive(Debug, Serialize, Deserialize, Clone)]

@@ -4,7 +4,7 @@ use crate::{
     AppState,
 };
 use axum::{
-    extract::{Path, State, Query},
+    extract::{Path, Query, State},
     http::StatusCode,
     response::IntoResponse,
     Json,
@@ -27,7 +27,11 @@ pub async fn create_group(
 ) -> AppResult<impl IntoResponse> {
     let keycloak_service = state.keycloak_service;
     let group_name = format!("{}-{}", org_id, request.name);
-    tracing::info!(?request, "Received group create request for organization {}", org_id);
+    tracing::info!(
+        ?request,
+        "Received group create request for organization {}",
+        org_id
+    );
 
     match keycloak_service
         .create_group(&token, &group_name, request.description)
@@ -60,7 +64,10 @@ pub async fn get_groups_by_organization(
     tracing::info!("Received get groups request for organization {}", org_id);
     let search_prefix = format!("{}-", org_id);
 
-    match keycloak_service.get_groups(&token, Some(&search_prefix)).await {
+    match keycloak_service
+        .get_groups(&token, Some(&search_prefix))
+        .await
+    {
         Ok(groups) => Ok((StatusCode::OK, Json(groups))),
         Err(e) => {
             tracing::error!("Failed to get groups: {}", e);
@@ -116,7 +123,10 @@ pub async fn get_group_by_path(
     let keycloak_service = state.keycloak_service;
     tracing::info!("Received get group request for path {}", params.path);
 
-    match keycloak_service.get_group_by_path(&token, &params.path).await {
+    match keycloak_service
+        .get_group_by_path(&token, &params.path)
+        .await
+    {
         Ok(Some(group)) => Ok((StatusCode::OK, Json(group))),
         Ok(None) => Err(AppError::NotFound("Group not found".to_string())),
         Err(e) => {
@@ -144,7 +154,11 @@ pub async fn update_group(
     Json(request): Json<GroupUpdateRequest>,
 ) -> AppResult<impl IntoResponse> {
     let keycloak_service = state.keycloak_service;
-    tracing::info!(?request, "Received group update request for id {}", group_id);
+    tracing::info!(
+        ?request,
+        "Received group update request for id {}",
+        group_id
+    );
 
     match keycloak_service
         .update_group(&token, &group_id, &request.name, request.description)

@@ -15,12 +15,12 @@ use crate::api::handlers::common::{
 };
 use crate::error::AppError;
 use crate::repositories::{
-    assessments::AssessmentsRepository, dimension_assessments::DimensionAssessmentsRepository,
-    gaps::GapsRepository,
-};
-use crate::repositories::{
     action_items::ActionItemsRepository, action_plans::ActionPlansRepository,
     recommendations::RecommendationsRepository,
+};
+use crate::repositories::{
+    assessments::AssessmentsRepository, dimension_assessments::DimensionAssessmentsRepository,
+    gaps::GapsRepository,
 };
 
 // Conversion functions between entity and DTO types
@@ -400,19 +400,18 @@ pub async fn create_dimension_assessment(
         ))
     })?;
 
-    let dimension_assessment_active_model =
-        crate::entities::dimension_assessments::ActiveModel {
-            dimension_assessment_id: sea_orm::Set(Uuid::new_v4()),
-            assessment_id: sea_orm::Set(assessment_id),
-            dimension_id: sea_orm::Set(request.dimension_id),
-            current_state_id: sea_orm::Set(request.current_state_id),
-            desired_state_id: sea_orm::Set(request.desired_state_id),
-            gap_score: sea_orm::Set(request.gap_score),
-            gap_id: sea_orm::Set(gap.gap_id),
-            organization_id: sea_orm::Set(request.organization_id),
-            cooperation_id: sea_orm::Set(request.cooperation_id),
-            ..Default::default()
-        };
+    let dimension_assessment_active_model = crate::entities::dimension_assessments::ActiveModel {
+        dimension_assessment_id: sea_orm::Set(Uuid::new_v4()),
+        assessment_id: sea_orm::Set(assessment_id),
+        dimension_id: sea_orm::Set(request.dimension_id),
+        current_state_id: sea_orm::Set(request.current_state_id),
+        desired_state_id: sea_orm::Set(request.desired_state_id),
+        gap_score: sea_orm::Set(request.gap_score),
+        gap_id: sea_orm::Set(gap.gap_id),
+        organization_id: sea_orm::Set(request.organization_id),
+        cooperation_id: sea_orm::Set(request.cooperation_id),
+        ..Default::default()
+    };
 
     let dimension_assessment =
         DimensionAssessmentsRepository::create(db.as_ref(), dimension_assessment_active_model)
@@ -510,7 +509,7 @@ pub async fn update_dimension_assessment(
     if let Some(gap_score) = request.gap_score {
         active_model.gap_score = sea_orm::Set(gap_score);
     }
-    
+
     let updated_dimension_assessment =
         DimensionAssessmentsRepository::update(db.as_ref(), dimension_assessment_id, active_model)
             .await
@@ -694,7 +693,6 @@ pub async fn list_submissions_by_cooperation(
     Ok(success_response(response))
 }
 
-
 #[utoipa::path(
     delete,
     path = "/assessments/organizations/{organization_id}/{assessment_id}",
@@ -713,9 +711,13 @@ pub async fn delete_organization_assessment(
     Path((organization_id, assessment_id)): Path<(String, Uuid)>,
 ) -> Result<Json<ApiResponse<()>>, (StatusCode, Json<serde_json::Value>)> {
     let db = &state.db;
-    let deleted = AssessmentsRepository::delete_by_organization_and_id(db.as_ref(), organization_id, assessment_id)
-        .await
-        .map_err(crate::api::handlers::common::handle_error)?;
+    let deleted = AssessmentsRepository::delete_by_organization_and_id(
+        db.as_ref(),
+        organization_id,
+        assessment_id,
+    )
+    .await
+    .map_err(crate::api::handlers::common::handle_error)?;
 
     if deleted {
         Ok(success_response_with_message(
@@ -723,8 +725,8 @@ pub async fn delete_organization_assessment(
             "Assessment deleted successfully".to_string(),
         ))
     } else {
-        Err(crate::api::handlers::common::handle_error(AppError::NotFound(
-            "Assessment not found".to_string(),
-        )))
+        Err(crate::api::handlers::common::handle_error(
+            AppError::NotFound("Assessment not found".to_string()),
+        ))
     }
 }

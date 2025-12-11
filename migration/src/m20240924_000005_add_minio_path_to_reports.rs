@@ -14,7 +14,7 @@ impl MigrationTrait for Migration {
                         ColumnDef::new(Reports::MinioPath)
                             .string()
                             .null()
-                            .comment("MinIO object path for stored report file")
+                            .comment("MinIO object path for stored report file"),
                     )
                     .to_owned(),
             )

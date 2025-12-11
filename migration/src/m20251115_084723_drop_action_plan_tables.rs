@@ -8,11 +8,21 @@ impl MigrationTrait for Migration {
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         // Drop tables. The SchemaManager will handle dropping foreign key constraints implicitly.
         manager
-            .drop_table(Table::drop().table(ActionItems::Table).if_exists().to_owned())
+            .drop_table(
+                Table::drop()
+                    .table(ActionItems::Table)
+                    .if_exists()
+                    .to_owned(),
+            )
             .await?;
 
         manager
-            .drop_table(Table::drop().table(ActionPlans::Table).if_exists().to_owned())
+            .drop_table(
+                Table::drop()
+                    .table(ActionPlans::Table)
+                    .if_exists()
+                    .to_owned(),
+            )
             .await?;
 
         Ok(())
@@ -28,15 +38,35 @@ impl MigrationTrait for Migration {
                 Table::create()
                     .table(ActionPlans::Table)
                     .if_not_exists()
-                    .col(ColumnDef::new(ActionPlans::ActionPlanId).uuid().not_null().primary_key())
+                    .col(
+                        ColumnDef::new(ActionPlans::ActionPlanId)
+                            .uuid()
+                            .not_null()
+                            .primary_key(),
+                    )
                     .col(ColumnDef::new(ActionPlans::AssessmentId).uuid().not_null())
                     .col(ColumnDef::new(ActionPlans::ReportId).uuid())
                     .col(ColumnDef::new(ActionPlans::Title).string().not_null())
                     .col(ColumnDef::new(ActionPlans::Description).text())
-                    .col(ColumnDef::new(ActionPlans::Status).string().not_null().default("draft"))
+                    .col(
+                        ColumnDef::new(ActionPlans::Status)
+                            .string()
+                            .not_null()
+                            .default("draft"),
+                    )
                     .col(ColumnDef::new(ActionPlans::TargetCompletionDate).timestamp())
-                    .col(ColumnDef::new(ActionPlans::CreatedAt).timestamp().not_null().default(Expr::current_timestamp()))
-                    .col(ColumnDef::new(ActionPlans::UpdatedAt).timestamp().not_null().default(Expr::current_timestamp()))
+                    .col(
+                        ColumnDef::new(ActionPlans::CreatedAt)
+                            .timestamp()
+                            .not_null()
+                            .default(Expr::current_timestamp()),
+                    )
+                    .col(
+                        ColumnDef::new(ActionPlans::UpdatedAt)
+                            .timestamp()
+                            .not_null()
+                            .default(Expr::current_timestamp()),
+                    )
                     .to_owned(),
             )
             .await?;
@@ -47,20 +77,45 @@ impl MigrationTrait for Migration {
                 Table::create()
                     .table(ActionItems::Table)
                     .if_not_exists()
-                    .col(ColumnDef::new(ActionItems::ActionItemId).uuid().not_null().primary_key())
+                    .col(
+                        ColumnDef::new(ActionItems::ActionItemId)
+                            .uuid()
+                            .not_null()
+                            .primary_key(),
+                    )
                     .col(ColumnDef::new(ActionItems::ActionPlanId).uuid().not_null())
                     .col(ColumnDef::new(ActionItems::RecommendationId).uuid())
                     .col(ColumnDef::new(ActionItems::Title).string().not_null())
                     .col(ColumnDef::new(ActionItems::Description).text())
-                    .col(ColumnDef::new(ActionItems::Status).string().not_null().default("pending"))
-                    .col(ColumnDef::new(ActionItems::Priority).string().not_null().default("medium"))
+                    .col(
+                        ColumnDef::new(ActionItems::Status)
+                            .string()
+                            .not_null()
+                            .default("pending"),
+                    )
+                    .col(
+                        ColumnDef::new(ActionItems::Priority)
+                            .string()
+                            .not_null()
+                            .default("medium"),
+                    )
                     .col(ColumnDef::new(ActionItems::EstimatedEffortHours).integer())
                     .col(ColumnDef::new(ActionItems::EstimatedCost).decimal())
                     .col(ColumnDef::new(ActionItems::TargetDate).timestamp())
                     .col(ColumnDef::new(ActionItems::CompletedDate).timestamp())
                     .col(ColumnDef::new(ActionItems::AssignedTo).string())
-                    .col(ColumnDef::new(ActionItems::CreatedAt).timestamp().not_null().default(Expr::current_timestamp()))
-                    .col(ColumnDef::new(ActionItems::UpdatedAt).timestamp().not_null().default(Expr::current_timestamp()))
+                    .col(
+                        ColumnDef::new(ActionItems::CreatedAt)
+                            .timestamp()
+                            .not_null()
+                            .default(Expr::current_timestamp()),
+                    )
+                    .col(
+                        ColumnDef::new(ActionItems::UpdatedAt)
+                            .timestamp()
+                            .not_null()
+                            .default(Expr::current_timestamp()),
+                    )
                     .to_owned(),
             )
             .await?;

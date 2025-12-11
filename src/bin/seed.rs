@@ -1,7 +1,6 @@
 use dgat_backend::{
     auth::jwt_validator::JwtValidator,
-    config,
-    database,
+    config, database,
     entities::{current_states, desired_states, dimensions, gaps, recommendations},
     services::{keycloak::KeycloakService, report_service::ReportService},
     AppState,
@@ -14,22 +13,22 @@ use uuid::Uuid;
 async fn main() -> anyhow::Result<()> {
     dotenv::dotenv().ok();
     let config = config::load_config()?;
-    let db = database::init_db(&config.database_url).await?;
+    let db = Arc::new(database::init_db(&config.database_url).await?);
     let keycloak_service = Arc::new(KeycloakService::new(config.clone()));
     let jwt_validator = Arc::new(JwtValidator::new(config.keycloak.clone()));
     let report_service = Arc::new(ReportService::new(&config.minio, db.clone()).await?);
 
     let state = AppState {
-        db: Arc::new(db),
+        db: db.clone(),
         keycloak_service,
         jwt_validator,
         report_service,
     };
 
-    seed_dimensions(&state.db).await?;
-    seed_states(&state.db).await?;
-    seed_recommendations(&state.db).await?;
-    seed_gaps(&state.db).await?;
+    seed_dimensions(state.db.as_ref()).await?;
+    seed_states(state.db.as_ref()).await?;
+    seed_recommendations(state.db.as_ref()).await?;
+    seed_gaps(state.db.as_ref()).await?;
 
     Ok(())
 }
@@ -38,13 +37,34 @@ async fn seed_dimensions(db: &sea_orm::DatabaseConnection) -> anyhow::Result<()>
     println!("Seeding dimensions...");
 
     let dimensions_to_seed = vec![
-        ("Digital Strategy", "Developing a clear vision and roadmap for digital transformation."),
-        ("Technology Infrastructure", "Assessing the adequacy and modernity of the IT infrastructure."),
-        ("Data Management & Analytics", "Evaluating the collection, storage, and use of data for decision-making."),
-        ("Digital Skills & Culture", "Gauging the digital literacy and mindset of the workforce."),
-        ("Customer Experience", "Analyzing the digital channels and touchpoints with customers."),
-        ("Innovation & Agility", "Measuring the ability to experiment and adapt to new technologies."),
-        ("Cybersecurity & Risk Management", "Assessing the preparedness for digital threats and compliance."),
+        (
+            "Digital Strategy",
+            "Developing a clear vision and roadmap for digital transformation.",
+        ),
+        (
+            "Technology Infrastructure",
+            "Assessing the adequacy and modernity of the IT infrastructure.",
+        ),
+        (
+            "Data Management & Analytics",
+            "Evaluating the collection, storage, and use of data for decision-making.",
+        ),
+        (
+            "Digital Skills & Culture",
+            "Gauging the digital literacy and mindset of the workforce.",
+        ),
+        (
+            "Customer Experience",
+            "Analyzing the digital channels and touchpoints with customers.",
+        ),
+        (
+            "Innovation & Agility",
+            "Measuring the ability to experiment and adapt to new technologies.",
+        ),
+        (
+            "Cybersecurity & Risk Management",
+            "Assessing the preparedness for digital threats and compliance.",
+        ),
     ];
 
     for (name, description) in dimensions_to_seed {
@@ -126,16 +146,40 @@ fn get_states_for_dimension(dimension_name: &str) -> Vec<(bool, &str, i32)> {
         "Digital Strategy" => vec![
             (true, "No digital strategy exists.", 1),
             (true, "A basic digital strategy is in place.", 3),
-            (true, "A comprehensive and agile digital strategy is implemented.", 5),
+            (
+                true,
+                "A comprehensive and agile digital strategy is implemented.",
+                5,
+            ),
             (false, "Digital initiatives are reactive and ad-hoc.", 2),
-            (false, "Digital strategy is forward-looking and aligned with business goals.", 4),
+            (
+                false,
+                "Digital strategy is forward-looking and aligned with business goals.",
+                4,
+            ),
         ],
         "Technology Infrastructure" => vec![
-            (true, "Infrastructure is outdated and hinders digital initiatives.", 1),
-            (true, "Infrastructure is up-to-date and supports current needs.", 3),
-            (true, "Infrastructure is fully cloud-native and scalable.", 5),
+            (
+                true,
+                "Infrastructure is outdated and hinders digital initiatives.",
+                1,
+            ),
+            (
+                true,
+                "Infrastructure is up-to-date and supports current needs.",
+                3,
+            ),
+            (
+                true,
+                "Infrastructure is fully cloud-native and scalable.",
+                5,
+            ),
             (false, "IT systems are siloed and not integrated.", 2),
-            (false, "A fully integrated and scalable IT architecture is in place.", 4),
+            (
+                false,
+                "A fully integrated and scalable IT architecture is in place.",
+                4,
+            ),
         ],
         _ => vec![],
     }
@@ -172,18 +216,38 @@ async fn seed_recommendations(db: &sea_orm::DatabaseConnection) -> anyhow::Resul
     Ok(())
 }
 
-fn get_recommendations_for_dimension(dimension_name: &str) -> Vec<(recommendations::RecommendationPriority, &str)> {
+fn get_recommendations_for_dimension(
+    dimension_name: &str,
+) -> Vec<(recommendations::RecommendationPriority, &str)> {
     use recommendations::RecommendationPriority;
     match dimension_name {
         "Digital Strategy" => vec![
-            (RecommendationPriority::High, "Develop a comprehensive digital transformation roadmap."),
-            (RecommendationPriority::Medium, "Align digital initiatives with core business objectives."),
-            (RecommendationPriority::Low, "Conduct regular reviews of the digital strategy."),
+            (
+                RecommendationPriority::High,
+                "Develop a comprehensive digital transformation roadmap.",
+            ),
+            (
+                RecommendationPriority::Medium,
+                "Align digital initiatives with core business objectives.",
+            ),
+            (
+                RecommendationPriority::Low,
+                "Conduct regular reviews of the digital strategy.",
+            ),
         ],
         "Technology Infrastructure" => vec![
-            (RecommendationPriority::High, "Migrate legacy systems to a cloud-based infrastructure."),
-            (RecommendationPriority::Medium, "Implement an API gateway for better system integration."),
-            (RecommendationPriority::Low, "Adopt a containerization strategy with Docker and Kubernetes."),
+            (
+                RecommendationPriority::High,
+                "Migrate legacy systems to a cloud-based infrastructure.",
+            ),
+            (
+                RecommendationPriority::Medium,
+                "Implement an API gateway for better system integration.",
+            ),
+            (
+                RecommendationPriority::Low,
+                "Adopt a containerization strategy with Docker and Kubernetes.",
+            ),
         ],
         _ => vec![],
     }
@@ -225,14 +289,34 @@ fn get_gaps_for_dimension(dimension_name: &str) -> Vec<(i32, gaps::GapSeverity, 
     use gaps::GapSeverity;
     match dimension_name {
         "Digital Strategy" => vec![
-            (4, GapSeverity::High, "Significant gap between current and desired digital strategy."),
-            (2, GapSeverity::Medium, "Moderate gap in digital strategy alignment."),
+            (
+                4,
+                GapSeverity::High,
+                "Significant gap between current and desired digital strategy.",
+            ),
+            (
+                2,
+                GapSeverity::Medium,
+                "Moderate gap in digital strategy alignment.",
+            ),
             (1, GapSeverity::Low, "Minor gap in strategy execution."),
         ],
         "Technology Infrastructure" => vec![
-            (4, GapSeverity::High, "Critical infrastructure vulnerabilities identified."),
-            (2, GapSeverity::Medium, "Infrastructure requires modernization to meet future demands."),
-            (1, GapSeverity::Low, "Minor optimizations needed for infrastructure."),
+            (
+                4,
+                GapSeverity::High,
+                "Critical infrastructure vulnerabilities identified.",
+            ),
+            (
+                2,
+                GapSeverity::Medium,
+                "Infrastructure requires modernization to meet future demands.",
+            ),
+            (
+                1,
+                GapSeverity::Low,
+                "Minor optimizations needed for infrastructure.",
+            ),
         ],
         _ => vec![],
     }

@@ -11,16 +11,12 @@ impl MigrationTrait for Migration {
             .alter_table(
                 Table::alter()
                     .table(Dimensions::Table)
-                    .add_column_if_not_exists(
-                        ColumnDef::new(Dimensions::Category)
-                            .string()
-                            .null()
-                    )
+                    .add_column_if_not_exists(ColumnDef::new(Dimensions::Category).string().null())
                     .add_column_if_not_exists(
                         ColumnDef::new(Dimensions::IsActive)
                             .boolean()
                             .null()
-                            .default(true)
+                            .default(true),
                     )
                     .to_owned(),
             )
@@ -31,15 +27,11 @@ impl MigrationTrait for Migration {
             .alter_table(
                 Table::alter()
                     .table(CurrentStates::Table)
-                    .add_column_if_not_exists(
-                        ColumnDef::new(CurrentStates::Level)
-                            .string()
-                            .null()
-                    )
+                    .add_column_if_not_exists(ColumnDef::new(CurrentStates::Level).string().null())
                     .add_column_if_not_exists(
                         ColumnDef::new(CurrentStates::Characteristics)
                             .string()
-                            .null()
+                            .null(),
                     )
                     .to_owned(),
             )
@@ -50,20 +42,16 @@ impl MigrationTrait for Migration {
             .alter_table(
                 Table::alter()
                     .table(DesiredStates::Table)
-                    .add_column_if_not_exists(
-                        ColumnDef::new(DesiredStates::Level)
-                            .string()
-                            .null()
-                    )
+                    .add_column_if_not_exists(ColumnDef::new(DesiredStates::Level).string().null())
                     .add_column_if_not_exists(
                         ColumnDef::new(DesiredStates::TargetDate)
                             .timestamp_with_time_zone()
-                            .null()
+                            .null(),
                     )
                     .add_column_if_not_exists(
                         ColumnDef::new(DesiredStates::SuccessCriteria)
                             .string()
-                            .null()
+                            .null(),
                     )
                     .to_owned(),
             )
@@ -77,22 +65,22 @@ impl MigrationTrait for Migration {
                     .add_column_if_not_exists(
                         ColumnDef::new(DimensionAssessments::CurrentStateId)
                             .uuid()
-                            .null() // Nullable for backward compatibility with existing data
+                            .null(), // Nullable for backward compatibility with existing data
                     )
                     .add_column_if_not_exists(
                         ColumnDef::new(DimensionAssessments::DesiredStateId)
                             .uuid()
-                            .null() // Nullable for backward compatibility
+                            .null(), // Nullable for backward compatibility
                     )
                     .add_column_if_not_exists(
                         ColumnDef::new(DimensionAssessments::CurrentScore)
                             .integer()
-                            .null() // Nullable for backward compatibility
+                            .null(), // Nullable for backward compatibility
                     )
                     .add_column_if_not_exists(
                         ColumnDef::new(DimensionAssessments::DesiredScore)
                             .integer()
-                            .null() // Nullable for backward compatibility
+                            .null(), // Nullable for backward compatibility
                     )
                     .to_owned(),
             )
@@ -104,7 +92,10 @@ impl MigrationTrait for Migration {
             .create_foreign_key(
                 ForeignKey::create()
                     .name("fk_dimension_assessments_current_states")
-                    .from(DimensionAssessments::Table, DimensionAssessments::CurrentStateId)
+                    .from(
+                        DimensionAssessments::Table,
+                        DimensionAssessments::CurrentStateId,
+                    )
                     .to(CurrentStates::Table, CurrentStates::CurrentStateId)
                     .on_delete(ForeignKeyAction::SetNull)
                     .on_update(ForeignKeyAction::Cascade)
@@ -116,7 +107,10 @@ impl MigrationTrait for Migration {
             .create_foreign_key(
                 ForeignKey::create()
                     .name("fk_dimension_assessments_desired_states")
-                    .from(DimensionAssessments::Table, DimensionAssessments::DesiredStateId)
+                    .from(
+                        DimensionAssessments::Table,
+                        DimensionAssessments::DesiredStateId,
+                    )
                     .to(DesiredStates::Table, DesiredStates::DesiredStateId)
                     .on_delete(ForeignKeyAction::SetNull)
                     .on_update(ForeignKeyAction::Cascade)
@@ -129,11 +123,7 @@ impl MigrationTrait for Migration {
             .alter_table(
                 Table::alter()
                     .table(Reports::Table)
-                    .add_column_if_not_exists(
-                        ColumnDef::new(Reports::MinioPath)
-                            .string()
-                            .null()
-                    )
+                    .add_column_if_not_exists(ColumnDef::new(Reports::MinioPath).string().null())
                     .to_owned(),
             )
             .await?;

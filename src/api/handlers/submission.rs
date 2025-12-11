@@ -1,17 +1,11 @@
-use crate::{
-    auth::claims::Claims,
-    services::submission_service::SubmissionService,
-};
 use crate::error::AppError;
+use crate::{api::dto::report::ReportResponse, entities::reports::Model as ReportModel};
+use crate::{auth::claims::Claims, services::submission_service::SubmissionService};
 use axum::{extract::State, Json};
 use serde::Deserialize;
 use std::sync::Arc;
-use uuid::Uuid;
-use crate::{
-    api::dto::report::ReportResponse,
-    entities::reports::Model as ReportModel,
-};
 use utoipa::ToSchema;
+use uuid::Uuid;
 
 #[derive(Deserialize, ToSchema)]
 pub struct SubmitAssessmentRequest {
@@ -39,7 +33,7 @@ pub async fn submit_assessment(
     claims: Claims,
     Json(body): Json<SubmitAssessmentRequest>,
 ) -> Result<Json<ReportResponse>, AppError> {
-    let submission_service = SubmissionService::new((*state.db).clone(), state.report_service.clone());
+    let submission_service = SubmissionService::new(state.db.clone(), state.report_service.clone());
     let report = submission_service
         .submit_assessment(body.assessment_id, claims.subject)
         .await?;
@@ -68,9 +62,15 @@ impl From<ReportModel> for ReportResponse {
 impl From<crate::entities::reports::ReportType> for crate::api::dto::report::ReportType {
     fn from(rt: crate::entities::reports::ReportType) -> Self {
         match rt {
-            crate::entities::reports::ReportType::Summary => crate::api::dto::report::ReportType::Summary,
-            crate::entities::reports::ReportType::Detailed => crate::api::dto::report::ReportType::Detailed,
-            crate::entities::reports::ReportType::ActionPlan => crate::api::dto::report::ReportType::ActionPlan,
+            crate::entities::reports::ReportType::Summary => {
+                crate::api::dto::report::ReportType::Summary
+            }
+            crate::entities::reports::ReportType::Detailed => {
+                crate::api::dto::report::ReportType::Detailed
+            }
+            crate::entities::reports::ReportType::ActionPlan => {
+                crate::api::dto::report::ReportType::ActionPlan
+            }
         }
     }
 }
@@ -78,10 +78,18 @@ impl From<crate::entities::reports::ReportType> for crate::api::dto::report::Rep
 impl From<crate::entities::reports::ReportStatus> for crate::api::dto::report::ReportStatus {
     fn from(rs: crate::entities::reports::ReportStatus) -> Self {
         match rs {
-            crate::entities::reports::ReportStatus::Pending => crate::api::dto::report::ReportStatus::Pending,
-            crate::entities::reports::ReportStatus::Generating => crate::api::dto::report::ReportStatus::Generating,
-            crate::entities::reports::ReportStatus::Completed => crate::api::dto::report::ReportStatus::Completed,
-            crate::entities::reports::ReportStatus::Failed => crate::api::dto::report::ReportStatus::Failed,
+            crate::entities::reports::ReportStatus::Pending => {
+                crate::api::dto::report::ReportStatus::Pending
+            }
+            crate::entities::reports::ReportStatus::Generating => {
+                crate::api::dto::report::ReportStatus::Generating
+            }
+            crate::entities::reports::ReportStatus::Completed => {
+                crate::api::dto::report::ReportStatus::Completed
+            }
+            crate::entities::reports::ReportStatus::Failed => {
+                crate::api::dto::report::ReportStatus::Failed
+            }
         }
     }
 }

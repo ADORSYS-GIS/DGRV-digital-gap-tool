@@ -1,5 +1,5 @@
-use sea_orm_migration::prelude::*;
 use sea_orm::Statement;
+use sea_orm_migration::prelude::*;
 
 #[derive(DeriveMigrationName)]
 pub struct Migration;
@@ -9,7 +9,7 @@ impl MigrationTrait for Migration {
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         // Drop the gap_severity column if it exists
         let db = manager.get_connection();
-        
+
         // Use raw SQL to drop the column if it exists
         let stmt = r#"
         DO $$
@@ -25,10 +25,13 @@ impl MigrationTrait for Migration {
         END
         $$;
         "#;
-        
-        db.execute(Statement::from_string(manager.get_database_backend(), stmt.to_string()))
-            .await?;
-            
+
+        db.execute(Statement::from_string(
+            manager.get_database_backend(),
+            stmt.to_string(),
+        ))
+        .await?;
+
         Ok(())
     }
 

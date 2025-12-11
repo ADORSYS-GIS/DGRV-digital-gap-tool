@@ -87,7 +87,7 @@ impl AssessmentsRepository {
 
         Ok(result.rows_affected > 0)
     }
- 
+
     pub async fn find_by_organization_id(
         db: &DbConn,
         organization_id: String,
@@ -110,7 +110,7 @@ impl AssessmentsRepository {
             .await
             .map_err(AppError::from)
     }
- 
+
     pub async fn find_all_completed_by_organization_id(
         db: &DbConn,
         organization_id: String,
@@ -118,7 +118,8 @@ impl AssessmentsRepository {
         Assessments::find()
             .filter(assessments::Column::OrganizationId.eq(organization_id))
             .filter(
-                assessments::Column::Status.eq(crate::entities::assessments::AssessmentStatus::Completed),
+                assessments::Column::Status
+                    .eq(crate::entities::assessments::AssessmentStatus::Completed),
             )
             .order_by_desc(assessments::Column::CreatedAt)
             .all(db)
@@ -143,7 +144,8 @@ impl AssessmentsRepository {
         Assessments::find()
             .filter(assessments::Column::CooperationId.eq(cooperation_id))
             .filter(
-                assessments::Column::Status.eq(crate::entities::assessments::AssessmentStatus::Completed),
+                assessments::Column::Status
+                    .eq(crate::entities::assessments::AssessmentStatus::Completed),
             )
             .order_by_desc(assessments::Column::CreatedAt)
             .all(db)
@@ -173,7 +175,6 @@ impl AssessmentsRepository {
             .await
             .map_err(AppError::from)
     }
-
 
     pub async fn update_status(
         db: &DbConn,

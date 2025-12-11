@@ -39,7 +39,8 @@ use uuid::Uuid;
 )]
 pub struct ApiResponse<T>
 where
-    T: for<'a> ToSchema<'a>, {
+    T: for<'a> ToSchema<'a>,
+{
     pub success: bool,
     #[schema(inline)]
     pub data: Option<T>,
@@ -47,11 +48,9 @@ where
     pub error: Option<String>,
 }
 
-
 /// Empty response for operations that don't return data
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct EmptyResponse {}
-
 
 impl<T> ApiResponse<T>
 where

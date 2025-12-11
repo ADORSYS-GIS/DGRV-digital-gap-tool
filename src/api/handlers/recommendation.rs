@@ -4,16 +4,16 @@ use axum::{
     http::StatusCode,
     response::Json,
 };
-use sea_orm::{ActiveValue::Set};
+use sea_orm::ActiveValue::Set;
 use uuid::Uuid;
 
 use crate::api::dto::{
     common::{ApiResponse, EmptyResponse, PaginatedResponse, PaginationParams},
-    recommendation::{CreateRecommendationRequest, RecommendationResponse, UpdateRecommendationRequest},
+    recommendation::{
+        CreateRecommendationRequest, RecommendationResponse, UpdateRecommendationRequest,
+    },
 };
-use crate::api::handlers::common::{
-    extract_pagination, success_response,
-};
+use crate::api::handlers::common::{extract_pagination, success_response};
 use crate::entities::recommendations;
 use crate::repositories::recommendations::RecommendationsRepository;
 
@@ -29,7 +29,7 @@ fn to_recommendation_response(model: recommendations::Model) -> RecommendationRe
 }
 
 /// Create a new recommendation
-/// 
+///
 /// Creates a new recommendation with the provided details.
 #[utoipa::path(
     post,
@@ -67,12 +67,12 @@ pub async fn create_recommendation(
         })?;
 
     let response = success_response(to_recommendation_response(recommendation));
-    
+
     Ok(response)
 }
 
 /// Get a specific recommendation by ID
-/// 
+///
 /// Retrieves the details of a specific recommendation using its unique identifier.
 #[utoipa::path(
     get,
@@ -105,7 +105,7 @@ pub async fn get_recommendation(
     match recommendation {
         Some(rec) => {
             let response = success_response(to_recommendation_response(rec));
-            
+
             Ok(response)
         }
         None => {
@@ -119,7 +119,7 @@ pub async fn get_recommendation(
 }
 
 /// Update an existing recommendation
-/// 
+///
 /// Updates the priority and/or description of an existing recommendation.
 #[utoipa::path(
     put,
@@ -170,28 +170,29 @@ pub async fn update_recommendation(
     if let Some(description) = payload.description {
         recommendation.description = Set(description);
     }
-    
+
     // Update the updated_at timestamp
     recommendation.updated_at = Set(chrono::Utc::now());
 
     // Save the updated recommendation
-    let updated_recommendation = RecommendationsRepository::update(&db, recommendation_id, recommendation)
-        .await
-        .map_err(|e| {
-            let error_response = serde_json::json!({
-                "status": "error",
-                "message": format!("Failed to update recommendation: {}", e)
-            });
-            (StatusCode::INTERNAL_SERVER_ERROR, Json(error_response))
-        })?;
+    let updated_recommendation =
+        RecommendationsRepository::update(&db, recommendation_id, recommendation)
+            .await
+            .map_err(|e| {
+                let error_response = serde_json::json!({
+                    "status": "error",
+                    "message": format!("Failed to update recommendation: {}", e)
+                });
+                (StatusCode::INTERNAL_SERVER_ERROR, Json(error_response))
+            })?;
 
     let response = success_response(to_recommendation_response(updated_recommendation));
-    
+
     Ok(response)
 }
 
 /// Delete a recommendation
-/// 
+///
 /// Deletes a recommendation by its ID.
 #[utoipa::path(
     delete,
@@ -230,12 +231,12 @@ pub async fn delete_recommendation(
     }
 
     let response = success_response(EmptyResponse {});
-    
+
     Ok(response)
 }
 
 /// List all recommendations with pagination
-/// 
+///
 /// Retrieves a paginated list of all recommendations in the system.
 #[utoipa::path(
     get,
@@ -253,33 +254,40 @@ pub async fn delete_recommendation(
 pub async fn list_recommendations(
     State(state): State<AppState>,
     Query(params): Query<PaginationParams>,
-) -> Result<Json<ApiResponse<PaginatedResponse<RecommendationResponse>>>, (StatusCode, Json<serde_json::Value>)> {
+) -> Result<
+    Json<ApiResponse<PaginatedResponse<RecommendationResponse>>>,
+    (StatusCode, Json<serde_json::Value>),
+> {
     let db = &state.db;
     let (page, limit, _sort_by, _sort_order) = extract_pagination(Query(params));
-    
-    let (recommendations, total) = RecommendationsRepository::find_all_paginated(&db, page as u64, limit as u64)
-        .await
-        .map_err(|e| {
-            let error_response = serde_json::json!({
-                "status": "error",
-                "message": format!("Failed to fetch recommendations: {}", e)
-            });
-            (StatusCode::INTERNAL_SERVER_ERROR, Json(error_response))
-        })?;
+
+    let (recommendations, total) =
+        RecommendationsRepository::find_all_paginated(&db, page as u64, limit as u64)
+            .await
+            .map_err(|e| {
+                let error_response = serde_json::json!({
+                    "status": "error",
+                    "message": format!("Failed to fetch recommendations: {}", e)
+                });
+                (StatusCode::INTERNAL_SERVER_ERROR, Json(error_response))
+            })?;
 
     let response = success_response(PaginatedResponse {
-        items: recommendations.into_iter().map(to_recommendation_response).collect(),
+        items: recommendations
+            .into_iter()
+            .map(to_recommendation_response)
+            .collect(),
         total,
         page,
         limit,
         total_pages: (total as f64 / limit as f64).ceil() as u32,
     });
-    
+
     Ok(response)
 }
 
 /// List recommendations by dimension
-/// 
+///
 /// Retrieves a paginated list of recommendations for a specific dimension.
 #[utoipa::path(
     get,
@@ -299,12 +307,18 @@ pub async fn list_recommendations_by_dimension(
     State(state): State<AppState>,
     Path(dimension_id): Path<Uuid>,
     Query(params): Query<PaginationParams>,
-) -> Result<Json<ApiResponse<PaginatedResponse<RecommendationResponse>>>, (StatusCode, Json<serde_json::Value>)> {
+) -> Result<
+    Json<ApiResponse<PaginatedResponse<RecommendationResponse>>>,
+    (StatusCode, Json<serde_json::Value>),
+> {
     let db = &state.db;
     let (page, limit, _sort_by, _sort_order) = extract_pagination(Query(params));
-    
+
     let (recommendations, total) = RecommendationsRepository::find_by_dimension_paginated(
-        &db, dimension_id, page as u64, limit as u64
+        &db,
+        dimension_id,
+        page as u64,
+        limit as u64,
     )
     .await
     .map_err(|e| {
@@ -316,12 +330,15 @@ pub async fn list_recommendations_by_dimension(
     })?;
 
     let response = success_response(PaginatedResponse {
-        items: recommendations.into_iter().map(to_recommendation_response).collect(),
+        items: recommendations
+            .into_iter()
+            .map(to_recommendation_response)
+            .collect(),
         total,
         page: page as u32,
         limit: limit as u32,
         total_pages: (total as f64 / limit as f64).ceil() as u32,
     });
-    
+
     Ok(response)
 }

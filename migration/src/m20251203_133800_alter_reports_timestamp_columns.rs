@@ -11,8 +11,16 @@ impl MigrationTrait for Migration {
                 Table::alter()
                     .table(Reports::Table)
                     .modify_column(ColumnDef::new(Reports::GeneratedAt).timestamp_with_time_zone())
-                    .modify_column(ColumnDef::new(Reports::CreatedAt).timestamp_with_time_zone().not_null())
-                    .modify_column(ColumnDef::new(Reports::UpdatedAt).timestamp_with_time_zone().not_null())
+                    .modify_column(
+                        ColumnDef::new(Reports::CreatedAt)
+                            .timestamp_with_time_zone()
+                            .not_null(),
+                    )
+                    .modify_column(
+                        ColumnDef::new(Reports::UpdatedAt)
+                            .timestamp_with_time_zone()
+                            .not_null(),
+                    )
                     .to_owned(),
             )
             .await

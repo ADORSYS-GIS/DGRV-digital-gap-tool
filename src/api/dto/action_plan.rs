@@ -39,20 +39,14 @@ impl
     From<(
         action_items::Model,
         Option<recommendations::Model>,
-        Option<(
-            dimension_assessments::Model,
-            Option<dimensions::Model>,
-        )>,
+        Option<(dimension_assessments::Model, Option<dimensions::Model>)>,
     )> for ActionItemResponse
 {
     fn from(
         (item, recommendation, dimension_assessment_info): (
             action_items::Model,
             Option<recommendations::Model>,
-            Option<(
-                dimension_assessments::Model,
-                Option<dimensions::Model>,
-            )>,
+            Option<(dimension_assessments::Model, Option<dimensions::Model>)>,
         ),
     ) -> Self {
         let description = recommendation

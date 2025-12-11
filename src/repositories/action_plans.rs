@@ -88,8 +88,7 @@ impl ActionPlansRepository {
             let action_items_response = items
                 .into_iter()
                 .map(|item| {
-                    let recommendation =
-                        recommendations_map.get(&item.recommendation_id).cloned();
+                    let recommendation = recommendations_map.get(&item.recommendation_id).cloned();
                     let dimension_assessment_info = dimension_assessments_map
                         .get(&item.dimension_assessment_id)
                         .cloned();

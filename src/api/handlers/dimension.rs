@@ -223,8 +223,8 @@ pub async fn list_dimensions(
             is_active: dimension.is_active,
             created_at: DateTime::from_naive_utc_and_offset(dimension.created_at, Utc),
             updated_at: DateTime::from_naive_utc_and_offset(dimension.updated_at, Utc),
-            })
-            .collect();
+        })
+        .collect();
 
     let response = PaginatedResponse::new(paginated_dimensions, total, page, limit);
     Ok(success_response(response))

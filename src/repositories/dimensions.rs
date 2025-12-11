@@ -90,4 +90,3 @@ impl DimensionsRepository {
             .map_err(AppError::from)
     }
 }
-

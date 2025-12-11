@@ -11,7 +11,11 @@ impl MigrationTrait for Migration {
             .alter_table(
                 Table::alter()
                     .table(Assessments::Table)
-                    .add_column_if_not_exists(ColumnDef::new(Assessments::CooperativeId).string().not_null())
+                    .add_column_if_not_exists(
+                        ColumnDef::new(Assessments::CooperativeId)
+                            .string()
+                            .not_null(),
+                    )
                     .modify_column(
                         ColumnDef::new(Assessments::DocumentTitle)
                             .string()
@@ -20,7 +24,7 @@ impl MigrationTrait for Migration {
                     .to_owned(),
             )
             .await?;
-            
+
         // Safely drop file_name column if it exists
         manager
             .get_connection()
@@ -38,7 +42,7 @@ impl MigrationTrait for Migration {
                     END IF;
                 END
                 $$
-                "#
+                "#,
             )
             .await?;
 
@@ -77,14 +81,33 @@ impl MigrationTrait for Migration {
                             .not_null()
                             .primary_key(),
                     )
-                    .col(ColumnDef::new(OrganisationDimension::OrganisationId).string().not_null())
-                    .col(ColumnDef::new(OrganisationDimension::DimensionId).uuid().not_null())
-                    .col(ColumnDef::new(OrganisationDimension::CreatedAt).timestamp_with_time_zone().not_null())
-                    .col(ColumnDef::new(OrganisationDimension::UpdatedAt).timestamp_with_time_zone().not_null())
+                    .col(
+                        ColumnDef::new(OrganisationDimension::OrganisationId)
+                            .string()
+                            .not_null(),
+                    )
+                    .col(
+                        ColumnDef::new(OrganisationDimension::DimensionId)
+                            .uuid()
+                            .not_null(),
+                    )
+                    .col(
+                        ColumnDef::new(OrganisationDimension::CreatedAt)
+                            .timestamp_with_time_zone()
+                            .not_null(),
+                    )
+                    .col(
+                        ColumnDef::new(OrganisationDimension::UpdatedAt)
+                            .timestamp_with_time_zone()
+                            .not_null(),
+                    )
                     .foreign_key(
                         ForeignKey::create()
                             .name("fk_org_dim_dimension")
-                            .from(OrganisationDimension::Table, OrganisationDimension::DimensionId)
+                            .from(
+                                OrganisationDimension::Table,
+                                OrganisationDimension::DimensionId,
+                            )
                             .to(Dimensions::Table, Dimensions::DimensionId)
                             .on_delete(ForeignKeyAction::Cascade)
                             .on_update(ForeignKeyAction::Cascade),
@@ -124,10 +147,26 @@ impl MigrationTrait for Migration {
             .alter_table(
                 Table::alter()
                     .table(DimensionAssessments::Table)
-                    .add_column(ColumnDef::new(DimensionAssessments::CurrentStateId).uuid().not_null())
-                    .add_column(ColumnDef::new(DimensionAssessments::DesiredStateId).uuid().not_null())
-                    .add_column(ColumnDef::new(DimensionAssessments::CurrentScore).integer().not_null())
-                    .add_column(ColumnDef::new(DimensionAssessments::DesiredScore).integer().not_null())
+                    .add_column(
+                        ColumnDef::new(DimensionAssessments::CurrentStateId)
+                            .uuid()
+                            .not_null(),
+                    )
+                    .add_column(
+                        ColumnDef::new(DimensionAssessments::DesiredStateId)
+                            .uuid()
+                            .not_null(),
+                    )
+                    .add_column(
+                        ColumnDef::new(DimensionAssessments::CurrentScore)
+                            .integer()
+                            .not_null(),
+                    )
+                    .add_column(
+                        ColumnDef::new(DimensionAssessments::DesiredScore)
+                            .integer()
+                            .not_null(),
+                    )
                     .add_column(ColumnDef::new(DimensionAssessments::Notes).string().null())
                     .to_owned(),
             )
