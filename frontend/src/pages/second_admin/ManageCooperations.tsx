@@ -14,8 +14,10 @@ import { useDeleteCooperation } from "@/hooks/cooperations/useDeleteCooperation"
 import { Cooperation } from "@/types/cooperation";
 import { useOrganizationId } from "@/hooks/organizations/useOrganizationId";
 import { cooperationSyncService } from "@/services/sync/cooperationSyncService";
+import { useTranslation } from "react-i18next";
 
 const ManageCooperations: React.FC = () => {
+  const { t } = useTranslation();
   const organizationId = useOrganizationId();
   const { data: cooperations, isLoading, error } = useCooperations();
   const { mutate: addCooperation } = useAddCooperation(
@@ -52,9 +54,9 @@ const ManageCooperations: React.FC = () => {
     <div>
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-3xl font-bold">Manage Cooperations</h1>
+          <h1 className="text-3xl font-bold">{t("manageCooperations.title")}</h1>
           <p className="text-muted-foreground">
-            Add and manage cooperative profiles and data
+            {t("manageCooperations.description")}
           </p>
         </div>
         <AddCooperationForm onAdd={handleAddCooperation} />
@@ -62,7 +64,9 @@ const ManageCooperations: React.FC = () => {
 
       {isLoading && <LoadingSpinner />}
       {error && (
-        <p className="text-red-500">An error occurred: {error.message}</p>
+        <p className="text-red-500">
+          {t("manageCooperations.errorMessage", { message: error.message })}
+        </p>
       )}
       {cooperations && (
         <CooperationList

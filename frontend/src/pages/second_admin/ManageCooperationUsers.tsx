@@ -5,8 +5,10 @@ import { SimpleCooperationCard } from "@/components/second_admin/cooperations/Si
 import { useAuth } from "@/context/AuthContext";
 import { ROLES } from "@/constants/roles";
 import { useCooperationId } from "@/hooks/cooperations/useCooperationId";
+import { useTranslation } from "react-i18next";
 
 export default function ManageCooperationUsers() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { data: cooperations, isLoading, error } = useCooperations();
   const location = useLocation();
@@ -31,13 +33,15 @@ export default function ManageCooperationUsers() {
     <div className="container mx-auto p-4 md:p-6 lg:p-8">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-bold tracking-tight">
-          Select a Cooperation to Manage Users
+          {t("manageCooperationUsers.selectCooperation")}
         </h1>
       </div>
 
       {isLoading && <LoadingSpinner />}
       {error && (
-        <p className="text-red-500">An error occurred: {error.message}</p>
+        <p className="text-red-500">
+          {t("manageCooperationUsers.errorMessage", { message: error.message })}
+        </p>
       )}
       {cooperations && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

@@ -6,6 +6,7 @@ import OnboardingStep from "@/components/onboarding/OnboardingStep";
 import OnboardingCompletion from "@/components/onboarding/OnboardingCompletion";
 import ProgressIndicators from "@/components/onboarding/ProgressIndicators";
 import { ROLES } from "@/constants/roles";
+import { useTranslation } from "react-i18next";
 
 interface OnboardingStepData {
   icon: React.ComponentType<LucideProps>;
@@ -16,31 +17,28 @@ interface OnboardingStepData {
   bgColor: string;
 }
 
-const onboardingSteps: OnboardingStepData[] = [
+const onboardingSteps = (t: (key: string) => string): OnboardingStepData[] => [
   {
     icon: BarChart3,
-    title: "Assess Your Current",
-    titleHighlight: "Digitalization Level",
-    description:
-      "Quickly evaluate where your cooperative stands today in its digital transformation journey.",
+    title: t("onboarding.step1.title"),
+    titleHighlight: t("onboarding.step1.titleHighlight"),
+    description: t("onboarding.step1.description"),
     color: "text-blue-600",
     bgColor: "bg-blue-50",
   },
   {
     icon: Target,
-    title: "Define Your Future",
-    titleHighlight: "'To-Be' Goals",
-    description:
-      "Set your vision for the level of digitalization you want to achieve and create your roadmap.",
+    title: t("onboarding.step2.title"),
+    titleHighlight: t("onboarding.step2.titleHighlight"),
+    description: t("onboarding.step2.description"),
     color: "text-blue-600",
     bgColor: "bg-blue-50",
   },
   {
     icon: TrendingUp,
-    title: "Analyze Results &",
-    titleHighlight: "Close the Gap",
-    description:
-      "Get personalized recommendations and actionable strategies to drive your cooperative forward.",
+    title: t("onboarding.step3.title"),
+    titleHighlight: t("onboarding.step3.titleHighlight"),
+    description: t("onboarding.step3.description"),
     color: "text-blue-600",
     bgColor: "bg-blue-50",
   },
@@ -49,12 +47,15 @@ const onboardingSteps: OnboardingStepData[] = [
 export default function EnhancedOnboardingFlow() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [currentStep, setCurrentStep] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [showCompletion, setShowCompletion] = useState(false);
 
+  const steps = onboardingSteps(t);
+
   const handleNext = () => {
-    if (currentStep < onboardingSteps.length - 1) {
+    if (currentStep < steps.length - 1) {
       setIsTransitioning(true);
       setTimeout(() => {
         setCurrentStep(currentStep + 1);
@@ -124,7 +125,7 @@ export default function EnhancedOnboardingFlow() {
     }
   };
 
-  const currentStepData = onboardingSteps[currentStep];
+  const currentStepData = steps[currentStep];
 
   if (!currentStepData) {
     return (
@@ -143,7 +144,7 @@ export default function EnhancedOnboardingFlow() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 flex items-center justify-center px-4">
       <div className="max-w-lg w-full">
         <ProgressIndicators
-          totalSteps={onboardingSteps.length}
+          totalSteps={steps.length}
           currentStep={currentStep}
           isCompleted={showCompletion}
         />
@@ -159,7 +160,7 @@ export default function EnhancedOnboardingFlow() {
             step={currentStepData}
             isTransitioning={isTransitioning}
             currentStep={currentStep}
-            totalSteps={onboardingSteps.length}
+            totalSteps={steps.length}
             handlePrevious={handlePrevious}
             handleNext={handleNext}
           />
@@ -167,7 +168,7 @@ export default function EnhancedOnboardingFlow() {
 
         {!showCompletion && (
           <div className="flex justify-center mt-8 space-x-2">
-            {onboardingSteps.map((step, index) => (
+            {steps.map((step, index) => (
               <div
                 key={index}
                 className={`w-2 h-2 rounded-full transition-all duration-300 ${

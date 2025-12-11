@@ -29,8 +29,10 @@ import { SubmissionList } from "@/components/shared/submissions/SubmissionList";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { Button } from "@/components/ui/button";
 import { useOrganizationId } from "@/hooks/organizations/useOrganizationId";
+import { useTranslation } from "react-i18next";
 
 const SecondAdminDashboard: React.FC = () => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const organizationId = useOrganizationId();
   const {
@@ -52,12 +54,12 @@ const SecondAdminDashboard: React.FC = () => {
       {/* Welcome Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Cooperative Management Dashboard
+          {t("secondAdminDashboard.title")}
         </h1>
         <p className="text-gray-600">
-          Welcome back,{" "}
-          {user?.name || user?.preferred_username || "Administrator"}. Manage
-          cooperatives and their assessments.
+          {t("secondAdminDashboard.welcomeMessage")}{" "}
+          {user?.name || user?.preferred_username || t("secondAdminDashboard.administrator")}.{" "}
+          {t("secondAdminDashboard.manageCoopAssessments")}
         </p>
       </div>
 
@@ -65,40 +67,40 @@ const SecondAdminDashboard: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <Link to="/second-admin/cooperations">
           <DashboardCard
-            title="Manage Cooperations"
-            description="Administer cooperative profiles and data"
+            title={t("secondAdminDashboard.manageCooperationsTitle")}
+            description={t("secondAdminDashboard.manageCooperationsDescription")}
             icon={Building2}
             variant="default"
           />
         </Link>
         <Link to="/second-admin/manage-cooperation-users">
           <DashboardCard
-            title="Manage Users"
-            description="Oversee user accounts and permissions"
+            title={t("secondAdminDashboard.manageUsersTitle")}
+            description={t("secondAdminDashboard.manageUsersDescription")}
             icon={Users}
             variant="default"
           />
         </Link>
         <Link to="/second-admin/assessments">
           <DashboardCard
-            title="Create Assesment"
-            description="Design and deploy new assessments"
+            title={t("secondAdminDashboard.createAssessmentTitle")}
+            description={t("secondAdminDashboard.createAssessmentDescription")}
             icon={FilePlus2}
             variant="default"
           />
         </Link>
         <Link to="/second-admin/action-plans">
           <DashboardCard
-            title="View Action Plan"
-            description="Review and monitor strategic action plans"
+            title={t("secondAdminDashboard.viewActionPlanTitle")}
+            description={t("secondAdminDashboard.viewActionPlanDescription")}
             icon={ClipboardList}
             variant="default"
           />
         </Link>
         <Link to="/second-admin/submissions">
           <DashboardCard
-            title="View Submissions"
-            description="Track and evaluate assessment submissions"
+            title={t("secondAdminDashboard.viewSubmissionsTitle")}
+            description={t("secondAdminDashboard.viewSubmissionsDescription")}
             icon={ClipboardCheck}
             variant="default"
           />
@@ -111,20 +113,20 @@ const SecondAdminDashboard: React.FC = () => {
           <div>
             <CardTitle className="flex items-center">
               <History className="mr-2 h-5 w-5" />
-              Recent Submissions
+              {t("secondAdminDashboard.recentSubmissionsTitle")}
             </CardTitle>
             <CardDescription>
-              A log of recent activities and system events.
+              {t("secondAdminDashboard.recentSubmissionsDescription")}
             </CardDescription>
           </div>
           <Link to="/second-admin/submissions">
-            <Button variant="outline">View All</Button>
+            <Button variant="outline">{t("secondAdminDashboard.viewAll")}</Button>
           </Link>
         </CardHeader>
         <CardContent>
           {isLoading && <LoadingSpinner />}
           {error && (
-            <p className="text-red-500">An error occurred: {error.message}</p>
+            <p className="text-red-500">{t("secondAdminDashboard.errorMessage", { message: error.message })}</p>
           )}
           {submissions && (
             <SubmissionList
