@@ -141,9 +141,11 @@ impl ReportService {
         let generation_result = async {
             // 2. Generate the PDF using the PdfGeneratorService
             info!(assessment_id = %report.assessment_id, "Generating PDF for assessment.");
-            let pdf_bytes =
-                PdfGeneratorService::generate_assessment_pdf(self.db.as_ref(), report.assessment_id)
-                    .await?;
+            let pdf_bytes = PdfGeneratorService::generate_assessment_pdf(
+                self.db.as_ref(),
+                report.assessment_id,
+            )
+            .await?;
 
             // 3. Store the report file in S3/MinIO
             info!("Uploading generated PDF to storage.");
