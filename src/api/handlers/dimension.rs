@@ -266,13 +266,13 @@ pub async fn update_dimension(
     if let Some(description) = request.description.clone() {
         active_model.description = sea_orm::Set(Some(description));
     }
-    if let Some(weight) = request.weight.clone() {
+    if let Some(weight) = request.weight {
         active_model.weight = sea_orm::Set(Some(weight));
     }
     if let Some(category) = request.category.clone() {
         active_model.category = sea_orm::Set(Some(category));
     }
-    if let Some(is_active) = request.is_active.clone() {
+    if let Some(is_active) = request.is_active {
         active_model.is_active = sea_orm::Set(Some(is_active));
     }
 

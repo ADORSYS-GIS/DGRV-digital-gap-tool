@@ -25,7 +25,7 @@ impl ReportsRepository {
         db: &DbConn,
         report_data: reports::ActiveModel,
     ) -> Result<reports::Model, AppError> {
-        let report_id = report_data.report_id.as_ref().clone();
+        let report_id = *report_data.report_id.as_ref();
         tracing::debug!(report_id = %report_id, "Creating new report in database");
         report_data.insert(db).await.map_err(|e| {
             tracing::error!(error = %e, "Database error creating report");

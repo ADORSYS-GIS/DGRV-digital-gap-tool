@@ -133,7 +133,7 @@ impl ReportService {
             }
             Err(e) => {
                 error!(error = %e, "Database error while fetching report.");
-                return Err(e.into());
+                return Err(e);
             }
         };
 

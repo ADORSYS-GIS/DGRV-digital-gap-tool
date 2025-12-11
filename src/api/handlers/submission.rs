@@ -3,7 +3,6 @@ use crate::{api::dto::report::ReportResponse, entities::reports::Model as Report
 use crate::{auth::claims::Claims, services::submission_service::SubmissionService};
 use axum::{extract::State, Json};
 use serde::Deserialize;
-use std::sync::Arc;
 use utoipa::ToSchema;
 use uuid::Uuid;
 

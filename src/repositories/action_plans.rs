@@ -99,7 +99,7 @@ impl ActionPlansRepository {
             Ok(Some(ActionPlanResponse {
                 action_plan_id: plan.id,
                 assessment_id: plan.assessment_id,
-                created_at: plan.created_at.into(),
+                created_at: plan.created_at,
                 action_items: action_items_response,
             }))
         } else {

@@ -56,7 +56,7 @@ pub async fn create_recommendation(
         updated_at: Set(chrono::Utc::now()),
     };
 
-    let recommendation = RecommendationsRepository::create(&db, recommendation)
+    let recommendation = RecommendationsRepository::create(db, recommendation)
         .await
         .map_err(|e| {
             let error_response = serde_json::json!({
@@ -92,7 +92,7 @@ pub async fn get_recommendation(
     Path(recommendation_id): Path<Uuid>,
 ) -> Result<Json<ApiResponse<RecommendationResponse>>, (StatusCode, Json<serde_json::Value>)> {
     let db = &state.db;
-    let recommendation = RecommendationsRepository::find_by_id(&db, recommendation_id)
+    let recommendation = RecommendationsRepository::find_by_id(db, recommendation_id)
         .await
         .map_err(|e| {
             let error_response = serde_json::json!({
@@ -143,7 +143,7 @@ pub async fn update_recommendation(
 ) -> Result<Json<ApiResponse<RecommendationResponse>>, (StatusCode, Json<serde_json::Value>)> {
     let db = &state.db;
     // First, fetch the existing recommendation
-    let existing = RecommendationsRepository::find_by_id(&db, recommendation_id)
+    let existing = RecommendationsRepository::find_by_id(db, recommendation_id)
         .await
         .map_err(|e| {
             let error_response = serde_json::json!({
@@ -176,7 +176,7 @@ pub async fn update_recommendation(
 
     // Save the updated recommendation
     let updated_recommendation =
-        RecommendationsRepository::update(&db, recommendation_id, recommendation)
+        RecommendationsRepository::update(db, recommendation_id, recommendation)
             .await
             .map_err(|e| {
                 let error_response = serde_json::json!({
@@ -212,7 +212,7 @@ pub async fn delete_recommendation(
     Path(recommendation_id): Path<Uuid>,
 ) -> Result<Json<ApiResponse<EmptyResponse>>, (StatusCode, Json<serde_json::Value>)> {
     let db = &state.db;
-    let deleted = RecommendationsRepository::delete(&db, recommendation_id)
+    let deleted = RecommendationsRepository::delete(db, recommendation_id)
         .await
         .map_err(|e| {
             let error_response = serde_json::json!({
@@ -262,7 +262,7 @@ pub async fn list_recommendations(
     let (page, limit, _sort_by, _sort_order) = extract_pagination(Query(params));
 
     let (recommendations, total) =
-        RecommendationsRepository::find_all_paginated(&db, page as u64, limit as u64)
+        RecommendationsRepository::find_all_paginated(db, page as u64, limit as u64)
             .await
             .map_err(|e| {
                 let error_response = serde_json::json!({
@@ -315,7 +315,7 @@ pub async fn list_recommendations_by_dimension(
     let (page, limit, _sort_by, _sort_order) = extract_pagination(Query(params));
 
     let (recommendations, total) = RecommendationsRepository::find_by_dimension_paginated(
-        &db,
+        db,
         dimension_id,
         page as u64,
         limit as u64,
@@ -335,8 +335,8 @@ pub async fn list_recommendations_by_dimension(
             .map(to_recommendation_response)
             .collect(),
         total,
-        page: page as u32,
-        limit: limit as u32,
+        page,
+        limit,
         total_pages: (total as f64 / limit as f64).ceil() as u32,
     });
 

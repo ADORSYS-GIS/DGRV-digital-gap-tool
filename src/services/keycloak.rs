@@ -81,7 +81,7 @@ impl KeycloakService {
             StatusCode::CREATED => {
                 if let Some(location) = response.headers().get(reqwest::header::LOCATION) {
                     let location_str = location.to_str()?;
-                    if let Some(id) = location_str.split('/').last() {
+                    if let Some(id) = location_str.split('/').next_back() {
                         let created_org = KeycloakOrganization {
                             id: id.to_string(),
                             name: name.to_string(),
@@ -175,7 +175,7 @@ impl KeycloakService {
                 if let Some(serde_json::Value::Array(display_name_vec)) =
                     attributes.get("displayName")
                 {
-                    if let Some(serde_json::Value::String(display_name)) = display_name_vec.get(0) {
+                    if let Some(serde_json::Value::String(display_name)) = display_name_vec.first() {
                         org.name = display_name.clone();
                     }
                 }
@@ -212,7 +212,7 @@ impl KeycloakService {
         if let Some(attributes) = org.attributes.as_mut() {
             if let Some(serde_json::Value::Array(display_name_vec)) = attributes.get("displayName")
             {
-                if let Some(serde_json::Value::String(display_name)) = display_name_vec.get(0) {
+                if let Some(serde_json::Value::String(display_name)) = display_name_vec.first() {
                     org.name = display_name.clone();
                 }
             }
@@ -563,7 +563,7 @@ impl KeycloakService {
 
                 let user_id = location
                     .split('/')
-                    .last()
+                    .next_back()
                     .ok_or_else(|| anyhow!("Invalid location header"))?;
 
                 // Fetch the created user
@@ -852,7 +852,7 @@ impl KeycloakService {
             StatusCode::CREATED => {
                 if let Some(location) = response.headers().get(reqwest::header::LOCATION) {
                     let location_str = location.to_str()?;
-                    if let Some(id) = location_str.split('/').last() {
+                    if let Some(id) = location_str.split('/').next_back() {
                         let created_group = self.get_group_by_id(access_token, id).await?;
                         info!(group_id = %id, "Successfully created group in Keycloak");
                         Ok(created_group)
@@ -958,15 +958,14 @@ impl KeycloakService {
         };
 
         let parts: Vec<&str> = raw_group.name.splitn(6, '-').collect();
-        if parts.len() == 6 {
-            if parts[0].len() == 8
-                && parts[1].len() == 4
-                && parts[2].len() == 4
-                && parts[3].len() == 4
-                && parts[4].len() == 12
-            {
-                group.name = parts[5].to_string();
-            }
+        if parts.len() == 6
+            && parts[0].len() == 8
+            && parts[1].len() == 4
+            && parts[2].len() == 4
+            && parts[3].len() == 4
+            && parts[4].len() == 12
+        {
+            group.name = parts[5].to_string();
         }
 
         Ok(group)
@@ -1157,7 +1156,7 @@ impl KeycloakService {
 
                 let user_id = location
                     .split('/')
-                    .last()
+                    .next_back()
                     .ok_or_else(|| anyhow!("Invalid location header"))?
                     .to_string();
 
