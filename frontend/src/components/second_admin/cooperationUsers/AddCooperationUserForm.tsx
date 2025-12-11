@@ -59,7 +59,7 @@ export const AddCooperationUserForm = () => {
           setFirstName("");
           setLastName("");
         },
-      }
+      },
     );
   };
 

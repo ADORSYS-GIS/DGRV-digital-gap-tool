@@ -17,9 +17,7 @@
   "paths": {
     "/action-plans": {
       "get": {
-        "tags": [
-          "crate::api::handlers::action_plan"
-        ],
+        "tags": ["crate::api::handlers::action_plan"],
         "operationId": "list_action_plans",
         "parameters": [
           {
@@ -63,9 +61,7 @@
     },
     "/action-plans/assessment/{assessment_id}": {
       "get": {
-        "tags": [
-          "crate::api::handlers::action_plan"
-        ],
+        "tags": ["crate::api::handlers::action_plan"],
         "summary": "Get action plan by assessment ID",
         "operationId": "get_action_plan_by_assessment_id",
         "parameters": [
@@ -99,9 +95,7 @@
     },
     "/admin/gaps": {
       "post": {
-        "tags": [
-          "Admin"
-        ],
+        "tags": ["Admin"],
         "summary": "Create a new gap (admin)",
         "description": "Creates a new gap with a specified severity and description.\nThis endpoint requires a direct severity level and does not use rule-based calculations.\n\nRequired fields:\n- `dimension_id` (UUID)\n- `gap_description` (string)\n- `gap_severity` (enum: \"LOW\", \"MEDIUM\", \"HIGH\")\n\nExample:\n{\n\"dimension_id\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n\"gap_description\": \"A significant gap in the marketing dimension.\",\n\"gap_severity\": \"HIGH\"\n}",
         "operationId": "admin_create_gap",
@@ -145,9 +139,7 @@
     },
     "/admin/groups/path": {
       "get": {
-        "tags": [
-          "Group"
-        ],
+        "tags": ["Group"],
         "operationId": "get_group_by_path",
         "parameters": [
           {
@@ -176,9 +168,7 @@
     },
     "/admin/groups/{group_id}": {
       "get": {
-        "tags": [
-          "Group"
-        ],
+        "tags": ["Group"],
         "operationId": "get_group",
         "parameters": [
           {
@@ -205,9 +195,7 @@
         }
       },
       "put": {
-        "tags": [
-          "Group"
-        ],
+        "tags": ["Group"],
         "operationId": "update_group",
         "parameters": [
           {
@@ -237,9 +225,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "Group"
-        ],
+        "tags": ["Group"],
         "operationId": "delete_group",
         "parameters": [
           {
@@ -261,9 +247,7 @@
     },
     "/admin/groups/{group_id}/members": {
       "get": {
-        "tags": [
-          "User"
-        ],
+        "tags": ["User"],
         "summary": "Get all members of a group",
         "operationId": "get_group_members",
         "parameters": [
@@ -294,9 +278,7 @@
         }
       },
       "post": {
-        "tags": [
-          "User"
-        ],
+        "tags": ["User"],
         "summary": "Add a member to a group (cooperation)",
         "operationId": "add_member",
         "parameters": [
@@ -329,9 +311,7 @@
     },
     "/admin/organizations": {
       "get": {
-        "tags": [
-          "Organization"
-        ],
+        "tags": ["Organization"],
         "summary": "Get organizations",
         "operationId": "get_organizations",
         "responses": {
@@ -351,9 +331,7 @@
         }
       },
       "post": {
-        "tags": [
-          "Organization"
-        ],
+        "tags": ["Organization"],
         "summary": "Create organization",
         "operationId": "create_organization",
         "requestBody": {
@@ -382,9 +360,7 @@
     },
     "/admin/organizations/{org_id}": {
       "get": {
-        "tags": [
-          "Organization"
-        ],
+        "tags": ["Organization"],
         "summary": "Get organization by ID",
         "operationId": "get_organization",
         "parameters": [
@@ -412,9 +388,7 @@
         }
       },
       "put": {
-        "tags": [
-          "Organization"
-        ],
+        "tags": ["Organization"],
         "summary": "Update organization",
         "operationId": "update_organization",
         "parameters": [
@@ -445,9 +419,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "Organization"
-        ],
+        "tags": ["Organization"],
         "summary": "Delete organization",
         "operationId": "delete_organization",
         "parameters": [
@@ -470,9 +442,7 @@
     },
     "/admin/organizations/{org_id}/dimensions": {
       "get": {
-        "tags": [
-          "Organization"
-        ],
+        "tags": ["Organization"],
         "summary": "Get all dimensions of an organization",
         "operationId": "get_organization_dimensions",
         "parameters": [
@@ -504,9 +474,7 @@
         }
       },
       "post": {
-        "tags": [
-          "Organization"
-        ],
+        "tags": ["Organization"],
         "summary": "Assign a dimension to an organization",
         "operationId": "assign_dimension_to_organization",
         "parameters": [
@@ -537,9 +505,7 @@
         }
       },
       "put": {
-        "tags": [
-          "Organization"
-        ],
+        "tags": ["Organization"],
         "summary": "Update all dimensions of an organization",
         "operationId": "update_organization_dimensions",
         "parameters": [
@@ -572,9 +538,7 @@
     },
     "/admin/organizations/{org_id}/dimensions/{dimension_id}": {
       "delete": {
-        "tags": [
-          "Organization"
-        ],
+        "tags": ["Organization"],
         "summary": "Remove a dimension from an organization",
         "operationId": "remove_dimension_from_organization",
         "parameters": [
@@ -607,9 +571,7 @@
     },
     "/admin/organizations/{org_id}/groups": {
       "get": {
-        "tags": [
-          "Group"
-        ],
+        "tags": ["Group"],
         "operationId": "get_groups_by_organization",
         "parameters": [
           {
@@ -639,9 +601,7 @@
         }
       },
       "post": {
-        "tags": [
-          "Group"
-        ],
+        "tags": ["Group"],
         "operationId": "create_group",
         "parameters": [
           {
@@ -680,9 +640,7 @@
     },
     "/admin/organizations/{org_id}/invitations": {
       "post": {
-        "tags": [
-          "Organization"
-        ],
+        "tags": ["Organization"],
         "summary": "Invite a user to an organization",
         "operationId": "invite_user_to_organization",
         "parameters": [
@@ -722,9 +680,7 @@
     },
     "/admin/organizations/{org_id}/members": {
       "get": {
-        "tags": [
-          "Organization"
-        ],
+        "tags": ["Organization"],
         "summary": "Get all members of an organization",
         "operationId": "get_organization_members",
         "parameters": [
@@ -757,9 +713,7 @@
     },
     "/admin/users/{user_id}": {
       "delete": {
-        "tags": [
-          "User"
-        ],
+        "tags": ["User"],
         "summary": "Delete a user by ID",
         "operationId": "delete_user",
         "parameters": [
@@ -782,9 +736,7 @@
     },
     "/api/submissions/submit": {
       "post": {
-        "tags": [
-          "Submissions"
-        ],
+        "tags": ["Submissions"],
         "summary": "Submit an assessment",
         "description": "This endpoint submits an assessment and triggers the generation of a report.",
         "operationId": "submit_assessment",
@@ -823,9 +775,7 @@
     },
     "/assessments": {
       "get": {
-        "tags": [
-          "crate::api::handlers::assessment"
-        ],
+        "tags": ["crate::api::handlers::assessment"],
         "summary": "List assessments with pagination",
         "operationId": "list_assessments",
         "parameters": [
@@ -868,9 +818,7 @@
         }
       },
       "post": {
-        "tags": [
-          "crate::api::handlers::assessment"
-        ],
+        "tags": ["crate::api::handlers::assessment"],
         "summary": "Create a new assessment",
         "operationId": "create_assessment",
         "requestBody": {
@@ -899,9 +847,7 @@
     },
     "/assessments/cooperations/{cooperation_id}": {
       "get": {
-        "tags": [
-          "crate::api::handlers::assessment"
-        ],
+        "tags": ["crate::api::handlers::assessment"],
         "summary": "List assessments by cooperation",
         "operationId": "list_assessments_by_cooperation",
         "parameters": [
@@ -931,9 +877,7 @@
     },
     "/assessments/cooperations/{cooperation_id}/submissions": {
       "get": {
-        "tags": [
-          "crate::api::handlers::assessment"
-        ],
+        "tags": ["crate::api::handlers::assessment"],
         "summary": "List submissions by cooperation",
         "operationId": "list_submissions_by_cooperation",
         "parameters": [
@@ -963,9 +907,7 @@
     },
     "/assessments/organizations/{organization_id}": {
       "get": {
-        "tags": [
-          "crate::api::handlers::assessment"
-        ],
+        "tags": ["crate::api::handlers::assessment"],
         "summary": "List assessments by organization",
         "operationId": "list_assessments_by_organization",
         "parameters": [
@@ -995,9 +937,7 @@
     },
     "/assessments/organizations/{organization_id}/submissions": {
       "get": {
-        "tags": [
-          "crate::api::handlers::assessment"
-        ],
+        "tags": ["crate::api::handlers::assessment"],
         "summary": "List submissions by organization",
         "operationId": "list_submissions_by_organization",
         "parameters": [
@@ -1027,9 +967,7 @@
     },
     "/assessments/organizations/{organization_id}/{assessment_id}": {
       "delete": {
-        "tags": [
-          "crate::api::handlers::assessment"
-        ],
+        "tags": ["crate::api::handlers::assessment"],
         "summary": "Delete an assessment for a specific organization",
         "operationId": "delete_organization_assessment",
         "parameters": [
@@ -1065,9 +1003,7 @@
     },
     "/assessments/{assessment_id}/dimension-assessments/{dimension_assessment_id}": {
       "put": {
-        "tags": [
-          "crate::api::handlers::assessment"
-        ],
+        "tags": ["crate::api::handlers::assessment"],
         "summary": "Update dimension assessment",
         "operationId": "update_dimension_assessment",
         "parameters": [
@@ -1121,9 +1057,7 @@
     },
     "/assessments/{assessment_id}/gaps": {
       "get": {
-        "tags": [
-          "Gaps"
-        ],
+        "tags": ["Gaps"],
         "summary": "List gaps by assessment",
         "description": "Retrieves a paginated list of gaps for a specific assessment across all dimensions.",
         "operationId": "list_gaps_by_assessment",
@@ -1188,9 +1122,7 @@
     },
     "/assessments/{id}": {
       "get": {
-        "tags": [
-          "crate::api::handlers::assessment"
-        ],
+        "tags": ["crate::api::handlers::assessment"],
         "summary": "Get assessment by ID",
         "operationId": "get_assessment",
         "parameters": [
@@ -1222,9 +1154,7 @@
         }
       },
       "put": {
-        "tags": [
-          "crate::api::handlers::assessment"
-        ],
+        "tags": ["crate::api::handlers::assessment"],
         "summary": "Update assessment",
         "operationId": "update_assessment",
         "parameters": [
@@ -1266,9 +1196,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "crate::api::handlers::assessment"
-        ],
+        "tags": ["crate::api::handlers::assessment"],
         "summary": "Delete assessment",
         "operationId": "delete_assessment",
         "parameters": [
@@ -1292,9 +1220,7 @@
     },
     "/assessments/{id}/dimension-assessments": {
       "post": {
-        "tags": [
-          "crate::api::handlers::assessment"
-        ],
+        "tags": ["crate::api::handlers::assessment"],
         "summary": "Create dimension assessment",
         "operationId": "create_dimension_assessment",
         "parameters": [
@@ -1338,9 +1264,7 @@
     },
     "/assessments/{id}/summary": {
       "get": {
-        "tags": [
-          "crate::api::handlers::assessment"
-        ],
+        "tags": ["crate::api::handlers::assessment"],
         "summary": "Get assessment summary with related data",
         "operationId": "get_assessment_summary",
         "parameters": [
@@ -1374,9 +1298,7 @@
     },
     "/dimension-assessments/{dimension_assessment_id}/gaps": {
       "get": {
-        "tags": [
-          "Gaps"
-        ],
+        "tags": ["Gaps"],
         "summary": "List gaps by dimension assessment",
         "description": "Retrieves a paginated list of gaps for a specific dimension assessment.",
         "operationId": "list_gaps_by_dimension_assessment",
@@ -1441,9 +1363,7 @@
     },
     "/dimensions": {
       "get": {
-        "tags": [
-          "crate::api::handlers::dimension"
-        ],
+        "tags": ["crate::api::handlers::dimension"],
         "summary": "List dimensions with pagination",
         "operationId": "list_dimensions",
         "parameters": [
@@ -1486,9 +1406,7 @@
         }
       },
       "post": {
-        "tags": [
-          "crate::api::handlers::dimension"
-        ],
+        "tags": ["crate::api::handlers::dimension"],
         "summary": "Create a new dimension",
         "operationId": "create_dimension",
         "requestBody": {
@@ -1517,9 +1435,7 @@
     },
     "/dimensions/{dimension_id}/current-states/{current_state_id}": {
       "put": {
-        "tags": [
-          "crate::api::handlers::dimension"
-        ],
+        "tags": ["crate::api::handlers::dimension"],
         "summary": "Update current state",
         "operationId": "update_current_state",
         "parameters": [
@@ -1571,9 +1487,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "crate::api::handlers::dimension"
-        ],
+        "tags": ["crate::api::handlers::dimension"],
         "summary": "Delete current state",
         "operationId": "delete_current_state",
         "parameters": [
@@ -1607,9 +1521,7 @@
     },
     "/dimensions/{dimension_id}/desired-states/{desired_state_id}": {
       "put": {
-        "tags": [
-          "crate::api::handlers::dimension"
-        ],
+        "tags": ["crate::api::handlers::dimension"],
         "summary": "Update desired state",
         "operationId": "update_desired_state",
         "parameters": [
@@ -1661,9 +1573,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "crate::api::handlers::dimension"
-        ],
+        "tags": ["crate::api::handlers::dimension"],
         "summary": "Delete desired state",
         "operationId": "delete_desired_state",
         "parameters": [
@@ -1697,9 +1607,7 @@
     },
     "/dimensions/{id}": {
       "get": {
-        "tags": [
-          "crate::api::handlers::dimension"
-        ],
+        "tags": ["crate::api::handlers::dimension"],
         "summary": "Get dimension by ID",
         "operationId": "get_dimension",
         "parameters": [
@@ -1731,9 +1639,7 @@
         }
       },
       "put": {
-        "tags": [
-          "crate::api::handlers::dimension"
-        ],
+        "tags": ["crate::api::handlers::dimension"],
         "summary": "Update dimension",
         "operationId": "update_dimension",
         "parameters": [
@@ -1775,9 +1681,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "crate::api::handlers::dimension"
-        ],
+        "tags": ["crate::api::handlers::dimension"],
         "summary": "Delete dimension",
         "operationId": "delete_dimension",
         "parameters": [
@@ -1801,9 +1705,7 @@
     },
     "/dimensions/{id}/current-states": {
       "post": {
-        "tags": [
-          "crate::api::handlers::dimension"
-        ],
+        "tags": ["crate::api::handlers::dimension"],
         "summary": "Create current state",
         "operationId": "create_current_state",
         "parameters": [
@@ -1847,9 +1749,7 @@
     },
     "/dimensions/{id}/desired-states": {
       "post": {
-        "tags": [
-          "crate::api::handlers::dimension"
-        ],
+        "tags": ["crate::api::handlers::dimension"],
         "summary": "Create desired state",
         "operationId": "create_desired_state",
         "parameters": [
@@ -1893,9 +1793,7 @@
     },
     "/dimensions/{id}/recommendations": {
       "get": {
-        "tags": [
-          "recommendations"
-        ],
+        "tags": ["recommendations"],
         "summary": "List recommendations by dimension",
         "description": "Retrieves a paginated list of recommendations for a specific dimension.",
         "operationId": "list_recommendations_by_dimension",
@@ -1952,9 +1850,7 @@
     },
     "/dimensions/{id}/with-states": {
       "get": {
-        "tags": [
-          "crate::api::handlers::dimension"
-        ],
+        "tags": ["crate::api::handlers::dimension"],
         "summary": "Get dimension with states",
         "operationId": "get_dimension_with_states",
         "parameters": [
@@ -1988,9 +1884,7 @@
     },
     "/gaps": {
       "get": {
-        "tags": [
-          "Gaps"
-        ],
+        "tags": ["Gaps"],
         "summary": "List all gaps with pagination",
         "description": "Retrieves a paginated list of all gaps in the system.",
         "operationId": "list_gaps",
@@ -2042,9 +1936,7 @@
     },
     "/gaps/{id}": {
       "get": {
-        "tags": [
-          "Gaps"
-        ],
+        "tags": ["Gaps"],
         "summary": "Get a specific gap by ID",
         "description": "Retrieves the details of a specific gap using its unique identifier.",
         "operationId": "get_gap",
@@ -2085,9 +1977,7 @@
         ]
       },
       "put": {
-        "tags": [
-          "Gaps"
-        ],
+        "tags": ["Gaps"],
         "summary": "Update an existing gap",
         "description": "Optionally updates gap size (and recalculates severity) and/or description.",
         "operationId": "update_gap",
@@ -2138,9 +2028,7 @@
         ]
       },
       "delete": {
-        "tags": [
-          "Gaps"
-        ],
+        "tags": ["Gaps"],
         "summary": "Delete a gap",
         "operationId": "delete_gap",
         "parameters": [
@@ -2182,9 +2070,7 @@
     },
     "/recommendations": {
       "get": {
-        "tags": [
-          "recommendations"
-        ],
+        "tags": ["recommendations"],
         "summary": "List all recommendations with pagination",
         "description": "Retrieves a paginated list of all recommendations in the system.",
         "operationId": "list_recommendations",
@@ -2229,9 +2115,7 @@
         }
       },
       "post": {
-        "tags": [
-          "recommendations"
-        ],
+        "tags": ["recommendations"],
         "summary": "Create a new recommendation",
         "description": "Creates a new recommendation with the provided details.",
         "operationId": "create_recommendation",
@@ -2267,9 +2151,7 @@
     },
     "/recommendations/{id}": {
       "get": {
-        "tags": [
-          "recommendations"
-        ],
+        "tags": ["recommendations"],
         "summary": "Get a specific recommendation by ID",
         "description": "Retrieves the details of a specific recommendation using its unique identifier.",
         "operationId": "get_recommendation",
@@ -2305,9 +2187,7 @@
         }
       },
       "put": {
-        "tags": [
-          "recommendations"
-        ],
+        "tags": ["recommendations"],
         "summary": "Update an existing recommendation",
         "description": "Updates the priority and/or description of an existing recommendation.",
         "operationId": "update_recommendation",
@@ -2356,9 +2236,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "recommendations"
-        ],
+        "tags": ["recommendations"],
         "summary": "Delete a recommendation",
         "description": "Deletes a recommendation by its ID.",
         "operationId": "delete_recommendation",
@@ -2396,9 +2274,7 @@
     },
     "/reports": {
       "get": {
-        "tags": [
-          "crate::api::handlers::report"
-        ],
+        "tags": ["crate::api::handlers::report"],
         "summary": "List reports with pagination",
         "operationId": "list_reports",
         "parameters": [
@@ -2441,9 +2317,7 @@
         }
       },
       "post": {
-        "tags": [
-          "crate::api::handlers::report"
-        ],
+        "tags": ["crate::api::handlers::report"],
         "summary": "Generate a new report",
         "operationId": "generate_report",
         "requestBody": {
@@ -2472,9 +2346,7 @@
     },
     "/reports/assessment/{assessment_id}": {
       "get": {
-        "tags": [
-          "crate::api::handlers::report"
-        ],
+        "tags": ["crate::api::handlers::report"],
         "summary": "List reports by assessment",
         "operationId": "list_reports_by_assessment",
         "parameters": [
@@ -2505,9 +2377,7 @@
     },
     "/reports/assessment/{assessment_id}/download": {
       "get": {
-        "tags": [
-          "crate::api::handlers::report"
-        ],
+        "tags": ["crate::api::handlers::report"],
         "summary": "Download latest PDF report by assessment ID",
         "operationId": "download_latest_report_by_assessment",
         "parameters": [
@@ -2542,9 +2412,7 @@
     },
     "/reports/{id}": {
       "get": {
-        "tags": [
-          "crate::api::handlers::report"
-        ],
+        "tags": ["crate::api::handlers::report"],
         "summary": "Get report by ID",
         "operationId": "get_report",
         "parameters": [
@@ -2576,9 +2444,7 @@
         }
       },
       "put": {
-        "tags": [
-          "crate::api::handlers::report"
-        ],
+        "tags": ["crate::api::handlers::report"],
         "summary": "Update report",
         "operationId": "update_report",
         "parameters": [
@@ -2620,9 +2486,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "crate::api::handlers::report"
-        ],
+        "tags": ["crate::api::handlers::report"],
         "summary": "Delete report",
         "operationId": "delete_report",
         "parameters": [
@@ -2646,9 +2510,7 @@
     },
     "/reports/{id}/download": {
       "get": {
-        "tags": [
-          "crate::api::handlers::report"
-        ],
+        "tags": ["crate::api::handlers::report"],
         "summary": "Download report file",
         "operationId": "download_report",
         "parameters": [
@@ -2682,9 +2544,7 @@
     },
     "/reports/{id}/status": {
       "get": {
-        "tags": [
-          "crate::api::handlers::report"
-        ],
+        "tags": ["crate::api::handlers::report"],
         "summary": "Get report status",
         "operationId": "get_report_status",
         "parameters": [
@@ -2783,10 +2643,7 @@
       },
       "AddMemberRequest": {
         "type": "object",
-        "required": [
-          "email",
-          "roles"
-        ],
+        "required": ["email", "roles"],
         "properties": {
           "email": {
             "type": "string"
@@ -2809,11 +2666,7 @@
       },
       "AdminCreateGapRequest": {
         "type": "object",
-        "required": [
-          "dimension_id",
-          "gap_description",
-          "gap_severity"
-        ],
+        "required": ["dimension_id", "gap_description", "gap_severity"],
         "properties": {
           "dimension_id": {
             "type": "string",
@@ -2839,9 +2692,7 @@
       "ApiResponseActionItemResponse": {
         "type": "object",
         "description": "Standard API response wrapper",
-        "required": [
-          "success"
-        ],
+        "required": ["success"],
         "properties": {
           "data": {
             "allOf": [
@@ -2897,9 +2748,7 @@
       "ApiResponseActionPlanResponse": {
         "type": "object",
         "description": "Standard API response wrapper",
-        "required": [
-          "success"
-        ],
+        "required": ["success"],
         "properties": {
           "data": {
             "allOf": [
@@ -2951,9 +2800,7 @@
       "ApiResponseActionPlanWithItemsResponse": {
         "type": "object",
         "description": "Standard API response wrapper",
-        "required": [
-          "success"
-        ],
+        "required": ["success"],
         "properties": {
           "data": {
             "allOf": [
@@ -3005,19 +2852,13 @@
       "ApiResponseAdminCreateGapRequest": {
         "type": "object",
         "description": "Standard API response wrapper",
-        "required": [
-          "success"
-        ],
+        "required": ["success"],
         "properties": {
           "data": {
             "allOf": [
               {
                 "type": "object",
-                "required": [
-                  "dimension_id",
-                  "gap_description",
-                  "gap_severity"
-                ],
+                "required": ["dimension_id", "gap_description", "gap_severity"],
                 "properties": {
                   "dimension_id": {
                     "type": "string",
@@ -3059,9 +2900,7 @@
       "ApiResponseAssessmentResponse": {
         "type": "object",
         "description": "Standard API response wrapper",
-        "required": [
-          "success"
-        ],
+        "required": ["success"],
         "properties": {
           "data": {
             "allOf": [
@@ -3136,9 +2975,7 @@
       "ApiResponseAssessmentSummaryResponse": {
         "type": "object",
         "description": "Standard API response wrapper",
-        "required": [
-          "success"
-        ],
+        "required": ["success"],
         "properties": {
           "data": {
             "allOf": [
@@ -3197,18 +3034,14 @@
       "ApiResponseAssessmentsResponse": {
         "type": "object",
         "description": "Standard API response wrapper",
-        "required": [
-          "success"
-        ],
+        "required": ["success"],
         "properties": {
           "data": {
             "allOf": [
               {
                 "type": "object",
                 "description": "A list of assessments",
-                "required": [
-                  "assessments"
-                ],
+                "required": ["assessments"],
                 "properties": {
                   "assessments": {
                     "type": "array",
@@ -3237,19 +3070,13 @@
       "ApiResponseCreateRecommendationRequest": {
         "type": "object",
         "description": "Standard API response wrapper",
-        "required": [
-          "success"
-        ],
+        "required": ["success"],
         "properties": {
           "data": {
             "allOf": [
               {
                 "type": "object",
-                "required": [
-                  "dimension_id",
-                  "priority",
-                  "description"
-                ],
+                "required": ["dimension_id", "priority", "description"],
                 "properties": {
                   "description": {
                     "type": "string",
@@ -3291,9 +3118,7 @@
       "ApiResponseCurrentStateResponse": {
         "type": "object",
         "description": "Standard API response wrapper",
-        "required": [
-          "success"
-        ],
+        "required": ["success"],
         "properties": {
           "data": {
             "allOf": [
@@ -3353,9 +3178,7 @@
       "ApiResponseDesiredStateResponse": {
         "type": "object",
         "description": "Standard API response wrapper",
-        "required": [
-          "success"
-        ],
+        "required": ["success"],
         "properties": {
           "data": {
             "allOf": [
@@ -3415,9 +3238,7 @@
       "ApiResponseDimensionAssessmentResponse": {
         "type": "object",
         "description": "Standard API response wrapper",
-        "required": [
-          "success"
-        ],
+        "required": ["success"],
         "properties": {
           "data": {
             "allOf": [
@@ -3501,18 +3322,14 @@
       "ApiResponseDimensionAssessmentsResponse": {
         "type": "object",
         "description": "Standard API response wrapper",
-        "required": [
-          "success"
-        ],
+        "required": ["success"],
         "properties": {
           "data": {
             "allOf": [
               {
                 "type": "object",
                 "description": "A list of dimension assessments",
-                "required": [
-                  "dimension_assessments"
-                ],
+                "required": ["dimension_assessments"],
                 "properties": {
                   "dimension_assessments": {
                     "type": "array",
@@ -3541,9 +3358,7 @@
       "ApiResponseDimensionResponse": {
         "type": "object",
         "description": "Standard API response wrapper",
-        "required": [
-          "success"
-        ],
+        "required": ["success"],
         "properties": {
           "data": {
             "allOf": [
@@ -3610,20 +3425,14 @@
       "ApiResponseDimensionWithStatesResponse": {
         "type": "object",
         "description": "Standard API response wrapper",
-        "required": [
-          "success"
-        ],
+        "required": ["success"],
         "properties": {
           "data": {
             "allOf": [
               {
                 "type": "object",
                 "description": "Dimension with states response",
-                "required": [
-                  "dimension",
-                  "current_states",
-                  "desired_states"
-                ],
+                "required": ["dimension", "current_states", "desired_states"],
                 "properties": {
                   "current_states": {
                     "type": "array",
@@ -3661,9 +3470,7 @@
       "ApiResponseEmpty": {
         "type": "object",
         "description": "Standard API response wrapper",
-        "required": [
-          "success"
-        ],
+        "required": ["success"],
         "properties": {
           "data": {
             "allOf": [
@@ -3690,9 +3497,7 @@
       "ApiResponseGapResponse": {
         "type": "object",
         "description": "Standard API response wrapper",
-        "required": [
-          "success"
-        ],
+        "required": ["success"],
         "properties": {
           "data": {
             "allOf": [
@@ -3784,22 +3589,14 @@
       "ApiResponsePaginatedActionPlanResponse": {
         "type": "object",
         "description": "Standard API response wrapper",
-        "required": [
-          "success"
-        ],
+        "required": ["success"],
         "properties": {
           "data": {
             "allOf": [
               {
                 "type": "object",
                 "description": "Paginated response",
-                "required": [
-                  "items",
-                  "total",
-                  "page",
-                  "limit",
-                  "total_pages"
-                ],
+                "required": ["items", "total", "page", "limit", "total_pages"],
                 "properties": {
                   "items": {
                     "type": "array",
@@ -3874,22 +3671,14 @@
       "ApiResponsePaginatedAssessmentResponse": {
         "type": "object",
         "description": "Standard API response wrapper",
-        "required": [
-          "success"
-        ],
+        "required": ["success"],
         "properties": {
           "data": {
             "allOf": [
               {
                 "type": "object",
                 "description": "Paginated response",
-                "required": [
-                  "items",
-                  "total",
-                  "page",
-                  "limit",
-                  "total_pages"
-                ],
+                "required": ["items", "total", "page", "limit", "total_pages"],
                 "properties": {
                   "items": {
                     "type": "array",
@@ -3987,22 +3776,14 @@
       "ApiResponsePaginatedDimensionResponse": {
         "type": "object",
         "description": "Standard API response wrapper",
-        "required": [
-          "success"
-        ],
+        "required": ["success"],
         "properties": {
           "data": {
             "allOf": [
               {
                 "type": "object",
                 "description": "Paginated response",
-                "required": [
-                  "items",
-                  "total",
-                  "page",
-                  "limit",
-                  "total_pages"
-                ],
+                "required": ["items", "total", "page", "limit", "total_pages"],
                 "properties": {
                   "items": {
                     "type": "array",
@@ -4092,22 +3873,14 @@
       "ApiResponsePaginatedGapResponse": {
         "type": "object",
         "description": "Standard API response wrapper",
-        "required": [
-          "success"
-        ],
+        "required": ["success"],
         "properties": {
           "data": {
             "allOf": [
               {
                 "type": "object",
                 "description": "Paginated response",
-                "required": [
-                  "items",
-                  "total",
-                  "page",
-                  "limit",
-                  "total_pages"
-                ],
+                "required": ["items", "total", "page", "limit", "total_pages"],
                 "properties": {
                   "items": {
                     "type": "array",
@@ -4222,22 +3995,14 @@
       "ApiResponsePaginatedRecommendationResponse": {
         "type": "object",
         "description": "Standard API response wrapper",
-        "required": [
-          "success"
-        ],
+        "required": ["success"],
         "properties": {
           "data": {
             "allOf": [
               {
                 "type": "object",
                 "description": "Paginated response",
-                "required": [
-                  "items",
-                  "total",
-                  "page",
-                  "limit",
-                  "total_pages"
-                ],
+                "required": ["items", "total", "page", "limit", "total_pages"],
                 "properties": {
                   "items": {
                     "type": "array",
@@ -4336,22 +4101,14 @@
       "ApiResponsePaginatedReportResponse": {
         "type": "object",
         "description": "Standard API response wrapper",
-        "required": [
-          "success"
-        ],
+        "required": ["success"],
         "properties": {
           "data": {
             "allOf": [
               {
                 "type": "object",
                 "description": "Paginated response",
-                "required": [
-                  "items",
-                  "total",
-                  "page",
-                  "limit",
-                  "total_pages"
-                ],
+                "required": ["items", "total", "page", "limit", "total_pages"],
                 "properties": {
                   "items": {
                     "type": "array",
@@ -4457,9 +4214,7 @@
       "ApiResponseRecommendationResponse": {
         "type": "object",
         "description": "Standard API response wrapper",
-        "required": [
-          "success"
-        ],
+        "required": ["success"],
         "properties": {
           "data": {
             "allOf": [
@@ -4535,18 +4290,14 @@
       "ApiResponseReportDownloadResponse": {
         "type": "object",
         "description": "Standard API response wrapper",
-        "required": [
-          "success"
-        ],
+        "required": ["success"],
         "properties": {
           "data": {
             "allOf": [
               {
                 "type": "object",
                 "description": "Report download response",
-                "required": [
-                  "report"
-                ],
+                "required": ["report"],
                 "properties": {
                   "content_type": {
                     "type": "string",
@@ -4586,9 +4337,7 @@
       "ApiResponseReportResponse": {
         "type": "object",
         "description": "Standard API response wrapper",
-        "required": [
-          "success"
-        ],
+        "required": ["success"],
         "properties": {
           "data": {
             "allOf": [
@@ -4671,19 +4420,14 @@
       "ApiResponseReportStatusResponse": {
         "type": "object",
         "description": "Standard API response wrapper",
-        "required": [
-          "success"
-        ],
+        "required": ["success"],
         "properties": {
           "data": {
             "allOf": [
               {
                 "type": "object",
                 "description": "Report generation status response",
-                "required": [
-                  "report_id",
-                  "status"
-                ],
+                "required": ["report_id", "status"],
                 "properties": {
                   "estimated_completion": {
                     "type": "string",
@@ -4728,9 +4472,7 @@
       "ApiResponseUpdateRecommendationRequest": {
         "type": "object",
         "description": "Standard API response wrapper",
-        "required": [
-          "success"
-        ],
+        "required": ["success"],
         "properties": {
           "data": {
             "allOf": [
@@ -4824,12 +4566,7 @@
       "AssessmentStatus": {
         "type": "string",
         "description": "Assessment status enumeration",
-        "enum": [
-          "Draft",
-          "InProgress",
-          "Completed",
-          "Archived"
-        ]
+        "enum": ["Draft", "InProgress", "Completed", "Archived"]
       },
       "AssessmentSummaryResponse": {
         "type": "object",
@@ -4870,9 +4607,7 @@
       "AssessmentsResponse": {
         "type": "object",
         "description": "A list of assessments",
-        "required": [
-          "assessments"
-        ],
+        "required": ["assessments"],
         "properties": {
           "assessments": {
             "type": "array",
@@ -4884,9 +4619,7 @@
       },
       "AssignDimensionRequest": {
         "type": "object",
-        "required": [
-          "dimension_ids"
-        ],
+        "required": ["dimension_ids"],
         "properties": {
           "dimension_ids": {
             "type": "array",
@@ -4900,11 +4633,7 @@
       "CreateAssessmentRequest": {
         "type": "object",
         "description": "Assessment creation request",
-        "required": [
-          "organization_id",
-          "assessment_name",
-          "dimensions_id"
-        ],
+        "required": ["organization_id", "assessment_name", "dimensions_id"],
         "properties": {
           "assessment_name": {
             "type": "string"
@@ -4927,10 +4656,7 @@
       "CreateCurrentStateRequest": {
         "type": "object",
         "description": "Current state creation request",
-        "required": [
-          "dimension_id",
-          "score"
-        ],
+        "required": ["dimension_id", "score"],
         "properties": {
           "description": {
             "type": "string",
@@ -4949,10 +4675,7 @@
       "CreateDesiredStateRequest": {
         "type": "object",
         "description": "Desired state creation request",
-        "required": [
-          "dimension_id",
-          "score"
-        ],
+        "required": ["dimension_id", "score"],
         "properties": {
           "description": {
             "type": "string",
@@ -5007,9 +4730,7 @@
       "CreateDimensionRequest": {
         "type": "object",
         "description": "Dimension creation request",
-        "required": [
-          "name"
-        ],
+        "required": ["name"],
         "properties": {
           "category": {
             "type": "string",
@@ -5035,11 +4756,7 @@
       },
       "CreateGapRequest": {
         "type": "object",
-        "required": [
-          "dimension_assessment_id",
-          "gap_size",
-          "gap_description"
-        ],
+        "required": ["dimension_assessment_id", "gap_size", "gap_description"],
         "properties": {
           "dimension_assessment_id": {
             "type": "string",
@@ -5067,11 +4784,7 @@
       },
       "CreateRecommendationRequest": {
         "type": "object",
-        "required": [
-          "dimension_id",
-          "priority",
-          "description"
-        ],
+        "required": ["dimension_id", "priority", "description"],
         "properties": {
           "description": {
             "type": "string",
@@ -5133,10 +4846,7 @@
       },
       "DescriptionConfig": {
         "type": "object",
-        "required": [
-          "description",
-          "rules"
-        ],
+        "required": ["description", "rules"],
         "properties": {
           "description": {
             "type": "string",
@@ -5251,9 +4961,7 @@
       "DimensionAssessmentsResponse": {
         "type": "object",
         "description": "A list of dimension assessments",
-        "required": [
-          "dimension_assessments"
-        ],
+        "required": ["dimension_assessments"],
         "properties": {
           "dimension_assessments": {
             "type": "array",
@@ -5266,13 +4974,7 @@
       "DimensionListResponse": {
         "type": "object",
         "description": "Dimension list response with pagination",
-        "required": [
-          "dimensions",
-          "total",
-          "page",
-          "limit",
-          "total_pages"
-        ],
+        "required": ["dimensions", "total", "page", "limit", "total_pages"],
         "properties": {
           "dimensions": {
             "type": "array",
@@ -5305,12 +5007,7 @@
       "DimensionResponse": {
         "type": "object",
         "description": "Dimension response",
-        "required": [
-          "dimension_id",
-          "name",
-          "created_at",
-          "updated_at"
-        ],
+        "required": ["dimension_id", "name", "created_at", "updated_at"],
         "properties": {
           "category": {
             "type": "string",
@@ -5349,11 +5046,7 @@
       "DimensionWithStatesResponse": {
         "type": "object",
         "description": "Dimension with states response",
-        "required": [
-          "dimension",
-          "current_states",
-          "desired_states"
-        ],
+        "required": ["dimension", "current_states", "desired_states"],
         "properties": {
           "current_states": {
             "type": "array",
@@ -5447,22 +5140,13 @@
       },
       "GapSeverity": {
         "type": "string",
-        "enum": [
-          "LOW",
-          "MEDIUM",
-          "HIGH"
-        ],
+        "enum": ["LOW", "MEDIUM", "HIGH"],
         "example": "HIGH"
       },
       "GenerateReportRequest": {
         "type": "object",
         "description": "Report generation request",
-        "required": [
-          "assessment_id",
-          "report_type",
-          "format",
-          "title"
-        ],
+        "required": ["assessment_id", "report_type", "format", "title"],
         "properties": {
           "assessment_id": {
             "type": "string",
@@ -5496,9 +5180,7 @@
       },
       "GetGroupByPathParams": {
         "type": "object",
-        "required": [
-          "path"
-        ],
+        "required": ["path"],
         "properties": {
           "path": {
             "type": "string"
@@ -5507,9 +5189,7 @@
       },
       "GroupCreateRequest": {
         "type": "object",
-        "required": [
-          "name"
-        ],
+        "required": ["name"],
         "properties": {
           "description": {
             "type": "string",
@@ -5522,9 +5202,7 @@
       },
       "GroupUpdateRequest": {
         "type": "object",
-        "required": [
-          "name"
-        ],
+        "required": ["name"],
         "properties": {
           "description": {
             "type": "string",
@@ -5537,11 +5215,7 @@
       },
       "KeycloakGroup": {
         "type": "object",
-        "required": [
-          "id",
-          "name",
-          "path"
-        ],
+        "required": ["id", "name", "path"],
         "properties": {
           "description": {
             "type": "string",
@@ -5560,11 +5234,7 @@
       },
       "KeycloakOrganization": {
         "type": "object",
-        "required": [
-          "id",
-          "name",
-          "enabled"
-        ],
+        "required": ["id", "name", "enabled"],
         "properties": {
           "alias": {
             "type": "string",
@@ -5601,11 +5271,7 @@
       },
       "KeycloakUser": {
         "type": "object",
-        "required": [
-          "id",
-          "username",
-          "email"
-        ],
+        "required": ["id", "username", "email"],
         "properties": {
           "attributes": {
             "nullable": true
@@ -5668,12 +5334,7 @@
       },
       "OrganizationCreateRequest": {
         "type": "object",
-        "required": [
-          "name",
-          "domains",
-          "redirectUrl",
-          "enabled"
-        ],
+        "required": ["name", "domains", "redirectUrl", "enabled"],
         "properties": {
           "attributes": {
             "type": "object",
@@ -5704,9 +5365,7 @@
       },
       "OrganizationDomain": {
         "type": "object",
-        "required": [
-          "name"
-        ],
+        "required": ["name"],
         "properties": {
           "name": {
             "type": "string"
@@ -5719,9 +5378,7 @@
       },
       "OrganizationDomainRequest": {
         "type": "object",
-        "required": [
-          "name"
-        ],
+        "required": ["name"],
         "properties": {
           "name": {
             "type": "string"
@@ -5730,10 +5387,7 @@
       },
       "OrganizationUpdateRequest": {
         "type": "object",
-        "required": [
-          "name",
-          "domains"
-        ],
+        "required": ["name", "domains"],
         "properties": {
           "attributes": {
             "type": "object",
@@ -5759,13 +5413,7 @@
       "PaginatedActionPlanResponse": {
         "type": "object",
         "description": "Paginated response",
-        "required": [
-          "items",
-          "total",
-          "page",
-          "limit",
-          "total_pages"
-        ],
+        "required": ["items", "total", "page", "limit", "total_pages"],
         "properties": {
           "items": {
             "type": "array",
@@ -5824,13 +5472,7 @@
       "PaginatedAssessmentResponse": {
         "type": "object",
         "description": "Paginated response",
-        "required": [
-          "items",
-          "total",
-          "page",
-          "limit",
-          "total_pages"
-        ],
+        "required": ["items", "total", "page", "limit", "total_pages"],
         "properties": {
           "items": {
             "type": "array",
@@ -5912,25 +5554,14 @@
       "PaginatedDimensionResponse": {
         "type": "object",
         "description": "Paginated response",
-        "required": [
-          "items",
-          "total",
-          "page",
-          "limit",
-          "total_pages"
-        ],
+        "required": ["items", "total", "page", "limit", "total_pages"],
         "properties": {
           "items": {
             "type": "array",
             "items": {
               "type": "object",
               "description": "Dimension response",
-              "required": [
-                "dimension_id",
-                "name",
-                "created_at",
-                "updated_at"
-              ],
+              "required": ["dimension_id", "name", "created_at", "updated_at"],
               "properties": {
                 "category": {
                   "type": "string",
@@ -5992,13 +5623,7 @@
       "PaginatedGapResponse": {
         "type": "object",
         "description": "Paginated response",
-        "required": [
-          "items",
-          "total",
-          "page",
-          "limit",
-          "total_pages"
-        ],
+        "required": ["items", "total", "page", "limit", "total_pages"],
         "properties": {
           "items": {
             "type": "array",
@@ -6097,13 +5722,7 @@
       "PaginatedRecommendationResponse": {
         "type": "object",
         "description": "Paginated response",
-        "required": [
-          "items",
-          "total",
-          "page",
-          "limit",
-          "total_pages"
-        ],
+        "required": ["items", "total", "page", "limit", "total_pages"],
         "properties": {
           "items": {
             "type": "array",
@@ -6186,13 +5805,7 @@
       "PaginatedReportResponse": {
         "type": "object",
         "description": "Paginated response",
-        "required": [
-          "items",
-          "total",
-          "page",
-          "limit",
-          "total_pages"
-        ],
+        "required": ["items", "total", "page", "limit", "total_pages"],
         "properties": {
           "items": {
             "type": "array",
@@ -6311,11 +5924,7 @@
       },
       "RecommendationPriority": {
         "type": "string",
-        "enum": [
-          "LOW",
-          "MEDIUM",
-          "HIGH"
-        ],
+        "enum": ["LOW", "MEDIUM", "HIGH"],
         "example": "HIGH"
       },
       "RecommendationResponse": {
@@ -6374,9 +5983,7 @@
       "ReportDownloadResponse": {
         "type": "object",
         "description": "Report download response",
-        "required": [
-          "report"
-        ],
+        "required": ["report"],
         "properties": {
           "content_type": {
             "type": "string",
@@ -6399,22 +6006,12 @@
       },
       "ReportFormat": {
         "type": "string",
-        "enum": [
-          "Pdf",
-          "Excel",
-          "Json"
-        ]
+        "enum": ["Pdf", "Excel", "Json"]
       },
       "ReportListResponse": {
         "type": "object",
         "description": "Report list response with pagination",
-        "required": [
-          "reports",
-          "total",
-          "page",
-          "limit",
-          "total_pages"
-        ],
+        "required": ["reports", "total", "page", "limit", "total_pages"],
         "properties": {
           "limit": {
             "type": "integer",
@@ -6507,21 +6104,12 @@
       "ReportStatus": {
         "type": "string",
         "description": "Report status enumeration",
-        "enum": [
-          "Pending",
-          "Generating",
-          "Completed",
-          "Failed",
-          "Archived"
-        ]
+        "enum": ["Pending", "Generating", "Completed", "Failed", "Archived"]
       },
       "ReportStatusResponse": {
         "type": "object",
         "description": "Report generation status response",
-        "required": [
-          "report_id",
-          "status"
-        ],
+        "required": ["report_id", "status"],
         "properties": {
           "estimated_completion": {
             "type": "string",
@@ -6550,19 +6138,11 @@
       "ReportType": {
         "type": "string",
         "description": "Report type enumeration",
-        "enum": [
-          "Summary",
-          "Detailed",
-          "ActionPlan"
-        ]
+        "enum": ["Summary", "Detailed", "ActionPlan"]
       },
       "SeverityRuleDto": {
         "type": "object",
-        "required": [
-          "min_abs_gap",
-          "max_abs_gap",
-          "gap_severity"
-        ],
+        "required": ["min_abs_gap", "max_abs_gap", "gap_severity"],
         "properties": {
           "gap_severity": {
             "$ref": "#/components/schemas/GapSeverity"
@@ -6582,16 +6162,11 @@
       "SortOrder": {
         "type": "string",
         "description": "Sort order enumeration",
-        "enum": [
-          "Asc",
-          "Desc"
-        ]
+        "enum": ["Asc", "Desc"]
       },
       "SubmitAssessmentRequest": {
         "type": "object",
-        "required": [
-          "assessment_id"
-        ],
+        "required": ["assessment_id"],
         "properties": {
           "assessment_id": {
             "type": "string",
@@ -6667,9 +6242,7 @@
       "UpdateDimensionAssessmentRequest": {
         "type": "object",
         "description": "Dimension assessment update request",
-        "required": [
-          "dimension_id"
-        ],
+        "required": ["dimension_id"],
         "properties": {
           "dimension_id": {
             "type": "string",
@@ -6736,9 +6309,7 @@
       },
       "UpdateOrganisationDimensionsRequest": {
         "type": "object",
-        "required": [
-          "dimension_ids"
-        ],
+        "required": ["dimension_ids"],
         "properties": {
           "dimension_ids": {
             "type": "array",
@@ -6787,10 +6358,7 @@
       },
       "UserInvitationRequest": {
         "type": "object",
-        "required": [
-          "email",
-          "roles"
-        ],
+        "required": ["email", "roles"],
         "properties": {
           "email": {
             "type": "string"
@@ -6813,12 +6381,7 @@
       },
       "UserInvitationResponse": {
         "type": "object",
-        "required": [
-          "user_id",
-          "email",
-          "status",
-          "message"
-        ],
+        "required": ["user_id", "email", "status", "message"],
         "properties": {
           "email": {
             "type": "string"

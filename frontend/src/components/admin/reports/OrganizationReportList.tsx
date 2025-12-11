@@ -1,8 +1,8 @@
-import React from 'react';
-import { useOrganizations } from '@/hooks/organizations/useOrganizations';
-import { LoadingSpinner } from '@/components/shared/LoadingSpinner';
-import { Organization } from '@/types/organization';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import React from "react";
+import { useOrganizations } from "@/hooks/organizations/useOrganizations";
+import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
+import { Organization } from "@/types/organization";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface OrganizationReportListProps {
   onSelectOrganization: (organization: Organization) => void;
@@ -18,7 +18,11 @@ export const OrganizationReportList: React.FC<OrganizationReportListProps> = ({
   }
 
   if (error) {
-    return <p className="text-red-500">Error loading organizations: {error.message}</p>;
+    return (
+      <p className="text-red-500">
+        Error loading organizations: {error.message}
+      </p>
+    );
   }
 
   return (
@@ -33,7 +37,9 @@ export const OrganizationReportList: React.FC<OrganizationReportListProps> = ({
             <CardTitle>{organization.name}</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-muted-foreground">{organization.description}</p>
+            <p className="text-sm text-muted-foreground">
+              {organization.description}
+            </p>
           </CardContent>
         </Card>
       ))}
