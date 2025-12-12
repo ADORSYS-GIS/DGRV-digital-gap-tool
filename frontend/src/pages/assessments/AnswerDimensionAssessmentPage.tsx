@@ -91,8 +91,36 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
   );
 
   const existingAssessment = useMemo(() => {
-    return dimensionAssessments?.find((da) => da.dimensionId === dimensionId);
-  }, [dimensionAssessments, dimensionId]);
+    const rawAssessment = dimensionAssessments?.find(
+      (da) => da.dimensionId === dimensionId,
+    );
+
+    // If we have an existing assessment and dimension data, enrich it with actual levels
+    if (rawAssessment && dimension) {
+      const currentState = dimension.current_states?.find(
+        (s) => s.id === rawAssessment.currentState.id,
+      );
+      const desiredState = dimension.desired_states?.find(
+        (s) => s.id === rawAssessment.desiredState.id,
+      );
+
+      return {
+        ...rawAssessment,
+        currentState: {
+          ...rawAssessment.currentState,
+          level: currentState?.level || 0,
+          description: currentState?.description || "",
+        },
+        desiredState: {
+          ...rawAssessment.desiredState,
+          level: desiredState?.level || 0,
+          description: desiredState?.description || "",
+        },
+      };
+    }
+
+    return rawAssessment;
+  }, [dimensionAssessments, dimensionId, dimension]);
 
   const isLastDimension = useMemo(() => {
     if (assessment?.dimensionIds && dimensionId) {
@@ -336,15 +364,37 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
         existingAssessment={existingAssessment || null}
       />
 
-      {showResult && gapId && submittedData && (
-        <GapDescriptionDisplay
-          gapId={gapId}
-          currentLevel={submittedData.currentLevel}
-          desiredLevel={submittedData.desiredLevel}
-          currentLevelDescription={submittedData.currentLevelDescription || ""}
-          desiredLevelDescription={submittedData.desiredLevelDescription || ""}
-        />
-      )}
+      {/* Show analysis for both new submissions and existing assessments */}
+      {((showResult && gapId && submittedData) ||
+        (existingAssessment?.gap_id &&
+          existingAssessment.currentState.level > 0 &&
+          existingAssessment.desiredState.level > 0)) && (
+          <GapDescriptionDisplay
+            gapId={
+              (showResult && gapId) || existingAssessment?.gap_id || ""
+            }
+            currentLevel={
+              submittedData?.currentLevel ||
+              existingAssessment?.currentState.level ||
+              0
+            }
+            desiredLevel={
+              submittedData?.desiredLevel ||
+              existingAssessment?.desiredState.level ||
+              0
+            }
+            currentLevelDescription={
+              submittedData?.currentLevelDescription ||
+              existingAssessment?.currentState.description ||
+              ""
+            }
+            desiredLevelDescription={
+              submittedData?.desiredLevelDescription ||
+              existingAssessment?.desiredState.description ||
+              ""
+            }
+          />
+        )}
 
       {showResult && (
         <Box mt={4} display="flex" justifyContent="center">

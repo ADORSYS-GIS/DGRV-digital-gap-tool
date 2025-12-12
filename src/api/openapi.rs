@@ -44,6 +44,7 @@ use crate::models::keycloak::KeycloakUser;
         crate::api::handlers::assessment::delete_assessment,
         crate::api::handlers::assessment::get_assessment_summary,
         crate::api::handlers::assessment::create_dimension_assessment,
+        crate::api::handlers::assessment::list_dimension_assessments,
         crate::api::handlers::assessment::update_dimension_assessment,
         crate::api::handlers::assessment::list_assessments_by_organization,
         crate::api::handlers::assessment::list_assessments_by_cooperation,

@@ -2,8 +2,8 @@ use crate::api::handlers::assessment::{
     create_assessment, create_dimension_assessment, delete_assessment,
     delete_organization_assessment, get_assessment, get_assessment_summary, list_assessments,
     list_assessments_by_cooperation, list_assessments_by_organization,
-    list_submissions_by_cooperation, list_submissions_by_organization, update_assessment,
-    update_dimension_assessment,
+    list_dimension_assessments, list_submissions_by_cooperation,
+    list_submissions_by_organization, update_assessment, update_dimension_assessment,
 };
 use axum::{
     routing::{delete, get, post, put},
@@ -24,7 +24,7 @@ pub fn assessment_routes() -> Router<AppState> {
         .route("/:assessment_id/summary", get(get_assessment_summary))
         .route(
             "/:assessment_id/dimension-assessments",
-            post(create_dimension_assessment),
+            post(create_dimension_assessment).get(list_dimension_assessments),
         )
         .route(
             "/:assessment_id/dimension-assessments/:dimension_assessment_id",

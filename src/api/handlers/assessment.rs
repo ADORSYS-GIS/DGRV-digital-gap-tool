@@ -474,6 +474,62 @@ pub async fn create_dimension_assessment(
 }
 
 #[utoipa::path(
+    get,
+    path = "/assessments/{assessment_id}/dimension-assessments",
+    params(("assessment_id" = Uuid, Path, description = "Assessment ID")),
+    responses(
+        (status = 200, description = "Dimension assessments list", body = ApiResponseDimensionAssessmentsResponse),
+        (status = 404, description = "Assessment not found")
+    )
+)]
+/// List all dimension assessments for an assessment
+pub async fn list_dimension_assessments(
+    State(state): State<AppState>,
+    Path(assessment_id): Path<Uuid>,
+) -> Result<Json<ApiResponse<DimensionAssessmentsResponse>>, (StatusCode, Json<serde_json::Value>)> {
+    let db = &state.db;
+    
+    // Verify assessment exists
+    AssessmentsRepository::find_by_id(db.as_ref(), assessment_id)
+        .await
+        .map_err(crate::api::handlers::common::handle_error)?
+        .ok_or_else(|| {
+            crate::api::handlers::common::handle_error(AppError::NotFound(
+                "Assessment not found".to_string(),
+            ))
+        })?;
+    
+    // Get all dimension assessments for this assessment
+    let dimension_assessments =
+        DimensionAssessmentsRepository::find_by_assessment_id(db.as_ref(), assessment_id)
+            .await
+            .map_err(crate::api::handlers::common::handle_error)?;
+    
+    let dimension_assessments_list: Vec<DimensionAssessmentResponse> = dimension_assessments
+        .into_iter()
+        .map(|da| DimensionAssessmentResponse {
+            dimension_assessment_id: da.dimension_assessment_id,
+            assessment_id: da.assessment_id,
+            dimension_id: da.dimension_id,
+            current_state_id: da.current_state_id,
+            desired_state_id: da.desired_state_id,
+            gap_score: da.gap_score,
+            gap_id: da.gap_id,
+            organization_id: da.organization_id,
+            cooperation_id: da.cooperation_id,
+            created_at: da.created_at,
+            updated_at: da.updated_at,
+        })
+        .collect();
+    
+    let response = DimensionAssessmentsResponse {
+        dimension_assessments: dimension_assessments_list,
+    };
+    
+    Ok(success_response(response))
+}
+
+#[utoipa::path(
     put,
     path = "/assessments/{assessment_id}/dimension-assessments/{dimension_assessment_id}",
     params(

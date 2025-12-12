@@ -162,39 +162,39 @@ const mapToDimensionAssessment = (
 
   const currentState: IDimensionState = data.current_state
     ? {
-        id: data.current_state.id,
-        dimensionId: data.current_state.dimension_id,
-        level: data.current_state.level,
-        description: data.current_state.description,
-        createdAt: data.current_state.created_at,
-        updatedAt: data.current_state.updated_at,
-      }
+      id: data.current_state.id,
+      dimensionId: data.current_state.dimension_id,
+      level: data.current_state.level,
+      description: data.current_state.description,
+      createdAt: data.current_state.created_at,
+      updatedAt: data.current_state.updated_at,
+    }
     : {
-        id: data.currentState?.id || `temp-${uuidv4()}`,
-        dimensionId: dimensionId,
-        level: currentLevel,
-        description: `Level ${currentLevel}`,
-        createdAt: data.currentState?.createdAt || new Date().toISOString(),
-        updatedAt: data.currentState?.updatedAt || new Date().toISOString(),
-      };
+      id: data.currentState?.id || `temp-${uuidv4()}`,
+      dimensionId: dimensionId,
+      level: currentLevel,
+      description: `Level ${currentLevel}`,
+      createdAt: data.currentState?.createdAt || new Date().toISOString(),
+      updatedAt: data.currentState?.updatedAt || new Date().toISOString(),
+    };
 
   const desiredState: IDimensionState = data.desired_state
     ? {
-        id: data.desired_state.id,
-        dimensionId: data.desired_state.dimension_id,
-        level: data.desired_state.level,
-        description: data.desired_state.description,
-        createdAt: data.desired_state.created_at,
-        updatedAt: data.desired_state.updated_at,
-      }
+      id: data.desired_state.id,
+      dimensionId: data.desired_state.dimension_id,
+      level: data.desired_state.level,
+      description: data.desired_state.description,
+      createdAt: data.desired_state.created_at,
+      updatedAt: data.desired_state.updated_at,
+    }
     : {
-        id: data.desiredState?.id || `temp-${uuidv4()}`,
-        dimensionId: dimensionId,
-        level: desiredLevel,
-        description: `Level ${desiredLevel}`,
-        createdAt: data.desiredState?.createdAt || new Date().toISOString(),
-        updatedAt: data.desiredState?.updatedAt || new Date().toISOString(),
-      };
+      id: data.desiredState?.id || `temp-${uuidv4()}`,
+      dimensionId: dimensionId,
+      level: desiredLevel,
+      description: `Level ${desiredLevel}`,
+      createdAt: data.desiredState?.createdAt || new Date().toISOString(),
+      updatedAt: data.desiredState?.updatedAt || new Date().toISOString(),
+    };
 
   const assessment: IDimensionAssessment = {
     id,
@@ -544,6 +544,61 @@ export const dimensionAssessmentRepository = {
   getByAssessment: async (
     assessmentId: string,
   ): Promise<IDimensionAssessment[]> => {
+    // Try to fetch from backend first if online
+    if (navigator.onLine) {
+      try {
+        const { listDimensionAssessments } = await import(
+          "../../openapi-client/services.gen"
+        );
+
+        const response = await listDimensionAssessments({
+          assessmentId: assessmentId,
+        });
+
+        if (response.data?.dimension_assessments) {
+          // Map the API response to our domain model and store in IndexedDB
+          const assessments: IDimensionAssessment[] =
+            response.data.dimension_assessments.map((da) => ({
+              id: da.dimension_assessment_id,
+              dimensionId: da.dimension_id,
+              assessmentId: da.assessment_id,
+              currentState: {
+                id: da.current_state_id,
+                dimensionId: da.dimension_id,
+                level: 0, // Will be populated from states
+                description: "",
+                createdAt: da.created_at,
+                updatedAt: da.updated_at,
+              },
+              desiredState: {
+                id: da.desired_state_id,
+                dimensionId: da.dimension_id,
+                level: 0, // Will be populated from states
+                description: "",
+                createdAt: da.created_at,
+                updatedAt: da.updated_at,
+              },
+              gap_id: da.gap_id,
+              createdAt: da.created_at,
+              updatedAt: da.updated_at,
+              syncStatus: SyncStatus.SYNCED,
+              lastError: "",
+            }));
+
+          // Store in IndexedDB for offline access
+          for (const assessment of assessments) {
+            await db.dimensionAssessments.put(assessment);
+          }
+
+          return assessments;
+        }
+      } catch (error) {
+        console.error("Error fetching dimension assessments from API:", error);
+        // Fall through to local DB
+      }
+    }
+
+    // Fall back to local DB if offline or API call fails
     return db.dimensionAssessments
       .where("assessmentId")
       .equals(assessmentId)

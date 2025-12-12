@@ -54,6 +54,7 @@ export default function ManageAssessments() {
     error: orgError,
   } = useAssessmentsByOrganization(organizationId || "", {
     enabled: isOrgAdmin && !!organizationId, // Only fetch for org admins with an organization ID
+    status: ['draft'] // Only fetch draft assessments
   });
 
   const {
@@ -63,6 +64,7 @@ export default function ManageAssessments() {
     isFetching: isFetchingCoop,
   } = useAssessmentsByCooperation(cooperationId || "", {
     enabled: isCoopUser && !!cooperationId, // Only fetch for coop users with a cooperation ID
+    status: ['draft'] // Only fetch draft assessments
   });
 
   // Log when the query is settled

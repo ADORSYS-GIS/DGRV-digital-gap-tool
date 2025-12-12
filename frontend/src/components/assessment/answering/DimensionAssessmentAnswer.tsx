@@ -53,6 +53,18 @@ export function DimensionAssessmentAnswer({
   // Use local error state if no error prop is provided
   const error = localError;
 
+  // Update state when existingAssessment changes (e.g., when it loads from API)
+  useEffect(() => {
+    if (existingAssessment) {
+      if (existingAssessment.currentState?.level) {
+        setCurrentLevel(existingAssessment.currentState.level);
+      }
+      if (existingAssessment.desiredState?.level) {
+        setDesiredLevel(existingAssessment.desiredState.level);
+      }
+    }
+  }, [existingAssessment]);
+
   // Reset local error when current/desired level changes
   useEffect(() => {
     setLocalError(null);
