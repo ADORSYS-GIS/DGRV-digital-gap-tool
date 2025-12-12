@@ -10,6 +10,8 @@ import { useAuth } from "@/context/AuthContext";
 import { ROLES } from "@/constants/roles";
 import { useOrganizationId } from "@/hooks/organizations/useOrganizationId";
 import { useCooperationId } from "@/hooks/cooperations/useCooperationId";
+import { useOrganizationDimensions } from "@/hooks/organization_dimensions/useOrganizationDimensions";
+import { toast } from "sonner";
 
 export default function ManageAssessments() {
   const [isAddDialogOpen, setAddDialogOpen] = useState(false);
@@ -17,14 +19,28 @@ export default function ManageAssessments() {
   const organizationId = useOrganizationId();
   const cooperationId = useCooperationId();
 
+  // Normalize roles to lowercase for case-insensitive comparison
+  const userRoles = (user?.roles || []).map((role) => role.toLowerCase());
+  const isOrgAdmin = userRoles.includes(ROLES.ORG_ADMIN.toLowerCase());
+
+  const { data: assignedDimensionIds, isLoading: isLoadingDimensions } =
+    useOrganizationDimensions(organizationId || "");
+
+  const handleAddAssessmentClick = () => {
+    if (isOrgAdmin && (!assignedDimensionIds || assignedDimensionIds.length === 0)) {
+      toast.error("No Dimensions Assigned", {
+        description:
+          "Please assign dimensions to your organization before creating an assessment.",
+      });
+      return;
+    }
+    setAddDialogOpen(true);
+  };
+
   // Debug logs
   console.log("User roles from token:", user?.roles);
   console.log("Organization ID:", organizationId);
   console.log("Cooperation ID:", cooperationId);
-
-  // Normalize roles to lowercase for case-insensitive comparison
-  const userRoles = (user?.roles || []).map((role) => role.toLowerCase());
-  const isOrgAdmin = userRoles.includes(ROLES.ORG_ADMIN.toLowerCase());
   const isCoopUser =
     userRoles.includes(ROLES.COOP_USER.toLowerCase()) ||
     userRoles.includes(ROLES.COOP_ADMIN.toLowerCase());
@@ -82,7 +98,7 @@ export default function ManageAssessments() {
           Manage Assessments
         </h1>
         {isOrgAdmin && (
-          <Button onClick={() => setAddDialogOpen(true)}>
+          <Button onClick={handleAddAssessmentClick} disabled={isLoadingDimensions}>
             <PlusCircle className="mr-2 h-4 w-4" />
             Add Assessment
           </Button>

@@ -288,6 +288,17 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
 
   return (
     <Container maxWidth="md" sx={{ py: isMobile ? 2 : 4 }}>
+      <Box mb={2}>
+        <Button
+          variant="text"
+          onClick={handleBack}
+          startIcon={<ArrowBackIcon />}
+          sx={{ mb: 2 }}
+        >
+          Back
+        </Button>
+      </Box>
+
       <Box mb={3} display="flex" flexDirection="column" alignItems="center">
         <DimensionIcon
           name={dimension.name}
