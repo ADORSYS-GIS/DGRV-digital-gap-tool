@@ -26,7 +26,7 @@ const SecondAdminLayout: React.FC = () => {
     {
       to: "/second-admin/cooperations",
       icon: Building2,
-      text: "Cooperations",
+      text: "Cooperatives",
     },
     {
       to: "/second-admin/manage-cooperation-users",

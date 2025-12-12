@@ -41,28 +41,28 @@ export const AddCooperationForm: React.FC<AddCooperationFormProps> = ({
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button>
-          <PlusCircle className="mr-2 h-4 w-4" /> Add Cooperation
+          <PlusCircle className="mr-2 h-4 w-4" /> Add Cooperative
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add New Cooperation</DialogTitle>
+          <DialogTitle>Add New Cooperative</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
-            placeholder="Cooperation Name"
+            placeholder="Cooperative Name"
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
           />
           <Textarea
-            placeholder="Cooperation Description"
+            placeholder="Cooperative Description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             required
           />
           <Button type="submit" disabled={isLoading}>
-            {isLoading ? "Adding..." : "Add Cooperation"}
+            {isLoading ? "Adding..." : "Add Cooperative"}
           </Button>
         </form>
       </DialogContent>

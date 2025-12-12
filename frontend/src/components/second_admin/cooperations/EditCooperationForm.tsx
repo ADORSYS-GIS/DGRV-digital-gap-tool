@@ -44,7 +44,7 @@ export const EditCooperationForm: React.FC<EditCooperationFormProps> = ({
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Edit Cooperation</DialogTitle>
+          <DialogTitle>Edit Cooperative</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
