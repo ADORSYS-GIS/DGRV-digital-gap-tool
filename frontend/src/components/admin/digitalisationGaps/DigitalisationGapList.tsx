@@ -94,7 +94,7 @@ export function DigitalisationGapList({
                     {gaps.map((gap) => (
                       <TableRow key={gap.id}>
                         <TableCell className="max-w-xs truncate">
-                          {gap.scope}
+                          {gap.description}
                         </TableCell>
                         <TableCell>{gap.gap_severity}</TableCell>
                         <TableCell className="text-right">

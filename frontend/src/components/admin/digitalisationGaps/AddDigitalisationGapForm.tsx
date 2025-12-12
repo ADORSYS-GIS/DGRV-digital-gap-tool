@@ -39,7 +39,7 @@ import * as z from "zod";
 const formInputSchema = z.object({
   dimensionId: z.string().min(1, "Dimension is required"),
   gap_severity: z.nativeEnum(Gap),
-  scope: z.string().min(1, "Scope is required"),
+  description: z.string().min(1, "Description is required"),
 });
 
 type AddDigitalisationGapFormValues = z.infer<typeof formInputSchema>;
@@ -80,7 +80,7 @@ export function AddDigitalisationGapForm({
     defaultValues: {
       dimensionId: "",
       gap_severity: Gap.MEDIUM,
-      scope: "",
+      description: "",
     },
   });
 
@@ -93,13 +93,13 @@ export function AddDigitalisationGapForm({
       form.reset({
         dimensionId: digitalisationGap.dimensionId,
         gap_severity: digitalisationGap.gap_severity,
-        scope: digitalisationGap.scope,
+        description: digitalisationGap.description,
       });
     } else {
       form.reset({
         dimensionId: "",
         gap_severity: Gap.MEDIUM,
-        scope: "",
+        description: "",
       });
     }
   }, [digitalisationGap, form]);
@@ -185,10 +185,10 @@ export function AddDigitalisationGapForm({
             />
             <FormField
               control={form.control}
-              name="scope"
+              name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Scope</FormLabel>
+                  <FormLabel>Description</FormLabel>
                   <FormControl>
                     <Textarea
                       placeholder="Describe the digital gap..."
