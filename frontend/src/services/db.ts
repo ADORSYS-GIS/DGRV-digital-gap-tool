@@ -38,7 +38,7 @@ export class AppDB extends Dexie {
       submissions: "id",
       organizations: "id",
       cooperations: "id, syncStatus",
-      digitalisationGaps: "id",
+      digitalisationGaps: "id, syncStatus",
       action_plans: "action_plan_id, assessment_id",
       sync_queue: "++id",
       dimensions: "id",

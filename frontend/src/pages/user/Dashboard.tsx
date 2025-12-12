@@ -25,7 +25,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useAuth } from "@/context/AuthContext";
-import { useSubmissions } from "@/hooks/submissions/useSubmissions";
+import { useSubmissionsByCooperation } from "@/hooks/submissions/useSubmissionsByCooperation";
+import { useCooperationId } from "@/hooks/cooperations/useCooperationId";
 import {
   ClipboardCheck,
   ClipboardList,
@@ -36,36 +37,34 @@ import {
 import React from "react";
 import { Link } from "react-router-dom";
 import { ReportActions } from "@/components/shared/reports/ReportActions";
+import SubmissionChart from "@/components/shared/submissions/SubmissionChart";
 import { AssessmentSummary } from "@/types/assessment";
 import { SyncStatus } from "@/types/sync";
 
 const UserDashboard: React.FC = () => {
   const { user } = useAuth();
-  const { data: submissionsData, isLoading, error } = useSubmissions();
+  const cooperationId = useCooperationId();
+  const {
+    data: submissionsData,
+    isLoading,
+    error,
+  } = useSubmissionsByCooperation(cooperationId || "");
 
   const submissions: AssessmentSummary[] =
     submissionsData?.map((s) => ({
-      id: s.id,
-      assessment: {
-        assessment_id: s.id,
-        name: s.name,
-        organization_id: s.organization_id,
-        cooperation_id: s.cooperation_id ?? null,
-        created_at: s.created_at,
-        status: s.status,
-        lastError: s.lastError,
-        started_at: null,
-        completed_at: null,
-        dimensions_id: s.dimensionIds || [],
-        document_title: "",
-        updated_at: "",
-      },
-      dimension_assessments: [],
-      gaps_count: 0,
-      recommendations_count: 0,
-      overall_score: null,
+      ...s,
+      id: s.assessment.assessment_id,
       syncStatus: SyncStatus.SYNCED,
+      assessment: {
+        ...s.assessment,
+        started_at: s.assessment.started_at || null,
+        completed_at: s.assessment.completed_at || null,
+        dimensions_id: s.assessment.dimensions_id as string[],
+      },
+      overall_score: s.overall_score ?? null,
     })) || [];
+
+  const latestSubmission = submissionsData?.[0];
 
   return (
     <div className="space-y-6">
@@ -124,6 +123,18 @@ const UserDashboard: React.FC = () => {
           <ReportActions />
         </CardContent>
       </Card>
+
+      {/* Latest Submission Chart */}
+      {latestSubmission && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Latest Assessment Results</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <SubmissionChart submission={latestSubmission} />
+          </CardContent>
+        </Card>
+      )}
 
       {/* Recent Submissions */}
       <Card>

@@ -5,10 +5,14 @@ import { SimpleCooperationCard } from "@/components/second_admin/cooperations/Si
 import { useAuth } from "@/context/AuthContext";
 import { ROLES } from "@/constants/roles";
 import { useCooperationId } from "@/hooks/cooperations/useCooperationId";
+import { useOrganizationId } from "@/hooks/organizations/useOrganizationId";
 
 export default function ManageCooperationUsers() {
   const { user } = useAuth();
-  const { data: cooperations, isLoading, error } = useCooperations();
+  const organizationId = useOrganizationId();
+  const { data: cooperations, isLoading, error } = useCooperations(
+    organizationId || undefined,
+  );
   const location = useLocation();
   const basePath = location.pathname.split("/").slice(0, 2).join("/");
   const cooperationId = useCooperationId();

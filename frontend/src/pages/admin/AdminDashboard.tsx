@@ -25,22 +25,18 @@ import { useDimensions } from "@/hooks/dimensions/useDimensions";
 import { useAssessments } from "@/hooks/assessments/useAssessments";
 import { useOrganizations } from "@/hooks/organizations/useOrganizations";
 import { useAllOrganizationMembers } from "@/hooks/users/useAllOrganizationMembers";
-import { useOrganizationId } from "@/hooks/organizations/useOrganizationId";
-import { useSubmissionsByOrganization } from "@/hooks/submissions/useSubmissionsByOrganization";
+import { useAllSubmissions } from "@/hooks/submissions/useAllSubmissions";
 import { AssessmentSummary } from "@/types/assessment";
 import { SyncStatus } from "@/types/sync";
 
 const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
-  const organizationId = useOrganizationId();
   const {
     data: submissionsData = [],
     isLoading,
     error,
-  } = useSubmissionsByOrganization(organizationId || "", {
-    enabled: !!organizationId,
-    refetchOnMount: true,
-    refetchOnWindowFocus: false,
+  } = useAllSubmissions({
+    enabled: true,
   });
 
   const submissions: AssessmentSummary[] = submissionsData.map((s) => ({
@@ -61,7 +57,7 @@ const AdminDashboard: React.FC = () => {
   const { data: allMembers } = useAllOrganizationMembers();
 
   // Log for debugging
-  console.log("Organization ID:", organizationId);
+  // Log for debugging
   console.log("Submissions:", submissions);
 
   const activeUsers =
@@ -217,7 +213,7 @@ const AdminDashboard: React.FC = () => {
               A log of recent activities and system events.
             </CardDescription>
           </div>
-          <Link to="/second-admin/submissions">
+          <Link to="/admin/reports">
             <Button variant="outline">View All</Button>
           </Link>
         </CardHeader>

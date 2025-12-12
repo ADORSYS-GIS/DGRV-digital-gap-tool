@@ -55,7 +55,7 @@ export function AddAssessmentForm({ isOpen, onClose }: AddAssessmentFormProps) {
     useOrganizationDimensions(organizationId || "");
 
   const { data: cooperations, isLoading: isLoadingCooperations } =
-    useCooperations();
+    useCooperations(organizationId || undefined);
   const { mutate: addAssessment, isPending: isAdding } = useAddAssessment();
 
   const assignedDimensions =

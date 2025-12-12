@@ -141,48 +141,19 @@ async fn seed_states(db: &sea_orm::DatabaseConnection) -> anyhow::Result<()> {
     Ok(())
 }
 
-fn get_states_for_dimension(dimension_name: &str) -> Vec<(bool, &str, i32)> {
-    match dimension_name {
-        "Digital Strategy" => vec![
-            (true, "No digital strategy exists.", 1),
-            (true, "A basic digital strategy is in place.", 3),
-            (
-                true,
-                "A comprehensive and agile digital strategy is implemented.",
-                5,
-            ),
-            (false, "Digital initiatives are reactive and ad-hoc.", 2),
-            (
-                false,
-                "Digital strategy is forward-looking and aligned with business goals.",
-                4,
-            ),
-        ],
-        "Technology Infrastructure" => vec![
-            (
-                true,
-                "Infrastructure is outdated and hinders digital initiatives.",
-                1,
-            ),
-            (
-                true,
-                "Infrastructure is up-to-date and supports current needs.",
-                3,
-            ),
-            (
-                true,
-                "Infrastructure is fully cloud-native and scalable.",
-                5,
-            ),
-            (false, "IT systems are siloed and not integrated.", 2),
-            (
-                false,
-                "A fully integrated and scalable IT architecture is in place.",
-                4,
-            ),
-        ],
-        _ => vec![],
-    }
+fn get_states_for_dimension(_dimension_name: &str) -> Vec<(bool, &str, i32)> {
+    vec![
+        (true, "Level 1: Ad-hoc processes.", 1),
+        (true, "Level 2: Repeatable but intuitive processes.", 2),
+        (true, "Level 3: Defined and documented processes.", 3),
+        (true, "Level 4: Managed and measured processes.", 4),
+        (true, "Level 5: Optimized and continuously improving processes.", 5),
+        (false, "Achieve Level 1: Foundational capabilities established.", 1),
+        (false, "Achieve Level 2: Processes are standardized.", 2),
+        (false, "Achieve Level 3: Processes are integrated.", 3),
+        (false, "Achieve Level 4: Processes are quantitatively managed.", 4),
+        (false, "Achieve Level 5: Drive continuous improvement and innovation.", 5),
+    ]
 }
 
 async fn seed_recommendations(db: &sea_orm::DatabaseConnection) -> anyhow::Result<()> {
@@ -217,40 +188,23 @@ async fn seed_recommendations(db: &sea_orm::DatabaseConnection) -> anyhow::Resul
 }
 
 fn get_recommendations_for_dimension(
-    dimension_name: &str,
+    _dimension_name: &str,
 ) -> Vec<(recommendations::RecommendationPriority, &str)> {
     use recommendations::RecommendationPriority;
-    match dimension_name {
-        "Digital Strategy" => vec![
-            (
-                RecommendationPriority::High,
-                "Develop a comprehensive digital transformation roadmap.",
-            ),
-            (
-                RecommendationPriority::Medium,
-                "Align digital initiatives with core business objectives.",
-            ),
-            (
-                RecommendationPriority::Low,
-                "Conduct regular reviews of the digital strategy.",
-            ),
-        ],
-        "Technology Infrastructure" => vec![
-            (
-                RecommendationPriority::High,
-                "Migrate legacy systems to a cloud-based infrastructure.",
-            ),
-            (
-                RecommendationPriority::Medium,
-                "Implement an API gateway for better system integration.",
-            ),
-            (
-                RecommendationPriority::Low,
-                "Adopt a containerization strategy with Docker and Kubernetes.",
-            ),
-        ],
-        _ => vec![],
-    }
+    vec![
+        (
+            RecommendationPriority::High,
+            "Generic high priority recommendation.",
+        ),
+        (
+            RecommendationPriority::Medium,
+            "Generic medium priority recommendation.",
+        ),
+        (
+            RecommendationPriority::Low,
+            "Generic low priority recommendation.",
+        ),
+    ]
 }
 
 async fn seed_gaps(db: &sea_orm::DatabaseConnection) -> anyhow::Result<()> {
@@ -285,39 +239,11 @@ async fn seed_gaps(db: &sea_orm::DatabaseConnection) -> anyhow::Result<()> {
     Ok(())
 }
 
-fn get_gaps_for_dimension(dimension_name: &str) -> Vec<(i32, gaps::GapSeverity, &str)> {
+fn get_gaps_for_dimension(_dimension_name: &str) -> Vec<(i32, gaps::GapSeverity, &str)> {
     use gaps::GapSeverity;
-    match dimension_name {
-        "Digital Strategy" => vec![
-            (
-                4,
-                GapSeverity::High,
-                "Significant gap between current and desired digital strategy.",
-            ),
-            (
-                2,
-                GapSeverity::Medium,
-                "Moderate gap in digital strategy alignment.",
-            ),
-            (1, GapSeverity::Low, "Minor gap in strategy execution."),
-        ],
-        "Technology Infrastructure" => vec![
-            (
-                4,
-                GapSeverity::High,
-                "Critical infrastructure vulnerabilities identified.",
-            ),
-            (
-                2,
-                GapSeverity::Medium,
-                "Infrastructure requires modernization to meet future demands.",
-            ),
-            (
-                1,
-                GapSeverity::Low,
-                "Minor optimizations needed for infrastructure.",
-            ),
-        ],
-        _ => vec![],
-    }
+    vec![
+        (4, GapSeverity::High, "Generic high severity gap."),
+        (2, GapSeverity::Medium, "Generic medium severity gap."),
+        (1, GapSeverity::Low, "Generic low severity gap."),
+    ]
 }

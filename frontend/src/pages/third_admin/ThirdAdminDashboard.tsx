@@ -7,6 +7,11 @@
  * - Submission tracking
  */
 import { DashboardCard } from "@/components/shared/DashboardCard";
+import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
+import { ReportActions } from "@/components/shared/reports/ReportActions";
+import SubmissionChart from "@/components/shared/submissions/SubmissionChart";
+import { SubmissionList } from "@/components/shared/submissions/SubmissionList";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -15,24 +20,20 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useAuth } from "@/context/AuthContext";
+import { useCooperationId } from "@/hooks/cooperations/useCooperationId";
+import { useSubmissionsByCooperation } from "@/hooks/submissions/useSubmissionsByCooperation";
+import { AssessmentSummary } from "@/types/assessment";
+import { SyncStatus } from "@/types/sync";
 import {
-  Users,
-  FilePenLine,
   ClipboardList,
-  Inbox,
-  History,
   Download,
+  FilePenLine,
+  History,
+  Inbox,
+  Users,
 } from "lucide-react";
 import React from "react";
 import { Link } from "react-router-dom";
-import { useSubmissionsByCooperation } from "@/hooks/submissions/useSubmissionsByCooperation";
-import { SubmissionList } from "@/components/shared/submissions/SubmissionList";
-import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
-import { Button } from "@/components/ui/button";
-import { useCooperationId } from "@/hooks/cooperations/useCooperationId";
-import { ReportActions } from "@/components/shared/reports/ReportActions";
-import { AssessmentSummary } from "@/types/assessment";
-import { SyncStatus } from "@/types/sync";
 
 const ThirdAdminDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -63,6 +64,14 @@ const ThirdAdminDashboard: React.FC = () => {
     },
     overall_score: s.overall_score ?? null,
   }));
+
+  const latestSubmission = (
+    Array.isArray(submissionsData)
+      ? submissionsData
+      : submissionsData
+        ? [submissionsData]
+        : []
+  )?.[0];
 
   return (
     <div className="space-y-8 p-4 sm:p-6 md:p-8">
@@ -168,6 +177,20 @@ const ThirdAdminDashboard: React.FC = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Latest Submission Chart */}
+      {latestSubmission && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Latest Assessment Results</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <SubmissionChart
+              submission={latestSubmission}
+            />
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };

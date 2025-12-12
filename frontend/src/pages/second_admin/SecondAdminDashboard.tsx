@@ -27,6 +27,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { useSubmissionsByOrganization } from "@/hooks/submissions/useSubmissionsByOrganization";
 import { SubmissionList } from "@/components/shared/submissions/SubmissionList";
+import SubmissionChart from "@/components/shared/submissions/SubmissionChart";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { Button } from "@/components/ui/button";
 import { useOrganizationId } from "@/hooks/organizations/useOrganizationId";
@@ -59,6 +60,8 @@ const SecondAdminDashboard: React.FC = () => {
     },
     overall_score: s.overall_score ?? null,
   }));
+
+  const latestSubmission = submissionsData?.[0];
 
   return (
     <div className="space-y-6">
@@ -164,6 +167,18 @@ const SecondAdminDashboard: React.FC = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Latest Submission Chart */}
+      {latestSubmission && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Latest Assessment Results</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <SubmissionChart submission={latestSubmission} />
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };
