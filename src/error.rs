@@ -42,31 +42,39 @@ pub enum AppError {
 impl IntoResponse for AppError {
     fn into_response(self) -> Response {
         let (status, error_code, error_message) = match self {
-            AppError::DatabaseError(_) => {
-                (StatusCode::INTERNAL_SERVER_ERROR, "DATABASE_ERROR", "Database error")
-            }
+            AppError::DatabaseError(db_err) => (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "DATABASE_ERROR",
+                db_err.to_string(),
+            ),
             AppError::ValidationError(msg) => (StatusCode::BAD_REQUEST, "VALIDATION_ERROR", msg),
             AppError::NotFound(msg) => (StatusCode::NOT_FOUND, "NOT_FOUND", msg),
             AppError::Unauthorized(msg) => (StatusCode::UNAUTHORIZED, "UNAUTHORIZED", msg),
             AppError::BadRequest(msg) => (StatusCode::BAD_REQUEST, "BAD_REQUEST", msg),
-            AppError::InternalServerError(msg) => {
-                (StatusCode::INTERNAL_SERVER_ERROR, "INTERNAL_SERVER_ERROR", msg)
-            }
+            AppError::InternalServerError(msg) => (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "INTERNAL_SERVER_ERROR",
+                msg,
+            ),
             AppError::AuthError(msg) => (StatusCode::UNAUTHORIZED, "AUTHENTICATION_ERROR", msg),
             AppError::FileStorageError(msg) => {
                 (StatusCode::INTERNAL_SERVER_ERROR, "FILE_STORAGE_ERROR", msg)
             }
-            AppError::AnyhowError(err) => {
-                (StatusCode::INTERNAL_SERVER_ERROR, "INTERNAL_ERROR", err.to_string())
-            }
-            AppError::LevelIdAlreadyExists => {
-                (StatusCode::CONFLICT, "LEVEL_ID_ALREADY_EXISTS", "Level id already assigned to another state")
-            }
+            AppError::AnyhowError(err) => (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "INTERNAL_ERROR",
+                err.to_string(),
+            ),
+            AppError::LevelIdAlreadyExists => (
+                StatusCode::CONFLICT,
+                "LEVEL_ID_ALREADY_EXISTS",
+                "Level id already assigned to another state".to_string(),
+            ),
         };
 
         let body = Json(json!({
-            "error_code": error_code,
-            "message": error_message,
+          "error_code": error_code,
+          "message": error_message,
         }));
 
         (status, body).into_response()

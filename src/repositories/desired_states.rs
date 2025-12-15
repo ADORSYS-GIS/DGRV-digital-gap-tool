@@ -1,5 +1,6 @@
 use crate::entities::desired_states::{self, Entity as DesiredStates};
 use crate::error::AppError;
+use sea_orm::ActiveValue::Set;
 use sea_orm::*;
 use uuid::Uuid;
 
@@ -56,7 +57,7 @@ impl DesiredStatesRepository {
 
         let mut active_model: desired_states::ActiveModel = desired_state.into();
 
-        if let Set(new_score) = desired_state_data.score {
+        if let sea_orm::ActiveValue::Set(new_score) = desired_state_data.score {
             if let Some(existing_state) = Self::find_by_score(db, new_score).await? {
                 if existing_state.desired_state_id != desired_state_id {
                     return Err(AppError::LevelIdAlreadyExists);
@@ -65,11 +66,11 @@ impl DesiredStatesRepository {
             active_model.score = Set(new_score);
         }
 
-        if let ActiveValue::Set(dimension_id) = desired_state_data.dimension_id {
-            active_model.dimension_id = Set(dimension_id);
+        if desired_state_data.dimension_id.is_set() {
+            active_model.dimension_id = desired_state_data.dimension_id;
         }
-        if let ActiveValue::Set(description) = desired_state_data.description {
-            active_model.description = Set(description);
+        if desired_state_data.description.is_set() {
+            active_model.description = desired_state_data.description;
         }
         active_model.updated_at = Set(chrono::Utc::now());
 

@@ -1,5 +1,6 @@
 use crate::entities::current_states::{self, Entity as CurrentStates};
 use crate::error::AppError;
+use sea_orm::ActiveValue::Set;
 use sea_orm::*;
 use uuid::Uuid;
 
