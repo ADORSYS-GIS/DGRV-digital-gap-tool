@@ -6,5 +6,6 @@ export const useAssessment = (assessmentId: string) => {
   return useQuery<Assessment | undefined, Error>({
     queryKey: ["assessment", assessmentId],
     queryFn: () => assessmentRepository.getById(assessmentId),
+    enabled: !!assessmentId, // Only run the query if assessmentId is not empty
   });
 };
