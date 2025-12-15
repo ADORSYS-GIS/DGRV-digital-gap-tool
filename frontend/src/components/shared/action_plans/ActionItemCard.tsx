@@ -7,7 +7,7 @@ import {
   DialogTrigger,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { ArrowRight, ArrowLeft } from "lucide-react";
+import { ArrowRight, ArrowLeft, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { actionPlanRepository } from "@/services/action_plans/actionPlanRepository";
 import { toast } from "sonner";
@@ -102,57 +102,69 @@ export function ActionItemCard({ item, onUpdate }: ActionItemCardProps) {
     <Dialog>
       <DialogTrigger asChild>
         <div
-          className={`p-4 mb-4 bg-white rounded-lg border-l-4 ${borderColor} shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer relative group`}
+          className={`p-4 mb-3 bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer relative group border-l-[6px] ${borderColor}`}
         >
-          <h3 className="font-semibold text-md mb-2 text-gray-800 pr-16">
-            {item.dimension}
-          </h3>
-          <p className="text-sm text-gray-600 mb-4">
-            {truncateDescription(item.description)}
-          </p>
-          <div className="flex justify-between items-center mt-4">
-            <span className="text-xs text-gray-500">
-              Created: {new Date().toLocaleDateString()}
+          <div className="flex justify-between items-start mb-2">
+            <span className="text-xs font-bold uppercase tracking-wider text-gray-400">
+              {item.priority || "Medium"} Priority
             </span>
-            <span
-              className={`px-2.5 py-1 text-xs font-bold rounded-full ${className}`}
-            >
-              {label}
+            <span className="text-xs text-gray-400 flex items-center gap-1">
+              <Calendar className="h-3 w-3" />
+              {new Date().toLocaleDateString(undefined, {
+                month: "short",
+                day: "numeric",
+              })}
             </span>
           </div>
 
-          {canEdit && (
-            <div className="flex justify-end gap-2 mt-3 pt-3 border-t border-gray-100">
-              {currentStatusStyle.prev && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-7 px-2 text-xs"
-                  onClick={(e) =>
-                    handleStatusUpdate(e, currentStatusStyle.prev as string)
-                  }
-                  disabled={isUpdating}
-                  title="Move to previous stage"
-                >
-                  <ArrowLeft className="h-3 w-3 mr-1" /> Prev
-                </Button>
-              )}
-              {currentStatusStyle.next && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-7 px-2 text-xs"
-                  onClick={(e) =>
-                    handleStatusUpdate(e, currentStatusStyle.next as string)
-                  }
-                  disabled={isUpdating}
-                  title="Move to next stage"
-                >
-                  Next <ArrowRight className="h-3 w-3 ml-1" />
-                </Button>
-              )}
-            </div>
-          )}
+          <h3 className="font-bold text-sm text-gray-800 mb-2 leading-tight pr-2">
+            {item.dimension}
+          </h3>
+
+          <p className="text-xs text-gray-500 mb-3 line-clamp-3 leading-relaxed">
+            {truncateDescription(item.description)}
+          </p>
+
+          <div className="flex items-center justify-between pt-2 border-t border-gray-50">
+            <span
+              className={`px-2 py-0.5 text-[10px] font-bold rounded-full uppercase tracking-wide ${className}`}
+            >
+              {label}
+            </span>
+
+            {canEdit && (
+              <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                {currentStatusStyle.prev && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-700"
+                    onClick={(e) =>
+                      handleStatusUpdate(e, currentStatusStyle.prev as string)
+                    }
+                    disabled={isUpdating}
+                    title="Move to previous stage"
+                  >
+                    <ArrowLeft className="h-3 w-3" />
+                  </Button>
+                )}
+                {currentStatusStyle.next && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-700"
+                    onClick={(e) =>
+                      handleStatusUpdate(e, currentStatusStyle.next as string)
+                    }
+                    disabled={isUpdating}
+                    title="Move to next stage"
+                  >
+                    <ArrowRight className="h-3 w-3" />
+                  </Button>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </DialogTrigger>
       <DialogContent>

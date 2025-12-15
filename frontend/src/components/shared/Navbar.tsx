@@ -78,80 +78,86 @@ export const Navbar = () => {
 
   return (
     <>
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200/50 shadow-sm transition-all duration-300">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
-            <div className="flex items-center space-x-3">
-              <div className="w-28 h-28 flex items-center justify-center">
-                <img
-                  src="/dgrv.jpg"
-                  alt="DGRV Logo"
-                  className="w-full h-full object-contain"
-                />
-              </div>
-              <div></div>
-              {/* Desktop Home Button */}
-              <Button
-                variant="ghost"
-                size="sm"
-                className="ml-4 hidden md:flex items-center space-x-2"
+            <div className="flex items-center gap-6">
+              <div
+                className="flex items-center gap-3 cursor-pointer group"
                 onClick={() => navigate(getHomeRoute())}
-                aria-label="Home"
               >
-                <Home className="w-5 h-5" />
-                <span>Home</span>
-              </Button>
+                <div className="w-28 h-12 relative flex items-center justify-start">
+                  <img
+                    src="/dgrv.jpg"
+                    alt="DGRV Logo"
+                    className="h-full object-contain"
+                  />
+                </div>
+              </div>
+
+              {/* Desktop Home Button */}
+              <div className="hidden md:flex items-center border-l border-gray-200 pl-6">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="flex items-center gap-2 text-gray-600 hover:text-primary hover:bg-primary/5 font-medium transition-all"
+                  onClick={() => navigate(getHomeRoute())}
+                >
+                  <Home className="w-4 h-4" />
+                  <span>Home</span>
+                </Button>
+              </div>
             </div>
 
             {/* Right side */}
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center gap-3">
               {/* Desktop Auth/Profile */}
               <div className="hidden md:block">
                 {!isAuthenticated ? (
                   <Button
-                    variant="outline"
-                    size="sm"
                     onClick={login}
-                    className="ml-2"
+                    className="bg-primary hover:bg-primary/90 text-white shadow-md hover:shadow-lg transition-all duration-300"
                   >
-                    Login
+                    Sign In
                   </Button>
                 ) : (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button
-                        variant="outline"
-                        size="sm"
-                        className="flex items-center space-x-2 ml-2"
+                        variant="ghost"
+                        className="flex items-center gap-3 pl-2 pr-4 py-1.5 h-auto hover:bg-gray-50 border border-transparent hover:border-gray-200 rounded-full transition-all duration-200"
                       >
-                        <User className="w-4 h-4" />
-                        <span className="hidden sm:inline">
-                          {getUserDisplay()}
-                        </span>
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center text-white shadow-sm">
+                          <User className="w-4 h-4" />
+                        </div>
+                        <div className="flex flex-col items-start text-sm">
+                          <span className="font-semibold text-gray-700 leading-none mb-0.5">
+                            {getUserDisplay()}
+                          </span>
+                          <span className="text-[10px] text-gray-500 font-medium uppercase tracking-wide">
+                            {roles[0] || "User"}
+                          </span>
+                        </div>
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-48">
-                      <DropdownMenuItem
-                        disabled
-                        className="flex flex-col items-start"
-                      >
-                        <span className="font-semibold">
+                    <DropdownMenuContent align="end" className="w-56 p-2">
+                      <div className="px-2 py-1.5 mb-1 border-b border-gray-100">
+                        <p className="text-sm font-semibold text-gray-900 truncate">
                           {user?.name ||
                             user?.preferred_username ||
-                            user?.email ||
-                            "Profile"}
-                        </span>
-                        <span className="text-xs text-gray-500">
-                          {user?.email || "No data"}
-                        </span>
-                      </DropdownMenuItem>
+                            "User Profile"}
+                        </p>
+                        <p className="text-xs text-gray-500 truncate">
+                          {user?.email}
+                        </p>
+                      </div>
                       <DropdownMenuItem
                         onClick={logout}
-                        className="flex items-center space-x-2 text-red-600"
+                        className="flex items-center gap-2 text-red-600 focus:text-red-600 focus:bg-red-50 cursor-pointer rounded-md mt-1"
                       >
                         <LogOut className="w-4 h-4" />
-                        <span>Logout</span>
+                        <span>Sign Out</span>
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -161,10 +167,9 @@ export const Navbar = () => {
               {/* Mobile Hamburger Menu */}
               <Button
                 variant="ghost"
-                size="sm"
+                size="icon"
                 onClick={toggleSidebar}
-                className="md:hidden"
-                aria-label="Toggle menu"
+                className="md:hidden text-gray-600 hover:bg-gray-100 rounded-full"
               >
                 <Menu className="w-5 h-5" />
               </Button>
