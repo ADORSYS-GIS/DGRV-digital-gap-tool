@@ -8,8 +8,10 @@ import { useSubmissionSummaryByOrganization } from "@/hooks/submissions/useSubmi
 import { useSubmissionSummaryByCooperation } from "@/hooks/submissions/useSubmissionSummaryByCooperation";
 import { SubmissionDetail } from "@/components/shared/submissions/SubmissionDetail";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
+import { useTranslation } from "react-i18next";
 
 export default function SubmissionDetailPage() {
+  const { t } = useTranslation();
   const { submissionId } = useParams<{ submissionId: string }>();
   const { user } = useAuth();
   const organizationId = useOrganizationId();
@@ -44,7 +46,11 @@ export default function SubmissionDetailPage() {
     <div className="container mx-auto p-4 md:p-6 lg:p-8">
       {isLoading && <LoadingSpinner />}
       {error && (
-        <p className="text-red-500">An error occurred: {error.message}</p>
+        <p className="text-red-500">
+          {t("submissionDetail.errorMessage", {
+            message: (error as any)?.message || String(error),
+          })}
+        </p>
       )}
       {summary && <SubmissionDetail summary={summary} />}
     </div>

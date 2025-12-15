@@ -31,6 +31,7 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
+import { useTranslation } from "react-i18next";
 
 interface RouteParams extends Record<string, string | undefined> {
   assessmentId: string;
@@ -53,6 +54,7 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
   const location = useLocation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const { t } = useTranslation();
 
   // Get user info and IDs
   const { user } = useAuth();
@@ -126,13 +128,13 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
 
   const handleError = (error: Error) => {
     setIsSubmitting(false);
-    setError(error.message || "Failed to submit assessment. Please try again.");
+    setError(error.message || t("answerDimensionAssessment.submitError"));
   };
 
   const handleSubmit = useCallback(
     async (currentLevel: number, desiredLevel: number) => {
       if (!assessmentId || !dimensionId || !dimension) {
-        setError("Missing assessment or dimension ID");
+        setError(t("answerDimensionAssessment.missingIdsError"));
         return;
       }
 
@@ -144,7 +146,7 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
       );
 
       if (!currentState || !desiredState) {
-        setError("Invalid level selected. Please try again.");
+        setError(t("answerDimensionAssessment.invalidLevelError"));
         return;
       }
 
@@ -160,7 +162,9 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
         });
 
         if (!organizationId) {
-          throw new Error("Organization ID is required");
+          throw new Error(
+            t("answerDimensionAssessment.organizationIdRequired"),
+          );
         }
 
         const payload = {
@@ -184,7 +188,7 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
         handleError(
           error instanceof Error
             ? error
-            : new Error("An unknown error occurred"),
+            : new Error(t("answerDimensionAssessment.unknownError")),
         );
         throw error; // Re-throw to allow the form to handle the error
       }
@@ -272,15 +276,16 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
           mb={2}
           borderRadius={1}
         >
-          Failed to load dimension details.{" "}
-          {dimensionError?.message || "Please try again later."}
+          {t("answerDimensionAssessment.loadDimensionError")}{" "}
+          {dimensionError?.message ||
+            t("answerDimensionAssessment.tryAgainLater")}
         </Box>
         <Button
           variant="outlined"
           onClick={handleBack}
           startIcon={<ArrowBackIcon />}
         >
-          Back to Assessment
+          {t("answerDimensionAssessment.backToAssessment")}
         </Button>
       </Container>
     );
@@ -294,7 +299,7 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
           className="w-16 h-16 mb-2 text-primary"
         />
         <Typography variant="h4" component="h1" sx={{ color: "primary.main" }}>
-          {dimension.name} Assessment
+          {dimension.name} {t("answerDimensionAssessment.assessmentSuffix")}
         </Typography>
       </Box>
 
@@ -344,8 +349,8 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
             data-testid="continue-button"
           >
             {isLastDimension
-              ? "Finish Assessment"
-              : "Continue to Next Assessment"}
+              ? t("answerDimensionAssessment.finishAssessment")
+              : t("answerDimensionAssessment.continueToNextAssessment")}
           </Button>
         </Box>
       )}

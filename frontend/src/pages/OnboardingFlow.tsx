@@ -6,6 +6,7 @@ import OnboardingStep from "@/components/onboarding/OnboardingStep";
 import OnboardingCompletion from "@/components/onboarding/OnboardingCompletion";
 import ProgressIndicators from "@/components/onboarding/ProgressIndicators";
 import { ROLES } from "@/constants/roles";
+import { useTranslation } from "react-i18next";
 
 interface OnboardingStepData {
   icon: React.ComponentType<LucideProps>;
@@ -16,42 +17,42 @@ interface OnboardingStepData {
   bgColor: string;
 }
 
-const onboardingSteps: OnboardingStepData[] = [
-  {
-    icon: BarChart3,
-    title: "Assess Your Current",
-    titleHighlight: "Digitalization Level",
-    description:
-      "Quickly evaluate where your cooperative stands today in its digital transformation journey.",
-    color: "text-blue-600",
-    bgColor: "bg-blue-50",
-  },
-  {
-    icon: Target,
-    title: "Define Your Future",
-    titleHighlight: "'To-Be' Goals",
-    description:
-      "Set your vision for the level of digitalization you want to achieve and create your roadmap.",
-    color: "text-blue-600",
-    bgColor: "bg-blue-50",
-  },
-  {
-    icon: TrendingUp,
-    title: "Analyze Results &",
-    titleHighlight: "Close the Gap",
-    description:
-      "Get personalized recommendations and actionable strategies to drive your cooperative forward.",
-    color: "text-blue-600",
-    bgColor: "bg-blue-50",
-  },
-];
+/* steps moved inside component to enable translations */
 
 export default function EnhancedOnboardingFlow() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [currentStep, setCurrentStep] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [showCompletion, setShowCompletion] = useState(false);
+
+  const onboardingSteps: OnboardingStepData[] = [
+    {
+      icon: BarChart3,
+      title: t("onboarding.step1.title"),
+      titleHighlight: t("onboarding.step1.titleHighlight"),
+      description: t("onboarding.step1.description"),
+      color: "text-blue-600",
+      bgColor: "bg-blue-50",
+    },
+    {
+      icon: Target,
+      title: t("onboarding.step2.title"),
+      titleHighlight: t("onboarding.step2.titleHighlight"),
+      description: t("onboarding.step2.description"),
+      color: "text-blue-600",
+      bgColor: "bg-blue-50",
+    },
+    {
+      icon: TrendingUp,
+      title: t("onboarding.step3.title"),
+      titleHighlight: t("onboarding.step3.titleHighlight"),
+      description: t("onboarding.step3.description"),
+      color: "text-blue-600",
+      bgColor: "bg-blue-50",
+    },
+  ];
 
   const handleNext = () => {
     if (currentStep < onboardingSteps.length - 1) {

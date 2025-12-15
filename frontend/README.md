@@ -127,3 +127,76 @@ frontend/
 ## 7. License
 
 This project is open source and available under the [MIT License](./LICENSE).
+
+## 8. Internationalization (i18n)
+
+Multilingual support is implemented with i18next and react-i18next.
+
+- Supported languages: English (en), Deutsch (de), Français (fr), Português (pt), siSwati (ss), Zulu (zu)
+- i18n initialization: see [frontend/src/i18n/index.ts](frontend/src/i18n/index.ts)
+- App entry imports i18n to initialize before render:
+  - [frontend/src/main.tsx](frontend/src/main.tsx)
+  - [frontend/src/main.lazy.tsx](frontend/src/main.lazy.tsx)
+- Language switcher in the navbar:
+  - [frontend/src/components/shared/LanguageSwitcher.tsx](frontend/src/components/shared/LanguageSwitcher.tsx)
+
+### 8.1 Directory structure
+
+- Config and resources:
+  - [frontend/src/i18n/index.ts](frontend/src/i18n/index.ts)
+  - [frontend/src/i18n/locales/en.json](frontend/src/i18n/locales/en.json)
+  - [frontend/src/i18n/locales/de.json](frontend/src/i18n/locales/de.json)
+  - [frontend/src/i18n/locales/fr.json](frontend/src/i18n/locales/fr.json)
+  - [frontend/src/i18n/locales/pt.json](frontend/src/i18n/locales/pt.json)
+  - [frontend/src/i18n/locales/ss.json](frontend/src/i18n/locales/ss.json)
+  - [frontend/src/i18n/locales/zu.json](frontend/src/i18n/locales/zu.json)
+
+### 8.2 Initialization, detection and persistence
+
+- i18next is initialized in [frontend/src/i18n/index.ts](frontend/src/i18n/index.ts) with:
+  - fallbackLng: "en"
+  - supportedLngs: ["en","de","fr","pt","ss","zu"]
+  - Detection order: ["localStorage", "navigator"]
+  - Cache: ["localStorage"] using key "i18nextLng"
+- This ensures:
+  - English is the default and fallback language.
+  - If a user has a previously selected language in localStorage, it is used.
+  - Otherwise, the browser (navigator) language is used if supported.
+  - Selection persists across reloads automatically.
+
+### 8.3 Using translations in components
+
+- For examples, see:
+  - Navbar: [frontend/src/components/shared/Navbar.tsx](frontend/src/components/shared/Navbar.tsx)
+  - Home page: [frontend/src/pages/HomePage.tsx](frontend/src/pages/HomePage.tsx)
+  - Onboarding flow: [frontend/src/pages/OnboardingFlow.tsx](frontend/src/pages/OnboardingFlow.tsx)
+  - Shared controls: [frontend/src/components/shared/LanguageSwitcher.tsx](frontend/src/components/shared/LanguageSwitcher.tsx)
+
+Pattern:
+
+1. Import the hook:
+   `import { useTranslation } from "react-i18next";`
+2. Inside your component:
+   `const { t } = useTranslation();`
+3. Replace strings: `t("namespace.key")`
+
+### 8.4 Adding a new language
+
+1. Create a new translation file under [frontend/src/i18n/locales](frontend/src/i18n/locales) (e.g., `xh.json`).
+2. Add the import and resource mapping in [frontend/src/i18n/index.ts](frontend/src/i18n/index.ts).
+3. Add the language to the `supportedLanguages` list in [frontend/src/i18n/index.ts](frontend/src/i18n/index.ts) and to the UI in [frontend/src/components/shared/LanguageSwitcher.tsx](frontend/src/components/shared/LanguageSwitcher.tsx).
+4. Keep keys consistent with the English file. Missing keys will fall back to English automatically.
+
+### 8.5 Verifying behavior
+
+- Auto-detect:
+  - Clear localStorage key `i18nextLng`, refresh the app; the UI should render in the device/browser language if supported.
+- Persistence:
+  - Use the language switcher in the navbar, reload the page; the selection persists (stored under `i18nextLng` in localStorage).
+- Fallback:
+  - If a key is missing in the selected language, English text will be shown.
+
+### 8.6 Notes
+
+- Keep translation keys semantic and reusable (e.g., `navbar.login`, `home.features.title`).
+- Prefer adding translations for the most visible UI first; English fallback ensures graceful degradation when keys are missing.

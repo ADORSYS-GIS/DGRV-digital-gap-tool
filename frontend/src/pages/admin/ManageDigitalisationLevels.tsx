@@ -14,12 +14,15 @@ import {
 } from "@/components/ui/card";
 import { LevelsList } from "@/components/admin/levels/LevelsList";
 import { LevelType } from "@/types/digitalisationLevel";
+import { useTranslation } from "react-i18next";
 
 export default function ManageDigitalisationLevels() {
   const { dimensionId } = useParams<{ dimensionId: string }>();
   const [searchParams] = useSearchParams();
   const levelType = searchParams.get("levelType") as LevelType | null;
   const [isAddLevelDialogOpen, setAddLevelDialogOpen] = useState(false);
+
+  const { t } = useTranslation();
 
   const {
     data: levels,
@@ -33,17 +36,28 @@ export default function ManageDigitalisationLevels() {
   }, [levels, levelType]);
 
   if (isLoading) return <LoadingSpinner />;
-  if (error) return <p className="text-red-500">{error.message}</p>;
+  if (error)
+    return (
+      <p className="text-red-500">
+        {t("manageDigitalisationLevels.errorMessage", {
+          message: (error as any).message || String(error),
+        })}
+      </p>
+    );
   if (!levelType) {
     return (
       <div className="container mx-auto p-4 md:p-6 lg:p-8">
-        <h1 className="text-2xl font-bold">Please select a level type</h1>
+        <h1 className="text-2xl font-bold">
+          {t("manageDigitalisationLevels.selectLevelType")}
+        </h1>
       </div>
     );
   }
 
   const title =
-    levelType === "current" ? "Manage Current State" : "Manage Desired State";
+    levelType === "current"
+      ? t("manageDigitalisationLevels.manageCurrentState")
+      : t("manageDigitalisationLevels.manageDesiredState");
 
   return (
     <div className="container mx-auto p-4 md:p-6 lg:p-8">
@@ -56,10 +70,12 @@ export default function ManageDigitalisationLevels() {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="text-xl font-bold text-gray-800 dark:text-gray-200">
-                Digitalisation Levels
+                {t("manageDigitalisationLevels.digitalisationLevels")}
               </CardTitle>
               <CardDescription className="text-gray-600 dark:text-gray-400">
-                Manage the digitalisation levels for the {levelType} state.
+                {t("manageDigitalisationLevels.manageLevelsDescription", {
+                  levelType,
+                })}
               </CardDescription>
             </div>
             <Button
@@ -67,7 +83,7 @@ export default function ManageDigitalisationLevels() {
               className="bg-blue-500 text-white hover:bg-blue-600 transition-colors duration-300"
             >
               <PlusCircle className="mr-2 h-4 w-4" />
-              Add Level
+              {t("manageDigitalisationLevels.addLevel")}
             </Button>
           </div>
         </CardHeader>

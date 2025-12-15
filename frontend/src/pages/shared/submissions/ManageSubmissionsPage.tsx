@@ -7,6 +7,9 @@ import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { useSubmissionsByOrganization } from "@/hooks/submissions/useSubmissionsByOrganization";
 import { useSubmissionsByCooperation } from "@/hooks/submissions/useSubmissionsByCooperation";
 import { useLocation, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { AssessmentSummary } from "@/types/assessment";
+import { SyncStatus } from "@/types/sync";
 
 export default function ManageSubmissionsPage() {
   const { user } = useAuth();
@@ -14,6 +17,7 @@ export default function ManageSubmissionsPage() {
   const location = useLocation();
   const organizationId = useOrganizationId();
   const cooperationId = useCooperationId();
+  const { t } = useTranslation();
 
   // Debug logs (remove in production)
   console.log("User roles from token:", user?.roles);
@@ -37,8 +41,6 @@ export default function ManageSubmissionsPage() {
     refetch: refetchOrgSubmissions,
   } = useSubmissionsByOrganization(organizationId || "", {
     enabled: isOrgAdmin && !!organizationId,
-    refetchOnMount: true,
-    refetchOnWindowFocus: false,
   });
 
   const {
@@ -49,8 +51,6 @@ export default function ManageSubmissionsPage() {
     refetch: refetchCoopSubmissions,
   } = useSubmissionsByCooperation(cooperationId || "", {
     enabled: isCoopUser && !!cooperationId,
-    refetchOnMount: true,
-    refetchOnWindowFocus: false,
   });
 
   // Log submission data for debugging
@@ -84,6 +84,22 @@ export default function ManageSubmissionsPage() {
       ? isFetchingCoop
       : false;
 
+  // Normalize submissions to AssessmentSummary shape expected by SubmissionList
+  const normalizedSubmissions: AssessmentSummary[] = (submissions || []).map(
+    (s: any) => ({
+      ...s,
+      id: s?.assessment?.assessment_id ?? s?.id,
+      syncStatus: SyncStatus.SYNCED,
+      assessment: {
+        ...s.assessment,
+        started_at: s?.assessment?.started_at || null,
+        completed_at: s?.assessment?.completed_at || null,
+        dimensions_id: (s?.assessment?.dimensions_id || []) as string[],
+      },
+      overall_score: s?.overall_score ?? null,
+    }),
+  );
+
   // Check if user has any valid role
   const hasValidRole = isOrgAdmin || isCoopUser;
 
@@ -108,13 +124,10 @@ export default function ManageSubmissionsPage() {
             </div>
             <div className="ml-3">
               <h3 className="text-sm font-medium text-red-800">
-                Access Denied
+                {t("manageSubmissions.accessDenied.title")}
               </h3>
               <div className="mt-2 text-sm text-red-700">
-                <p>
-                  You don't have permission to view submissions. Please contact
-                  your administrator.
-                </p>
+                <p>{t("manageSubmissions.accessDenied.message")}</p>
               </div>
             </div>
           </div>
@@ -127,12 +140,14 @@ export default function ManageSubmissionsPage() {
     <div className="container mx-auto p-4 md:p-6 lg:p-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          {assessmentId ? "Submission Details" : "My Submissions"}
+          {assessmentId
+            ? t("manageSubmissions.titleDetails")
+            : t("manageSubmissions.titleList")}
         </h1>
         <p className="text-gray-600">
           {assessmentId
-            ? "View and manage submission details"
-            : "View and manage your submissions"}
+            ? t("manageSubmissions.subtitleDetails")
+            : t("manageSubmissions.subtitleList")}
         </p>
       </div>
 
@@ -158,19 +173,19 @@ export default function ManageSubmissionsPage() {
             </div>
             <div className="ml-3">
               <h3 className="text-sm font-medium text-red-800">
-                Error loading submissions
+                {t("manageSubmissions.error.title")}
               </h3>
               <div className="mt-2 text-sm text-red-700">
                 <p>
                   {error instanceof Error
                     ? error.message
-                    : "An unknown error occurred"}
+                    : t("manageSubmissions.error.unknown")}
                 </p>
                 <button
                   onClick={handleRefetch}
                   className="mt-2 inline-flex items-center px-3 py-1 border border-transparent text-sm leading-4 font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                 >
-                  Retry
+                  {t("manageSubmissions.retry")}
                 </button>
               </div>
             </div>
@@ -182,7 +197,7 @@ export default function ManageSubmissionsPage() {
       {!isLoading && !error && submissions.length > 0 && (
         <div className="space-y-6">
           <SubmissionList
-            submissions={submissions}
+            submissions={normalizedSubmissions}
             basePath={location.pathname.split("/").slice(0, 2).join("/")}
           />
         </div>
@@ -193,12 +208,12 @@ export default function ManageSubmissionsPage() {
         <div className="text-center py-12 border-2 border-dashed rounded-lg">
           <p className="text-gray-500">
             {assessmentId
-              ? "No submission found for this assessment."
+              ? t("manageSubmissions.empty.byAssessment")
               : isOrgAdmin
-                ? "No submission found for this assessment in your organization."
+                ? t("manageSubmissions.empty.byOrg")
                 : isCoopUser
-                  ? "No submission found for this assessment in your cooperation."
-                  : "No submission found."}
+                  ? t("manageSubmissions.empty.byCoop")
+                  : t("manageSubmissions.empty.none")}
           </p>
         </div>
       )}

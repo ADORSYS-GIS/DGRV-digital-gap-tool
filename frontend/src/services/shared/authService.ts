@@ -2,6 +2,7 @@ import { AuthState, UserProfile } from "@/types/auth";
 import { del, set } from "idb-keyval";
 import { KeycloakTokenParsed } from "keycloak-js";
 import { keycloak } from "./keycloakConfig";
+import i18n from "@/i18n";
 
 interface CustomKeycloakTokenParsed extends KeycloakTokenParsed {
   roles?: string[];
@@ -23,8 +24,16 @@ export const authService = {
    */
   async login(redirectUri?: string): Promise<void> {
     try {
+      const lang = (i18n.resolvedLanguage || i18n.language || "en").split(
+        "-",
+      )[0];
+
       await keycloak.login({
         redirectUri: redirectUri || window.location.origin,
+        // Keycloak supports locale in multiple ways depending on theme/config
+        // 'locale' is a known option in keycloak-js; also pass ui_locales/kc_locale for robustness
+        locale: lang,
+        ...({ ui_locales: lang, kc_locale: lang } as any),
       });
     } catch (error) {
       console.error("Login failed:", error);

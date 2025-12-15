@@ -8,6 +8,7 @@ import { IDimension } from "@/types/dimension";
 import React, { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 const AssessmentDetailPage: React.FC = () => {
   const { assessmentId } = useParams<{ assessmentId: string }>();
@@ -17,6 +18,7 @@ const AssessmentDetailPage: React.FC = () => {
   const [dimensions, setDimensions] = useState<IDimension[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const fetchAssessmentDetails = async () => {
@@ -38,10 +40,10 @@ const AssessmentDetailPage: React.FC = () => {
             setDimensions(fetchedDimensions);
           }
         } else {
-          setError("Assessment not found.");
+          setError(t("assessmentDetailPage.assessmentNotFound"));
         }
       } catch (err) {
-        setError("Failed to fetch assessment details.");
+        setError(t("assessmentDetailPage.failedToFetch"));
         console.error(err);
       } finally {
         setLoading(false);
@@ -66,20 +68,20 @@ const AssessmentDetailPage: React.FC = () => {
         `/${basePath}/assessment/${assessmentId}/dimension/${dimensionId}`,
       );
     } else {
-      toast.error("Assessment ID not found.");
+      toast.error(t("assessmentDetailPage.missingAssessmentId"));
     }
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div>{t("assessmentDetailPage.loading")}</div>;
   }
 
   if (error) {
-    return <div>Error: {error}</div>;
+    return <div>{t("assessmentDetailPage.error", { message: error })}</div>;
   }
 
   if (!assessment) {
-    return <div>Assessment not found.</div>;
+    return <div>{t("assessmentDetailPage.assessmentNotFound")}</div>;
   }
 
   const progressPercentage =
@@ -92,15 +94,20 @@ const AssessmentDetailPage: React.FC = () => {
       <div className="container mx-auto p-6 lg:p-8">
         <div className="bg-white p-6 rounded-lg border border-gray-200 mb-8">
           <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold">Digital Gap Assessment</h1>
+            <h1 className="text-2xl font-bold">
+              {t("assessmentDetailPage.title")}
+            </h1>
             <div className="flex items-center space-x-4">
               <div className="w-64">
                 <div className="flex justify-between mb-1">
                   <span className="text-sm font-medium text-gray-700">
-                    Your Progress
+                    {t("assessmentDetailPage.progressLabel")}
                   </span>
                   <span className="text-sm font-medium text-gray-700">
-                    {completedPerspectives} of {dimensions.length}
+                    {t("assessmentDetailPage.progressCount", {
+                      completed: completedPerspectives,
+                      total: dimensions.length,
+                    })}
                   </span>
                 </div>
                 <Progress value={progressPercentage} className="w-full" />
@@ -114,11 +121,12 @@ const AssessmentDetailPage: React.FC = () => {
 
         <div className="text-center mb-10">
           <h2 className="text-3xl font-bold mb-2">
-            Welcome to Your Digital Journey
+            {t("assessmentDetailPage.welcomeTitle")}
           </h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            Assess your cooperative across {dimensions.length} key digital
-            perspectives. Click on any card below to begin your assessment.
+            {t("assessmentDetailPage.welcomeDescription", {
+              count: dimensions.length,
+            })}
           </p>
         </div>
 

@@ -5,6 +5,7 @@ import { useRecommendations } from "@/hooks/recommendations/useRecommendations";
 import { AddRecommendationForm } from "@/components/admin/recommendations/AddRecommendationForm";
 import { RecommendationList } from "@/components/admin/recommendations/RecommendationList";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
+import { useTranslation } from "react-i18next";
 // Using a simple div for error display since Alert component is not available
 // Consider adding a proper Alert component to your UI library for better user feedback
 
@@ -13,6 +14,7 @@ import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
  * Displays a list of recommendations with options to add, edit, and delete them.
  */
 export default function ManageRecommendations() {
+  const { t } = useTranslation();
   const [isAddDialogOpen, setAddDialogOpen] = useState(false);
   const {
     data: recommendationsData,
@@ -37,16 +39,15 @@ export default function ManageRecommendations() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">
-              Manage Recommendations
+              {t("manageRecommendations.title")}
             </h1>
             <p className="text-sm text-muted-foreground mt-1">
-              Add, edit, or remove recommendations for the digital gap
-              assessment
+              {t("manageRecommendations.description")}
             </p>
           </div>
           <Button onClick={() => setAddDialogOpen(true)}>
             <PlusCircle className="mr-2 h-4 w-4" />
-            Add Recommendation
+            {t("manageRecommendations.addRecommendation")}
           </Button>
         </div>
       </div>
@@ -77,7 +78,7 @@ export default function ManageRecommendations() {
             </div>
             <div className="ml-3">
               <h3 className="text-sm font-medium text-red-800">
-                Error loading recommendations
+                {t("manageRecommendations.errorLoading")}
               </h3>
               <div className="mt-2 text-sm text-red-700">
                 <p>{error.message}</p>
@@ -89,7 +90,7 @@ export default function ManageRecommendations() {
                   onClick={handleRetry}
                   className="bg-white text-red-700 hover:bg-red-50"
                 >
-                  Retry
+                  {t("manageRecommendations.retry")}
                 </Button>
               </div>
             </div>
@@ -100,13 +101,15 @@ export default function ManageRecommendations() {
       {/* Empty state */}
       {!isLoading && !error && recommendations.length === 0 && (
         <div className="text-center py-12 border rounded-lg">
-          <h3 className="text-lg font-medium mb-2">No recommendations found</h3>
+          <h3 className="text-lg font-medium mb-2">
+            {t("manageRecommendations.noRecommendationsFound")}
+          </h3>
           <p className="text-sm text-muted-foreground mb-4">
-            Get started by adding a new recommendation
+            {t("manageRecommendations.getStarted")}
           </p>
           <Button onClick={() => setAddDialogOpen(true)}>
             <PlusCircle className="mr-2 h-4 w-4" />
-            Add Recommendation
+            {t("manageRecommendations.addRecommendation")}
           </Button>
         </div>
       )}

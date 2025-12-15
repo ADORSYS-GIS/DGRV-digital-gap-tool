@@ -9,8 +9,10 @@ import {
   Menu,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 const UserLayout: React.FC = () => {
+  const { t } = useTranslation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const location = useLocation();
 
@@ -19,21 +21,25 @@ const UserLayout: React.FC = () => {
   };
 
   const navLinks = [
-    { to: "/user/dashboard", icon: BarChart3, text: "Dashboard" },
+    {
+      to: "/user/dashboard",
+      icon: BarChart3,
+      text: t("userLayout.nav.dashboard"),
+    },
     {
       to: "/user/assessments",
       icon: FilePlus2,
-      text: "Create Assesment",
+      text: t("userLayout.nav.createAssessment"),
     },
     {
       to: "/user/action-plans",
       icon: ClipboardList,
-      text: "Action Plan",
+      text: t("userLayout.nav.actionPlan"),
     },
     {
       to: "/user/submissions",
       icon: ClipboardCheck,
-      text: "Submissions",
+      text: t("userLayout.nav.submissions"),
     },
   ];
 
@@ -47,7 +53,9 @@ const UserLayout: React.FC = () => {
       >
         <div className="flex items-center justify-between p-4">
           {isSidebarOpen && (
-            <span className="text-xl font-bold">User Panel</span>
+            <span className="text-xl font-bold">
+              {t("userLayout.userPanel")}
+            </span>
           )}
           <button
             onClick={toggleSidebar}

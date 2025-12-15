@@ -1,4 +1,5 @@
 import { ArrowLeft, ArrowRight, CheckCircle, Sparkles } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface OnboardingCompletionProps {
   isTransitioning: boolean;
@@ -11,6 +12,7 @@ export default function OnboardingCompletion({
   handleGetStarted,
   handlePrevious,
 }: OnboardingCompletionProps) {
+  const { t } = useTranslation();
   return (
     <div
       className={`bg-white rounded-3xl shadow-2xl p-12 text-center transition-all duration-500 ease-in-out ${
@@ -31,19 +33,18 @@ export default function OnboardingCompletion({
       </div>
 
       <h1 className="text-3xl font-bold text-gray-900 mb-4">
-        You're Ready to Get Started!
+        {t("onboarding.completion.title")}
       </h1>
 
       <p className="text-lg text-gray-600 mb-8 leading-relaxed max-w-md mx-auto">
-        Your digitalization journey begins now. Let's transform your cooperative
-        with data-driven insights and strategic planning.
+        {t("onboarding.completion.subtitle")}
       </p>
 
       <button
         onClick={handleGetStarted}
         className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-10 py-4 rounded-2xl font-semibold text-lg hover:from-blue-700 hover:to-blue-800 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center mx-auto group"
       >
-        Begin Your Journey
+        {t("onboarding.completion.beginJourney")}
         <ArrowRight className="ml-3 h-5 w-5 group-hover:translate-x-1 transition-transform duration-200" />
       </button>
 
@@ -52,7 +53,7 @@ export default function OnboardingCompletion({
         className="mt-6 text-gray-500 hover:text-gray-700 transition-colors duration-200 flex items-center justify-center mx-auto"
       >
         <ArrowLeft className="mr-2 h-4 w-4" />
-        Back to steps
+        {t("onboarding.completion.backToSteps")}
       </button>
     </div>
   );

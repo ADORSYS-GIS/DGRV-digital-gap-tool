@@ -7,6 +7,7 @@ import { SubmissionList } from "@/components/shared/submissions/SubmissionList";
 import { KanbanBoard } from "@/components/shared/action_plans/KanbanBoard";
 import { AssessmentSummary } from "@/types/assessment";
 import { SyncStatus } from "@/types/sync";
+import { useTranslation } from "react-i18next";
 
 const ActionPlansPage: React.FC = () => {
   const [selectedOrganizationId, setSelectedOrganizationId] = useState<
@@ -14,6 +15,7 @@ const ActionPlansPage: React.FC = () => {
   >(null);
   const [selectedSubmission, setSelectedSubmission] =
     useState<AssessmentSummary | null>(null);
+  const { t } = useTranslation();
 
   const { data: organizations, isLoading: isLoadingOrganizations } =
     useOrganizations();
@@ -52,7 +54,9 @@ const ActionPlansPage: React.FC = () => {
     <div className="space-y-6">
       {!selectedOrganizationId ? (
         <div>
-          <h2 className="text-2xl font-bold mb-4">Select an Organization</h2>
+          <h2 className="text-2xl font-bold mb-4">
+            {t("adminActionPlans.selectOrganization")}
+          </h2>
           {isLoadingOrganizations ? (
             <LoadingSpinner />
           ) : (
@@ -64,7 +68,9 @@ const ActionPlansPage: React.FC = () => {
         </div>
       ) : (
         <div>
-          <h2 className="text-2xl font-bold mb-4">Select a Submission</h2>
+          <h2 className="text-2xl font-bold mb-4">
+            {t("adminActionPlans.selectSubmission")}
+          </h2>
           {isLoadingSubmissions ? (
             <LoadingSpinner />
           ) : (

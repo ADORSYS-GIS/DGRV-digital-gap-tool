@@ -38,8 +38,10 @@ import { Link } from "react-router-dom";
 import { ReportActions } from "@/components/shared/reports/ReportActions";
 import { AssessmentSummary } from "@/types/assessment";
 import { SyncStatus } from "@/types/sync";
+import { useTranslation } from "react-i18next";
 
 const UserDashboard: React.FC = () => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { data: submissionsData, isLoading, error } = useSubmissions();
 
@@ -72,12 +74,11 @@ const UserDashboard: React.FC = () => {
       {/* Welcome Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          User Management Dashboard
+          {t("userDashboard.title")}
         </h1>
         <p className="text-gray-600">
-          Welcome back,{" "}
-          {user?.name || user?.preferred_username || "Administrator"}. Manage
-          cooperatives and their assessments.
+          {t("userDashboard.welcomeMessage")}{" "}
+          {user?.name || user?.preferred_username || "Administrator"}.
         </p>
       </div>
 
@@ -85,24 +86,24 @@ const UserDashboard: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <Link to="/user/assessments">
           <DashboardCard
-            title="Create Assesment"
-            description="Design and deploy new assessments"
+            title={t("userDashboard.createAssessmentTitle")}
+            description={t("userDashboard.createAssessmentDescription")}
             icon={FilePlus2}
             variant="default"
           />
         </Link>
         <Link to="/user/action-plans">
           <DashboardCard
-            title="View Action Plan"
-            description="Review and monitor strategic action plans"
+            title={t("userDashboard.viewActionPlanTitle")}
+            description={t("userDashboard.viewActionPlanDescription")}
             icon={ClipboardList}
             variant="default"
           />
         </Link>
         <Link to="/user/submissions">
           <DashboardCard
-            title="View Submissions"
-            description="Track and evaluate assessment submissions"
+            title={t("userDashboard.viewSubmissionsTitle")}
+            description={t("userDashboard.viewSubmissionsDescription")}
             icon={ClipboardCheck}
             variant="default"
           />
@@ -114,10 +115,10 @@ const UserDashboard: React.FC = () => {
         <CardHeader>
           <CardTitle className="flex items-center">
             <Download className="mr-2 h-5 w-5" />
-            Export Reports
+            {t("userDashboard.exportReportsTitle")}
           </CardTitle>
           <CardDescription>
-            Generate and download assessment reports.
+            {t("userDashboard.exportReportsDescription")}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -131,20 +132,22 @@ const UserDashboard: React.FC = () => {
           <div>
             <CardTitle className="flex items-center">
               <History className="mr-2 h-5 w-5" />
-              Recent Submissions
+              {t("userDashboard.recentSubmissionsTitle")}
             </CardTitle>
             <CardDescription>
-              A log of recent activities and system events.
+              {t("userDashboard.recentSubmissionsDescription")}
             </CardDescription>
           </div>
           <Link to="/user/submissions">
-            <Button variant="outline">View All</Button>
+            <Button variant="outline">{t("userDashboard.viewAll")}</Button>
           </Link>
         </CardHeader>
         <CardContent>
           {isLoading && <LoadingSpinner />}
           {error && (
-            <p className="text-red-500">An error occurred: {error.message}</p>
+            <p className="text-red-500">
+              {t("userDashboard.errorMessage", { message: error.message })}
+            </p>
           )}
           {submissions && (
             <SubmissionList

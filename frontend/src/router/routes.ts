@@ -80,6 +80,7 @@ const ManageCooperationUsers = React.lazy(
 const ManageCooperationUsersPage = React.lazy(
   () => import("../pages/second_admin/ManageCooperationUsersPage"),
 );
+const ProfileSettings = React.lazy(() => import("../pages/ProfileSettings"));
 
 const routes = [
   { path: "/", element: React.createElement(HomePage) },
@@ -100,6 +101,18 @@ const routes = [
       ],
     }),
     children: [{ path: "", element: React.createElement(OnboardingFlow) }],
+  },
+  {
+    path: "/profile",
+    element: React.createElement(ProtectedRoute, {
+      allowedRoles: [
+        ROLES.ADMIN,
+        ROLES.ORG_ADMIN,
+        ROLES.COOP_ADMIN,
+        ROLES.COOP_USER,
+      ],
+    }),
+    children: [{ path: "", element: React.createElement(ProfileSettings) }],
   },
   {
     path: "/admin",

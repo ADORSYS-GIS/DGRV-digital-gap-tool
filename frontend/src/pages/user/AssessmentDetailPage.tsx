@@ -4,8 +4,10 @@ import { assessmentRepository } from "@/services/assessments/assessmentRepositor
 import { dimensionRepository } from "@/services/dimensions/dimensionRepository";
 import { Assessment } from "@/types/assessment";
 import { IDimension } from "@/types/dimension";
+import { useTranslation } from "react-i18next";
 
 const AssessmentDetailPage: React.FC = () => {
+  const { t } = useTranslation();
   const { assessmentId } = useParams<{ assessmentId: string }>();
   const [assessment, setAssessment] = useState<Assessment | null>(null);
   const [dimensions, setDimensions] = useState<IDimension[]>([]);
@@ -32,10 +34,10 @@ const AssessmentDetailPage: React.FC = () => {
             setDimensions(fetchedDimensions);
           }
         } else {
-          setError("Assessment not found.");
+          setError(t("assessmentDetailPage.assessmentNotFound"));
         }
       } catch (err) {
-        setError("Failed to fetch assessment details.");
+        setError(t("assessmentDetailPage.failedToFetch"));
         console.error(err);
       } finally {
         setLoading(false);
@@ -43,25 +45,27 @@ const AssessmentDetailPage: React.FC = () => {
     };
 
     fetchAssessmentDetails();
-  }, [assessmentId]);
+  }, [assessmentId, t]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div>{t("assessmentDetailPage.loading")}</div>;
   }
 
   if (error) {
-    return <div>Error: {error}</div>;
+    return <div>{t("assessmentDetailPage.error", { message: error })}</div>;
   }
 
   if (!assessment) {
-    return <div>Assessment not found.</div>;
+    return <div>{t("assessmentDetailPage.assessmentNotFound")}</div>;
   }
 
   return (
     <div className="container mx-auto p-6">
       <h1 className="text-3xl font-bold mb-4">{assessment.name}</h1>
       <p className="text-lg mb-6">
-        Here are the dimensions assigned to this assessment.
+        {t("assessmentDetailPage.welcomeDescription", {
+          count: dimensions.length,
+        })}
       </p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
