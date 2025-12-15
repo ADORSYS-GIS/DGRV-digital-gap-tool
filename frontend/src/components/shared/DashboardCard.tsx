@@ -56,26 +56,30 @@ export const DashboardCard: React.FC<DashboardCardProps> = ({
 
   return (
     <Card
-      className={`h-full flex flex-col transition-all duration-300 hover:shadow-lg border shadow-sm group/card overflow-hidden relative ${variant === "default" ? "bg-white" : variantStyles[variant]
-        }`}
+      className={`h-full flex flex-col transition-all duration-300 hover:shadow-lg border shadow-sm group/card overflow-hidden relative ${
+        variant === "default" ? "bg-white" : variantStyles[variant]
+      }`}
     >
       <div
-        className={`absolute top-0 left-0 w-full h-1 transition-colors duration-300 ${variant === "default"
+        className={`absolute top-0 left-0 w-full h-1 transition-colors duration-300 ${
+          variant === "default"
             ? "bg-gradient-to-r from-primary/40 to-primary/80 group-hover/card:from-primary group-hover/card:to-primary"
             : "bg-transparent"
-          }`}
+        }`}
       />
       <CardHeader className="flex-grow pb-2 pt-6">
         <div className="flex items-start space-x-4">
           <div
-            className={`p-3 rounded-xl transition-colors duration-300 ${variant === "default"
+            className={`p-3 rounded-xl transition-colors duration-300 ${
+              variant === "default"
                 ? "bg-primary/5 group-hover/card:bg-primary/10"
                 : "bg-white/50"
-              }`}
+            }`}
           >
             <Icon
-              className={`h-6 w-6 ${variant === "default" ? "text-primary" : iconColors[variant]
-                }`}
+              className={`h-6 w-6 ${
+                variant === "default" ? "text-primary" : iconColors[variant]
+              }`}
             />
           </div>
           <div className="space-y-1">

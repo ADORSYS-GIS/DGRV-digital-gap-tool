@@ -83,7 +83,9 @@ export function DigitalisationGapList({
           >
             <AccordionTrigger className="px-6 py-4 hover:bg-gray-50/50 transition-colors hover:no-underline">
               <div className="flex items-center gap-3">
-                <span className="text-lg font-semibold text-gray-900">{dimensionName}</span>
+                <span className="text-lg font-semibold text-gray-900">
+                  {dimensionName}
+                </span>
                 <span className="px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-medium">
                   {gaps.length} gaps
                 </span>
@@ -94,22 +96,37 @@ export function DigitalisationGapList({
                 <Table>
                   <TableHeader>
                     <TableRow className="bg-gray-50/50 hover:bg-gray-50/50 border-b border-gray-100">
-                      <TableHead className="pl-6 h-12 font-medium text-gray-600">Description</TableHead>
-                      <TableHead className="h-12 font-medium text-gray-600 w-[150px]">Severity</TableHead>
-                      <TableHead className="pr-6 h-12 font-medium text-gray-600 text-right w-[120px]">Actions</TableHead>
+                      <TableHead className="pl-6 h-12 font-medium text-gray-600">
+                        Description
+                      </TableHead>
+                      <TableHead className="h-12 font-medium text-gray-600 w-[150px]">
+                        Severity
+                      </TableHead>
+                      <TableHead className="pr-6 h-12 font-medium text-gray-600 text-right w-[120px]">
+                        Actions
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {gaps.map((gap) => (
-                      <TableRow key={gap.id} className="hover:bg-gray-50/30 border-b border-gray-50 last:border-0">
+                      <TableRow
+                        key={gap.id}
+                        className="hover:bg-gray-50/30 border-b border-gray-50 last:border-0"
+                      >
                         <TableCell className="pl-6 py-4 font-medium text-gray-700">
                           {gap.description}
                         </TableCell>
                         <TableCell className="py-4">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                            ${gap.gap_severity === 'HIGH' ? 'bg-red-100 text-red-700' :
-                              gap.gap_severity === 'MEDIUM' ? 'bg-yellow-100 text-yellow-700' :
-                                'bg-green-100 text-green-700'}`}>
+                          <span
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                            ${
+                              gap.gap_severity === "HIGH"
+                                ? "bg-red-100 text-red-700"
+                                : gap.gap_severity === "MEDIUM"
+                                  ? "bg-yellow-100 text-yellow-700"
+                                  : "bg-green-100 text-green-700"
+                            }`}
+                          >
                             {gap.gap_severity}
                           </span>
                         </TableCell>
@@ -154,7 +171,7 @@ export function DigitalisationGapList({
                                     className="bg-red-600 hover:bg-red-700"
                                   >
                                     {deleteMutation.isPending &&
-                                      deletingGapId === gap.id
+                                    deletingGapId === gap.id
                                       ? "Deleting..."
                                       : "Delete"}
                                   </AlertDialogAction>

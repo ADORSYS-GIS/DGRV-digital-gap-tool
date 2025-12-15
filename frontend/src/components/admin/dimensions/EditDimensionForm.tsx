@@ -93,7 +93,10 @@ export const EditDimensionForm = ({ dimension }: EditDimensionFormProps) => {
         <div className="p-6 pt-4">
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
             <div className="space-y-2">
-              <label htmlFor="name" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-gray-700">
+              <label
+                htmlFor="name"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-gray-700"
+              >
                 Dimension Name
               </label>
               <div className="relative">
@@ -111,7 +114,10 @@ export const EditDimensionForm = ({ dimension }: EditDimensionFormProps) => {
               )}
             </div>
             <div className="space-y-2">
-              <label htmlFor="description" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-gray-700">
+              <label
+                htmlFor="description"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-gray-700"
+              >
                 Description
               </label>
               <div className="relative">

@@ -81,9 +81,14 @@ export function RecommendationList({
             >
               <AccordionTrigger className="px-6 py-4 hover:bg-gray-50/50 transition-colors hover:no-underline">
                 <div className="flex items-center gap-3">
-                  <span className="text-lg font-semibold text-gray-900">{dimensionName}</span>
+                  <span className="text-lg font-semibold text-gray-900">
+                    {dimensionName}
+                  </span>
                   <span className="px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-medium">
-                    {dimensionRecs.length} {dimensionRecs.length === 1 ? "recommendation" : "recommendations"}
+                    {dimensionRecs.length}{" "}
+                    {dimensionRecs.length === 1
+                      ? "recommendation"
+                      : "recommendations"}
                   </span>
                 </div>
               </AccordionTrigger>
@@ -92,8 +97,12 @@ export function RecommendationList({
                   <Table>
                     <TableHeader>
                       <TableRow className="bg-gray-50/50 hover:bg-gray-50/50 border-b border-gray-100">
-                        <TableHead className="pl-6 h-12 font-medium text-gray-600 w-[120px]">Priority</TableHead>
-                        <TableHead className="h-12 font-medium text-gray-600">Description</TableHead>
+                        <TableHead className="pl-6 h-12 font-medium text-gray-600 w-[120px]">
+                          Priority
+                        </TableHead>
+                        <TableHead className="h-12 font-medium text-gray-600">
+                          Description
+                        </TableHead>
                         <TableHead className="pr-6 h-12 font-medium text-gray-600 w-[120px] text-right">
                           Actions
                         </TableHead>
@@ -115,9 +124,13 @@ export function RecommendationList({
                                     : "secondary"
                               }
                               className={`capitalize font-medium px-2.5 py-0.5 text-xs rounded-full shadow-none
-                                ${recommendation.priority === "HIGH" ? "bg-red-100 text-red-700 hover:bg-red-100" :
-                                  recommendation.priority === "MEDIUM" ? "bg-yellow-100 text-yellow-700 hover:bg-yellow-100" :
-                                    "bg-green-100 text-green-700 hover:bg-green-100"}`}
+                                ${
+                                  recommendation.priority === "HIGH"
+                                    ? "bg-red-100 text-red-700 hover:bg-red-100"
+                                    : recommendation.priority === "MEDIUM"
+                                      ? "bg-yellow-100 text-yellow-700 hover:bg-yellow-100"
+                                      : "bg-green-100 text-green-700 hover:bg-green-100"
+                                }`}
                             >
                               {recommendation.priority?.toLowerCase() || "N/A"}
                             </Badge>

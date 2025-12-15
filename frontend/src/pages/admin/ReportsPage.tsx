@@ -48,12 +48,16 @@ const ReportsPage: React.FC = () => {
                 Submissions for {selectedOrganization.name}
               </h2>
             </div>
-            <AssessmentSubmissionList organizationId={selectedOrganization.id} />
+            <AssessmentSubmissionList
+              organizationId={selectedOrganization.id}
+            />
           </div>
         ) : (
           <div>
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-gray-900">Select an Organization</h2>
+              <h2 className="text-xl font-semibold text-gray-900">
+                Select an Organization
+              </h2>
             </div>
             <OrganizationReportList
               onSelectOrganization={setSelectedOrganization}

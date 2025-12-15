@@ -42,12 +42,15 @@ export function ActionPlanList({
               </h3>
 
               <p className="text-sm text-gray-500 mb-4 line-clamp-3">
-                Action plan for digital gap assessment. Click to view and manage action items.
+                Action plan for digital gap assessment. Click to view and manage
+                action items.
               </p>
             </div>
 
             <div className="px-6 py-4 bg-gray-50/50 border-t border-gray-100 flex items-center justify-between group-hover:bg-primary/5 transition-colors">
-              <span className="text-sm font-medium text-primary">View Plan</span>
+              <span className="text-sm font-medium text-primary">
+                View Plan
+              </span>
               <ArrowRight className="h-4 w-4 text-primary transform group-hover:translate-x-1 transition-transform" />
             </div>
           </div>
@@ -59,7 +62,9 @@ export function ActionPlanList({
           <div className="mx-auto h-12 w-12 text-gray-400 mb-4">
             <ClipboardList className="h-12 w-12" />
           </div>
-          <h3 className="text-lg font-medium text-gray-900">No action plans yet</h3>
+          <h3 className="text-lg font-medium text-gray-900">
+            No action plans yet
+          </h3>
           <p className="mt-1 text-sm text-gray-500">
             Action plans are created when you complete an assessment.
           </p>

@@ -110,7 +110,10 @@ export function ActionItemCard({ item, onUpdate }: ActionItemCardProps) {
             </span>
             <span className="text-xs text-gray-400 flex items-center gap-1">
               <Calendar className="h-3 w-3" />
-              {new Date().toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+              {new Date().toLocaleDateString(undefined, {
+                month: "short",
+                day: "numeric",
+              })}
             </span>
           </div>
 

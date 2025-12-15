@@ -22,7 +22,8 @@ export default function ActionPlanPage() {
             Action Plan for {assessmentName || "Assessment"}
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl">
-            Track your action items from to-do to approved. Drag and drop items to update their status.
+            Track your action items from to-do to approved. Drag and drop items
+            to update their status.
           </p>
         </div>
       </div>

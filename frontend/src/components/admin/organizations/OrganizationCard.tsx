@@ -95,7 +95,11 @@ export const OrganizationCard: React.FC<OrganizationCardProps> = ({
             </div>
             <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
               <DialogTrigger asChild>
-                <Button variant="outline" size="sm" className="w-full justify-center border-blue-200 text-blue-700 hover:bg-blue-50 hover:text-blue-800 hover:border-blue-300 transition-colors">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full justify-center border-blue-200 text-blue-700 hover:bg-blue-50 hover:text-blue-800 hover:border-blue-300 transition-colors"
+                >
                   <FilePenLine className="mr-2 h-4 w-4" /> Edit
                 </Button>
               </DialogTrigger>
@@ -111,7 +115,11 @@ export const OrganizationCard: React.FC<OrganizationCardProps> = ({
             </Dialog>
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button variant="outline" size="sm" className="w-full justify-center border-red-200 text-red-700 hover:bg-red-50 hover:text-red-800 hover:border-red-300 transition-colors">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full justify-center border-red-200 text-red-700 hover:bg-red-50 hover:text-red-800 hover:border-red-300 transition-colors"
+                >
                   <Trash2 className="mr-2 h-4 w-4" /> Delete
                 </Button>
               </AlertDialogTrigger>
@@ -125,7 +133,10 @@ export const OrganizationCard: React.FC<OrganizationCardProps> = ({
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
+                  <AlertDialogAction
+                    onClick={handleDelete}
+                    className="bg-red-600 hover:bg-red-700"
+                  >
                     Continue
                   </AlertDialogAction>
                 </AlertDialogFooter>

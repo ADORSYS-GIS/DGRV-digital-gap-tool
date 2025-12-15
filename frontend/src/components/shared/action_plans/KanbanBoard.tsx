@@ -96,7 +96,9 @@ export function KanbanBoard({ submissionId }: KanbanBoardProps) {
               <DialogContent className="sm:max-w-[600px] p-0 overflow-hidden rounded-2xl border-0 shadow-2xl">
                 <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent p-6 border-b border-primary/10">
                   <DialogHeader className="mb-0">
-                    <DialogTitle className="text-2xl font-bold text-gray-900">Add New Action Item</DialogTitle>
+                    <DialogTitle className="text-2xl font-bold text-gray-900">
+                      Add New Action Item
+                    </DialogTitle>
                   </DialogHeader>
                 </div>
                 <div className="p-6">

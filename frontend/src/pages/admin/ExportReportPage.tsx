@@ -86,7 +86,9 @@ const ExportReportPage: React.FC = () => {
 
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
         <div className="p-6 border-b border-gray-100 bg-gray-50/50">
-          <h2 className="text-xl font-semibold text-gray-900">Submission Details</h2>
+          <h2 className="text-xl font-semibold text-gray-900">
+            Submission Details
+          </h2>
         </div>
         <div className="p-6">
           <SubmissionDetail submission={submission} />

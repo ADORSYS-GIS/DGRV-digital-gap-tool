@@ -43,7 +43,9 @@ const ViewReports: React.FC = () => {
 
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-gray-900">Select an Organization</h2>
+          <h2 className="text-xl font-semibold text-gray-900">
+            Select an Organization
+          </h2>
         </div>
         {organizations && organizations.length > 0 ? (
           <OrganizationList

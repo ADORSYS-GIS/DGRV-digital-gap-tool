@@ -12,7 +12,9 @@ const OrganizationReportsPage: React.FC = () => {
   const navigate = useNavigate();
 
   const { data: organizations } = useOrganizations();
-  const organizationName = organizations?.find(org => org.id === organizationId)?.name || organizationId;
+  const organizationName =
+    organizations?.find((org) => org.id === organizationId)?.name ||
+    organizationId;
 
   const {
     data: submissions,
@@ -58,14 +60,19 @@ const OrganizationReportsPage: React.FC = () => {
             Organization Reports
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl">
-            View submissions for Organization <span className="font-semibold text-primary">{organizationName}</span>
+            View submissions for Organization{" "}
+            <span className="font-semibold text-primary">
+              {organizationName}
+            </span>
           </p>
         </div>
       </div>
 
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-gray-900">Select a Submission</h2>
+          <h2 className="text-xl font-semibold text-gray-900">
+            Select a Submission
+          </h2>
         </div>
         {submissions && submissions.length > 0 ? (
           <SubmissionList
@@ -75,7 +82,9 @@ const OrganizationReportsPage: React.FC = () => {
           />
         ) : (
           <div className="text-center py-12 bg-gray-50 rounded-xl border border-dashed border-gray-300">
-            <p className="text-gray-500">No submissions found for this organization.</p>
+            <p className="text-gray-500">
+              No submissions found for this organization.
+            </p>
           </div>
         )}
       </div>

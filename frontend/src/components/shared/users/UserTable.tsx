@@ -22,12 +22,24 @@ export const UserTable: React.FC<UserTableProps> = ({ users }) => {
         <Table>
           <TableHeader>
             <TableRow className="bg-gray-50/50 hover:bg-gray-50/50 border-b border-gray-200">
-              <TableHead className="text-gray-600 font-semibold h-12">Email</TableHead>
-              <TableHead className="text-gray-600 font-semibold h-12">First Name</TableHead>
-              <TableHead className="text-gray-600 font-semibold h-12">Last Name</TableHead>
-              <TableHead className="text-gray-600 font-semibold h-12">Role</TableHead>
-              <TableHead className="text-gray-600 font-semibold h-12">Status</TableHead>
-              <TableHead className="text-gray-600 font-semibold h-12">Actions</TableHead>
+              <TableHead className="text-gray-600 font-semibold h-12">
+                Email
+              </TableHead>
+              <TableHead className="text-gray-600 font-semibold h-12">
+                First Name
+              </TableHead>
+              <TableHead className="text-gray-600 font-semibold h-12">
+                Last Name
+              </TableHead>
+              <TableHead className="text-gray-600 font-semibold h-12">
+                Role
+              </TableHead>
+              <TableHead className="text-gray-600 font-semibold h-12">
+                Status
+              </TableHead>
+              <TableHead className="text-gray-600 font-semibold h-12">
+                Actions
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

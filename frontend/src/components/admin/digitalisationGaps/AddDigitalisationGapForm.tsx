@@ -187,7 +187,9 @@ export function AddDigitalisationGapForm({
                 name="gap_severity"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-gray-700">Gap Severity</FormLabel>
+                    <FormLabel className="text-gray-700">
+                      Gap Severity
+                    </FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
@@ -246,12 +248,14 @@ export function AddDigitalisationGapForm({
                   disabled={addMutation.isPending || updateMutation.isPending}
                   className="flex-1 h-11 rounded-lg bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white font-medium shadow-md hover:shadow-lg transition-all duration-300"
                 >
-                  {(addMutation.isPending || updateMutation.isPending) ? (
+                  {addMutation.isPending || updateMutation.isPending ? (
                     <span className="flex items-center gap-2">
                       <span className="animate-spin">⏳</span> Saving...
                     </span>
+                  ) : digitalisationGap ? (
+                    "Update Gap"
                   ) : (
-                    digitalisationGap ? "Update Gap" : "Create Gap"
+                    "Create Gap"
                   )}
                 </Button>
               </div>

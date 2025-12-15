@@ -28,8 +28,8 @@ export const Navbar = () => {
   const roles =
     isAuthenticated && user
       ? [...(user.roles || []), ...(user.realm_access?.roles || [])].map((r) =>
-        r.toLowerCase(),
-      )
+          r.toLowerCase(),
+        )
       : [];
 
   const hasAdminRole = roles.includes(ROLES.ADMIN);
@@ -136,7 +136,7 @@ export const Navbar = () => {
                             {getUserDisplay()}
                           </span>
                           <span className="text-[10px] text-gray-500 font-medium uppercase tracking-wide">
-                            {roles[0] || 'User'}
+                            {roles[0] || "User"}
                           </span>
                         </div>
                       </Button>
@@ -144,7 +144,9 @@ export const Navbar = () => {
                     <DropdownMenuContent align="end" className="w-56 p-2">
                       <div className="px-2 py-1.5 mb-1 border-b border-gray-100">
                         <p className="text-sm font-semibold text-gray-900 truncate">
-                          {user?.name || user?.preferred_username || "User Profile"}
+                          {user?.name ||
+                            user?.preferred_username ||
+                            "User Profile"}
                         </p>
                         <p className="text-xs text-gray-500 truncate">
                           {user?.email}
@@ -186,8 +188,9 @@ export const Navbar = () => {
 
       {/* Mobile Sidebar */}
       <div
-        className={`fixed top-0 left-0 h-full w-72 bg-gradient-to-b from-blue-50 to-white shadow-xl transform transition-transform duration-300 ease-in-out z-50 md:hidden ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-          }`}
+        className={`fixed top-0 left-0 h-full w-72 bg-gradient-to-b from-blue-50 to-white shadow-xl transform transition-transform duration-300 ease-in-out z-50 md:hidden ${
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
       >
         <div className="flex flex-col h-full">
           {/* Sidebar Header */}

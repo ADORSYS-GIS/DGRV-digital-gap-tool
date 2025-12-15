@@ -144,7 +144,9 @@ export function AddRecommendationForm({
               <div className="p-2 rounded-lg bg-primary/10 text-primary">
                 <Lightbulb className="h-5 w-5" />
               </div>
-              <DialogTitle className="text-2xl font-bold text-gray-900">Add New Recommendation</DialogTitle>
+              <DialogTitle className="text-2xl font-bold text-gray-900">
+                Add New Recommendation
+              </DialogTitle>
             </div>
             <DialogDescription className="text-sm text-muted-foreground pl-12">
               Fill in the details below to create a new recommendation.
@@ -161,7 +163,9 @@ export function AddRecommendationForm({
                   name="dimension_id"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-gray-700">Dimension *</FormLabel>
+                      <FormLabel className="text-gray-700">
+                        Dimension *
+                      </FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
@@ -192,7 +196,9 @@ export function AddRecommendationForm({
                   name="priority"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-gray-700">Priority *</FormLabel>
+                      <FormLabel className="text-gray-700">
+                        Priority *
+                      </FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
@@ -221,7 +227,9 @@ export function AddRecommendationForm({
                   name="description"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-gray-700">Description *</FormLabel>
+                      <FormLabel className="text-gray-700">
+                        Description *
+                      </FormLabel>
                       <FormControl>
                         <div className="relative">
                           <FileText className="absolute left-3 top-3 h-4 w-4 text-gray-400" />

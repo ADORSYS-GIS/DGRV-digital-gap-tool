@@ -86,9 +86,9 @@ export const SubmissionList = ({
       data: getSubmissionData(submission),
     }))
     .filter((item) => item.data !== null) as Array<{
-      submission: AssessmentSummary;
-      data: SubmissionItemData;
-    }>;
+    submission: AssessmentSummary;
+    data: SubmissionItemData;
+  }>;
 
   if (validItems.length === 0) {
     return (

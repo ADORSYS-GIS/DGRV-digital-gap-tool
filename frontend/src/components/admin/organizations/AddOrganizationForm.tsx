@@ -24,7 +24,11 @@ export const AddOrganizationForm: React.FC = () => {
     const description = formData.get("description") as string;
 
     if (name && domain) {
-      addOrganizationMutation.mutate({ name, domain, description: description || "" });
+      addOrganizationMutation.mutate({
+        name,
+        domain,
+        description: description || "",
+      });
       setIsOpen(false);
       event.currentTarget.reset();
     }

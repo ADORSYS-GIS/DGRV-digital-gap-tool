@@ -133,7 +133,9 @@ export const InviteUserForm: React.FC<InviteUserFormProps> = ({
                   name="firstName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-gray-700">First Name</FormLabel>
+                      <FormLabel className="text-gray-700">
+                        First Name
+                      </FormLabel>
                       <FormControl>
                         <div className="relative">
                           <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />

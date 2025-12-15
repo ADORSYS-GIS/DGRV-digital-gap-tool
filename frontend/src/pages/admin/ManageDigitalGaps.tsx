@@ -22,7 +22,8 @@ export default function ManageDigitalGaps() {
             Manage Digitalisation Gaps
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl">
-            Define and manage potential gaps in digitalisation across different dimensions.
+            Define and manage potential gaps in digitalisation across different
+            dimensions.
           </p>
         </div>
         <div className="flex items-center space-x-2">

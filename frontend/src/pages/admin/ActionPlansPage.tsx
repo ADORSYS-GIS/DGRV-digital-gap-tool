@@ -69,7 +69,9 @@ const ActionPlansPage: React.FC = () => {
       {!selectedOrganizationId ? (
         <div className="space-y-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-gray-900">Select an Organization</h2>
+            <h2 className="text-xl font-semibold text-gray-900">
+              Select an Organization
+            </h2>
           </div>
           {isLoadingOrganizations ? (
             <div className="flex justify-center py-12">
@@ -92,7 +94,9 @@ const ActionPlansPage: React.FC = () => {
               >
                 ← Back to Organizations
               </button>
-              <h2 className="text-xl font-semibold text-gray-900">Select a Submission</h2>
+              <h2 className="text-xl font-semibold text-gray-900">
+                Select a Submission
+              </h2>
             </div>
           </div>
 

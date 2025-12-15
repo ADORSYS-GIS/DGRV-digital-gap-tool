@@ -44,7 +44,9 @@ const AdminLayout: React.FC = () => {
               <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
                 <div className="w-4 h-4 bg-primary rounded-sm" />
               </div>
-              <span className="text-lg font-bold tracking-tight text-white">Admin Panel</span>
+              <span className="text-lg font-bold tracking-tight text-white">
+                Admin Panel
+              </span>
             </div>
           ) : (
             <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center mx-auto">
@@ -84,13 +86,17 @@ const AdminLayout: React.FC = () => {
                       "flex items-center px-3 py-3 rounded-xl transition-all duration-200 group relative",
                       isActive
                         ? "bg-primary text-white shadow-lg shadow-primary/25 font-medium"
-                        : "text-slate-400 hover:bg-slate-700/50 hover:text-white"
+                        : "text-slate-400 hover:bg-slate-700/50 hover:text-white",
                     )}
                   >
-                    <link.icon className={cn(
-                      "h-5 w-5 flex-shrink-0 transition-colors",
-                      isActive ? "text-white" : "text-slate-400 group-hover:text-white"
-                    )} />
+                    <link.icon
+                      className={cn(
+                        "h-5 w-5 flex-shrink-0 transition-colors",
+                        isActive
+                          ? "text-white"
+                          : "text-slate-400 group-hover:text-white",
+                      )}
+                    />
 
                     {isSidebarOpen && (
                       <span className="ml-3 truncate">{link.text}</span>
@@ -109,17 +115,23 @@ const AdminLayout: React.FC = () => {
         </nav>
 
         <div className="p-4 border-t border-slate-700">
-          <div className={cn(
-            "rounded-xl bg-slate-700/50 p-4 flex items-center gap-3",
-            !isSidebarOpen && "justify-center p-2 bg-transparent"
-          )}>
+          <div
+            className={cn(
+              "rounded-xl bg-slate-700/50 p-4 flex items-center gap-3",
+              !isSidebarOpen && "justify-center p-2 bg-transparent",
+            )}
+          >
             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold shadow-inner">
               A
             </div>
             {isSidebarOpen && (
               <div className="flex flex-col overflow-hidden">
-                <span className="text-sm font-medium text-white truncate">Administrator</span>
-                <span className="text-xs text-slate-400 truncate">admin@dgrv.com</span>
+                <span className="text-sm font-medium text-white truncate">
+                  Administrator
+                </span>
+                <span className="text-xs text-slate-400 truncate">
+                  admin@dgrv.com
+                </span>
               </div>
             )}
           </div>

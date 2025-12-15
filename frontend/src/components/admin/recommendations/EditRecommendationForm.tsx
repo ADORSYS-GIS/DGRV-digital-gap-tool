@@ -160,7 +160,9 @@ export function EditRecommendationForm({
               <div className="p-2 rounded-lg bg-blue-100 text-blue-600">
                 <Pencil className="h-5 w-5" />
               </div>
-              <DialogTitle className="text-2xl font-bold text-gray-900">Edit Recommendation</DialogTitle>
+              <DialogTitle className="text-2xl font-bold text-gray-900">
+                Edit Recommendation
+              </DialogTitle>
             </div>
             <DialogDescription className="text-sm text-muted-foreground pl-12">
               Update the recommendation details below.
@@ -177,7 +179,9 @@ export function EditRecommendationForm({
                   name="dimension_id"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-gray-700">Dimension *</FormLabel>
+                      <FormLabel className="text-gray-700">
+                        Dimension *
+                      </FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
@@ -209,7 +213,9 @@ export function EditRecommendationForm({
                   name="priority"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-gray-700">Priority *</FormLabel>
+                      <FormLabel className="text-gray-700">
+                        Priority *
+                      </FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
@@ -239,7 +245,9 @@ export function EditRecommendationForm({
                   name="description"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-gray-700">Description *</FormLabel>
+                      <FormLabel className="text-gray-700">
+                        Description *
+                      </FormLabel>
                       <FormControl>
                         <div className="relative">
                           <FileText className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
