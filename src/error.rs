@@ -34,31 +34,39 @@ pub enum AppError {
 
     #[error("Internal error: {0}")]
     AnyhowError(#[from] anyhow::Error),
+
+    #[error("Level id already assigned to another state")]
+    LevelIdAlreadyExists,
 }
 
 impl IntoResponse for AppError {
     fn into_response(self) -> Response {
-        let (status, error_message) = match self {
-            AppError::DatabaseError(_) => (StatusCode::INTERNAL_SERVER_ERROR, "Database error"),
-            AppError::ValidationError(_) => (StatusCode::BAD_REQUEST, "Validation error"),
-            AppError::NotFound(_) => (StatusCode::NOT_FOUND, "Resource not found"),
-            AppError::Unauthorized(_) => (StatusCode::UNAUTHORIZED, "Unauthorized"),
-            AppError::BadRequest(_) => (StatusCode::BAD_REQUEST, "Bad request"),
-            AppError::InternalServerError(_) => {
-                (StatusCode::INTERNAL_SERVER_ERROR, "Internal server error")
+        let (status, error_code, error_message) = match self {
+            AppError::DatabaseError(_) => {
+                (StatusCode::INTERNAL_SERVER_ERROR, "DATABASE_ERROR", "Database error")
             }
-            AppError::AuthError(_) => (StatusCode::UNAUTHORIZED, "Authentication error"),
-            AppError::FileStorageError(_) => {
-                (StatusCode::INTERNAL_SERVER_ERROR, "File storage error")
+            AppError::ValidationError(msg) => (StatusCode::BAD_REQUEST, "VALIDATION_ERROR", msg),
+            AppError::NotFound(msg) => (StatusCode::NOT_FOUND, "NOT_FOUND", msg),
+            AppError::Unauthorized(msg) => (StatusCode::UNAUTHORIZED, "UNAUTHORIZED", msg),
+            AppError::BadRequest(msg) => (StatusCode::BAD_REQUEST, "BAD_REQUEST", msg),
+            AppError::InternalServerError(msg) => {
+                (StatusCode::INTERNAL_SERVER_ERROR, "INTERNAL_SERVER_ERROR", msg)
             }
-            AppError::AnyhowError(_) => {
-                (StatusCode::INTERNAL_SERVER_ERROR, "Internal server error")
+            AppError::AuthError(msg) => (StatusCode::UNAUTHORIZED, "AUTHENTICATION_ERROR", msg),
+            AppError::FileStorageError(msg) => {
+                (StatusCode::INTERNAL_SERVER_ERROR, "FILE_STORAGE_ERROR", msg)
+            }
+            AppError::AnyhowError(err) => {
+                (StatusCode::INTERNAL_SERVER_ERROR, "INTERNAL_ERROR", err.to_string())
+            }
+            AppError::LevelIdAlreadyExists => {
+                (StatusCode::CONFLICT, "LEVEL_ID_ALREADY_EXISTS", "Level id already assigned to another state")
             }
         };
 
         let body = Json(json!({
-            "error": error_message,
-            "message": self.to_string(),
+            "error_code": error_code,
+            "message": error_message,
         }));
 
         (status, body).into_response()

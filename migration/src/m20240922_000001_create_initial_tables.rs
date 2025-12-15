@@ -57,7 +57,12 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(CurrentStates::DimensionId).uuid().not_null())
                     .col(ColumnDef::new(CurrentStates::Title).string().not_null())
                     .col(ColumnDef::new(CurrentStates::Description).text())
-                    .col(ColumnDef::new(CurrentStates::Score).integer().not_null())
+                    .col(
+                        ColumnDef::new(CurrentStates::Score)
+                            .integer()
+                            .not_null()
+                            .unique_key(),
+                    )
                     .col(
                         ColumnDef::new(CurrentStates::CreatedAt)
                             .timestamp()
@@ -97,7 +102,12 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(DesiredStates::DimensionId).uuid().not_null())
                     .col(ColumnDef::new(DesiredStates::Title).string().not_null())
                     .col(ColumnDef::new(DesiredStates::Description).text())
-                    .col(ColumnDef::new(DesiredStates::Score).integer().not_null())
+                    .col(
+                        ColumnDef::new(DesiredStates::Score)
+                            .integer()
+                            .not_null()
+                            .unique_key(),
+                    )
                     .col(
                         ColumnDef::new(DesiredStates::CreatedAt)
                             .timestamp()

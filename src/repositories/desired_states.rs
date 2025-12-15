@@ -6,6 +6,17 @@ use uuid::Uuid;
 pub struct DesiredStatesRepository;
 
 impl DesiredStatesRepository {
+    pub async fn find_by_score(
+        db: &DbConn,
+        score: i32,
+    ) -> Result<Option<desired_states::Model>, AppError> {
+        DesiredStates::find()
+            .filter(desired_states::Column::Score.eq(score))
+            .one(db)
+            .await
+            .map_err(AppError::from)
+    }
+
     pub async fn find_all(db: &DbConn) -> Result<Vec<desired_states::Model>, AppError> {
         DesiredStates::find().all(db).await.map_err(AppError::from)
     }
@@ -24,6 +35,11 @@ impl DesiredStatesRepository {
         db: &DbConn,
         desired_state_data: desired_states::ActiveModel,
     ) -> Result<desired_states::Model, AppError> {
+        if let Set(score) = desired_state_data.score {
+            if Self::find_by_score(db, score).await?.is_some() {
+                return Err(AppError::LevelIdAlreadyExists);
+            }
+        }
         desired_state_data.insert(db).await.map_err(AppError::from)
     }
 
@@ -40,14 +56,20 @@ impl DesiredStatesRepository {
 
         let mut active_model: desired_states::ActiveModel = desired_state.into();
 
+        if let Set(new_score) = desired_state_data.score {
+            if let Some(existing_state) = Self::find_by_score(db, new_score).await? {
+                if existing_state.desired_state_id != desired_state_id {
+                    return Err(AppError::LevelIdAlreadyExists);
+                }
+            }
+            active_model.score = Set(new_score);
+        }
+
         if let ActiveValue::Set(dimension_id) = desired_state_data.dimension_id {
             active_model.dimension_id = Set(dimension_id);
         }
         if let ActiveValue::Set(description) = desired_state_data.description {
             active_model.description = Set(description);
-        }
-        if let ActiveValue::Set(score) = desired_state_data.score {
-            active_model.score = Set(score);
         }
         active_model.updated_at = Set(chrono::Utc::now());
 
