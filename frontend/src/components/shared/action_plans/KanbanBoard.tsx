@@ -1,14 +1,35 @@
+import { useState } from "react";
 import { useActionPlan } from "@/hooks/action_plans/useActionPlan";
 import { ActionItemCard } from "./ActionItemCard";
-import { Clock, CirclePlay, CircleCheck, ThumbsUp } from "lucide-react";
+import { Clock, CirclePlay, CircleCheck, ThumbsUp, Plus } from "lucide-react";
 import { LoadingSpinner } from "../LoadingSpinner";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { AddActionItemForm } from "./AddActionItemForm";
 
 interface KanbanBoardProps {
   submissionId: string;
 }
 
 export function KanbanBoard({ submissionId }: KanbanBoardProps) {
-  const { data: actionPlan, isLoading, error } = useActionPlan(submissionId);
+  const {
+    data: actionPlan,
+    isLoading,
+    error,
+    refetch,
+  } = useActionPlan(submissionId);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const handleSuccess = () => {
+    setIsDialogOpen(false);
+    refetch();
+  };
 
   if (isLoading) {
     return <LoadingSpinner />;
@@ -46,6 +67,26 @@ export function KanbanBoard({ submissionId }: KanbanBoardProps) {
           {columns.todo.map((item) => (
             <ActionItemCard key={item.action_item_id} item={item} />
           ))}
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button
+                variant="outline"
+                className="w-full flex items-center justify-center text-gray-600 hover:text-gray-900"
+              >
+                <Plus className="mr-2 h-4 w-4" /> Add Action Item
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Add New Action Item</DialogTitle>
+              </DialogHeader>
+              <AddActionItemForm
+                actionPlanId={actionPlan.action_plan_id}
+                assessmentId={submissionId}
+                onSuccess={handleSuccess}
+              />
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
       <div className="bg-blue-50 p-4 rounded-lg shadow-inner">

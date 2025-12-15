@@ -74,6 +74,9 @@ use crate::models::keycloak::KeycloakUser;
         crate::api::handlers::report::download_latest_report_by_assessment,
         crate::api::handlers::action_plan::list_action_plans,
         crate::api::handlers::action_plan::get_action_plan_by_assessment_id,
+        crate::api::handlers::action_plan::create_action_item,
+        crate::api::handlers::action_plan::update_action_item,
+        crate::api::handlers::action_plan::delete_action_item,
         // Recommendation endpoints
         crate::api::handlers::recommendation::create_recommendation,
         crate::api::handlers::recommendation::get_recommendation,
@@ -192,6 +195,8 @@ use crate::models::keycloak::KeycloakUser;
             // Action Plans
             ActionPlanResponse,
             ActionItemResponse,
+            CreateActionItemRequest,
+            UpdateActionItemRequest,
             // Gaps
             CreateGapRequest,
             UpdateGapRequest,
