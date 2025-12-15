@@ -110,7 +110,11 @@ export function KanbanBoard({ submissionId }: KanbanBoardProps) {
         </h2>
         <div className="space-y-4">
           {columns.in_progress.map((item) => (
-            <ActionItemCard key={item.action_item_id} item={item} onUpdate={refetch} />
+            <ActionItemCard
+              key={item.action_item_id}
+              item={item}
+              onUpdate={refetch}
+            />
           ))}
         </div>
       </div>
@@ -123,7 +127,11 @@ export function KanbanBoard({ submissionId }: KanbanBoardProps) {
         </h2>
         <div className="space-y-4">
           {columns.done.map((item) => (
-            <ActionItemCard key={item.action_item_id} item={item} onUpdate={refetch} />
+            <ActionItemCard
+              key={item.action_item_id}
+              item={item}
+              onUpdate={refetch}
+            />
           ))}
         </div>
       </div>
@@ -136,7 +144,11 @@ export function KanbanBoard({ submissionId }: KanbanBoardProps) {
         </h2>
         <div className="space-y-4">
           {columns.approved.map((item) => (
-            <ActionItemCard key={item.action_item_id} item={item} onUpdate={refetch} />
+            <ActionItemCard
+              key={item.action_item_id}
+              item={item}
+              onUpdate={refetch}
+            />
           ))}
         </div>
       </div>
