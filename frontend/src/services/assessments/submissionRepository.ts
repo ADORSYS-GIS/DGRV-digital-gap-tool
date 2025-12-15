@@ -1,5 +1,5 @@
 import {
-  getAssessmentSummary,
+  getAssessmentSummary as fetchAssessmentSummaryApi,
   listSubmissionsByCooperation,
   listSubmissionsByOrganization,
 } from "@/openapi-client";
@@ -73,6 +73,16 @@ const mapApiResponseToAssessmentSummary = (
   };
 };
 
+export const getAssessmentSummary = async (id: string): Promise<AssessmentSummary | undefined> => {
+  try {
+    const response = await fetchAssessmentSummaryApi({ id });
+    return mapApiResponseToAssessmentSummary(response) || undefined;
+  } catch (error) {
+    console.error(`Error fetching assessment summary for ${id}:`, error);
+    return undefined;
+  }
+};
+
 export const submissionRepository = {
   // Get all submissions from local database (for offline use)
   getAll: async (): Promise<AssessmentSummary[]> => {
@@ -87,7 +97,7 @@ export const submissionRepository = {
     try {
       // If online, try to fetch from server to ensure we have the latest data
       if (navigator.onLine) {
-        const response = await getAssessmentSummary({ id });
+        const response = await fetchAssessmentSummaryApi({ id });
         const syncedSubmission = mapApiResponseToAssessmentSummary(response);
 
         if (syncedSubmission) {
@@ -116,7 +126,7 @@ export const submissionRepository = {
         const submissions = await Promise.all(
           listResponse.data.assessments.map(async (assessmentItem: AssessmentResponse) => {
             try {
-              const summaryResponse = await getAssessmentSummary({ id: assessmentItem.assessment_id });
+              const summaryResponse = await fetchAssessmentSummaryApi({ id: assessmentItem.assessment_id });
               const submission = mapApiResponseToAssessmentSummary(summaryResponse);
               return submission;
             } catch (summaryError) {
@@ -166,7 +176,7 @@ export const submissionRepository = {
           const submissions = await Promise.all(
             listResponse.data.assessments.map(async (assessmentItem: AssessmentResponse) => {
               try {
-                const summaryResponse = await getAssessmentSummary({ id: assessmentItem.assessment_id });
+                const summaryResponse = await fetchAssessmentSummaryApi({ id: assessmentItem.assessment_id });
                 const submission = mapApiResponseToAssessmentSummary(summaryResponse);
                 return submission;
               } catch (summaryError) {
@@ -259,7 +269,7 @@ export const submissionRepository = {
 
       // If online, try to sync with server
       if (navigator.onLine) {
-        const response = await getAssessmentSummary({ id: assessmentId });
+        const response = await fetchAssessmentSummaryApi({ id: assessmentId });
         if (response?.data) {
           const syncedSubmission = mapApiResponseToAssessmentSummary(response);
           if (syncedSubmission) {
@@ -297,7 +307,7 @@ export const submissionRepository = {
         console.log(
           `[submissionRepository] Fetching assessment ${assessmentId} for organization ${organizationId}`,
         );
-        const response = await getAssessmentSummary({ id: assessmentId });
+        const response = await fetchAssessmentSummaryApi({ id: assessmentId });
 
         if (response?.data) {
           const syncedSubmission = mapApiResponseToAssessmentSummary(response);
@@ -358,7 +368,7 @@ export const submissionRepository = {
         console.log(
           `[submissionRepository] Fetching assessment ${assessmentId} for cooperation ${cooperationId}`,
         );
-        const response = await getAssessmentSummary({ id: assessmentId });
+        const response = await fetchAssessmentSummaryApi({ id: assessmentId });
 
         if (response?.data) {
           const syncedSubmission = mapApiResponseToAssessmentSummary(response);

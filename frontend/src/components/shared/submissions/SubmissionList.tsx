@@ -8,7 +8,7 @@ interface SubmissionListProps {
   limit?: number;
   basePath: string;
   showOrganization?: boolean;
-  onSubmissionSelect?: (submission: AssessmentSummary) => void;
+  onSubmissionSelect?: (submissionId: string) => void;
 }
 
 const getStatusVariant = (status: string) => {
@@ -45,9 +45,9 @@ export const SubmissionList = ({
 }: SubmissionListProps) => {
   const items = limit ? submissions.slice(0, limit) : submissions;
 
-  const handleSubmissionClick = (submission: AssessmentSummary) => {
+  const handleSubmissionClick = (submissionId: string) => {
     if (onSubmissionSelect) {
-      onSubmissionSelect(submission);
+      onSubmissionSelect(submissionId);
     }
   };
 
@@ -104,7 +104,7 @@ export const SubmissionList = ({
         onSubmissionSelect ? (
           <button
             key={submissionData.id}
-            onClick={() => handleSubmissionClick(submission)}
+            onClick={() => handleSubmissionClick(submissionData.id)}
             className="w-full text-left border rounded-lg p-4 hover:bg-gray-50 transition-colors"
           >
             <div className="flex items-center justify-between">
