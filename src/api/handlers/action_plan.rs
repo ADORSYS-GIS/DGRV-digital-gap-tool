@@ -10,7 +10,9 @@ use uuid::Uuid;
 use validator::Validate;
 
 use crate::api::dto::{
-    action_plan::{ActionItemResponse, ActionPlanResponse, CreateActionItemRequest, UpdateActionItemRequest},
+    action_plan::{
+        ActionItemResponse, ActionPlanResponse, CreateActionItemRequest, UpdateActionItemRequest,
+    },
     common::{ApiResponse, PaginatedResponse, PaginationParams},
 };
 use crate::api::handlers::common::{extract_pagination, handle_error, success_response};
@@ -79,7 +81,8 @@ pub async fn create_action_item(
     Path(action_plan_id): Path<Uuid>,
     Json(body): Json<CreateActionItemRequest>,
 ) -> Result<Json<ApiResponse<ActionItemResponse>>, (StatusCode, Json<serde_json::Value>)> {
-    body.validate().map_err(|e| handle_error(AppError::ValidationError(e.to_string())))?;
+    body.validate()
+        .map_err(|e| handle_error(AppError::ValidationError(e.to_string())))?;
 
     let db = &state.db;
     let action_plan_service = ActionPlanService::new(db.clone());
@@ -95,7 +98,7 @@ pub async fn create_action_item(
             action_plan_id,
             body.recommendation_id,
             body.dimension_assessment_id,
-            body.title.clone(), // Clone title for response
+            body.title.clone(),       // Clone title for response
             body.description.clone(), // Clone description for response
             body.priority,
         )
@@ -137,7 +140,8 @@ pub async fn update_action_item(
     Path((action_plan_id, action_item_id)): Path<(Uuid, Uuid)>,
     Json(body): Json<UpdateActionItemRequest>,
 ) -> Result<Json<ApiResponse<ActionItemResponse>>, (StatusCode, Json<serde_json::Value>)> {
-    body.validate().map_err(|e| handle_error(AppError::ValidationError(e.to_string())))?;
+    body.validate()
+        .map_err(|e| handle_error(AppError::ValidationError(e.to_string())))?;
 
     let db = &state.db;
     let action_plan_service = ActionPlanService::new(db.clone());
@@ -167,9 +171,9 @@ pub async fn update_action_item(
         dimension_assessment_id: updated_item.dimension_assessment_id,
         status: updated_item.status.to_string(),
         priority: updated_item.priority.to_string(),
-        title: "".to_string(),       // Title and description are not directly stored in action_items
+        title: "".to_string(), // Title and description are not directly stored in action_items
         description: "".to_string(), // They are derived from recommendations.
-        dimension: "".to_string(),   // Placeholder
+        dimension: "".to_string(), // Placeholder
     };
 
     Ok(success_response(response))

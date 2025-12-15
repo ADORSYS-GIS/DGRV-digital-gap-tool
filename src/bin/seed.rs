@@ -147,12 +147,28 @@ fn get_states_for_dimension(_dimension_name: &str) -> Vec<(bool, &str, i32)> {
         (true, "Level 2: Repeatable but intuitive processes.", 2),
         (true, "Level 3: Defined and documented processes.", 3),
         (true, "Level 4: Managed and measured processes.", 4),
-        (true, "Level 5: Optimized and continuously improving processes.", 5),
-        (false, "Achieve Level 1: Foundational capabilities established.", 1),
+        (
+            true,
+            "Level 5: Optimized and continuously improving processes.",
+            5,
+        ),
+        (
+            false,
+            "Achieve Level 1: Foundational capabilities established.",
+            1,
+        ),
         (false, "Achieve Level 2: Processes are standardized.", 2),
         (false, "Achieve Level 3: Processes are integrated.", 3),
-        (false, "Achieve Level 4: Processes are quantitatively managed.", 4),
-        (false, "Achieve Level 5: Drive continuous improvement and innovation.", 5),
+        (
+            false,
+            "Achieve Level 4: Processes are quantitatively managed.",
+            4,
+        ),
+        (
+            false,
+            "Achieve Level 5: Drive continuous improvement and innovation.",
+            5,
+        ),
     ]
 }
 

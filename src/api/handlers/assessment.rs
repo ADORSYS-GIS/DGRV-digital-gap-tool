@@ -486,9 +486,10 @@ pub async fn create_dimension_assessment(
 pub async fn list_dimension_assessments(
     State(state): State<AppState>,
     Path(assessment_id): Path<Uuid>,
-) -> Result<Json<ApiResponse<DimensionAssessmentsResponse>>, (StatusCode, Json<serde_json::Value>)> {
+) -> Result<Json<ApiResponse<DimensionAssessmentsResponse>>, (StatusCode, Json<serde_json::Value>)>
+{
     let db = &state.db;
-    
+
     // Verify assessment exists
     AssessmentsRepository::find_by_id(db.as_ref(), assessment_id)
         .await
@@ -498,13 +499,13 @@ pub async fn list_dimension_assessments(
                 "Assessment not found".to_string(),
             ))
         })?;
-    
+
     // Get all dimension assessments for this assessment
     let dimension_assessments =
         DimensionAssessmentsRepository::find_by_assessment_id(db.as_ref(), assessment_id)
             .await
             .map_err(crate::api::handlers::common::handle_error)?;
-    
+
     let dimension_assessments_list: Vec<DimensionAssessmentResponse> = dimension_assessments
         .into_iter()
         .map(|da| DimensionAssessmentResponse {
@@ -521,11 +522,11 @@ pub async fn list_dimension_assessments(
             updated_at: da.updated_at,
         })
         .collect();
-    
+
     let response = DimensionAssessmentsResponse {
         dimension_assessments: dimension_assessments_list,
     };
-    
+
     Ok(success_response(response))
 }
 
@@ -565,7 +566,7 @@ pub async fn update_dimension_assessment(
     // If gap_score is being updated, also update the gap_id
     if let Some(gap_score) = request.gap_score {
         active_model.gap_score = sea_orm::Set(gap_score);
-        
+
         // Look up the corresponding gap by dimension and severity
         let gap = GapsRepository::find_by_dimension_and_severity(
             db.as_ref(),
@@ -576,7 +577,9 @@ pub async fn update_dimension_assessment(
                 3 => crate::entities::gaps::GapSeverity::High,
                 _ => {
                     return Err(crate::api::handlers::common::handle_error(
-                        AppError::ValidationError("Invalid gap_score. Must be 1, 2, or 3.".to_string()),
+                        AppError::ValidationError(
+                            "Invalid gap_score. Must be 1, 2, or 3.".to_string(),
+                        ),
                     ));
                 }
             },
@@ -588,7 +591,7 @@ pub async fn update_dimension_assessment(
                 "Corresponding gap not found for the given dimension and severity".to_string(),
             ))
         })?;
-        
+
         active_model.gap_id = sea_orm::Set(gap.gap_id);
     }
 
