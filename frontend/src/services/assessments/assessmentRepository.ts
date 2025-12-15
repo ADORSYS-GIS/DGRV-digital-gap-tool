@@ -83,11 +83,13 @@ export const assessmentRepository = {
       } else {
         throw new Error("Backend did not return assessment ID");
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Failed to create assessment on backend:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
       await db.assessments.update(tempId, {
         syncStatus: SyncStatus.FAILED,
-        lastError: error.message || "Unknown error",
+        lastError: errorMessage,
       });
       throw error;
     }
