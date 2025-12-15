@@ -20,6 +20,7 @@ import { useUpdateAssessment } from "../../../hooks/assessments/useUpdateAssessm
 import { useDimensions } from "../../../hooks/dimensions/useDimensions";
 
 import { ROLES } from "@/constants/roles";
+import { useTranslation } from "react-i18next";
 
 interface AssessmentListProps {
   assessments: Assessment[];
@@ -39,6 +40,7 @@ export function AssessmentList({
   const { data: dimensions, isLoading: isLoadingDimensions } = useDimensions();
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useTranslation();
 
   const handleEdit = (assessment: Assessment) => {
     setSelectedAssessment(assessment);
@@ -98,7 +100,7 @@ export function AssessmentList({
                 </div>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {isLoadingDimensions ? (
-                    <Badge variant="outline">Loading dimensions...</Badge>
+                    <Badge variant="outline">{t("assessments.loadingDimensions")}</Badge>
                   ) : (
                     assessment.dimensionIds?.map((id) => {
                       const dimension = dimensions?.find((d) => d.id === id);
@@ -122,16 +124,15 @@ export function AssessmentList({
               >
                 <AlertDialogContent>
                   <AlertDialogHeader>
-                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                    <AlertDialogTitle>{t("assessments.list.delete.title")}</AlertDialogTitle>
                     <AlertDialogDescription>
-                      This action cannot be undone. This will permanently delete
-                      the assessment and remove its data from our servers.
+                      {t("assessments.list.delete.description")}
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
                     <AlertDialogAction onClick={confirmDelete}>
-                      Continue
+                      {t("common.continue")}
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
@@ -139,7 +140,7 @@ export function AssessmentList({
             </div>
             <div className="flex items-center space-x-2">
               <Button onClick={() => handleAnswer(assessment.id)}>
-                Answer
+                {t("assessments.list.answer")}
               </Button>
               {!userRoles.includes(ROLES.COOP_ADMIN.toLowerCase()) &&
                 !userRoles.includes(ROLES.COOP_USER.toLowerCase()) && (

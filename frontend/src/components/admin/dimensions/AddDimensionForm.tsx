@@ -13,9 +13,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useAddDimension } from "@/hooks/dimensions/useAddDimension";
+import { useTranslation } from "react-i18next";
+import i18n from "@/i18n";
 
 const formSchema = z.object({
-  name: z.string().min(1, "Dimension name is required"),
+  name: z
+    .string()
+    .min(
+      1,
+      i18n.t("validation.dimensionNameRequired", {
+        defaultValue: "Dimension name is required",
+      }),
+    ),
   description: z.string().optional(),
 });
 
@@ -40,6 +49,7 @@ export const AddDimensionForm = ({
   });
 
   const addDimensionMutation = useAddDimension();
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (!isOpen) {
@@ -63,11 +73,16 @@ export const AddDimensionForm = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add New Dimension</DialogTitle>
+          <DialogTitle>{t("admin.dimensions.addTitle", { defaultValue: "Add New Dimension" })}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
-            <Input {...register("name")} placeholder="Dimension Name" />
+            <Input
+              {...register("name")}
+              placeholder={t("admin.dimensions.form.namePlaceholder", {
+                defaultValue: "Dimension Name",
+              })}
+            />
             {errors.name && (
               <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
             )}
@@ -75,12 +90,16 @@ export const AddDimensionForm = ({
           <div>
             <Textarea
               {...register("description")}
-              placeholder="Description (optional)"
+              placeholder={t("common.descriptionOptional", {
+                defaultValue: "Description (optional)",
+              })}
             />
           </div>
           <DialogFooter>
             <Button type="submit" disabled={addDimensionMutation.isPending}>
-              {addDimensionMutation.isPending ? "Adding..." : "Add Dimension"}
+              {addDimensionMutation.isPending
+                ? t("common.adding", { defaultValue: "Adding..." })
+                : t("admin.dimensions.addAction", { defaultValue: "Add Dimension" })}
             </Button>
           </DialogFooter>
         </form>

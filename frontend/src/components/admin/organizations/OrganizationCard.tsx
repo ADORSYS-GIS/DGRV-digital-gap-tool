@@ -29,6 +29,7 @@ import { Organization } from "@/types/organization";
 import { Building2, FilePenLine, Trash2, Users } from "lucide-react";
 import React, { useState } from "react";
 import { EditOrganizationForm } from "./EditOrganizationForm";
+import { useTranslation } from "react-i18next";
 
 interface OrganizationCardProps {
   organization: Organization;
@@ -43,6 +44,7 @@ export const OrganizationCard: React.FC<OrganizationCardProps> = ({
 }) => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const deleteMutation = useDeleteOrganization();
+  const { t } = useTranslation();
 
   const handleDelete = () => {
     deleteMutation.mutate(organization.id);
@@ -67,7 +69,12 @@ export const OrganizationCard: React.FC<OrganizationCardProps> = ({
             </CardTitle>
           </div>
           <p className="text-sm text-gray-500 mt-3">
-            <span className="font-medium">Domain:</span> {organization.domain}
+            <span className="font-medium">
+              {t("admin.organizations.card.domainLabel", {
+                defaultValue: "Domain:",
+              })}
+            </span>{" "}
+            {organization.domain}
           </p>
         </div>
         {!isSelectable && (
@@ -79,12 +86,17 @@ export const OrganizationCard: React.FC<OrganizationCardProps> = ({
               >
                 <DialogTrigger asChild>
                   <Button variant="outline" size="sm" className="w-full">
-                    <FilePenLine className="mr-2 h-4 w-4" /> Edit
+                    <FilePenLine className="mr-2 h-4 w-4" />{" "}
+                    {t("common.edit", { defaultValue: "Edit" })}
                   </Button>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
-                    <DialogTitle>Edit Organization</DialogTitle>
+                    <DialogTitle>
+                      {t("admin.organizations.edit.title", {
+                        defaultValue: "Edit Organization",
+                      })}
+                    </DialogTitle>
                   </DialogHeader>
                   <EditOrganizationForm
                     organization={organization}
@@ -95,21 +107,30 @@ export const OrganizationCard: React.FC<OrganizationCardProps> = ({
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button variant="destructive" size="sm" className="w-full">
-                    <Trash2 className="mr-2 h-4 w-4" /> Delete
+                    <Trash2 className="mr-2 h-4 w-4" />{" "}
+                    {deleteMutation.isPending
+                      ? t("common.deleting", { defaultValue: "Deleting..." })
+                      : t("common.delete", { defaultValue: "Delete" })}
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
-                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                    <AlertDialogTitle>
+                      {t("common.confirmTitle", { defaultValue: "Confirm" })}
+                    </AlertDialogTitle>
                     <AlertDialogDescription>
-                      This action cannot be undone. This will permanently delete
-                      the organization and remove its data from our servers.
+                      {t("admin.organizations.deleteConfirm", {
+                        defaultValue:
+                          "This action cannot be undone. This will permanently delete the organization and remove its data from our servers.",
+                      })}
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogCancel>
+                      {t("common.cancel", { defaultValue: "Cancel" })}
+                    </AlertDialogCancel>
                     <AlertDialogAction onClick={handleDelete}>
-                      Continue
+                      {t("common.continue", { defaultValue: "Continue" })}
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
@@ -124,11 +145,18 @@ export const OrganizationCard: React.FC<OrganizationCardProps> = ({
                     className="w-full"
                     onClick={handleAssignDimension}
                   >
-                    <Users className="mr-2 h-4 w-4" /> Assign Dimension
+                    <Users className="mr-2 h-4 w-4" />{" "}
+                    {t("admin.organizations.assign.button", {
+                      defaultValue: "Assign Dimension",
+                    })}
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Assign dimensions to this organization</p>
+                  <p>
+                    {t("admin.organizations.assign.tooltip", {
+                      defaultValue: "Assign dimensions to this organization",
+                    })}
+                  </p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>

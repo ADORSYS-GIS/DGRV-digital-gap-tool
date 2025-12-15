@@ -29,6 +29,7 @@ import {
 import { IDigitalisationGapWithDimension } from "@/types/digitalisationGap";
 import { useDeleteDigitalisationGap } from "@/hooks/digitalisationGaps/useDeleteDigitalisationGap";
 import { AddDigitalisationGapForm } from "./AddDigitalisationGapForm";
+import { useTranslation } from "react-i18next";
 
 interface DigitalisationGapListProps {
   digitalisationGaps: IDigitalisationGapWithDimension[];
@@ -43,6 +44,7 @@ export function DigitalisationGapList({
   >(undefined);
   const [deletingGapId, setDeletingGapId] = useState<string | null>(null);
   const deleteMutation = useDeleteDigitalisationGap();
+  const { t } = useTranslation();
 
   const groupedGaps = useMemo(() => {
     return digitalisationGaps.reduce(
@@ -85,9 +87,21 @@ export function DigitalisationGapList({
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Description</TableHead>
-                      <TableHead>Severity</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
+                      <TableHead>
+                        {t("admin.digitalisationGaps.table.description", {
+                          defaultValue: "Description",
+                        })}
+                      </TableHead>
+                      <TableHead>
+                        {t("admin.digitalisationGaps.table.severity", {
+                          defaultValue: "Severity",
+                        })}
+                      </TableHead>
+                      <TableHead className="text-right">
+                        {t("admin.digitalisationGaps.table.actions", {
+                          defaultValue: "Actions",
+                        })}
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -96,12 +110,17 @@ export function DigitalisationGapList({
                         <TableCell className="max-w-xs truncate">
                           {gap.scope}
                         </TableCell>
-                        <TableCell>{gap.gap_severity}</TableCell>
+                        <TableCell>
+                          {t(`gap.severity.${String(gap.gap_severity).toLowerCase()}`, {
+                            defaultValue: gap.gap_severity,
+                          })}
+                        </TableCell>
                         <TableCell className="text-right">
                           <Button
                             variant="ghost"
                             size="icon"
                             onClick={() => handleEdit(gap)}
+                            aria-label={t("common.edit", { defaultValue: "Edit" })}
                           >
                             <Pencil className="h-4 w-4" />
                           </Button>
@@ -111,6 +130,7 @@ export function DigitalisationGapList({
                                 variant="ghost"
                                 size="icon"
                                 className="text-red-500"
+                                aria-label={t("common.delete", { defaultValue: "Delete" })}
                               >
                                 <Trash2 className="h-4 w-4" />
                               </Button>
@@ -118,15 +138,24 @@ export function DigitalisationGapList({
                             <AlertDialogContent>
                               <AlertDialogHeader>
                                 <AlertDialogTitle>
-                                  Are you sure?
+                                  {t("common.confirmTitle", {
+                                    defaultValue: "Are you sure?",
+                                  })}
                                 </AlertDialogTitle>
                                 <AlertDialogDescription>
-                                  This action cannot be undone. This will
-                                  permanently delete the digitalisation gap.
+                                  {t(
+                                    "admin.digitalisationGaps.deleteConfirm",
+                                    {
+                                      defaultValue:
+                                        "This action cannot be undone. This will permanently delete the digitalisation gap.",
+                                    },
+                                  )}
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogCancel>
+                                  {t("common.cancel", { defaultValue: "Cancel" })}
+                                </AlertDialogCancel>
                                 <AlertDialogAction
                                   onClick={() => handleDelete(gap.id)}
                                   disabled={
@@ -136,8 +165,12 @@ export function DigitalisationGapList({
                                 >
                                   {deleteMutation.isPending &&
                                   deletingGapId === gap.id
-                                    ? "Deleting..."
-                                    : "Delete"}
+                                    ? t("common.deleting", {
+                                        defaultValue: "Deleting...",
+                                      })
+                                    : t("common.delete", {
+                                        defaultValue: "Delete",
+                                      })}
                                 </AlertDialogAction>
                               </AlertDialogFooter>
                             </AlertDialogContent>

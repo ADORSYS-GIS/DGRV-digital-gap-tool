@@ -26,10 +26,20 @@ import {
   currentStateDescriptions,
   desiredStateDescriptions,
 } from "@/constants/level-descriptions";
+import { useTranslation } from "react-i18next";
+import i18n from "@/i18n";
 
 const formSchema = z.object({
   description: z.string().optional(),
-  state: z.number().min(1, "Please select a state").max(5),
+  state: z
+    .number()
+    .min(
+      1,
+      i18n.t("validation.selectState", {
+        defaultValue: "Please select a state",
+      }),
+    )
+    .max(5),
   levelName: z.string().optional(),
 });
 
@@ -67,6 +77,7 @@ export const EditLevelForm = ({
   });
 
   const updateLevelMutation = useUpdateDigitalisationLevel();
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (isOpen) {
@@ -89,7 +100,9 @@ export const EditLevelForm = ({
     if (!descriptions && (!data.levelName || data.levelName.trim() === "")) {
       setError("levelName", {
         type: "manual",
-        message: "Level Name is required for custom dimensions",
+        message: i18n.t("validation.levelNameRequiredForCustom", {
+          defaultValue: "Level Name is required for custom dimensions",
+        }),
       });
       return;
     }
@@ -128,7 +141,18 @@ export const EditLevelForm = ({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            Edit {level.levelType === "current" ? "Current" : "Desired"} Level
+            {t("admin.levels.editTitle", {
+              defaultValue: "Edit {{type}} Level",
+              type: t(
+                level.levelType === "current"
+                  ? "admin.levels.current"
+                  : "admin.levels.desired",
+                {
+                  defaultValue:
+                    level.levelType === "current" ? "Current" : "Desired",
+                },
+              ),
+            })}
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -142,7 +166,11 @@ export const EditLevelForm = ({
                   defaultValue={String(field.value)}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select a state" />
+                    <SelectValue
+                      placeholder={t("admin.levels.selectStatePlaceholder", {
+                        defaultValue: "Select a state",
+                      })}
+                    />
                   </SelectTrigger>
                   <SelectContent>
                     {availableStates.map((state) => (
@@ -162,11 +190,15 @@ export const EditLevelForm = ({
                 rules={{
                   validate: (value) => {
                     if (typeof value !== "number" || isNaN(value)) {
-                      return "State must be a number";
+                      return i18n.t("validation.stateMustBeNumber", {
+                        defaultValue: "State must be a number",
+                      });
                     }
                     return (
                       availableStates.includes(value) ||
-                      "State already exists or is invalid"
+                      i18n.t("validation.stateExistsOrInvalid", {
+                        defaultValue: "State already exists or is invalid",
+                      })
                     );
                   },
                 }}
@@ -175,7 +207,10 @@ export const EditLevelForm = ({
                     <Input
                       {...field}
                       type="number"
-                      placeholder="State Number (1-5)"
+                      placeholder={t(
+                        "admin.levels.stateNumberPlaceholder",
+                        { defaultValue: "State Number (1-5)" },
+                      )}
                       min={1}
                       max={5}
                       onChange={(e) => {
@@ -195,7 +230,9 @@ export const EditLevelForm = ({
               <div>
                 <Input
                   {...register("levelName")}
-                  placeholder="Level Name (e.g., Initial Phase)"
+                  placeholder={t("admin.levels.levelNamePlaceholder", {
+                    defaultValue: "Level Name (e.g., Initial Phase)",
+                  })}
                   className="mb-2"
                 />
                 {errors.levelName && (
@@ -207,11 +244,20 @@ export const EditLevelForm = ({
             </>
           )}
 
-          <Textarea {...register("description")} placeholder="Description" />
+          <Textarea
+            {...register("description")}
+            placeholder={t("common.description", {
+              defaultValue: "Description",
+            })}
+          />
 
           <DialogFooter>
             <Button type="submit" disabled={updateLevelMutation.isPending}>
-              {updateLevelMutation.isPending ? "Saving..." : "Save Changes"}
+              {updateLevelMutation.isPending
+                ? t("common.saving", { defaultValue: "Saving..." })
+                : t("admin.levels.saveChanges", {
+                    defaultValue: "Save Changes",
+                  })}
             </Button>
           </DialogFooter>
         </form>

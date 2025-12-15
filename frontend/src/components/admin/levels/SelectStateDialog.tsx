@@ -6,6 +6,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { TrendingDown, TrendingUp } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface SelectStateDialogProps {
   isOpen: boolean;
@@ -18,15 +19,20 @@ export const SelectStateDialog = ({
   onClose,
   onSelect,
 }: SelectStateDialogProps) => {
+  const { t } = useTranslation();
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[480px] bg-white dark:bg-gray-900 rounded-lg shadow-2xl">
         <DialogHeader className="text-center">
           <DialogTitle className="text-2xl font-bold text-gray-800 dark:text-gray-200">
-            Manage Digitalisation Levels
+            {t("admin.levels.manageTitle", {
+              defaultValue: "Manage Digitalisation Levels",
+            })}
           </DialogTitle>
           <DialogDescription className="text-gray-600 dark:text-gray-400">
-            Choose the state you want to configure.
+            {t("admin.levels.chooseState", {
+              defaultValue: "Choose the state you want to configure.",
+            })}
           </DialogDescription>
         </DialogHeader>
         <div className="grid grid-cols-2 gap-6 p-6">
@@ -37,10 +43,14 @@ export const SelectStateDialog = ({
             <div className="text-center">
               <TrendingDown className="h-12 w-12 mx-auto text-blue-500 transition-transform duration-300 group-hover:scale-110" />
               <h3 className="mt-4 text-lg font-semibold text-gray-800 dark:text-gray-200">
-                Current State
+                {t("manageDigitalisationLevels.manageCurrentState", {
+                  defaultValue: "Manage Current State",
+                })}
               </h3>
               <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                Define the current levels.
+                {t("admin.levels.currentStateDescription", {
+                  defaultValue: "Define the current levels.",
+                })}
               </p>
             </div>
           </div>
@@ -51,10 +61,14 @@ export const SelectStateDialog = ({
             <div className="text-center">
               <TrendingUp className="h-12 w-12 mx-auto text-green-500 transition-transform duration-300 group-hover:scale-110" />
               <h3 className="mt-4 text-lg font-semibold text-gray-800 dark:text-gray-200">
-                Desired State
+                {t("manageDigitalisationLevels.manageDesiredState", {
+                  defaultValue: "Manage Desired State",
+                })}
               </h3>
               <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                Set the target levels.
+                {t("admin.levels.desiredStateDescription", {
+                  defaultValue: "Set the target levels.",
+                })}
               </p>
             </div>
           </div>

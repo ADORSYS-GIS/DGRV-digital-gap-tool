@@ -1,4 +1,6 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
+import i18n from "@/i18n";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -56,9 +58,19 @@ const createFormSchema = (
 ) => {
   return z
     .object({
-      dimension_id: z.string().min(1, "Dimension is required"),
+      dimension_id: z.string().min(
+        1,
+        i18n.t("admin.recommendations.validation.dimensionRequired", {
+          defaultValue: "Dimension is required",
+        }),
+      ),
       priority: PriorityEnum,
-      description: z.string().min(1, "Description is required"),
+      description: z.string().min(
+        1,
+        i18n.t("admin.recommendations.validation.descriptionRequired", {
+          defaultValue: "Description is required",
+        }),
+      ),
     })
     .refine(
       (data) => {
@@ -73,8 +85,13 @@ const createFormSchema = (
         return !exists;
       },
       {
-        message:
-          "A recommendation with this priority already exists for the selected dimension.",
+        message: i18n.t(
+          "admin.recommendations.validation.duplicatePriorityDimension",
+          {
+            defaultValue:
+              "A recommendation with this priority already exists for the selected dimension.",
+          },
+        ),
         path: ["priority"],
       },
     );
@@ -94,6 +111,7 @@ export function EditRecommendationForm({
   const updateRecommendation = useUpdateRecommendation();
   const { data: dimensions = [] } = useDimensions();
   const { data: existingRecommendations = [] } = useRecommendations();
+  const { t } = useTranslation();
 
   // Get existing dimension-priority pairs for validation, excluding the current recommendation
   const existingDimensionPriorities = existingRecommendations
@@ -156,9 +174,15 @@ export function EditRecommendationForm({
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <DialogHeader>
-              <DialogTitle>Edit Recommendation</DialogTitle>
+              <DialogTitle>
+                {t("admin.recommendations.edit.title", {
+                  defaultValue: "Edit Recommendation",
+                })}
+              </DialogTitle>
               <DialogDescription>
-                Update the recommendation details below.
+                {t("admin.recommendations.edit.description", {
+                  defaultValue: "Update the recommendation details below.",
+                })}
               </DialogDescription>
             </DialogHeader>
 
@@ -168,7 +192,11 @@ export function EditRecommendationForm({
                 name="dimension_id"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Dimension *</FormLabel>
+                    <FormLabel>
+                      {t("admin.recommendations.form.dimensionLabel", {
+                        defaultValue: "Dimension *",
+                      })}
+                    </FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
@@ -176,7 +204,12 @@ export function EditRecommendationForm({
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select a dimension" />
+                          <SelectValue
+                            placeholder={t(
+                              "admin.recommendations.form.selectDimension",
+                              { defaultValue: "Select a dimension" },
+                            )}
+                          />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -197,7 +230,11 @@ export function EditRecommendationForm({
                 name="priority"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Priority *</FormLabel>
+                    <FormLabel>
+                      {t("admin.recommendations.form.priorityLabel", {
+                        defaultValue: "Priority *",
+                      })}
+                    </FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
@@ -205,13 +242,30 @@ export function EditRecommendationForm({
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select priority" />
+                          <SelectValue
+                            placeholder={t(
+                              "admin.recommendations.form.selectPriority",
+                              { defaultValue: "Select priority" },
+                            )}
+                          />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="LOW">Low</SelectItem>
-                        <SelectItem value="MEDIUM">Medium</SelectItem>
-                        <SelectItem value="HIGH">High</SelectItem>
+                        <SelectItem value="LOW">
+                          {t("admin.recommendations.priority.low", {
+                            defaultValue: "Low",
+                          })}
+                        </SelectItem>
+                        <SelectItem value="MEDIUM">
+                          {t("admin.recommendations.priority.medium", {
+                            defaultValue: "Medium",
+                          })}
+                        </SelectItem>
+                        <SelectItem value="HIGH">
+                          {t("admin.recommendations.priority.high", {
+                            defaultValue: "High",
+                          })}
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -224,10 +278,17 @@ export function EditRecommendationForm({
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Description *</FormLabel>
+                    <FormLabel>
+                      {t("admin.recommendations.form.descriptionLabel", {
+                        defaultValue: "Description *",
+                      })}
+                    </FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="Enter detailed description"
+                        placeholder={t(
+                          "admin.recommendations.form.descriptionPlaceholder",
+                          { defaultValue: "Enter detailed description" },
+                        )}
                         className="min-h-[120px]"
                         disabled={updateRecommendation.isPending}
                         {...field}
@@ -246,12 +307,16 @@ export function EditRecommendationForm({
                 onClick={onClose}
                 disabled={updateRecommendation.isPending}
               >
-                Cancel
+                {t("common.cancel", { defaultValue: "Cancel" })}
               </Button>
               <Button type="submit" disabled={updateRecommendation.isPending}>
                 {updateRecommendation.isPending
-                  ? "Updating..."
-                  : "Update Recommendation"}
+                  ? t("admin.recommendations.edit.updating", {
+                      defaultValue: "Updating...",
+                    })
+                  : t("admin.recommendations.edit.updateButton", {
+                      defaultValue: "Update Recommendation",
+                    })}
               </Button>
             </DialogFooter>
           </form>

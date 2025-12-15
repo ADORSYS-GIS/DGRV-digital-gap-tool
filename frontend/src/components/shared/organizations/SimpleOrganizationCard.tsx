@@ -2,6 +2,7 @@ import React from "react";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Organization } from "@/types/organization";
 import { Building2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface SimpleOrganizationCardProps {
   organization: Organization;
@@ -10,6 +11,8 @@ interface SimpleOrganizationCardProps {
 export const SimpleOrganizationCard: React.FC<SimpleOrganizationCardProps> = ({
   organization,
 }) => {
+  const { t } = useTranslation();
+
   return (
     <Card className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-lg transition-shadow duration-300 flex flex-col h-full">
       <CardContent className="p-6 flex-grow flex flex-col justify-between">
@@ -23,7 +26,10 @@ export const SimpleOrganizationCard: React.FC<SimpleOrganizationCardProps> = ({
             </CardTitle>
           </div>
           <p className="text-sm text-gray-500 mt-3">
-            <span className="font-medium">Domain:</span> {organization.domain}
+            <span className="font-medium">
+              {t("shared.organizations.domain", { defaultValue: "Domain" })}:
+            </span>{" "}
+            {organization.domain}
           </p>
         </div>
       </CardContent>

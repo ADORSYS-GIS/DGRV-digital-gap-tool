@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { PlusCircle } from "lucide-react";
 import { useAddCooperation } from "@/hooks/cooperations/useAddCooperation";
 import { Cooperation } from "@/types/cooperation";
+import { useTranslation } from "react-i18next";
 
 interface AddCooperationFormProps {
   onAdd: (cooperation: Omit<Cooperation, "id" | "syncStatus">) => void;
@@ -20,6 +21,7 @@ interface AddCooperationFormProps {
 export const AddCooperationForm: React.FC<AddCooperationFormProps> = ({
   onAdd,
 }) => {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -41,28 +43,45 @@ export const AddCooperationForm: React.FC<AddCooperationFormProps> = ({
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button>
-          <PlusCircle className="mr-2 h-4 w-4" /> Add Cooperation
+          <PlusCircle className="mr-2 h-4 w-4" />{" "}
+          {t("secondAdmin.cooperations.add.button", {
+            defaultValue: "Add Cooperation",
+          })}
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add New Cooperation</DialogTitle>
+          <DialogTitle>
+            {t("secondAdmin.cooperations.add.title", {
+              defaultValue: "Add New Cooperation",
+            })}
+          </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
-            placeholder="Cooperation Name"
+            placeholder={t(
+              "secondAdmin.cooperations.form.namePlaceholder",
+              { defaultValue: "Cooperation Name" },
+            )}
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
           />
           <Textarea
-            placeholder="Cooperation Description"
+            placeholder={t(
+              "secondAdmin.cooperations.form.descriptionPlaceholder",
+              { defaultValue: "Cooperation Description" },
+            )}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             required
           />
           <Button type="submit" disabled={isLoading}>
-            {isLoading ? "Adding..." : "Add Cooperation"}
+            {isLoading
+              ? t("common.adding", { defaultValue: "Adding..." })
+              : t("secondAdmin.cooperations.add.button", {
+                  defaultValue: "Add Cooperation",
+                })}
           </Button>
         </form>
       </DialogContent>

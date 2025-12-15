@@ -7,6 +7,7 @@ import { useDownloadReportByAssessment } from "@/hooks/reports/useDownloadReport
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
 import { ApiError } from "@/openapi-client/core/ApiError";
+import { useTranslation } from "react-i18next";
 
 interface AssessmentSubmissionListProps {
   organizationId: string;
@@ -15,6 +16,7 @@ interface AssessmentSubmissionListProps {
 export const AssessmentSubmissionList: React.FC<
   AssessmentSubmissionListProps
 > = ({ organizationId }) => {
+  const { t } = useTranslation();
   const {
     data: submissions,
     isLoading,
@@ -25,12 +27,25 @@ export const AssessmentSubmissionList: React.FC<
   const handleExportReport = (assessmentId: string) => {
     downloadReportMutation.mutate(assessmentId, {
       onSuccess: () => {
-        toast.success("Report downloaded successfully!");
+        toast.success(
+          t("admin.reports.download.success", {
+            defaultValue: "Report downloaded successfully!",
+          }),
+        );
       },
       onError: (err) => {
         const errorMessage =
-          err instanceof ApiError ? err.message : "An unknown error occurred";
-        toast.error(`Failed to download report: ${errorMessage}`);
+          err instanceof ApiError
+            ? err.message
+            : t("admin.reports.download.error.unknown", {
+                defaultValue: "An unknown error occurred",
+              });
+        toast.error(
+          t("admin.reports.download.error", {
+            message: errorMessage,
+            defaultValue: "Failed to download report: {{message}}",
+          }),
+        );
       },
     });
   };
@@ -41,14 +56,24 @@ export const AssessmentSubmissionList: React.FC<
 
   if (error) {
     return (
-      <p className="text-red-500">Error loading submissions: {error.message}</p>
+      <p className="text-red-500">
+        {t("admin.reports.submissions.error", {
+          message: (error as Error).message,
+          defaultValue: "Error loading submissions: {{message}}",
+        })}
+      </p>
     );
   }
 
   return (
     <div className="grid gap-4">
       {submissions?.length === 0 && (
-        <p>No assessment submissions found for this organization.</p>
+        <p>
+          {t("admin.reports.submissions.empty", {
+            defaultValue:
+              "No assessment submissions found for this organization.",
+          })}
+        </p>
       )}
       {submissions?.map((submission) => (
         <Card key={submission.assessment.assessment_id}>
@@ -58,12 +83,14 @@ export const AssessmentSubmissionList: React.FC<
           <CardContent className="flex justify-between items-center">
             <div>
               <p className="text-sm text-muted-foreground">
-                Submitted on:{" "}
+                {t("admin.reports.submissions.submittedOn", {
+                  defaultValue: "Submitted on:",
+                })}{" "}
                 {submission.assessment.completed_at
                   ? new Date(
                       submission.assessment.completed_at,
                     ).toLocaleDateString()
-                  : "N/A"}
+                  : t("admin.reports.submissions.na", { defaultValue: "N/A" })}
               </p>
             </div>
             <div className="space-x-2">
@@ -74,12 +101,18 @@ export const AssessmentSubmissionList: React.FC<
                 }
                 disabled={downloadReportMutation.isPending}
               >
-                Export Report
+                {t("admin.reports.exportReport", {
+                  defaultValue: "Export Report",
+                })}
               </Button>
               <Link
                 to={`/admin/action-plans/${submission.assessment.assessment_id}`}
               >
-                <Button variant="outline">View Action Plan</Button>
+                <Button variant="outline">
+                  {t("admin.reports.viewActionPlan", {
+                    defaultValue: "View Action Plan",
+                  })}
+                </Button>
               </Link>
             </div>
           </CardContent>

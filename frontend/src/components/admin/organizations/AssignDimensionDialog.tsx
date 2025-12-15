@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Dialog,
   DialogContent,
@@ -35,6 +36,7 @@ export const AssignDimensionDialog: React.FC<AssignDimensionDialogProps> = ({
   );
 
   const [selectedDimensions, setSelectedDimensions] = useState<string[]>([]);
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (assignedDimensionIds) {
@@ -66,7 +68,12 @@ export const AssignDimensionDialog: React.FC<AssignDimensionDialogProps> = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Assign Dimensions to {organization?.name}</DialogTitle>
+          <DialogTitle>
+            {t("admin.organizations.assign.title", {
+              name: organization?.name ?? "",
+              defaultValue: "Assign Dimensions to {{name}}",
+            })}
+          </DialogTitle>
         </DialogHeader>
         {isLoading ? (
           <LoadingSpinner />
@@ -93,10 +100,12 @@ export const AssignDimensionDialog: React.FC<AssignDimensionDialogProps> = ({
         )}
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
-            Cancel
+            {t("common.cancel", { defaultValue: "Cancel" })}
           </Button>
           <Button onClick={handleSave} disabled={isPending}>
-            {isPending ? "Saving..." : "Save"}
+            {isPending
+              ? t("common.saving", { defaultValue: "Saving..." })
+              : t("common.save", { defaultValue: "Save" })}
           </Button>
         </DialogFooter>
       </DialogContent>

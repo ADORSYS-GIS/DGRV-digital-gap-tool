@@ -35,11 +35,17 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+import { useTranslation } from "react-i18next";
+import i18n from "@/i18n";
 
 const formInputSchema = z.object({
-  dimensionId: z.string().min(1, "Dimension is required"),
+  dimensionId: z
+    .string()
+    .min(1, i18n.t("validation.dimensionRequired", { defaultValue: "Dimension is required" })),
   gap_severity: z.nativeEnum(Gap),
-  scope: z.string().min(1, "Scope is required"),
+  scope: z
+    .string()
+    .min(1, i18n.t("validation.scopeRequired", { defaultValue: "Scope is required" })),
 });
 
 type AddDigitalisationGapFormValues = z.infer<typeof formInputSchema>;
@@ -55,6 +61,7 @@ export function AddDigitalisationGapForm({
   onClose,
   digitalisationGap,
 }: AddDigitalisationGapFormProps) {
+  const { t } = useTranslation();
   const { data: digitalisationGaps } = useDigitalisationGaps();
   const form = useForm<AddDigitalisationGapFormValues>({
     resolver: zodResolver(
@@ -71,8 +78,13 @@ export function AddDigitalisationGapForm({
           return !existingGap;
         },
         {
-          message:
-            "A gap with this severity already exists for this dimension.",
+          message: i18n.t(
+            "admin.digitalisationGaps.errors.duplicateSeverity",
+            {
+              defaultValue:
+                "A gap with this severity already exists for this dimension.",
+            },
+          ),
           path: ["gap_severity"],
         },
       ),
@@ -133,7 +145,13 @@ export function AddDigitalisationGapForm({
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>
-            {digitalisationGap ? "Edit" : "Add"} Digitalisation Gap
+            {digitalisationGap
+              ? t("admin.digitalisationGaps.dialog.editTitle", {
+                  defaultValue: "Edit Digitalisation Gap",
+                })
+              : t("admin.digitalisationGaps.dialog.addTitle", {
+                  defaultValue: "Add Digitalisation Gap",
+                })}
           </DialogTitle>
         </DialogHeader>
         <Form {...form}>
@@ -143,14 +161,20 @@ export function AddDigitalisationGapForm({
               name="dimensionId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Dimension</FormLabel>
+                  <FormLabel>
+                    {t("common.dimension", { defaultValue: "Dimension" })}
+                  </FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select a dimension" />
+                        <SelectValue
+                          placeholder={t("common.selectDimension", {
+                            defaultValue: "Select a dimension",
+                          })}
+                        />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -170,20 +194,33 @@ export function AddDigitalisationGapForm({
               name="gap_severity"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Gap Severity</FormLabel>
+                  <FormLabel>
+                    {t("admin.digitalisationGaps.form.gapSeverity", {
+                      defaultValue: "Gap Severity",
+                    })}
+                  </FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select a gap severity" />
+                        <SelectValue
+                          placeholder={t(
+                            "admin.digitalisationGaps.form.selectSeverity",
+                            { defaultValue: "Select a gap severity" },
+                          )}
+                        />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
                       {Object.values(Gap).map((gapValue) => (
                         <SelectItem key={gapValue} value={gapValue}>
-                          {gapValue}
+                          {
+                            t(`gap.severity.${String(gapValue).toLowerCase()}`, {
+                              defaultValue: String(gapValue),
+                            })
+                          }
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -197,10 +234,15 @@ export function AddDigitalisationGapForm({
               name="scope"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Scope</FormLabel>
+                  <FormLabel>
+                    {t("common.scope", { defaultValue: "Scope" })}
+                  </FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Describe the digital gap..."
+                      placeholder={t(
+                        "admin.digitalisationGaps.form.scopePlaceholder",
+                        { defaultValue: "Describe the digital gap..." },
+                      )}
                       {...field}
                     />
                   </FormControl>
@@ -210,13 +252,15 @@ export function AddDigitalisationGapForm({
             />
             <DialogFooter>
               <Button type="button" variant="ghost" onClick={onClose}>
-                Cancel
+                {t("common.cancel", { defaultValue: "Cancel" })}
               </Button>
               <Button
                 type="submit"
                 disabled={addMutation.isPending || updateMutation.isPending}
               >
-                {digitalisationGap ? "Update" : "Create"}
+                {digitalisationGap
+                  ? t("common.update", { defaultValue: "Update" })
+                  : t("common.create", { defaultValue: "Create" })}
               </Button>
             </DialogFooter>
           </form>

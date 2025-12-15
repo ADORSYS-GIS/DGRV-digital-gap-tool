@@ -14,6 +14,7 @@ import { useDeleteRecommendation } from "@/hooks/recommendations/useDeleteRecomm
 import { Badge } from "@/components/ui/badge";
 import { SyncStatus } from "@/types/sync";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 interface RecommendationCardProps {
   recommendation: IRecommendation;
@@ -24,10 +25,16 @@ export function RecommendationCard({
 }: RecommendationCardProps) {
   const [isEditDialogOpen, setEditDialogOpen] = useState(false);
   const deleteRecommendation = useDeleteRecommendation();
+  const { t } = useTranslation();
 
   const handleDelete = async () => {
     if (
-      window.confirm("Are you sure you want to delete this recommendation?")
+      window.confirm(
+        t("admin.recommendations.card.deleteConfirm", {
+          defaultValue:
+            "Are you sure you want to delete this recommendation?",
+        }),
+      )
     ) {
       await deleteRecommendation.mutate(recommendation.id);
     }
@@ -58,8 +65,8 @@ export function RecommendationCard({
               )}
             >
               {recommendation.syncStatus === SyncStatus.SYNCED
-                ? "Synced"
-                : "Pending"}
+                ? t("admin.recommendations.card.synced", { defaultValue: "Synced" })
+                : t("admin.recommendations.card.pending", { defaultValue: "Pending" })}
             </Badge>
           </div>
         </CardHeader>
@@ -78,7 +85,7 @@ export function RecommendationCard({
                 disabled={deleteRecommendation.isPending}
               >
                 <Pencil className="h-4 w-4 mr-1" />
-                Edit
+                {t("admin.recommendations.card.edit", { defaultValue: "Edit" })}
               </Button>
               <Button
                 variant="outline"
@@ -87,7 +94,9 @@ export function RecommendationCard({
                 disabled={deleteRecommendation.isPending}
               >
                 <Trash2 className="h-4 w-4 mr-1" />
-                {deleteRecommendation.isPending ? "Deleting..." : "Delete"}
+                {deleteRecommendation.isPending
+                  ? t("admin.recommendations.card.deleting", { defaultValue: "Deleting..." })
+                  : t("admin.recommendations.card.delete", { defaultValue: "Delete" })}
               </Button>
             </div>
           </div>

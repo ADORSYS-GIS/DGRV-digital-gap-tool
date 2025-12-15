@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 // Using native alert for now since @/components/ui/alert is not available
 import { Loader2, AlertCircle } from "lucide-react";
 import { LevelSelector } from "./LevelSelector";
+import { useTranslation } from "react-i18next";
 import {
   IDimensionAssessment,
   IDimensionWithStates,
@@ -33,6 +34,7 @@ export function DimensionAssessmentAnswer({
   className,
   existingAssessment,
 }: DimensionAssessmentAnswerProps) {
+  const { t } = useTranslation();
   const [currentLevel, setCurrentLevel] = useState<number>(
     existingAssessment?.currentState?.level ?? 1,
   );
@@ -63,12 +65,20 @@ export function DimensionAssessmentAnswer({
     setLocalError(null);
 
     if (currentLevel === 0 || desiredLevel === 0) {
-      setLocalError("Please select both current and desired levels");
+      setLocalError(
+        t("assessment.answering.selectBothLevels", {
+          defaultValue: "Please select both current and desired levels",
+        }),
+      );
       return;
     }
 
     if (currentLevel === desiredLevel) {
-      setLocalError("Current and desired levels cannot be the same");
+      setLocalError(
+        t("assessment.answering.levelsCannotBeSame", {
+          defaultValue: "Current and desired levels cannot be the same",
+        }),
+      );
       return;
     }
 
@@ -76,7 +86,11 @@ export function DimensionAssessmentAnswer({
       onSubmit(currentLevel, desiredLevel);
     } catch (err) {
       setLocalError(
-        err instanceof Error ? err.message : "An unexpected error occurred",
+        err instanceof Error
+          ? err.message
+          : t("common.unexpectedError", {
+              defaultValue: "An unexpected error occurred",
+            }),
       );
     }
   };
@@ -106,8 +120,8 @@ export function DimensionAssessmentAnswer({
           )}
 
           <LevelSelector
-            title="Current Level"
-            description="Select your current level for this dimension"
+            title={t("assessment.answering.currentLevel", { defaultValue: "Current Level" })}
+            description={t("assessment.answering.currentLevelDescription", { defaultValue: "Select your current level for this dimension" })}
             level={currentLevel}
             onChange={setCurrentLevel}
             maxLevel={maxLevel}
@@ -116,8 +130,8 @@ export function DimensionAssessmentAnswer({
           />
 
           <LevelSelector
-            title="Desired Level"
-            description="Select your desired level for this dimension"
+            title={t("assessment.answering.desiredLevel", { defaultValue: "Desired Level" })}
+            description={t("assessment.answering.desiredLevelDescription", { defaultValue: "Select your desired level for this dimension" })}
             level={desiredLevel}
             onChange={setDesiredLevel}
             maxLevel={maxLevel}
@@ -134,10 +148,10 @@ export function DimensionAssessmentAnswer({
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Submitting...
+                  {t("common.submitting", { defaultValue: "Submitting..." })}
                 </>
               ) : (
-                "Submit Assessment"
+                t("assessment.answering.submitAssessment", { defaultValue: "Submit Assessment" })
               )}
             </Button>
           </div>

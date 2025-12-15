@@ -15,9 +15,18 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useUpdateDimension } from "@/hooks/dimensions/useUpdateDimension";
 import { IDimension } from "@/types/dimension";
+import { useTranslation } from "react-i18next";
+import i18n from "@/i18n";
 
 const formSchema = z.object({
-  name: z.string().min(1, "Name is required"),
+  name: z
+    .string()
+    .min(
+      1,
+      i18n.t("validation.dimensionNameRequired", {
+        defaultValue: "Name is required",
+      }),
+    ),
   description: z.string().optional(),
 });
 
@@ -29,6 +38,7 @@ export const EditDimensionForm = ({ dimension }: EditDimensionFormProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { mutate: updateDimension } = useUpdateDimension();
+  const { t } = useTranslation();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -68,16 +78,20 @@ export const EditDimensionForm = ({ dimension }: EditDimensionFormProps) => {
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" className="flex-1">
-          <Pencil className="mr-2 h-4 w-4" /> Edit
+          <Pencil className="mr-2 h-4 w-4" /> {t("common.edit", { defaultValue: "Edit" })}
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Edit Dimension</DialogTitle>
+          <DialogTitle>
+            {t("admin.dimensions.editTitle", { defaultValue: "Edit Dimension" })}
+          </DialogTitle>
         </DialogHeader>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <div>
-            <label htmlFor="name">Name</label>
+            <label htmlFor="name">
+              {t("common.name", { defaultValue: "Name" })}
+            </label>
             <Input id="name" {...form.register("name")} />
             {form.formState.errors.name && (
               <p className="text-red-500">
@@ -86,7 +100,9 @@ export const EditDimensionForm = ({ dimension }: EditDimensionFormProps) => {
             )}
           </div>
           <div>
-            <label htmlFor="description">Description</label>
+            <label htmlFor="description">
+              {t("common.description", { defaultValue: "Description" })}
+            </label>
             <Textarea id="description" {...form.register("description")} />
             {form.formState.errors.description && (
               <p className="text-red-500">
@@ -95,7 +111,9 @@ export const EditDimensionForm = ({ dimension }: EditDimensionFormProps) => {
             )}
           </div>
           <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Updating..." : "Update Dimension"}
+            {isSubmitting
+              ? t("common.updating", { defaultValue: "Updating..." })
+              : t("admin.dimensions.updateAction", { defaultValue: "Update Dimension" })}
           </Button>
         </form>
       </DialogContent>

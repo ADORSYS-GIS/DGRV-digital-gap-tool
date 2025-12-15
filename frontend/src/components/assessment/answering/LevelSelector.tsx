@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { useEffect, useCallback } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface LevelSelectorProps {
   /** The title of the level selector */
@@ -41,6 +42,7 @@ export function LevelSelector({
   testId = "level-selector",
   levelDescription,
 }: LevelSelectorProps) {
+  const { t } = useTranslation();
   // Ensure level is within bounds
   useEffect(() => {
     if (level < minLevel || level > maxLevel) {
@@ -107,7 +109,10 @@ export function LevelSelector({
         type="button"
         role="radio"
         aria-checked={safeLevel === lvl ? "true" : "false"}
-        aria-label={`Level ${lvl}`}
+        aria-label={t("assessment.answering.levelAria", {
+          level: lvl,
+          defaultValue: `Level ${lvl}`,
+        })}
         className={cn(
           "w-10 h-10 flex items-center justify-center rounded-full transition-colors",
           "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background",
@@ -141,13 +146,19 @@ export function LevelSelector({
             "p-1 rounded-full hover:bg-muted",
             safeLevel <= minLevel && "opacity-50 cursor-not-allowed",
           )}
-          aria-label="Previous level"
+          aria-label={t("assessment.answering.previousLevel", {
+            defaultValue: "Previous level",
+          })}
         >
           <ChevronLeft className="h-5 w-5" />
         </button>
 
         <span className="text-sm text-muted-foreground">
-          Level {safeLevel} of {maxLevel}
+          {t("assessment.answering.levelOf", {
+            current: safeLevel,
+            max: maxLevel,
+            defaultValue: `Level ${safeLevel} of ${maxLevel}`,
+          })}
         </span>
 
         <button
@@ -158,7 +169,9 @@ export function LevelSelector({
             "p-1 rounded-full hover:bg-muted",
             safeLevel >= maxLevel && "opacity-50 cursor-not-allowed",
           )}
-          aria-label="Next level"
+          aria-label={t("assessment.answering.nextLevel", {
+            defaultValue: "Next level",
+          })}
         >
           <ChevronRight className="h-5 w-5" />
         </button>
@@ -180,7 +193,10 @@ export function LevelSelector({
         <div
           className="flex justify-between"
           role="radiogroup"
-          aria-label={`${title} level selection`}
+          aria-label={t("assessment.answering.levelSelectionAria", {
+            title,
+            defaultValue: `${title} level selection`,
+          })}
         >
           {renderLevelIndicators()}
         </div>

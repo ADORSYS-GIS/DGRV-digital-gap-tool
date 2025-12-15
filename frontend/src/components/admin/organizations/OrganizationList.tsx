@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Organization } from "@/types/organization";
 import { OrganizationCard } from "./OrganizationCard";
 
@@ -13,6 +14,8 @@ export const OrganizationList: React.FC<OrganizationListProps> = ({
   onAssignDimension,
   onOrganizationSelect,
 }) => {
+  const { t } = useTranslation();
+
   const handleCardClick = (org: Organization) => {
     if (onOrganizationSelect) {
       onOrganizationSelect(org.id);
@@ -22,7 +25,11 @@ export const OrganizationList: React.FC<OrganizationListProps> = ({
   return (
     <div>
       {organizations.length === 0 ? (
-        <p>No organizations found.</p>
+        <p>
+          {t("admin.organizations.empty.noOrganizations", {
+            defaultValue: "No organizations found.",
+          })}
+        </p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {organizations.map((org) =>

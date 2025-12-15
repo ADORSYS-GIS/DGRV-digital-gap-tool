@@ -22,6 +22,7 @@ import { IDigitalisationLevel } from "@/types/digitalisationLevel";
 import { Edit, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { EditLevelForm } from "./EditLevelForm";
+import { useTranslation } from "react-i18next";
 
 interface LevelCardProps {
   level: IDigitalisationLevel;
@@ -32,6 +33,7 @@ export const LevelCard = ({ level, existingLevels }: LevelCardProps) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const deleteLevelMutation = useDeleteDigitalisationLevel();
+  const { t } = useTranslation();
 
   const handleDelete = () => {
     setIsDeleting(true);
@@ -53,7 +55,10 @@ export const LevelCard = ({ level, existingLevels }: LevelCardProps) => {
     <Card className="flex flex-col">
       <CardHeader>
         <div className="flex justify-between items-start">
-          <CardTitle>{level.level || `State ${level.state}`}</CardTitle>
+          <CardTitle>
+            {level.level ||
+              `${t("admin.levels.stateLabel", { defaultValue: "State" })} ${level.state}`}
+          </CardTitle>
         </div>
       </CardHeader>
       <CardContent className="flex-grow">
@@ -64,27 +69,35 @@ export const LevelCard = ({ level, existingLevels }: LevelCardProps) => {
       <CardFooter className="mt-auto flex justify-end space-x-2 p-4">
         <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
           <Edit className="mr-2 h-4 w-4" />
-          Edit
+          {t("common.edit", { defaultValue: "Edit" })}
         </Button>
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button variant="destructive" size="sm" disabled={isDeleting}>
               <Trash2 className="mr-2 h-4 w-4" />
-              {isDeleting ? "Deleting..." : "Delete"}
+              {isDeleting
+                ? t("common.deleting", { defaultValue: "Deleting..." })
+                : t("common.delete", { defaultValue: "Delete" })}
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+              <AlertDialogTitle>
+                {t("common.confirmTitle", { defaultValue: "Confirm" })}
+              </AlertDialogTitle>
               <AlertDialogDescription>
-                This action cannot be undone. This will permanently delete the
-                level.
+                {t("admin.levels.deleteConfirm", {
+                  defaultValue:
+                    "This action cannot be undone. This will permanently delete the level.",
+                })}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogCancel>
+                {t("common.cancel", { defaultValue: "Cancel" })}
+              </AlertDialogCancel>
               <AlertDialogAction onClick={handleDelete}>
-                Continue
+                {t("common.continue", { defaultValue: "Continue" })}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

@@ -32,14 +32,18 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { LoadingSpinner } from "../../shared/LoadingSpinner";
+import React from "react";
+import { useTranslation } from "react-i18next";
 
-const formSchema = z.object({
-  name: z.string().min(1, "Assessment name is required"),
-  cooperationId: z.string().min(1, "Please select a cooperation"),
-  dimensionIds: z.array(z.string()).min(1, "Select at least one dimension"),
-});
+/**
+ * i18n: schema is created inside the component to use translated messages
+ */
 
-type AddAssessmentFormValues = z.infer<typeof formSchema>;
+type AddAssessmentFormValues = {
+  name: string;
+  cooperationId: string;
+  dimensionIds: string[];
+};
 
 interface AddAssessmentFormProps {
   isOpen: boolean;
@@ -48,6 +52,22 @@ interface AddAssessmentFormProps {
 
 export function AddAssessmentForm({ isOpen, onClose }: AddAssessmentFormProps) {
   const organizationId = useOrganizationId();
+
+  const { t } = useTranslation();
+
+  const formSchema = React.useMemo(
+    () =>
+      z.object({
+        name: z.string().min(1, t("assessments.validation.nameRequired")),
+        cooperationId: z
+          .string()
+          .min(1, t("assessments.validation.cooperationRequired")),
+        dimensionIds: z
+          .array(z.string())
+          .min(1, t("assessments.validation.dimensionRequired")),
+      }),
+    [t],
+  );
 
   const { data: allDimensions, isLoading: isLoadingDimensions } =
     useDimensions();
@@ -92,7 +112,7 @@ export function AddAssessmentForm({ isOpen, onClose }: AddAssessmentFormProps) {
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Create New Assessment</DialogTitle>
+          <DialogTitle>{t("assessments.add.title")}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -101,9 +121,12 @@ export function AddAssessmentForm({ isOpen, onClose }: AddAssessmentFormProps) {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Assessment Name</FormLabel>
+                  <FormLabel>{t("assessments.add.form.nameLabel")}</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., Q4 Security Review" {...field} />
+                    <Input
+                      placeholder={t("assessments.add.form.namePlaceholder")}
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -114,7 +137,7 @@ export function AddAssessmentForm({ isOpen, onClose }: AddAssessmentFormProps) {
               name="cooperationId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Cooperation</FormLabel>
+                  <FormLabel>{t("assessments.add.form.cooperationLabel")}</FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
@@ -122,7 +145,11 @@ export function AddAssessmentForm({ isOpen, onClose }: AddAssessmentFormProps) {
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select a cooperation" />
+                        <SelectValue
+                          placeholder={t(
+                            "assessments.add.form.cooperationPlaceholder",
+                          )}
+                        />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -142,7 +169,7 @@ export function AddAssessmentForm({ isOpen, onClose }: AddAssessmentFormProps) {
               name="dimensionIds"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Dimensions</FormLabel>
+                  <FormLabel>{t("assessments.add.form.dimensionsLabel")}</FormLabel>
                   {isLoadingDimensions || isLoadingAssigned ? (
                     <LoadingSpinner />
                   ) : (
@@ -153,7 +180,9 @@ export function AddAssessmentForm({ isOpen, onClose }: AddAssessmentFormProps) {
                       }))}
                       onValueChange={field.onChange}
                       defaultValue={field.value}
-                      placeholder="Select dimensions"
+                      placeholder={t(
+                        "assessments.add.form.dimensionsPlaceholder",
+                      )}
                       maxCount={3}
                     />
                   )}
@@ -163,10 +192,12 @@ export function AddAssessmentForm({ isOpen, onClose }: AddAssessmentFormProps) {
             />
             <DialogFooter>
               <Button type="button" variant="ghost" onClick={onClose}>
-                Cancel
+                {t("common.cancel")}
               </Button>
               <Button type="submit" disabled={isAdding}>
-                {isAdding ? "Creating..." : "Create Assessment"}
+                {isAdding
+                  ? t("assessments.add.creating")
+                  : t("assessments.add.submit")}
               </Button>
             </DialogFooter>
           </form>

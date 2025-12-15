@@ -30,10 +30,20 @@ import {
   currentStateDescriptions,
   desiredStateDescriptions,
 } from "@/constants/level-descriptions";
+import { useTranslation } from "react-i18next";
+import i18n from "@/i18n";
 
 const formSchema = z.object({
   description: z.string().optional(),
-  state: z.number().min(1, "Please select a state").max(5),
+  state: z
+    .number()
+    .min(
+      1,
+      i18n.t("validation.selectState", {
+        defaultValue: "Please select a state",
+      }),
+    )
+    .max(5),
   levelName: z.string().optional(),
 });
 
@@ -74,6 +84,7 @@ export const AddLevelForm = ({
   });
 
   const addLevelMutation = useAddDigitalisationLevel();
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (!isOpen) {
@@ -85,7 +96,9 @@ export const AddLevelForm = ({
     if (!descriptions && (!data.levelName || data.levelName.trim() === "")) {
       setError("levelName", {
         type: "manual",
-        message: "Level Name is required for custom dimensions",
+        message: i18n.t("validation.levelNameRequiredForCustom", {
+          defaultValue: "Level Name is required for custom dimensions",
+        }),
       });
       return;
     }
@@ -135,7 +148,16 @@ export const AddLevelForm = ({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            Add New {levelType === "current" ? "Current" : "Desired"} Level
+            {t("admin.levels.addTitle", {
+              defaultValue: "Add New {{type}} Level",
+              type: t(
+                levelType === "current" ? "admin.levels.current" : "admin.levels.desired",
+                {
+                  defaultValue:
+                    levelType === "current" ? "Current" : "Desired",
+                },
+              ),
+            })}
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -149,7 +171,11 @@ export const AddLevelForm = ({
                   defaultValue={field.value ? String(field.value) : ""}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select a state" />
+                    <SelectValue
+                      placeholder={t("admin.levels.selectStatePlaceholder", {
+                        defaultValue: "Select a state",
+                      })}
+                    />
                   </SelectTrigger>
                   <SelectContent>
                     {availableStates.map((state) => (
@@ -169,11 +195,16 @@ export const AddLevelForm = ({
                 rules={{
                   validate: (value) => {
                     if (typeof value !== "number" || isNaN(value)) {
-                      return "State must be a number";
+                      return i18n.t("validation.stateMustBeNumber", {
+                        defaultValue: "State must be a number",
+                      });
                     }
                     return (
                       availableStates.includes(value) ||
-                      "State already exists or is invalid"
+                      i18n.t("validation.stateExistsOrInvalid", {
+                        defaultValue:
+                          "State already exists or is invalid",
+                      })
                     );
                   },
                 }}
@@ -182,12 +213,17 @@ export const AddLevelForm = ({
                     <Input
                       {...field}
                       type="number"
-                      placeholder="State Number (1-5)"
+                      placeholder={t(
+                        "admin.levels.stateNumberPlaceholder",
+                        { defaultValue: "State Number (1-5)" },
+                      )}
                       min={1}
                       max={5}
                       onChange={(e) => {
                         const value = parseInt(e.target.value, 10);
-                        field.onChange(isNaN(value) ? undefined : value); // Pass undefined if not a valid number
+                        field.onChange(
+                          isNaN(value) ? undefined : value,
+                        ); // Pass undefined if not a valid number
                       }}
                       value={field.value ?? ""} // Use nullish coalescing for controlled component
                     />
@@ -202,7 +238,10 @@ export const AddLevelForm = ({
               <div>
                 <Input
                   {...register("levelName")}
-                  placeholder="Level Name (e.g., Initial Phase)"
+                  placeholder={t(
+                    "admin.levels.levelNamePlaceholder",
+                    { defaultValue: "Level Name (e.g., Initial Phase)" },
+                  )}
                   className="mb-2"
                 />
                 {errors.levelName && (
@@ -214,11 +253,18 @@ export const AddLevelForm = ({
             </>
           )}
 
-          <Textarea {...register("description")} placeholder="Description" />
+          <Textarea
+            {...register("description")}
+            placeholder={t("common.description", {
+              defaultValue: "Description",
+            })}
+          />
 
           <DialogFooter>
             <Button type="submit" disabled={addLevelMutation.isPending}>
-              {addLevelMutation.isPending ? "Adding..." : "Add Level"}
+              {addLevelMutation.isPending
+                ? t("common.adding", { defaultValue: "Adding..." })
+                : t("admin.levels.addAction", { defaultValue: "Add Level" })}
             </Button>
           </DialogFooter>
         </form>

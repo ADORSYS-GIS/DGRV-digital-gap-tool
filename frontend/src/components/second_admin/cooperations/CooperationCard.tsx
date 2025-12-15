@@ -6,6 +6,7 @@ import { EditCooperationForm } from "./EditCooperationForm";
 import { DeleteCooperationDialog } from "./DeleteCooperationDialog";
 // import { AssignDimensionDialog } from "./AssignDimensionDialog";
 import { ListTree } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface CooperationCardProps {
   cooperation: Cooperation;
@@ -18,6 +19,8 @@ export const CooperationCard: React.FC<CooperationCardProps> = ({
   onUpdate,
   onDelete,
 }) => {
+  const { t } = useTranslation();
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -34,8 +37,18 @@ export const CooperationCard: React.FC<CooperationCardProps> = ({
             onDelete={onDelete}
           />
         </div>
-        <Button variant="outline" size="sm" className="mt-2 w-full">
-          <ListTree className="mr-2 h-4 w-4" /> Assign Dimensions
+        <Button
+          variant="outline"
+          size="sm"
+          className="mt-2 w-full"
+          aria-label={t("secondAdmin.cooperations.assignDimensions", {
+            defaultValue: "Assign Dimensions",
+          })}
+        >
+          <ListTree className="mr-2 h-4 w-4" />{" "}
+          {t("secondAdmin.cooperations.assignDimensions", {
+            defaultValue: "Assign Dimensions",
+          })}
         </Button>
       </CardContent>
     </Card>

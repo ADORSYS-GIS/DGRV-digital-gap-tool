@@ -7,30 +7,40 @@ import {
   DialogTrigger,
   DialogDescription,
 } from "@/components/ui/dialog";
+import { useTranslation } from "react-i18next";
 
 interface ActionItemCardProps {
   item: ActionItem;
 }
 
 export function ActionItemCard({ item }: ActionItemCardProps) {
+  const { t } = useTranslation();
   const statusStyles = {
     todo: {
-      label: "Not Started",
+      label: t("shared.actionPlans.statuses.todo.label", {
+        defaultValue: "Not Started",
+      }),
       className: "bg-gray-200 text-gray-800",
       borderColor: "border-gray-300",
     },
     in_progress: {
-      label: "In Progress",
+      label: t("shared.actionPlans.statuses.in_progress.label", {
+        defaultValue: "In Progress",
+      }),
       className: "bg-blue-200 text-blue-800",
       borderColor: "border-blue-300",
     },
     done: {
-      label: "Completed",
+      label: t("shared.actionPlans.statuses.done.label", {
+        defaultValue: "Completed",
+      }),
       className: "bg-green-200 text-green-800",
       borderColor: "border-green-300",
     },
     approved: {
-      label: "Approved",
+      label: t("shared.actionPlans.statuses.approved.label", {
+        defaultValue: "Approved",
+      }),
       className: "bg-purple-200 text-purple-800",
       borderColor: "border-purple-300",
     },
@@ -58,7 +68,8 @@ export function ActionItemCard({ item }: ActionItemCardProps) {
           </p>
           <div className="flex justify-between items-center">
             <span className="text-xs text-gray-500">
-              Created: {new Date().toLocaleDateString()}
+              {t("shared.actionPlans.created", { defaultValue: "Created:" })}{" "}
+              {new Date().toLocaleDateString()}
             </span>
             <span
               className={`px-2.5 py-1 text-xs font-bold rounded-full ${className}`}
