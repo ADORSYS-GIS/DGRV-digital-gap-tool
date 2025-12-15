@@ -20,7 +20,7 @@ import {
 import { useAuth } from "@/context/AuthContext";
 import { Building2, FileText, History, Settings, Users } from "lucide-react";
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useDimensions } from "@/hooks/dimensions/useDimensions";
 import { useAssessments } from "@/hooks/assessments/useAssessments";
 import { useOrganizations } from "@/hooks/organizations/useOrganizations";
@@ -31,6 +31,7 @@ import { SyncStatus } from "@/types/sync";
 
 const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const {
     data: submissionsData = [],
     isLoading,
@@ -112,7 +113,7 @@ const AdminDashboard: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {assessments ? assessments.length : 0}
+              {submissions ? submissions.length : 0}
             </div>
             <p className="text-xs text-muted-foreground">+0% from last month</p>
           </CardContent>
@@ -227,6 +228,20 @@ const AdminDashboard: React.FC = () => {
               submissions={submissions}
               limit={5}
               basePath="admin"
+              onSubmissionSelect={(submissionId) => {
+                const selectedSubmission = submissions.find(
+                  (s) => s.id === submissionId,
+                );
+                if (selectedSubmission?.assessment.organization_id) {
+                  navigate(
+                    `/admin/reports/${selectedSubmission.assessment.organization_id}/${submissionId}/export`,
+                  );
+                } else {
+                  console.error(
+                    "Organization ID not found for selected submission.",
+                  );
+                }
+              }}
             />
           )}
         </CardContent>

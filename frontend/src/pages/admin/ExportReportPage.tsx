@@ -2,9 +2,11 @@ import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { SubmissionDetail } from "@/components/shared/submissions/SubmissionDetail";
 import { Button } from "@/components/ui/button";
 import { useSubmission } from "@/hooks/submissions/useSubmission";
+import { useDownloadReportByAssessment } from "@/hooks/reports/useDownloadReportByAssessment";
 import { ArrowLeft, Download } from "lucide-react";
 import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "sonner";
 
 const ExportReportPage: React.FC = () => {
   const { organizationId, submissionId } = useParams<{
@@ -12,6 +14,7 @@ const ExportReportPage: React.FC = () => {
     submissionId: string;
   }>();
   const navigate = useNavigate();
+  const downloadReportMutation = useDownloadReportByAssessment();
 
   const {
     data: submission,
@@ -20,9 +23,11 @@ const ExportReportPage: React.FC = () => {
   } = useSubmission(submissionId || "");
 
   const handleExportReport = () => {
-    // TODO: Implement actual report export logic here
-    console.log(`Exporting report for submission ${submissionId}`);
-    alert("Report export functionality is not yet implemented.");
+    if (submissionId) {
+      downloadReportMutation.mutate(submissionId);
+    } else {
+      toast.error("Submission ID is missing. Cannot export report.");
+    }
   };
 
   if (isLoading) {
