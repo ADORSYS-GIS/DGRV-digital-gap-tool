@@ -20,8 +20,22 @@ import {
 } from "@/openapi-client/services.gen";
 
 export const digitalisationLevelRepository = {
-  getByDimensionId: (dimensionId: string) =>
-    db.digitalisationLevels.where({ dimensionId }).toArray(),
+  getByDimensionId: async (
+    dimensionId: string,
+  ): Promise<IDigitalisationLevel[]> => {
+    try {
+      if (navigator.onLine) {
+        await digitalisationLevelRepository.getAllCurrentStates(dimensionId);
+        await digitalisationLevelRepository.getAllDesiredStates(dimensionId);
+      }
+    } catch (error) {
+      console.error(
+        `Failed to sync digitalisation levels for dimension ${dimensionId} from backend:`,
+        error,
+      );
+    }
+    return db.digitalisationLevels.where({ dimensionId }).toArray();
+  },
 
   // Current State Operations
   addCurrentState: async (

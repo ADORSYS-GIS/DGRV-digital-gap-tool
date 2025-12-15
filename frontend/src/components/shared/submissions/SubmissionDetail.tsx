@@ -1,4 +1,3 @@
-import { AssessmentSummary } from "@/types/assessment";
 import {
   Accordion,
   AccordionContent,
@@ -6,20 +5,15 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { useDimensions } from "@/hooks/dimensions/useDimensions";
+import { AssessmentSummary } from "@/types/assessment";
+import { Calendar, CheckCircle, FileText } from "lucide-react";
 import { DimensionAssessmentDetail } from "./DimensionAssessmentDetail";
-import {
-  FileText,
-  Calendar,
-  CheckCircle,
-  AlertTriangle,
-  BarChart,
-} from "lucide-react";
 
 interface SubmissionDetailProps {
-  summary: AssessmentSummary;
+  submission: AssessmentSummary;
 }
 
-export const SubmissionDetail = ({ summary }: SubmissionDetailProps) => {
+export const SubmissionDetail = ({ submission }: SubmissionDetailProps) => {
   const { data: dimensions } = useDimensions();
 
   const getDimensionName = (dimensionId: string) => {
@@ -33,7 +27,7 @@ export const SubmissionDetail = ({ summary }: SubmissionDetailProps) => {
       <div className="flex items-center mb-6">
         <FileText className="h-8 w-8 text-blue-600 mr-3" />
         <h1 className="text-3xl font-bold text-gray-800">
-          {summary.assessment.document_title}
+          {submission.assessment.document_title}
         </h1>
       </div>
 
@@ -43,7 +37,7 @@ export const SubmissionDetail = ({ summary }: SubmissionDetailProps) => {
           <span className="text-sm font-semibold text-gray-600 mr-2">
             Status:
           </span>
-          <span className="font-medium">{summary.assessment.status}</span>
+          <span className="font-medium">{submission.assessment.status}</span>
         </div>
         <div className="flex items-center">
           <Calendar className="h-5 w-5 text-blue-500 mr-2" />
@@ -51,22 +45,8 @@ export const SubmissionDetail = ({ summary }: SubmissionDetailProps) => {
             Submitted At:
           </span>
           <span className="font-medium">
-            {new Date(summary.assessment.created_at).toLocaleString()}
+            {new Date(submission.assessment.created_at).toLocaleString()}
           </span>
-        </div>
-        <div className="flex items-center">
-          <AlertTriangle className="h-5 w-5 text-red-500 mr-2" />
-          <span className="text-sm font-semibold text-gray-600 mr-2">
-            Gaps Count:
-          </span>
-          <span className="font-medium">{summary.gaps_count}</span>
-        </div>
-        <div className="flex items-center">
-          <BarChart className="h-5 w-5 text-yellow-500 mr-2" />
-          <span className="text-sm font-semibold text-gray-600 mr-2">
-            Recommendations Count:
-          </span>
-          <span className="font-medium">{summary.recommendations_count}</span>
         </div>
       </div>
 
@@ -75,7 +55,7 @@ export const SubmissionDetail = ({ summary }: SubmissionDetailProps) => {
           Dimension Assessments
         </h2>
         <Accordion type="single" collapsible className="w-full">
-          {summary.dimension_assessments.map((da) => (
+          {submission.dimension_assessments.map((da) => (
             <AccordionItem
               key={da.dimension_assessment_id}
               value={da.dimension_assessment_id}

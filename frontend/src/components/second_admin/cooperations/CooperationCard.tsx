@@ -34,9 +34,6 @@ export const CooperationCard: React.FC<CooperationCardProps> = ({
             onDelete={onDelete}
           />
         </div>
-        <Button variant="outline" size="sm" className="mt-2 w-full">
-          <ListTree className="mr-2 h-4 w-4" /> Assign Dimensions
-        </Button>
       </CardContent>
     </Card>
   );

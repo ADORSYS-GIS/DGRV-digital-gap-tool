@@ -20,27 +20,24 @@ import {
 import { useAuth } from "@/context/AuthContext";
 import { Building2, FileText, History, Settings, Users } from "lucide-react";
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useDimensions } from "@/hooks/dimensions/useDimensions";
 import { useAssessments } from "@/hooks/assessments/useAssessments";
 import { useOrganizations } from "@/hooks/organizations/useOrganizations";
 import { useAllOrganizationMembers } from "@/hooks/users/useAllOrganizationMembers";
-import { useOrganizationId } from "@/hooks/organizations/useOrganizationId";
-import { useSubmissionsByOrganization } from "@/hooks/submissions/useSubmissionsByOrganization";
+import { useAllSubmissions } from "@/hooks/submissions/useAllSubmissions";
 import { AssessmentSummary } from "@/types/assessment";
 import { SyncStatus } from "@/types/sync";
 
 const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
-  const organizationId = useOrganizationId();
+  const navigate = useNavigate();
   const {
     data: submissionsData = [],
     isLoading,
     error,
-  } = useSubmissionsByOrganization(organizationId || "", {
-    enabled: !!organizationId,
-    refetchOnMount: true,
-    refetchOnWindowFocus: false,
+  } = useAllSubmissions({
+    enabled: true,
   });
 
   const submissions: AssessmentSummary[] = submissionsData.map((s) => ({
@@ -61,7 +58,7 @@ const AdminDashboard: React.FC = () => {
   const { data: allMembers } = useAllOrganizationMembers();
 
   // Log for debugging
-  console.log("Organization ID:", organizationId);
+  // Log for debugging
   console.log("Submissions:", submissions);
 
   const activeUsers =
@@ -116,7 +113,7 @@ const AdminDashboard: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {assessments ? assessments.length : 0}
+              {submissions ? submissions.length : 0}
             </div>
             <p className="text-xs text-muted-foreground">+0% from last month</p>
           </CardContent>
@@ -217,7 +214,7 @@ const AdminDashboard: React.FC = () => {
               A log of recent activities and system events.
             </CardDescription>
           </div>
-          <Link to="/second-admin/submissions">
+          <Link to="/admin/reports">
             <Button variant="outline">View All</Button>
           </Link>
         </CardHeader>
@@ -231,6 +228,20 @@ const AdminDashboard: React.FC = () => {
               submissions={submissions}
               limit={5}
               basePath="admin"
+              onSubmissionSelect={(submissionId) => {
+                const selectedSubmission = submissions.find(
+                  (s) => s.id === submissionId,
+                );
+                if (selectedSubmission?.assessment.organization_id) {
+                  navigate(
+                    `/admin/reports/${selectedSubmission.assessment.organization_id}/${submissionId}/export`,
+                  );
+                } else {
+                  console.error(
+                    "Organization ID not found for selected submission.",
+                  );
+                }
+              }}
             />
           )}
         </CardContent>

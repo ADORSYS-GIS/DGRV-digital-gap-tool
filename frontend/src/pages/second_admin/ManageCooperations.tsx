@@ -3,21 +3,24 @@
  * This page allows administrators to view, add, edit, and delete cooperations.
  */
 
-import React, { useEffect } from "react";
 import { AddCooperationForm } from "@/components/second_admin/cooperations/AddCooperationForm";
 import { CooperationList } from "@/components/second_admin/cooperations/CooperationList";
-import { useCooperations } from "@/hooks/cooperations/useCooperations";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { useAddCooperation } from "@/hooks/cooperations/useAddCooperation";
-import { useUpdateCooperation } from "@/hooks/cooperations/useUpdateCooperation";
+import { useCooperations } from "@/hooks/cooperations/useCooperations";
 import { useDeleteCooperation } from "@/hooks/cooperations/useDeleteCooperation";
-import { Cooperation } from "@/types/cooperation";
+import { useUpdateCooperation } from "@/hooks/cooperations/useUpdateCooperation";
 import { useOrganizationId } from "@/hooks/organizations/useOrganizationId";
-import { cooperationSyncService } from "@/services/sync/cooperationSyncService";
+import { Cooperation } from "@/types/cooperation";
+import React from "react";
 
 const ManageCooperations: React.FC = () => {
   const organizationId = useOrganizationId();
-  const { data: cooperations, isLoading, error } = useCooperations();
+  const {
+    data: cooperations,
+    isLoading,
+    error,
+  } = useCooperations(organizationId || undefined);
   const { mutate: addCooperation } = useAddCooperation(
     organizationId || undefined,
   );
@@ -27,12 +30,6 @@ const ManageCooperations: React.FC = () => {
   const { mutate: deleteCooperation } = useDeleteCooperation(
     organizationId || undefined,
   );
-
-  useEffect(() => {
-    if (organizationId) {
-      cooperationSyncService.sync(organizationId);
-    }
-  }, [organizationId]);
 
   const handleAddCooperation = (
     cooperation: Omit<Cooperation, "id" | "syncStatus">,

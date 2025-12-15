@@ -81,6 +81,7 @@ fn create_app(
         .allow_origin([
             "https://localhost".parse().unwrap(),
             "http://localhost:8000".parse().unwrap(),
+            "http://0.0.0.0:3001".parse().unwrap(),
         ])
         .allow_methods(vec![
             http::Method::GET,

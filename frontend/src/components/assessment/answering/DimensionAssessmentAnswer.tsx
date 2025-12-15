@@ -53,6 +53,18 @@ export function DimensionAssessmentAnswer({
   // Use local error state if no error prop is provided
   const error = localError;
 
+  // Update state when existingAssessment changes (e.g., when it loads from API)
+  useEffect(() => {
+    if (existingAssessment) {
+      if (existingAssessment.currentState?.level) {
+        setCurrentLevel(existingAssessment.currentState.level);
+      }
+      if (existingAssessment.desiredState?.level) {
+        setDesiredLevel(existingAssessment.desiredState.level);
+      }
+    }
+  }, [existingAssessment]);
+
   // Reset local error when current/desired level changes
   useEffect(() => {
     setLocalError(null);
@@ -86,7 +98,9 @@ export function DimensionAssessmentAnswer({
     desiredLevel > 0 &&
     currentLevel <= maxLevel &&
     desiredLevel <= maxLevel &&
-    currentLevel !== desiredLevel;
+    currentLevel !== desiredLevel &&
+    !!currentLevelDescription &&
+    !!desiredLevelDescription;
 
   return (
     <Card className={cn("w-full max-w-3xl mx-auto", className)}>
@@ -102,6 +116,16 @@ export function DimensionAssessmentAnswer({
             <div className="mb-4 p-4 bg-red-50 text-red-700 rounded-md flex items-start space-x-2">
               <AlertCircle className="h-5 w-5 mt-0.5 flex-shrink-0" />
               <div>{error}</div>
+            </div>
+          )}
+
+          {(!currentLevelDescription || !desiredLevelDescription) && (
+            <div className="mb-4 p-4 bg-yellow-50 text-yellow-700 rounded-md flex items-start space-x-2">
+              <AlertCircle className="h-5 w-5 mt-0.5 flex-shrink-0" />
+              <div>
+                This dimension has not been fully configured with level
+                descriptions. Please contact your administrator.
+              </div>
             </div>
           )}
 
