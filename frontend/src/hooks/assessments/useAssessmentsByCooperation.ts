@@ -42,11 +42,11 @@ export const useAssessmentsByCooperation = (
       let filtered = [...assessments];
 
       if (options?.status?.length) {
-        const statuses = options.status.map(s => s.toLowerCase());
+        const statuses = options.status.map((s) => s.toLowerCase());
         filtered = filtered.filter(
           (assessment) =>
             assessment.status &&
-            statuses.includes(assessment.status.toLowerCase())
+            statuses.includes(assessment.status.toLowerCase()),
         );
       }
 

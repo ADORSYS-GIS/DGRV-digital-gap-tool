@@ -10,9 +10,11 @@ import { useOrganizationId } from "@/hooks/organizations/useOrganizationId";
 export default function ManageCooperationUsers() {
   const { user } = useAuth();
   const organizationId = useOrganizationId();
-  const { data: cooperations, isLoading, error } = useCooperations(
-    organizationId || undefined,
-  );
+  const {
+    data: cooperations,
+    isLoading,
+    error,
+  } = useCooperations(organizationId || undefined);
   const location = useLocation();
   const basePath = location.pathname.split("/").slice(0, 2).join("/");
   const cooperationId = useCooperationId();

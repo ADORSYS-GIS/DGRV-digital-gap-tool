@@ -185,9 +185,7 @@ const ThirdAdminDashboard: React.FC = () => {
             <CardTitle>Latest Assessment Results</CardTitle>
           </CardHeader>
           <CardContent>
-            <SubmissionChart
-              submission={latestSubmission}
-            />
+            <SubmissionChart submission={latestSubmission} />
           </CardContent>
         </Card>
       )}

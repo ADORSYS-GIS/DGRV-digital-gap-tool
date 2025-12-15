@@ -16,9 +16,11 @@ import React from "react";
 
 const ManageCooperations: React.FC = () => {
   const organizationId = useOrganizationId();
-  const { data: cooperations, isLoading, error } = useCooperations(
-    organizationId || undefined,
-  );
+  const {
+    data: cooperations,
+    isLoading,
+    error,
+  } = useCooperations(organizationId || undefined);
   const { mutate: addCooperation } = useAddCooperation(
     organizationId || undefined,
   );
@@ -28,7 +30,6 @@ const ManageCooperations: React.FC = () => {
   const { mutate: deleteCooperation } = useDeleteCooperation(
     organizationId || undefined,
   );
-
 
   const handleAddCooperation = (
     cooperation: Omit<Cooperation, "id" | "syncStatus">,

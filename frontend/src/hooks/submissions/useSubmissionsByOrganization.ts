@@ -33,8 +33,9 @@ export const useSubmissionsByOrganization = (
     queryKey,
     queryFn: async () => {
       if (!organizationId) return [];
-      
-      const submissions = await submissionRepository.listByOrganization(organizationId);
+
+      const submissions =
+        await submissionRepository.listByOrganization(organizationId);
 
       let filtered = [...submissions];
 

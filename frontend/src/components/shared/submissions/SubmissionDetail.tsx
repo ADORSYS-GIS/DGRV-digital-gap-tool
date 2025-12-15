@@ -6,11 +6,7 @@ import {
 } from "@/components/ui/accordion";
 import { useDimensions } from "@/hooks/dimensions/useDimensions";
 import { AssessmentSummary } from "@/types/assessment";
-import {
-  Calendar,
-  CheckCircle,
-  FileText
-} from "lucide-react";
+import { Calendar, CheckCircle, FileText } from "lucide-react";
 import { DimensionAssessmentDetail } from "./DimensionAssessmentDetail";
 
 interface SubmissionDetailProps {

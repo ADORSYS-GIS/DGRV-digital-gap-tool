@@ -11,9 +11,7 @@ export interface UseAllSubmissionsOptions {
   enabled?: boolean;
 }
 
-export const useAllSubmissions = (
-  options: UseAllSubmissionsOptions = {},
-) => {
+export const useAllSubmissions = (options: UseAllSubmissionsOptions = {}) => {
   const { data: organizations, isLoading: isLoadingOrgs } = useOrganizations();
 
   return useQuery<AssessmentSummaryResponse[]>({
@@ -30,7 +28,7 @@ export const useAllSubmissions = (
       const allSubmissions = submissionResponses
         .flatMap(
           (response) =>
-            ((response.data as unknown) as AssessmentsResponse)?.assessments ||
+            (response.data as unknown as AssessmentsResponse)?.assessments ||
             [],
         )
         .map(

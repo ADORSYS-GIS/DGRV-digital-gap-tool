@@ -369,32 +369,30 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
         (existingAssessment?.gap_id &&
           existingAssessment.currentState.level > 0 &&
           existingAssessment.desiredState.level > 0)) && (
-          <GapDescriptionDisplay
-            gapId={
-              (showResult && gapId) || existingAssessment?.gap_id || ""
-            }
-            currentLevel={
-              submittedData?.currentLevel ||
-              existingAssessment?.currentState.level ||
-              0
-            }
-            desiredLevel={
-              submittedData?.desiredLevel ||
-              existingAssessment?.desiredState.level ||
-              0
-            }
-            currentLevelDescription={
-              submittedData?.currentLevelDescription ||
-              existingAssessment?.currentState.description ||
-              ""
-            }
-            desiredLevelDescription={
-              submittedData?.desiredLevelDescription ||
-              existingAssessment?.desiredState.description ||
-              ""
-            }
-          />
-        )}
+        <GapDescriptionDisplay
+          gapId={(showResult && gapId) || existingAssessment?.gap_id || ""}
+          currentLevel={
+            submittedData?.currentLevel ||
+            existingAssessment?.currentState.level ||
+            0
+          }
+          desiredLevel={
+            submittedData?.desiredLevel ||
+            existingAssessment?.desiredState.level ||
+            0
+          }
+          currentLevelDescription={
+            submittedData?.currentLevelDescription ||
+            existingAssessment?.currentState.description ||
+            ""
+          }
+          desiredLevelDescription={
+            submittedData?.desiredLevelDescription ||
+            existingAssessment?.desiredState.description ||
+            ""
+          }
+        />
+      )}
 
       {showResult && (
         <Box mt={4} display="flex" justifyContent="center">

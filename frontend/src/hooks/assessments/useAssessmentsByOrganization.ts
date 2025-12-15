@@ -17,8 +17,8 @@ export const useAssessmentsByOrganization = (
   options: UseAssessmentsByOrganizationOptions = {},
 ) => {
   const queryKey = [
-    "assessments", 
-    "organization", 
+    "assessments",
+    "organization",
     organizationId,
     options?.status,
   ];
@@ -35,7 +35,7 @@ export const useAssessmentsByOrganization = (
           data: response.data ?? { assessments: [] },
         };
       };
-      
+
       const assessments = await assessmentRepository.syncAssessments(
         fetcher,
         "organization_id",
@@ -43,16 +43,16 @@ export const useAssessmentsByOrganization = (
       );
 
       let filtered = [...assessments];
-      
+
       if (options?.status?.length) {
-        const statuses = options.status.map(s => s.toLowerCase());
+        const statuses = options.status.map((s) => s.toLowerCase());
         filtered = filtered.filter(
-          (assessment) => 
-            assessment.status && 
-            statuses.includes(assessment.status.toLowerCase())
+          (assessment) =>
+            assessment.status &&
+            statuses.includes(assessment.status.toLowerCase()),
         );
       }
-      
+
       return filtered;
     },
     enabled: options?.enabled !== false && !!organizationId,

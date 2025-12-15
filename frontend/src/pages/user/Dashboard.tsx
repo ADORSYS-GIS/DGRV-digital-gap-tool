@@ -67,9 +67,8 @@ const UserDashboard: React.FC = () => {
           User Management Dashboard
         </h1>
         <p className="text-gray-600">
-          Welcome back,{" "}
-          {user?.name || user?.preferred_username || "User"}. Manage
-          cooperatives and their assessments.
+          Welcome back, {user?.name || user?.preferred_username || "User"}.
+          Manage cooperatives and their assessments.
         </p>
       </div>
 

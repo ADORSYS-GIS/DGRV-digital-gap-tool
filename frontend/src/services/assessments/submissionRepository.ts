@@ -73,7 +73,9 @@ const mapApiResponseToAssessmentSummary = (
   };
 };
 
-export const getAssessmentSummary = async (id: string): Promise<AssessmentSummary | undefined> => {
+export const getAssessmentSummary = async (
+  id: string,
+): Promise<AssessmentSummary | undefined> => {
   try {
     const response = await fetchAssessmentSummaryApi({ id });
     return mapApiResponseToAssessmentSummary(response) || undefined;
@@ -122,30 +124,39 @@ export const submissionRepository = {
         organizationId,
       })) as unknown as ApiResponseAssessmentsResponse; // Assuming actual API returns this structure
 
-      if (listResponse?.data?.assessments && Array.isArray(listResponse.data.assessments)) {
+      if (
+        listResponse?.data?.assessments &&
+        Array.isArray(listResponse.data.assessments)
+      ) {
         const submissions = await Promise.all(
-          listResponse.data.assessments.map(async (assessmentItem: AssessmentResponse) => {
-            try {
-              const summaryResponse = await fetchAssessmentSummaryApi({ id: assessmentItem.assessment_id });
-              const submission = mapApiResponseToAssessmentSummary(summaryResponse);
-              return submission;
-            } catch (summaryError) {
-              console.error(
-                `Error fetching summary for assessment ${assessmentItem.assessment_id}:`,
-                summaryError,
-              );
-              return null;
-            }
-          }),
+          listResponse.data.assessments.map(
+            async (assessmentItem: AssessmentResponse) => {
+              try {
+                const summaryResponse = await fetchAssessmentSummaryApi({
+                  id: assessmentItem.assessment_id,
+                });
+                const submission =
+                  mapApiResponseToAssessmentSummary(summaryResponse);
+                return submission;
+              } catch (summaryError) {
+                console.error(
+                  `Error fetching summary for assessment ${assessmentItem.assessment_id}:`,
+                  summaryError,
+                );
+                return null;
+              }
+            },
+          ),
         );
 
-        const validSubmissions = submissions.filter((s): s is AssessmentSummary => s !== null);
+        const validSubmissions = submissions.filter(
+          (s): s is AssessmentSummary => s !== null,
+        );
 
         for (const submission of validSubmissions) {
           await db.submissions.put(submission);
         }
         return validSubmissions;
-
       }
     } catch (error) {
       console.error(
@@ -172,24 +183,34 @@ export const submissionRepository = {
           cooperationId,
         })) as unknown as ApiResponseAssessmentsResponse; // Assuming actual API returns this structure
 
-        if (listResponse?.data?.assessments && Array.isArray(listResponse.data.assessments)) {
+        if (
+          listResponse?.data?.assessments &&
+          Array.isArray(listResponse.data.assessments)
+        ) {
           const submissions = await Promise.all(
-            listResponse.data.assessments.map(async (assessmentItem: AssessmentResponse) => {
-              try {
-                const summaryResponse = await fetchAssessmentSummaryApi({ id: assessmentItem.assessment_id });
-                const submission = mapApiResponseToAssessmentSummary(summaryResponse);
-                return submission;
-              } catch (summaryError) {
-                console.error(
-                  `Error fetching summary for assessment ${assessmentItem.assessment_id}:`,
-                  summaryError,
-                );
-                return null;
-              }
-            }),
+            listResponse.data.assessments.map(
+              async (assessmentItem: AssessmentResponse) => {
+                try {
+                  const summaryResponse = await fetchAssessmentSummaryApi({
+                    id: assessmentItem.assessment_id,
+                  });
+                  const submission =
+                    mapApiResponseToAssessmentSummary(summaryResponse);
+                  return submission;
+                } catch (summaryError) {
+                  console.error(
+                    `Error fetching summary for assessment ${assessmentItem.assessment_id}:`,
+                    summaryError,
+                  );
+                  return null;
+                }
+              },
+            ),
           );
 
-          const validSubmissions = submissions.filter((s): s is AssessmentSummary => s !== null);
+          const validSubmissions = submissions.filter(
+            (s): s is AssessmentSummary => s !== null,
+          );
 
           for (const submission of validSubmissions) {
             await db.submissions.put(submission);

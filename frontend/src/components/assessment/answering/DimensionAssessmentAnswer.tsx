@@ -123,8 +123,8 @@ export function DimensionAssessmentAnswer({
             <div className="mb-4 p-4 bg-yellow-50 text-yellow-700 rounded-md flex items-start space-x-2">
               <AlertCircle className="h-5 w-5 mt-0.5 flex-shrink-0" />
               <div>
-                This dimension has not been fully configured with level descriptions.
-                Please contact your administrator.
+                This dimension has not been fully configured with level
+                descriptions. Please contact your administrator.
               </div>
             </div>
           )}

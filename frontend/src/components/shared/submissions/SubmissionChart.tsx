@@ -60,11 +60,13 @@ const SubmissionChart: React.FC<SubmissionChartProps> = ({ submission }) => {
               // Let's check if we need to cast or if the property is indeed 'level'.
               // Looking at IDimensionState in frontend/src/types/dimension.ts, it has 'level'.
               // But let's be safe and check for 'score' as well if 'level' is missing, just in case of type mismatch at runtime.
-              
+
               // @ts-expect-error - score property might exist on API response but not in type definition
-              const currentLevel = currentState?.score ?? currentState?.level ?? 0;
+              const currentLevel =
+                currentState?.score ?? currentState?.level ?? 0;
               // @ts-expect-error - score property might exist on API response but not in type definition
-              const desiredLevel = desiredState?.score ?? desiredState?.level ?? 0;
+              const desiredLevel =
+                desiredState?.score ?? desiredState?.level ?? 0;
 
               return {
                 name: dimensionName,
