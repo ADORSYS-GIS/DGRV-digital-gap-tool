@@ -40,8 +40,13 @@ const ActionPlansPage: React.FC = () => {
     setSelectedSubmission(null);
   };
 
-  const handleSubmissionSelect = (submission: AssessmentSummary) => {
-    setSelectedSubmission(submission);
+  const handleSubmissionSelect = (submissionId: string) => {
+    const submission = submissions.find((s) => s.id === submissionId);
+    if (submission) {
+      setSelectedSubmission(submission);
+    } else {
+      console.error(`Submission with ID ${submissionId} not found.`);
+    }
   };
 
   if (selectedSubmission) {
