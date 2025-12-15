@@ -65,6 +65,7 @@ const UserDashboard: React.FC = () => {
     })) || [];
 
   const latestSubmission = submissionsData?.[0];
+  console.log('Latest submission data:', latestSubmission);
 
   return (
     <div className="space-y-6">

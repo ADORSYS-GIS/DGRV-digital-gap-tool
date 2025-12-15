@@ -17,11 +17,18 @@ interface SubmissionChartProps {
 }
 
 const SubmissionChart: React.FC<SubmissionChartProps> = ({ submission }) => {
-  const chartData = submission.dimension_assessments.map((da) => ({
-    name: da.dimension.dimension_name,
-    "Current State": da.current_state.level,
-    "Desired State": da.desired_state.level,
-  }));
+  console.log('Submission data:', submission);
+  
+  const chartData = submission.dimension_assessments.map((da) => {
+    console.log('Dimension assessment:', da);
+    return {
+      name: da.dimension?.dimension_name || 'Unknown Dimension',
+      'Current State': da.current_state?.level || 0,
+      'Desired State': da.desired_state?.level || 0,
+    };
+  });
+  
+  console.log('Chart data:', chartData);
 
   return (
     <ResponsiveContainer width="100%" height={400}>
