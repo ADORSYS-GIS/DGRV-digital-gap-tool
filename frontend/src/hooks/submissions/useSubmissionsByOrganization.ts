@@ -1,10 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { listSubmissionsByOrganization } from "@/openapi-client";
-import type {
-  AssessmentResponse,
-  AssessmentSummaryResponse,
-  AssessmentsResponse,
-} from "@/openapi-client";
+import { submissionRepository } from "@/services/assessments/submissionRepository";
+import type { AssessmentSummary } from "@/types/assessment";
 
 export interface UseSubmissionsByOrganizationOptions {
   enabled?: boolean;
@@ -33,25 +29,12 @@ export const useSubmissionsByOrganization = (
     options?.status,
   ];
 
-  return useQuery<AssessmentSummaryResponse[]>({
+  return useQuery<AssessmentSummary[]>({
     queryKey,
     queryFn: async () => {
       if (!organizationId) return [];
-      const response = (await listSubmissionsByOrganization({
-        organizationId,
-      })) as unknown as { data: AssessmentsResponse };
-
-      const submissionsData = response.data?.assessments || [];
-      const submissions = submissionsData.map(
-        (assessment: AssessmentResponse) =>
-          ({
-            assessment,
-            dimension_assessments: [],
-            gaps_count: 0,
-            recommendations_count: 0,
-            overall_score: null,
-          }) as AssessmentSummaryResponse,
-      );
+      
+      const submissions = await submissionRepository.listByOrganization(organizationId);
 
       let filtered = [...submissions];
 

@@ -6,13 +6,6 @@
  * - Assessment management section
  * - Placeholder for additional content
  */
-/**
- * Second admin dashboard page for cooperative management.
- * This page provides:
- * - Cooperative and user management tools
- * - Assessment creation and submission tracking
- * - Action plan overview
- */
 import { DashboardCard } from "@/components/shared/DashboardCard";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { SubmissionList } from "@/components/shared/submissions/SubmissionList";
@@ -65,7 +58,6 @@ const UserDashboard: React.FC = () => {
     })) || [];
 
   const latestSubmission = submissionsData?.[0];
-  console.log('Latest submission data:', latestSubmission);
 
   return (
     <div className="space-y-6">
@@ -76,7 +68,7 @@ const UserDashboard: React.FC = () => {
         </h1>
         <p className="text-gray-600">
           Welcome back,{" "}
-          {user?.name || user?.preferred_username || "Administrator"}. Manage
+          {user?.name || user?.preferred_username || "User"}. Manage
           cooperatives and their assessments.
         </p>
       </div>
@@ -85,8 +77,8 @@ const UserDashboard: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <Link to="/user/assessments">
           <DashboardCard
-            title="Create Assesment"
-            description="Design and deploy new assessments"
+            title="Start Assessment"
+            description="Begin a new assessment"
             icon={FilePlus2}
             variant="default"
           />
@@ -162,7 +154,7 @@ const UserDashboard: React.FC = () => {
             <SubmissionList
               submissions={submissions}
               limit={5}
-              basePath="user"
+              basePath="/user"
             />
           )}
         </CardContent>

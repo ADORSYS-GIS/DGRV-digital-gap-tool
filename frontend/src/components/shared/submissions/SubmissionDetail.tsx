@@ -1,4 +1,3 @@
-import { AssessmentSummary } from "@/types/assessment";
 import {
   Accordion,
   AccordionContent,
@@ -6,17 +5,16 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { useDimensions } from "@/hooks/dimensions/useDimensions";
-import { DimensionAssessmentDetail } from "./DimensionAssessmentDetail";
+import { AssessmentSummary } from "@/types/assessment";
 import {
-  FileText,
   Calendar,
   CheckCircle,
-  AlertTriangle,
-  BarChart,
+  FileText
 } from "lucide-react";
+import { DimensionAssessmentDetail } from "./DimensionAssessmentDetail";
 
 interface SubmissionDetailProps {
-  summary: AssessmentSummary;
+  summary: AssessmentSummary
 }
 
 export const SubmissionDetail = ({ summary }: SubmissionDetailProps) => {
@@ -53,20 +51,6 @@ export const SubmissionDetail = ({ summary }: SubmissionDetailProps) => {
           <span className="font-medium">
             {new Date(summary.assessment.created_at).toLocaleString()}
           </span>
-        </div>
-        <div className="flex items-center">
-          <AlertTriangle className="h-5 w-5 text-red-500 mr-2" />
-          <span className="text-sm font-semibold text-gray-600 mr-2">
-            Gaps Count:
-          </span>
-          <span className="font-medium">{summary.gaps_count}</span>
-        </div>
-        <div className="flex items-center">
-          <BarChart className="h-5 w-5 text-yellow-500 mr-2" />
-          <span className="text-sm font-semibold text-gray-600 mr-2">
-            Recommendations Count:
-          </span>
-          <span className="font-medium">{summary.recommendations_count}</span>
         </div>
       </div>
 

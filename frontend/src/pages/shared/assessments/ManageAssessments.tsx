@@ -11,6 +11,7 @@ import { ROLES } from "@/constants/roles";
 import { useOrganizationId } from "@/hooks/organizations/useOrganizationId";
 import { useCooperationId } from "@/hooks/cooperations/useCooperationId";
 import { useOrganizationDimensions } from "@/hooks/organization_dimensions/useOrganizationDimensions";
+import { useCooperations } from "@/hooks/cooperations/useCooperations"; // Import useCooperations
 import { toast } from "sonner";
 
 export default function ManageAssessments() {
@@ -26,6 +27,9 @@ export default function ManageAssessments() {
   const { data: assignedDimensionIds, isLoading: isLoadingDimensions } =
     useOrganizationDimensions(organizationId || "");
 
+  const { data: cooperations, isLoading: isLoadingCooperations } =
+    useCooperations(organizationId || undefined);
+
   const handleAddAssessmentClick = () => {
     if (isOrgAdmin && (!assignedDimensionIds || assignedDimensionIds.length === 0)) {
       toast.error("No Dimensions Assigned", {
@@ -34,6 +38,15 @@ export default function ManageAssessments() {
       });
       return;
     }
+
+    if (!cooperations || cooperations.length === 0) {
+      toast.error("No Cooperations Available", {
+        description:
+          "Please create a cooperation before creating an assessment.",
+      });
+      return;
+    }
+
     setAddDialogOpen(true);
   };
 

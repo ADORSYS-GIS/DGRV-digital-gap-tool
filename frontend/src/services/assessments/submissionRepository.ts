@@ -2,8 +2,12 @@ import {
   getAssessmentSummary,
   listSubmissionsByCooperation,
   listSubmissionsByOrganization,
-  type ApiResponseAssessmentSummaryResponse,
 } from "@/openapi-client";
+import {
+  type ApiResponseAssessmentSummaryResponse,
+  type AssessmentResponse,
+  type ApiResponseAssessmentsResponse,
+} from "@/openapi-client/types.gen";
 import { db } from "@/services/db";
 import type {
   AssessmentDetails,
@@ -16,7 +20,7 @@ import { SyncStatus } from "@/types/sync";
 const mapApiResponseToAssessmentSummary = (
   response: ApiResponseAssessmentSummaryResponse | null,
 ): AssessmentSummary | null => {
-  if (!response?.data) return null;
+  if (!response?.data || !response.data.assessment) return null;
 
   const {
     assessment,
@@ -27,18 +31,18 @@ const mapApiResponseToAssessmentSummary = (
   } = response.data;
 
   const assessmentDetails: AssessmentDetails = {
-    assessment_id: assessment.assessment_id,
-    document_title: assessment.document_title || "Untitled Assessment",
-    status: assessment.status || "draft",
-    organization_id: assessment.organization_id,
-    cooperation_id: assessment.cooperation_id ?? null,
-    started_at: assessment.started_at ?? null,
-    completed_at: assessment.completed_at ?? null,
-    created_at: assessment.created_at,
-    updated_at: assessment.updated_at,
-    dimensions_id: Array.isArray(assessment.dimensions_id)
-      ? assessment.dimensions_id
-      : assessment.dimensions_id
+    assessment_id: assessment?.assessment_id ?? "",
+    document_title: assessment?.document_title || "Untitled Assessment",
+    status: assessment?.status || "draft",
+    organization_id: assessment?.organization_id ?? "",
+    cooperation_id: assessment?.cooperation_id ?? null,
+    started_at: assessment?.started_at ?? null,
+    completed_at: assessment?.completed_at ?? null,
+    created_at: assessment?.created_at ?? "",
+    updated_at: assessment?.updated_at ?? "",
+    dimensions_id: Array.isArray(assessment?.dimensions_id)
+      ? assessment?.dimensions_id
+      : assessment?.dimensions_id
         ? ([assessment.dimensions_id] as string[])
         : [],
   };
@@ -104,14 +108,34 @@ export const submissionRepository = {
   ): Promise<AssessmentSummary[]> => {
     try {
       // Try to fetch from server first
-      const response = await listSubmissionsByOrganization({ organizationId });
+      const listResponse = (await listSubmissionsByOrganization({
+        organizationId,
+      })) as unknown as ApiResponseAssessmentsResponse; // Assuming actual API returns this structure
 
-      if (response?.data) {
-        const submission = mapApiResponseToAssessmentSummary(response);
-        if (submission) {
+      if (listResponse?.data?.assessments && Array.isArray(listResponse.data.assessments)) {
+        const submissions = await Promise.all(
+          listResponse.data.assessments.map(async (assessmentItem: AssessmentResponse) => {
+            try {
+              const summaryResponse = await getAssessmentSummary({ id: assessmentItem.assessment_id });
+              const submission = mapApiResponseToAssessmentSummary(summaryResponse);
+              return submission;
+            } catch (summaryError) {
+              console.error(
+                `Error fetching summary for assessment ${assessmentItem.assessment_id}:`,
+                summaryError,
+              );
+              return null;
+            }
+          }),
+        );
+
+        const validSubmissions = submissions.filter((s): s is AssessmentSummary => s !== null);
+
+        for (const submission of validSubmissions) {
           await db.submissions.put(submission);
-          return [submission];
         }
+        return validSubmissions;
+
       }
     } catch (error) {
       console.error(
@@ -134,14 +158,33 @@ export const submissionRepository = {
     try {
       // Try to fetch from server first
       try {
-        const response = await listSubmissionsByCooperation({ cooperationId });
+        const listResponse = (await listSubmissionsByCooperation({
+          cooperationId,
+        })) as unknown as ApiResponseAssessmentsResponse; // Assuming actual API returns this structure
 
-        if (response?.data) {
-          const submission = mapApiResponseToAssessmentSummary(response);
-          if (submission) {
+        if (listResponse?.data?.assessments && Array.isArray(listResponse.data.assessments)) {
+          const submissions = await Promise.all(
+            listResponse.data.assessments.map(async (assessmentItem: AssessmentResponse) => {
+              try {
+                const summaryResponse = await getAssessmentSummary({ id: assessmentItem.assessment_id });
+                const submission = mapApiResponseToAssessmentSummary(summaryResponse);
+                return submission;
+              } catch (summaryError) {
+                console.error(
+                  `Error fetching summary for assessment ${assessmentItem.assessment_id}:`,
+                  summaryError,
+                );
+                return null;
+              }
+            }),
+          );
+
+          const validSubmissions = submissions.filter((s): s is AssessmentSummary => s !== null);
+
+          for (const submission of validSubmissions) {
             await db.submissions.put(submission);
-            return [submission];
           }
+          return validSubmissions;
         }
       } catch (apiError) {
         console.warn(
