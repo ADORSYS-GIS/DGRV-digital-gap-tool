@@ -83,26 +83,27 @@ pub struct UpdateActionItemParams {
 }
 
 impl ActionPlanService {
-
     pub async fn update_action_item(
         &self,
         params: UpdateActionItemParams,
     ) -> Result<action_items::Model, AppError> {
-        let mut action_item: action_items::ActiveModel = action_items::Entity::find_by_id(params.action_item_id)
-            .filter(action_items::Column::ActionPlanId.eq(params.action_plan_id))
-            .one(self.db.as_ref())
-            .await?
-            .ok_or_else(|| AppError::NotFound("Action item not found".to_string()))?
-            .into();
-
-        if let Some(d) = params.description {
-             let current_rec_id = action_item.recommendation_id.clone().unwrap();
-             let mut rec: recommendations::ActiveModel = recommendations::Entity::find_by_id(current_rec_id)
+        let mut action_item: action_items::ActiveModel =
+            action_items::Entity::find_by_id(params.action_item_id)
+                .filter(action_items::Column::ActionPlanId.eq(params.action_plan_id))
                 .one(self.db.as_ref())
                 .await?
-                .ok_or_else(|| AppError::NotFound("Recommendation not found".to_string()))?
+                .ok_or_else(|| AppError::NotFound("Action item not found".to_string()))?
                 .into();
-            
+
+        if let Some(d) = params.description {
+            let current_rec_id = action_item.recommendation_id.clone().unwrap();
+            let mut rec: recommendations::ActiveModel =
+                recommendations::Entity::find_by_id(current_rec_id)
+                    .one(self.db.as_ref())
+                    .await?
+                    .ok_or_else(|| AppError::NotFound("Recommendation not found".to_string()))?
+                    .into();
+
             let new_desc = if let Some(t) = &params.title {
                 format!("{}: {}", t, d)
             } else {
@@ -112,17 +113,18 @@ impl ActionPlanService {
             rec.updated_at = Set(chrono::Utc::now());
             rec.update(self.db.as_ref()).await?;
         } else if let Some(t) = params.title {
-             // Only title provided
-             let current_rec_id = action_item.recommendation_id.clone().unwrap();
-             let mut rec: recommendations::ActiveModel = recommendations::Entity::find_by_id(current_rec_id)
-                .one(self.db.as_ref())
-                .await?
-                .ok_or_else(|| AppError::NotFound("Recommendation not found".to_string()))?
-                .into();
-             
-             rec.description = Set(t);
-             rec.updated_at = Set(chrono::Utc::now());
-             rec.update(self.db.as_ref()).await?;
+            // Only title provided
+            let current_rec_id = action_item.recommendation_id.clone().unwrap();
+            let mut rec: recommendations::ActiveModel =
+                recommendations::Entity::find_by_id(current_rec_id)
+                    .one(self.db.as_ref())
+                    .await?
+                    .ok_or_else(|| AppError::NotFound("Recommendation not found".to_string()))?
+                    .into();
+
+            rec.description = Set(t);
+            rec.updated_at = Set(chrono::Utc::now());
+            rec.update(self.db.as_ref()).await?;
         }
 
         if let Some(s) = params.status {
