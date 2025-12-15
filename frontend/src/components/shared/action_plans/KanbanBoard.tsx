@@ -12,6 +12,8 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { AddActionItemForm } from "./AddActionItemForm";
+import { useAuth } from "@/context/AuthContext";
+import { ROLES } from "@/constants/roles";
 
 interface KanbanBoardProps {
   submissionId: string;
@@ -25,6 +27,10 @@ export function KanbanBoard({ submissionId }: KanbanBoardProps) {
     refetch,
   } = useActionPlan(submissionId);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const { roles } = useAuth();
+
+  const canEdit =
+    roles.includes(ROLES.ORG_ADMIN) || roles.includes(ROLES.COOP_ADMIN);
 
   const handleSuccess = () => {
     setIsDialogOpen(false);
@@ -65,28 +71,34 @@ export function KanbanBoard({ submissionId }: KanbanBoardProps) {
         </h2>
         <div className="space-y-4">
           {columns.todo.map((item) => (
-            <ActionItemCard key={item.action_item_id} item={item} />
+            <ActionItemCard
+              key={item.action_item_id}
+              item={item}
+              onUpdate={refetch}
+            />
           ))}
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button
-                variant="outline"
-                className="w-full flex items-center justify-center text-gray-600 hover:text-gray-900"
-              >
-                <Plus className="mr-2 h-4 w-4" /> Add Action Item
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Add New Action Item</DialogTitle>
-              </DialogHeader>
-              <AddActionItemForm
-                actionPlanId={actionPlan.action_plan_id}
-                assessmentId={submissionId}
-                onSuccess={handleSuccess}
-              />
-            </DialogContent>
-          </Dialog>
+          {canEdit && (
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="w-full flex items-center justify-center text-gray-600 hover:text-gray-900"
+                >
+                  <Plus className="mr-2 h-4 w-4" /> Add Action Item
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Add New Action Item</DialogTitle>
+                </DialogHeader>
+                <AddActionItemForm
+                  actionPlanId={actionPlan.action_plan_id}
+                  assessmentId={submissionId}
+                  onSuccess={handleSuccess}
+                />
+              </DialogContent>
+            </Dialog>
+          )}
         </div>
       </div>
       <div className="bg-blue-50 p-4 rounded-lg shadow-inner">
@@ -98,7 +110,7 @@ export function KanbanBoard({ submissionId }: KanbanBoardProps) {
         </h2>
         <div className="space-y-4">
           {columns.in_progress.map((item) => (
-            <ActionItemCard key={item.action_item_id} item={item} />
+            <ActionItemCard key={item.action_item_id} item={item} onUpdate={refetch} />
           ))}
         </div>
       </div>
@@ -111,7 +123,7 @@ export function KanbanBoard({ submissionId }: KanbanBoardProps) {
         </h2>
         <div className="space-y-4">
           {columns.done.map((item) => (
-            <ActionItemCard key={item.action_item_id} item={item} />
+            <ActionItemCard key={item.action_item_id} item={item} onUpdate={refetch} />
           ))}
         </div>
       </div>
@@ -124,7 +136,7 @@ export function KanbanBoard({ submissionId }: KanbanBoardProps) {
         </h2>
         <div className="space-y-4">
           {columns.approved.map((item) => (
-            <ActionItemCard key={item.action_item_id} item={item} />
+            <ActionItemCard key={item.action_item_id} item={item} onUpdate={refetch} />
           ))}
         </div>
       </div>

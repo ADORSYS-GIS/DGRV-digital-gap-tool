@@ -21,6 +21,7 @@ const mapToActionPlan = (data: ActionPlanResponse): ActionPlan => {
       ...item,
       status: item.status as ActionItem["status"],
       priority: item.priority as ActionItem["priority"],
+      action_plan_id: data.action_plan_id,
     })),
   };
 };
@@ -76,6 +77,7 @@ class ActionPlanRepository {
           ...response.data,
           status: response.data.status as ActionItem["status"],
           priority: response.data.priority as ActionItem["priority"],
+          action_plan_id: actionPlanId,
         };
       }
     } catch (error) {
@@ -100,6 +102,7 @@ class ActionPlanRepository {
           ...response.data,
           status: response.data.status as ActionItem["status"],
           priority: response.data.priority as ActionItem["priority"],
+          action_plan_id: actionPlanId,
         };
       }
     } catch (error) {
