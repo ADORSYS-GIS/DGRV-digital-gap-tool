@@ -4,7 +4,6 @@ use axum::{
     http::StatusCode,
     response::Json,
 };
-use std::sync::Arc;
 use utoipa::IntoParams;
 use uuid::Uuid;
 use validator::Validate;
@@ -18,7 +17,7 @@ use crate::api::dto::{
 use crate::api::handlers::common::{extract_pagination, handle_error, success_response};
 use crate::error::AppError;
 use crate::repositories::action_plans::ActionPlansRepository;
-use crate::services::action_plan_service::ActionPlanService;
+use crate::services::action_plan_service::{ActionPlanService, UpdateActionItemParams};
 
 #[derive(Debug, serde::Deserialize, IntoParams)]
 pub struct ActionPlanId {
@@ -153,16 +152,16 @@ pub async fn update_action_item(
         .ok_or_else(|| handle_error(AppError::NotFound("Action plan not found".to_string())))?;
 
     let updated_item = action_plan_service
-        .update_action_item(
+        .update_action_item(UpdateActionItemParams {
             action_item_id,
             action_plan_id,
-            body.title,
-            body.description,
-            body.status,
-            body.priority,
-            body.dimension_assessment_id,
-            body.recommendation_id,
-        )
+            title: body.title,
+            description: body.description,
+            status: body.status,
+            priority: body.priority,
+            dimension_assessment_id: body.dimension_assessment_id,
+            recommendation_id: body.recommendation_id,
+        })
         .await
         .map_err(handle_error)?;
 

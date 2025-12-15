@@ -1,5 +1,5 @@
 use crate::{
-    entities::{action_items, action_plans, dimension_assessments, recommendations},
+    entities::{action_items, dimension_assessments, recommendations},
     error::AppError,
     repositories::action_items::ActionItemsRepository,
 };
@@ -69,55 +69,41 @@ impl ActionPlanService {
 
         ActionItemsRepository::create(self.db.as_ref(), new_action_item).await
     }
+}
+
+pub struct UpdateActionItemParams {
+    pub action_item_id: Uuid,
+    pub action_plan_id: Uuid,
+    pub title: Option<String>,
+    pub description: Option<String>,
+    pub status: Option<String>,
+    pub priority: Option<String>,
+    pub dimension_assessment_id: Option<Uuid>,
+    pub recommendation_id: Option<Uuid>,
+}
+
+impl ActionPlanService {
 
     pub async fn update_action_item(
         &self,
-        action_item_id: Uuid,
-        action_plan_id: Uuid, // Ensure the action item belongs to this plan
-        title: Option<String>,
-        description: Option<String>,
-        status: Option<String>,
-        priority: Option<String>,
-        dimension_assessment_id: Option<Uuid>,
-        recommendation_id: Option<Uuid>,
+        params: UpdateActionItemParams,
     ) -> Result<action_items::Model, AppError> {
-        let mut action_item: action_items::ActiveModel =
-            action_items::Entity::find_by_id(action_item_id)
-                .filter(action_items::Column::ActionPlanId.eq(action_plan_id))
+        let mut action_item: action_items::ActiveModel = action_items::Entity::find_by_id(params.action_item_id)
+            .filter(action_items::Column::ActionPlanId.eq(params.action_plan_id))
+            .one(self.db.as_ref())
+            .await?
+            .ok_or_else(|| AppError::NotFound("Action item not found".to_string()))?
+            .into();
+
+        if let Some(d) = params.description {
+             let current_rec_id = action_item.recommendation_id.clone().unwrap();
+             let mut rec: recommendations::ActiveModel = recommendations::Entity::find_by_id(current_rec_id)
                 .one(self.db.as_ref())
                 .await?
-                .ok_or_else(|| AppError::NotFound("Action item not found".to_string()))?
+                .ok_or_else(|| AppError::NotFound("Recommendation not found".to_string()))?
                 .into();
-
-        if let Some(t) = &title {
-            // Update associated recommendation description if needed
-            // For now, we will just update the description if provided, ignoring title split logic complexity
-            // Ideally we should check if it's a custom recommendation but for now we allow updating any linked recommendation's description
-            let current_rec_id = action_item.recommendation_id.clone().unwrap();
-            let mut rec: recommendations::ActiveModel =
-                recommendations::Entity::find_by_id(current_rec_id)
-                    .one(self.db.as_ref())
-                    .await?
-                    .ok_or_else(|| AppError::NotFound("Recommendation not found".to_string()))?
-                    .into();
-
-            // If description is also provided, combine them. If not, just prepend title?
-            // This is tricky without knowing if it was "Title: Description" before.
-            // Let's just append/replace description if description is provided.
-            // If only title is provided, we might be overwriting description.
-            // For simplicity in this iteration: We update description field of recommendation with "Title: Description" if both are present, or just Description.
-        }
-
-        if let Some(d) = description {
-            let current_rec_id = action_item.recommendation_id.clone().unwrap();
-            let mut rec: recommendations::ActiveModel =
-                recommendations::Entity::find_by_id(current_rec_id)
-                    .one(self.db.as_ref())
-                    .await?
-                    .ok_or_else(|| AppError::NotFound("Recommendation not found".to_string()))?
-                    .into();
-
-            let new_desc = if let Some(t) = &title {
+            
+            let new_desc = if let Some(t) = &params.title {
                 format!("{}: {}", t, d)
             } else {
                 d
@@ -125,39 +111,34 @@ impl ActionPlanService {
             rec.description = Set(new_desc);
             rec.updated_at = Set(chrono::Utc::now());
             rec.update(self.db.as_ref()).await?;
-        } else if let Some(t) = title {
-            // Only title provided
-            let current_rec_id = action_item.recommendation_id.clone().unwrap();
-            let mut rec: recommendations::ActiveModel =
-                recommendations::Entity::find_by_id(current_rec_id)
-                    .one(self.db.as_ref())
-                    .await?
-                    .ok_or_else(|| AppError::NotFound("Recommendation not found".to_string()))?
-                    .into();
-
-            // We don't know the old description part easily.
-            // Let's assume we just update the description to be the title for now if only title is sent, or maybe we should error?
-            // The prompt said "he can fill the form and add". Updating is less specified.
-            // Let's just update the description to the title to be safe-ish or just ignore title update if no description.
-            rec.description = Set(t);
-            rec.updated_at = Set(chrono::Utc::now());
-            rec.update(self.db.as_ref()).await?;
+        } else if let Some(t) = params.title {
+             // Only title provided
+             let current_rec_id = action_item.recommendation_id.clone().unwrap();
+             let mut rec: recommendations::ActiveModel = recommendations::Entity::find_by_id(current_rec_id)
+                .one(self.db.as_ref())
+                .await?
+                .ok_or_else(|| AppError::NotFound("Recommendation not found".to_string()))?
+                .into();
+             
+             rec.description = Set(t);
+             rec.updated_at = Set(chrono::Utc::now());
+             rec.update(self.db.as_ref()).await?;
         }
 
-        if let Some(s) = status {
+        if let Some(s) = params.status {
             let item_status = action_items::ActionItemStatus::from_str(s.as_str())
                 .map_err(|e| AppError::BadRequest(format!("Invalid status: {}", e)))?;
             action_item.status = Set(item_status);
         }
-        if let Some(p) = priority {
+        if let Some(p) = params.priority {
             let item_priority = action_items::ActionItemPriority::from_str(p.as_str())
                 .map_err(|e| AppError::BadRequest(format!("Invalid priority: {}", e)))?;
             action_item.priority = Set(item_priority);
         }
-        if let Some(da_id) = dimension_assessment_id {
+        if let Some(da_id) = params.dimension_assessment_id {
             action_item.dimension_assessment_id = Set(da_id);
         }
-        if let Some(r_id) = recommendation_id {
+        if let Some(r_id) = params.recommendation_id {
             action_item.recommendation_id = Set(r_id);
         }
 
