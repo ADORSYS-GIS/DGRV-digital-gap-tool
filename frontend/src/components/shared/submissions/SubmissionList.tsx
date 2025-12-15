@@ -86,9 +86,9 @@ export const SubmissionList = ({
       data: getSubmissionData(submission),
     }))
     .filter((item) => item.data !== null) as Array<{
-    submission: AssessmentSummary;
-    data: SubmissionItemData;
-  }>;
+      submission: AssessmentSummary;
+      data: SubmissionItemData;
+    }>;
 
   if (validItems.length === 0) {
     return (
@@ -105,38 +105,45 @@ export const SubmissionList = ({
           <button
             key={submissionData.id}
             onClick={() => handleSubmissionClick(submissionData.id)}
-            className="w-full text-left border rounded-lg p-4 hover:bg-gray-50 transition-colors"
+            className="w-full text-left border rounded-xl p-4 hover:bg-muted/50 hover:shadow-sm transition-all duration-200 group bg-card"
           >
             <div className="flex items-center justify-between">
               <div className="flex items-start space-x-4">
-                <div className="p-2 bg-blue-50 rounded-full mt-1">
-                  <Leaf className="h-5 w-5 text-blue-600" />
+                <div className="p-2.5 bg-primary/10 rounded-full mt-0.5 group-hover:bg-primary/20 transition-colors">
+                  <Leaf className="h-5 w-5 text-primary" />
                 </div>
-                <div className="flex-1">
-                  <div className="flex items-center space-x-2">
-                    <h3 className="font-medium text-gray-900 hover:underline">
+                <div className="flex-1 space-y-1">
+                  <div className="flex items-center space-x-2.5">
+                    <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">
                       {submissionData.name}
                     </h3>
                     <Badge
                       variant={getStatusVariant(submissionData.status)}
-                      className="text-xs"
+                      className="text-xs font-medium px-2 py-0.5"
                     >
                       {submissionData.status}
                     </Badge>
                   </div>
 
-                  <p className="text-sm text-gray-500 mt-1">
+                  <p className="text-sm text-muted-foreground">
                     Submitted on{" "}
-                    {new Date(submissionData.created_at).toLocaleDateString()}
+                    {new Date(submissionData.created_at).toLocaleDateString(
+                      undefined,
+                      {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      },
+                    )}
                   </p>
 
-                  <div className="mt-2 flex items-center space-x-4 text-sm">
+                  <div className="pt-2 flex items-center space-x-6 text-sm">
                     {submissionData.overall_score !== null && (
                       <div className="flex items-center">
-                        <span className="font-medium text-gray-700">
+                        <span className="font-semibold text-foreground">
                           {submissionData.overall_score.toFixed(1)}%
                         </span>
-                        <span className="ml-1 text-gray-500">
+                        <span className="ml-1.5 text-muted-foreground">
                           overall score
                         </span>
                       </div>
@@ -144,10 +151,10 @@ export const SubmissionList = ({
 
                     {submissionData.gaps_count > 0 && (
                       <div className="flex items-center">
-                        <span className="font-medium text-gray-700">
+                        <span className="font-semibold text-foreground">
                           {submissionData.gaps_count}
                         </span>
-                        <span className="ml-1 text-gray-500">
+                        <span className="ml-1.5 text-muted-foreground">
                           gap{submissionData.gaps_count !== 1 ? "s" : ""}{" "}
                           identified
                         </span>
@@ -157,15 +164,18 @@ export const SubmissionList = ({
                 </div>
               </div>
 
-              <div className="text-sm text-gray-500 self-start">
-                View details →
+              <div className="text-sm font-medium text-muted-foreground group-hover:text-primary transition-colors flex items-center">
+                View details
+                <span className="ml-1 transition-transform group-hover:translate-x-1">
+                  →
+                </span>
               </div>
             </div>
           </button>
         ) : (
           <div
             key={submissionData.id}
-            className="border rounded-lg p-4 hover:bg-gray-50 transition-colors"
+            className="border rounded-xl p-4 hover:bg-muted/50 hover:shadow-sm transition-all duration-200 group bg-card"
           >
             <Link
               to={`${basePath}/submissions/${submissionData.id}`}
@@ -173,34 +183,41 @@ export const SubmissionList = ({
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-start space-x-4">
-                  <div className="p-2 bg-blue-50 rounded-full mt-1">
-                    <Leaf className="h-5 w-5 text-blue-600" />
+                  <div className="p-2.5 bg-primary/10 rounded-full mt-0.5 group-hover:bg-primary/20 transition-colors">
+                    <Leaf className="h-5 w-5 text-primary" />
                   </div>
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-2">
-                      <h3 className="font-medium text-gray-900 hover:underline">
+                  <div className="flex-1 space-y-1">
+                    <div className="flex items-center space-x-2.5">
+                      <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">
                         {submissionData.name}
                       </h3>
                       <Badge
                         variant={getStatusVariant(submissionData.status)}
-                        className="text-xs"
+                        className="text-xs font-medium px-2 py-0.5"
                       >
                         {submissionData.status}
                       </Badge>
                     </div>
 
-                    <p className="text-sm text-gray-500 mt-1">
+                    <p className="text-sm text-muted-foreground">
                       Submitted on{" "}
-                      {new Date(submissionData.created_at).toLocaleDateString()}
+                      {new Date(submissionData.created_at).toLocaleDateString(
+                        undefined,
+                        {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        },
+                      )}
                     </p>
 
-                    <div className="mt-2 flex items-center space-x-4 text-sm">
+                    <div className="pt-2 flex items-center space-x-6 text-sm">
                       {submissionData.overall_score !== null && (
                         <div className="flex items-center">
-                          <span className="font-medium text-gray-700">
+                          <span className="font-semibold text-foreground">
                             {submissionData.overall_score.toFixed(1)}%
                           </span>
-                          <span className="ml-1 text-gray-500">
+                          <span className="ml-1.5 text-muted-foreground">
                             overall score
                           </span>
                         </div>
@@ -208,10 +225,10 @@ export const SubmissionList = ({
 
                       {submissionData.gaps_count > 0 && (
                         <div className="flex items-center">
-                          <span className="font-medium text-gray-700">
+                          <span className="font-semibold text-foreground">
                             {submissionData.gaps_count}
                           </span>
-                          <span className="ml-1 text-gray-500">
+                          <span className="ml-1.5 text-muted-foreground">
                             gap{submissionData.gaps_count !== 1 ? "s" : ""}{" "}
                             identified
                           </span>
@@ -221,8 +238,11 @@ export const SubmissionList = ({
                   </div>
                 </div>
 
-                <div className="text-sm text-gray-500 self-start">
-                  View details →
+                <div className="text-sm font-medium text-muted-foreground group-hover:text-primary transition-colors flex items-center">
+                  View details
+                  <span className="ml-1 transition-transform group-hover:translate-x-1">
+                    →
+                  </span>
                 </div>
               </div>
             </Link>

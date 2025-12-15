@@ -77,73 +77,73 @@ export function RecommendationList({
             <AccordionItem
               value={dimensionName}
               key={dimensionName}
-              className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200"
+              className="border border-gray-200 rounded-xl overflow-hidden shadow-sm bg-white"
             >
-              <AccordionTrigger className="px-6 py-4 text-lg font-semibold hover:no-underline hover:bg-slate-50 transition-colors">
-                <div className="flex items-center space-x-3">
-                  <span className="text-slate-800">{dimensionName}</span>
-                  <Badge variant="secondary" className="text-sm font-medium">
-                    {dimensionRecs.length}{" "}
-                    {dimensionRecs.length === 1
-                      ? "recommendation"
-                      : "recommendations"}
-                  </Badge>
+              <AccordionTrigger className="px-6 py-4 hover:bg-gray-50/50 transition-colors hover:no-underline">
+                <div className="flex items-center gap-3">
+                  <span className="text-lg font-semibold text-gray-900">{dimensionName}</span>
+                  <span className="px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-medium">
+                    {dimensionRecs.length} {dimensionRecs.length === 1 ? "recommendation" : "recommendations"}
+                  </span>
                 </div>
               </AccordionTrigger>
-              <AccordionContent className="bg-white">
-                <div className="border-t border-slate-100">
+              <AccordionContent className="px-0 pb-0 border-t border-gray-100">
+                <div className="overflow-x-auto">
                   <Table>
-                    <TableHeader className="bg-slate-50">
-                      <TableRow>
-                        <TableHead className="w-[120px]">Priority</TableHead>
-                        <TableHead>Description</TableHead>
-                        <TableHead className="w-[120px] text-right">
+                    <TableHeader>
+                      <TableRow className="bg-gray-50/50 hover:bg-gray-50/50 border-b border-gray-100">
+                        <TableHead className="pl-6 h-12 font-medium text-gray-600 w-[120px]">Priority</TableHead>
+                        <TableHead className="h-12 font-medium text-gray-600">Description</TableHead>
+                        <TableHead className="pr-6 h-12 font-medium text-gray-600 w-[120px] text-right">
                           Actions
                         </TableHead>
                       </TableRow>
                     </TableHeader>
-                    <TableBody className="divide-y divide-slate-100">
+                    <TableBody>
                       {dimensionRecs.map((recommendation) => (
                         <TableRow
                           key={recommendation.id}
-                          className="hover:bg-slate-50/50 transition-colors"
+                          className="hover:bg-gray-50/30 border-b border-gray-50 last:border-0"
                         >
-                          <TableCell className="py-3">
+                          <TableCell className="pl-6 py-4">
                             <Badge
                               variant={
                                 recommendation.priority === "HIGH"
                                   ? "destructive"
                                   : recommendation.priority === "MEDIUM"
                                     ? "default"
-                                    : "success"
+                                    : "secondary"
                               }
-                              className="capitalize font-medium px-2 py-1 text-xs"
+                              className={`capitalize font-medium px-2.5 py-0.5 text-xs rounded-full shadow-none
+                                ${recommendation.priority === "HIGH" ? "bg-red-100 text-red-700 hover:bg-red-100" :
+                                  recommendation.priority === "MEDIUM" ? "bg-yellow-100 text-yellow-700 hover:bg-yellow-100" :
+                                    "bg-green-100 text-green-700 hover:bg-green-100"}`}
                             >
                               {recommendation.priority?.toLowerCase() || "N/A"}
                             </Badge>
                           </TableCell>
-                          <TableCell className="py-3">
-                            <div className="max-w-[500px] line-clamp-2 text-slate-700">
+                          <TableCell className="py-4">
+                            <div className="max-w-[600px] text-gray-700 leading-relaxed">
                               {recommendation.description}
                             </div>
                           </TableCell>
-                          <TableCell className="py-3">
-                            <div className="flex justify-end space-x-1">
+                          <TableCell className="pr-6 py-4">
+                            <div className="flex justify-end gap-1">
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                className="h-8 w-8 rounded-full text-slate-500 hover:text-slate-700 hover:bg-slate-100"
+                                className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors"
                                 onClick={() =>
                                   setEditingRecommendation(recommendation)
                                 }
                               >
-                                <Pencil className="h-3.5 w-3.5" />
+                                <Pencil className="h-4 w-4" />
                                 <span className="sr-only">Edit</span>
                               </Button>
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                className="h-8 w-8 rounded-full text-red-500 hover:text-red-600 hover:bg-red-50"
+                                className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                                 onClick={async (e) => {
                                   e.stopPropagation();
                                   if (
@@ -157,7 +157,7 @@ export function RecommendationList({
                                   }
                                 }}
                               >
-                                <Trash2 className="h-3.5 w-3.5" />
+                                <Trash2 className="h-4 w-4" />
                                 <span className="sr-only">Delete</span>
                               </Button>
                             </div>

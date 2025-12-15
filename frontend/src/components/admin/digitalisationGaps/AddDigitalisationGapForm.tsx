@@ -34,6 +34,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { AlertTriangle, Layers, Activity, FileText } from "lucide-react";
 import * as z from "zod";
 
 const formInputSchema = z.object({
@@ -130,97 +131,133 @@ export function AddDigitalisationGapForm({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>
-            {digitalisationGap ? "Edit" : "Add"} Digitalisation Gap
-          </DialogTitle>
-        </DialogHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="dimensionId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Dimension</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
+      <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden rounded-2xl border-0 shadow-2xl">
+        <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent p-6 border-b border-primary/10">
+          <DialogHeader className="mb-0">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2 rounded-lg bg-primary/10 text-primary">
+                <AlertTriangle className="h-5 w-5" />
+              </div>
+              <DialogTitle className="text-2xl font-bold text-gray-900">
+                {digitalisationGap ? "Edit" : "Add"} Digitalisation Gap
+              </DialogTitle>
+            </div>
+            <p className="text-sm text-muted-foreground pl-12">
+              {digitalisationGap
+                ? "Update the details of this digitalisation gap."
+                : "Define a new potential gap for assessment."}
+            </p>
+          </DialogHeader>
+        </div>
+        <div className="p-6 pt-4">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+              <FormField
+                control={form.control}
+                name="dimensionId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-gray-700">Dimension</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <div className="relative">
+                          <Layers className="absolute left-3 top-3 h-4 w-4 text-gray-400 z-10" />
+                          <SelectTrigger className="pl-10 h-11 rounded-lg border-gray-200 focus:border-primary focus:ring-primary/20 transition-all">
+                            <SelectValue placeholder="Select a dimension" />
+                          </SelectTrigger>
+                        </div>
+                      </FormControl>
+                      <SelectContent>
+                        {dimensions?.map((dim) => (
+                          <SelectItem key={dim.id} value={dim.id}>
+                            {dim.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="gap_severity"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-gray-700">Gap Severity</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <div className="relative">
+                          <Activity className="absolute left-3 top-3 h-4 w-4 text-gray-400 z-10" />
+                          <SelectTrigger className="pl-10 h-11 rounded-lg border-gray-200 focus:border-primary focus:ring-primary/20 transition-all">
+                            <SelectValue placeholder="Select a gap severity" />
+                          </SelectTrigger>
+                        </div>
+                      </FormControl>
+                      <SelectContent>
+                        {Object.values(Gap).map((gapValue) => (
+                          <SelectItem key={gapValue} value={gapValue}>
+                            {gapValue}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-gray-700">Description</FormLabel>
                     <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a dimension" />
-                      </SelectTrigger>
+                      <div className="relative">
+                        <FileText className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                        <Textarea
+                          placeholder="Describe the digital gap..."
+                          className="pl-10 min-h-[100px] rounded-lg border-gray-200 focus:border-primary focus:ring-primary/20 transition-all resize-none"
+                          {...field}
+                        />
+                      </div>
                     </FormControl>
-                    <SelectContent>
-                      {dimensions?.map((dim) => (
-                        <SelectItem key={dim.id} value={dim.id}>
-                          {dim.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="gap_severity"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Gap Severity</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a gap severity" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {Object.values(Gap).map((gapValue) => (
-                        <SelectItem key={gapValue} value={gapValue}>
-                          {gapValue}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Describe the digital gap..."
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <DialogFooter>
-              <Button type="button" variant="ghost" onClick={onClose}>
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                disabled={addMutation.isPending || updateMutation.isPending}
-              >
-                {digitalisationGap ? "Update" : "Create"}
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <div className="pt-2 flex gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={onClose}
+                  className="flex-1 h-11 rounded-lg border-gray-200 hover:bg-gray-50 text-gray-700"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={addMutation.isPending || updateMutation.isPending}
+                  className="flex-1 h-11 rounded-lg bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white font-medium shadow-md hover:shadow-lg transition-all duration-300"
+                >
+                  {(addMutation.isPending || updateMutation.isPending) ? (
+                    <span className="flex items-center gap-2">
+                      <span className="animate-spin">⏳</span> Saving...
+                    </span>
+                  ) : (
+                    digitalisationGap ? "Update Gap" : "Create Gap"
+                  )}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </div>
       </DialogContent>
     </Dialog>
   );

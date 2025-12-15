@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Type, FileText, AlertCircle, Layers } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -82,76 +83,108 @@ export function AddActionItemForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="grid gap-4 py-4">
-      <div className="grid grid-cols-4 items-center gap-4">
-        <Label htmlFor="title" className="text-right">
-          Title
-        </Label>
-        <Input
-          id="title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          className="col-span-3"
-          required
-        />
+    <form onSubmit={handleSubmit} className="space-y-5">
+      <div className="grid gap-5">
+        <div className="space-y-2">
+          <Label htmlFor="title" className="text-gray-700 font-medium">
+            Title
+          </Label>
+          <div className="relative">
+            <Type className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+            <Input
+              id="title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="pl-10 h-11 rounded-lg border-gray-200 focus:border-primary focus:ring-primary/20 transition-all"
+              placeholder="Enter action item title"
+              required
+            />
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="description" className="text-gray-700 font-medium">
+            Description
+          </Label>
+          <div className="relative">
+            <FileText className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+            <Textarea
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="pl-10 min-h-[100px] rounded-lg border-gray-200 focus:border-primary focus:ring-primary/20 transition-all resize-none"
+              placeholder="Describe the action item"
+              required
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="priority" className="text-gray-700 font-medium">
+              Priority
+            </Label>
+            <Select
+              value={priority}
+              onValueChange={(value: "low" | "medium" | "high") =>
+                setPriority(value)
+              }
+            >
+              <div className="relative">
+                <AlertCircle className="absolute left-3 top-3 h-4 w-4 text-gray-400 z-10" />
+                <SelectTrigger className="pl-10 h-11 rounded-lg border-gray-200 focus:border-primary focus:ring-primary/20 transition-all">
+                  <SelectValue placeholder="Select priority" />
+                </SelectTrigger>
+              </div>
+              <SelectContent>
+                <SelectItem value="low">Low</SelectItem>
+                <SelectItem value="medium">Medium</SelectItem>
+                <SelectItem value="high">High</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="dimension" className="text-gray-700 font-medium">
+              Dimension
+            </Label>
+            <Select
+              value={dimensionAssessmentId}
+              onValueChange={setDimensionAssessmentId}
+            >
+              <div className="relative">
+                <Layers className="absolute left-3 top-3 h-4 w-4 text-gray-400 z-10" />
+                <SelectTrigger className="pl-10 h-11 rounded-lg border-gray-200 focus:border-primary focus:ring-primary/20 transition-all">
+                  <SelectValue placeholder="Select dimension" />
+                </SelectTrigger>
+              </div>
+              <SelectContent>
+                {dimensionAssessments?.map((da) => (
+                  <SelectItem key={da.id} value={da.id}>
+                    {getDimensionName(da.dimensionId)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
       </div>
-      <div className="grid grid-cols-4 items-center gap-4">
-        <Label htmlFor="description" className="text-right">
-          Description
-        </Label>
-        <Textarea
-          id="description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          className="col-span-3"
-          required
-        />
-      </div>
-      <div className="grid grid-cols-4 items-center gap-4">
-        <Label htmlFor="priority" className="text-right">
-          Priority
-        </Label>
-        <Select
-          value={priority}
-          onValueChange={(value: "low" | "medium" | "high") =>
-            setPriority(value)
-          }
+
+      <div className="pt-2">
+        <Button
+          type="submit"
+          disabled={isSubmitting}
+          className="w-full h-11 rounded-lg bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white font-medium shadow-md hover:shadow-lg transition-all duration-300"
         >
-          <SelectTrigger className="col-span-3">
-            <SelectValue placeholder="Select priority" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="low">Low</SelectItem>
-            <SelectItem value="medium">Medium</SelectItem>
-            <SelectItem value="high">High</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-      <div className="grid grid-cols-4 items-center gap-4">
-        <Label htmlFor="dimension" className="text-right">
-          Dimension
-        </Label>
-        <Select
-          value={dimensionAssessmentId}
-          onValueChange={setDimensionAssessmentId}
-        >
-          <SelectTrigger className="col-span-3">
-            <SelectValue placeholder="Select dimension" />
-          </SelectTrigger>
-          <SelectContent>
-            {dimensionAssessments?.map((da) => (
-              <SelectItem key={da.id} value={da.id}>
-                {getDimensionName(da.dimensionId)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-      <DialogFooter>
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Adding..." : "Add Item"}
+          {isSubmitting ? (
+            <span className="flex items-center gap-2">
+              <span className="animate-spin">⏳</span> Adding...
+            </span>
+          ) : (
+            "Add Action Item"
+          )}
         </Button>
-      </DialogFooter>
+      </div>
     </form>
   );
 }

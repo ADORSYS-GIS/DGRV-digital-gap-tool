@@ -54,12 +54,27 @@ const ActionPlansPage: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl bg-gradient-to-r from-primary/5 via-primary/10 to-transparent p-6 sm:p-10 border border-primary/10">
+        <div className="space-y-2">
+          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-gray-900">
+            Admin Action Plans
+          </h1>
+          <p className="text-lg text-muted-foreground max-w-2xl">
+            Oversee and manage action plans across all organizations.
+          </p>
+        </div>
+      </div>
+
       {!selectedOrganizationId ? (
-        <div>
-          <h2 className="text-2xl font-bold mb-4">Select an Organization</h2>
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-semibold text-gray-900">Select an Organization</h2>
+          </div>
           {isLoadingOrganizations ? (
-            <LoadingSpinner />
+            <div className="flex justify-center py-12">
+              <LoadingSpinner size="lg" />
+            </div>
           ) : (
             <OrganizationList
               organizations={organizations || []}
@@ -68,10 +83,23 @@ const ActionPlansPage: React.FC = () => {
           )}
         </div>
       ) : (
-        <div>
-          <h2 className="text-2xl font-bold mb-4">Select a Submission</h2>
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => setSelectedOrganizationId(null)}
+                className="text-sm text-gray-500 hover:text-primary flex items-center gap-1 transition-colors"
+              >
+                ← Back to Organizations
+              </button>
+              <h2 className="text-xl font-semibold text-gray-900">Select a Submission</h2>
+            </div>
+          </div>
+
           {isLoadingSubmissions ? (
-            <LoadingSpinner />
+            <div className="flex justify-center py-12">
+              <LoadingSpinner size="lg" />
+            </div>
           ) : (
             <SubmissionList
               submissions={submissions}

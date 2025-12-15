@@ -32,20 +32,22 @@ export default function ManageRecommendations() {
   };
 
   return (
-    <div className="container mx-auto p-4 md:p-6 lg:p-8">
-      <div className="flex flex-col space-y-4 mb-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">
-              Manage Recommendations
-            </h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              Add, edit, or remove recommendations for the digital gap
-              assessment
-            </p>
-          </div>
-          <Button onClick={() => setAddDialogOpen(true)}>
-            <PlusCircle className="mr-2 h-4 w-4" />
+    <div className="space-y-8 max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl bg-gradient-to-r from-primary/5 via-primary/10 to-transparent p-6 sm:p-10 border border-primary/10">
+        <div className="space-y-2">
+          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-gray-900">
+            Manage Recommendations
+          </h1>
+          <p className="text-lg text-muted-foreground max-w-2xl">
+            Add, edit, or remove recommendations for the digital gap assessment.
+          </p>
+        </div>
+        <div className="flex items-center space-x-2">
+          <Button
+            onClick={() => setAddDialogOpen(true)}
+            className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white shadow-md hover:shadow-lg transition-all duration-300 h-11 px-6 rounded-lg"
+          >
+            <PlusCircle className="mr-2 h-5 w-5" />
             Add Recommendation
           </Button>
         </div>
