@@ -11,9 +11,13 @@ import { ROLES } from "@/constants/roles";
 import { useOrganizationId } from "@/hooks/organizations/useOrganizationId";
 import { useCooperationId } from "@/hooks/cooperations/useCooperationId";
 import { useOrganizationDimensions } from "@/hooks/organization_dimensions/useOrganizationDimensions";
-import { useCooperations } from "@/hooks/cooperations/useCooperations"; // Import useCooperations
+import { useCooperations } from "@/hooks/cooperations/useCooperations";
 import { toast } from "sonner";
 
+/**
+ * Unified management screen for draft assessments.
+ * Org admins see assessments across cooperations; coop users see only their own.
+ */
 export default function ManageAssessments() {
   const [isAddDialogOpen, setAddDialogOpen] = useState(false);
   const { user } = useAuth();
@@ -27,8 +31,7 @@ export default function ManageAssessments() {
   const { data: assignedDimensionIds, isLoading: isLoadingDimensions } =
     useOrganizationDimensions(organizationId || "");
 
-  const { data: cooperations, isLoading: isLoadingCooperations } =
-    useCooperations(organizationId || undefined);
+  const { data: cooperations } = useCooperations(organizationId || undefined);
 
   const handleAddAssessmentClick = () => {
     if (
@@ -110,34 +113,81 @@ export default function ManageAssessments() {
   const error = orgError || coopError;
 
   return (
-    <div className="container mx-auto p-4 md:p-6 lg:p-8">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold tracking-tight">
-          Manage Assessments
-        </h1>
-        {isOrgAdmin && (
-          <Button
-            onClick={handleAddAssessmentClick}
-            disabled={isLoadingDimensions}
-          >
-            <PlusCircle className="mr-2 h-4 w-4" />
-            Add Assessment
-          </Button>
+    <div className="min-h-screen bg-background">
+      <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-8 sm:px-6 lg:px-8">
+        <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+              Manage assessments
+            </h1>
+            <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
+              Create and track draft assessments across your cooperations before
+              they are sent out for completion.
+            </p>
+          </div>
+          {isOrgAdmin && (
+            <Button
+              onClick={handleAddAssessmentClick}
+              disabled={isLoadingDimensions}
+              className="gap-2 rounded-full shadow-sm transition-all hover:shadow-md"
+            >
+              <PlusCircle className="h-4 w-4" aria-hidden="true" />
+              <span>Add assessment</span>
+            </Button>
+          )}
+        </header>
+
+        {isLoading && (
+          <div className="flex min-h-[240px] items-center justify-center rounded-xl border border-dashed border-muted-foreground/30 bg-muted/40">
+            <LoadingSpinner />
+          </div>
         )}
+
+        {error && (
+          <div className="rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+            <p className="font-medium">Unable to load draft assessments.</p>
+            <p className="mt-1 opacity-90">{error.message}</p>
+          </div>
+        )}
+
+        {!isLoading && !error && assessments && assessments.length === 0 && (
+          <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-muted-foreground/30 bg-muted/40 px-6 py-12 text-center">
+            <h2 className="text-lg font-semibold text-foreground">
+              No draft assessments yet
+            </h2>
+            <p className="mt-2 max-w-md text-sm text-muted-foreground">
+              Draft assessments will appear here once you start planning new
+              evaluations for your cooperations.
+            </p>
+            {isOrgAdmin && (
+              <div className="mt-4">
+                <Button
+                  onClick={handleAddAssessmentClick}
+                  disabled={isLoadingDimensions}
+                  className="gap-2"
+                >
+                  <PlusCircle className="h-4 w-4" aria-hidden="true" />
+                  <span>Create assessment</span>
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {!isLoading && !error && assessments && assessments.length > 0 && (
+          <section
+            aria-label="Draft assessments list"
+            className="space-y-4 rounded-xl border border-border bg-card p-4 shadow-sm sm:p-6"
+          >
+            <AssessmentList assessments={assessments} userRoles={userRoles} />
+          </section>
+        )}
+
+        <AddAssessmentForm
+          isOpen={isAddDialogOpen}
+          onClose={() => setAddDialogOpen(false)}
+        />
       </div>
-
-      {isLoading && <LoadingSpinner />}
-      {error && (
-        <p className="text-red-500">An error occurred: {error.message}</p>
-      )}
-      {assessments && (
-        <AssessmentList assessments={assessments} userRoles={userRoles} />
-      )}
-
-      <AddAssessmentForm
-        isOpen={isAddDialogOpen}
-        onClose={() => setAddDialogOpen(false)}
-      />
     </div>
   );
 }

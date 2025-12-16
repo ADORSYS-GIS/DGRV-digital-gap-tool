@@ -16,6 +16,10 @@ import { AddCooperationUser } from "@/types/cooperationUser";
 import { useAuth } from "@/context/AuthContext";
 import { ROLES } from "@/constants/roles";
 
+/**
+ * Dialog form for inviting a new user into a cooperation.
+ * Automatically assigns the correct role based on the current user's role.
+ */
 export const AddCooperationUserForm = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [email, setEmail] = useState("");
@@ -63,56 +67,103 @@ export const AddCooperationUserForm = () => {
     );
   };
 
+  const handleCancel = () => {
+    setIsOpen(false);
+  };
+
+  const triggerLabel = isPending ? "Inviting user…" : "Add user";
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button>
-          <PlusCircle className="mr-2 h-4 w-4" />
-          Add User
+        <Button
+          className="gap-2 rounded-full shadow-sm transition-all hover:shadow-md"
+          disabled={isPending || !newUserRole}
+          aria-label={triggerLabel}
+        >
+          <PlusCircle className="h-4 w-4" aria-hidden="true" />
+          <span>{triggerLabel}</span>
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="sm:max-w-[480px]">
         <DialogHeader>
-          <DialogTitle>Add a New User</DialogTitle>
+          <DialogTitle className="text-lg font-semibold">
+            Add a new user
+          </DialogTitle>
+          <p className="text-sm text-muted-foreground">
+            Invite a new admin or member to this cooperation. They will receive
+            an email with access details once their account is created.
+          </p>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <Label htmlFor="email">Email</Label>
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-5 py-4"
+          aria-label="Add cooperation user form"
+        >
+          <div className="space-y-2">
+            <Label htmlFor="coop-user-email">
+              Email <span className="text-destructive">*</span>
+            </Label>
             <Input
-              id="email"
+              id="coop-user-email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
               type="email"
+              placeholder="name@example.org"
             />
           </div>
-          <div>
-            <Label htmlFor="firstName">First Name</Label>
-            <Input
-              id="firstName"
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-            />
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="coop-user-first-name">First name</Label>
+              <Input
+                id="coop-user-first-name"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                placeholder="Optional"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="coop-user-last-name">Last name</Label>
+              <Input
+                id="coop-user-last-name"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                placeholder="Optional"
+              />
+            </div>
           </div>
-          <div>
-            <Label htmlFor="lastName">Last Name</Label>
+          <div className="space-y-2">
+            <Label htmlFor="coop-user-role">Role</Label>
             <Input
-              id="lastName"
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-            />
-          </div>
-          <div>
-            <Label htmlFor="role">Role</Label>
-            <Input
-              id="role"
-              value={newUserRole || "No role will be assigned"}
+              id="coop-user-role"
+              value={
+                newUserRole
+                  ? newUserRole === "coop_admin"
+                    ? "Cooperation admin"
+                    : "Cooperation user"
+                  : "No role will be assigned with your current permissions"
+              }
               disabled
             />
           </div>
-          <Button type="submit" disabled={isPending || !newUserRole}>
-            {isPending ? "Adding..." : "Add User"}
-          </Button>
+          <div className="flex flex-col-reverse gap-3 pt-4 sm:flex-row sm:justify-end">
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full sm:w-auto"
+              onClick={handleCancel}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              disabled={isPending || !newUserRole}
+              className="w-full sm:w-auto"
+            >
+              {isPending ? "Adding…" : "Send invitation"}
+            </Button>
+          </div>
         </form>
       </DialogContent>
     </Dialog>

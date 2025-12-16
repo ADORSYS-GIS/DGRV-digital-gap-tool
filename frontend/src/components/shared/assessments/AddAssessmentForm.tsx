@@ -46,6 +46,9 @@ interface AddAssessmentFormProps {
   onClose: () => void;
 }
 
+/**
+ * Dialog form used by org admins to create a new draft assessment.
+ */
 export function AddAssessmentForm({ isOpen, onClose }: AddAssessmentFormProps) {
   const organizationId = useOrganizationId();
 
@@ -90,20 +93,34 @@ export function AddAssessmentForm({ isOpen, onClose }: AddAssessmentFormProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent>
+      <DialogContent className="sm:max-w-[520px]">
         <DialogHeader>
-          <DialogTitle>Create New Assessment</DialogTitle>
+          <DialogTitle className="text-lg font-semibold">
+            Create new assessment
+          </DialogTitle>
+          <p className="text-sm text-muted-foreground">
+            Define the assessment name, select the target cooperation, and pick
+            the dimensions you want to evaluate.
+          </p>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-5 pt-2"
+          >
             <FormField
               control={form.control}
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Assessment Name</FormLabel>
+                  <FormLabel>
+                    Assessment name <span className="text-destructive">*</span>
+                  </FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., Q4 Security Review" {...field} />
+                    <Input
+                      placeholder="e.g. 2025 Digital Maturity Baseline"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -114,7 +131,9 @@ export function AddAssessmentForm({ isOpen, onClose }: AddAssessmentFormProps) {
               name="cooperationId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Cooperation</FormLabel>
+                  <FormLabel>
+                    Cooperation <span className="text-destructive">*</span>
+                  </FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
@@ -142,9 +161,13 @@ export function AddAssessmentForm({ isOpen, onClose }: AddAssessmentFormProps) {
               name="dimensionIds"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Dimensions</FormLabel>
+                  <FormLabel>
+                    Dimensions <span className="text-destructive">*</span>
+                  </FormLabel>
                   {isLoadingDimensions || isLoadingAssigned ? (
-                    <LoadingSpinner />
+                    <div className="flex items-center justify-center py-4">
+                      <LoadingSpinner />
+                    </div>
                   ) : (
                     <MultiSelect
                       options={assignedDimensions.map((d) => ({
@@ -161,12 +184,12 @@ export function AddAssessmentForm({ isOpen, onClose }: AddAssessmentFormProps) {
                 </FormItem>
               )}
             />
-            <DialogFooter>
-              <Button type="button" variant="ghost" onClick={onClose}>
+            <DialogFooter className="pt-2">
+              <Button type="button" variant="outline" onClick={onClose}>
                 Cancel
               </Button>
               <Button type="submit" disabled={isAdding}>
-                {isAdding ? "Creating..." : "Create Assessment"}
+                {isAdding ? "Creating…" : "Create assessment"}
               </Button>
             </DialogFooter>
           </form>

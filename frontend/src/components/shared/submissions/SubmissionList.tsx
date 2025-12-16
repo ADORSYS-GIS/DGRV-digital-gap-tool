@@ -148,18 +148,6 @@ export const SubmissionList = ({
                         </span>
                       </div>
                     )}
-
-                    {submissionData.gaps_count > 0 && (
-                      <div className="flex items-center">
-                        <span className="font-semibold text-foreground">
-                          {submissionData.gaps_count}
-                        </span>
-                        <span className="ml-1.5 text-muted-foreground">
-                          gap{submissionData.gaps_count !== 1 ? "s" : ""}{" "}
-                          identified
-                        </span>
-                      </div>
-                    )}
                   </div>
                 </div>
               </div>
@@ -219,18 +207,6 @@ export const SubmissionList = ({
                           </span>
                           <span className="ml-1.5 text-muted-foreground">
                             overall score
-                          </span>
-                        </div>
-                      )}
-
-                      {submissionData.gaps_count > 0 && (
-                        <div className="flex items-center">
-                          <span className="font-semibold text-foreground">
-                            {submissionData.gaps_count}
-                          </span>
-                          <span className="ml-1.5 text-muted-foreground">
-                            gap{submissionData.gaps_count !== 1 ? "s" : ""}{" "}
-                            identified
                           </span>
                         </div>
                       )}

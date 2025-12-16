@@ -36,6 +36,8 @@ const AssessmentDetailPage: React.FC = () => {
               fetchedAssessment.dimensionIds,
             );
             setDimensions(fetchedDimensions);
+          } else {
+            setDimensions([]);
           }
         } else {
           setError("Assessment not found.");
@@ -71,15 +73,32 @@ const AssessmentDetailPage: React.FC = () => {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <p className="text-sm text-muted-foreground">Loading assessment…</p>
+      </div>
+    );
   }
 
   if (error) {
-    return <div>Error: {error}</div>;
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background px-4">
+        <div className="max-w-md rounded-xl border border-destructive/40 bg-destructive/10 px-6 py-4 text-sm text-destructive">
+          <p className="font-semibold">Unable to load assessment</p>
+          <p className="mt-1 opacity-90">{error}</p>
+        </div>
+      </div>
+    );
   }
 
   if (!assessment) {
-    return <div>Assessment not found.</div>;
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background px-4">
+        <div className="max-w-md rounded-xl border border-muted-foreground/30 bg-muted/40 px-6 py-4 text-sm text-muted-foreground">
+          Assessment not found.
+        </div>
+      </div>
+    );
   }
 
   const progressPercentage =
@@ -88,50 +107,66 @@ const AssessmentDetailPage: React.FC = () => {
       : 0;
 
   return (
-    <div className="bg-gray-50 min-h-screen">
-      <div className="container mx-auto p-6 lg:p-8">
-        <div className="bg-white p-6 rounded-lg border border-gray-200 mb-8">
-          <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold">Digital Gap Assessment</h1>
-            <div className="flex items-center space-x-4">
-              <div className="w-64">
-                <div className="flex justify-between mb-1">
-                  <span className="text-sm font-medium text-gray-700">
-                    Your Progress
-                  </span>
-                  <span className="text-sm font-medium text-gray-700">
-                    {completedPerspectives} of {dimensions.length}
-                  </span>
-                </div>
-                <Progress value={progressPercentage} className="w-full" />
+    <div className="min-h-screen bg-background">
+      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+        {/* Progress header */}
+        <section className="mb-8 rounded-xl border border-border bg-card px-5 py-4 shadow-sm sm:px-6 sm:py-5">
+          <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+            <div>
+              <h1 className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
+                Digital gap assessment
+              </h1>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Complete each dimension to understand your current and desired
+                digital maturity.
+              </p>
+            </div>
+            <div className="w-full max-w-xs space-y-1">
+              <div className="flex items-center justify-between text-xs font-medium text-muted-foreground">
+                <span>Your progress</span>
+                <span>
+                  {completedPerspectives} of {dimensions.length}
+                </span>
               </div>
-              <span className="font-semibold text-gray-700">
+              <Progress value={progressPercentage} className="h-2" />
+              <p className="text-right text-xs font-semibold text-muted-foreground">
                 {Math.round(progressPercentage)}%
-              </span>
+              </p>
             </div>
           </div>
-        </div>
+        </section>
 
-        <div className="text-center mb-10">
-          <h2 className="text-3xl font-bold mb-2">
-            Welcome to Your Digital Journey
+        {/* Intro copy */}
+        <section className="mb-10 text-center">
+          <h2 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+            Welcome to your digital journey
           </h2>
-          <p className="text-gray-600 max-w-2xl mx-auto">
+          <p className="mx-auto mt-2 max-w-2xl text-sm text-muted-foreground">
             Assess your cooperative across {dimensions.length} key digital
-            perspectives. Click on any card below to begin your assessment.
+            perspectives. Select a card below to start or continue an
+            assessment.
           </p>
-        </div>
+        </section>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {dimensions.map((dimension) => (
-            <DimensionCard
-              key={dimension.id}
-              dimension={dimension}
-              onClick={handleStartDimensionAssessment}
-              isSubmitted={submittedDimensionIds.has(dimension.id)}
-            />
-          ))}
-        </div>
+        {/* Dimensions grid */}
+        <section aria-label="Assessment dimensions">
+          {dimensions.length === 0 ? (
+            <div className="flex min-h-[160px] items-center justify-center rounded-xl border border-dashed border-muted-foreground/30 bg-muted/40 px-6 py-10 text-center text-sm text-muted-foreground">
+              No dimensions are configured for this assessment yet.
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {dimensions.map((dimension) => (
+                <DimensionCard
+                  key={dimension.id}
+                  dimension={dimension}
+                  onClick={handleStartDimensionAssessment}
+                  isSubmitted={submittedDimensionIds.has(dimension.id)}
+                />
+              ))}
+            </div>
+          )}
+        </section>
       </div>
     </div>
   );

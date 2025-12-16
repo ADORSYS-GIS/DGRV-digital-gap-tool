@@ -73,7 +73,7 @@ export const GapDescriptionDisplay: React.FC<GapDescriptionDisplayProps> = ({
             {gap.gap_severity} RISK
           </Badge>
         </div>
-        <p className="text-muted-foreground">{gap.scope}</p>
+        <p className="text-muted-foreground">{gap.description}</p>
       </div>
     );
   };
@@ -87,12 +87,30 @@ export const GapDescriptionDisplay: React.FC<GapDescriptionDisplayProps> = ({
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-center">
-          <Card className="bg-slate-50">
+          <Card
+            className={
+              currentLevel < desiredLevel ? "bg-red-50" : "bg-green-50"
+            }
+          >
             <CardHeader>
-              <CardTitle className="text-lg font-semibold text-slate-700">
+              <CardTitle
+                className={`text-lg font-semibold ${
+                  currentLevel < desiredLevel
+                    ? "text-red-800"
+                    : "text-green-800"
+                }`}
+              >
                 Your Current Level
               </CardTitle>
-              <p className="text-5xl font-bold text-primary">{currentLevel}</p>
+              <p
+                className={`text-5xl font-bold ${
+                  currentLevel < desiredLevel
+                    ? "text-red-600"
+                    : "text-green-600"
+                }`}
+              >
+                {currentLevel}
+              </p>
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground h-12">
@@ -100,12 +118,28 @@ export const GapDescriptionDisplay: React.FC<GapDescriptionDisplayProps> = ({
               </p>
             </CardContent>
           </Card>
-          <Card className="bg-green-50">
+          <Card
+            className={
+              desiredLevel > currentLevel ? "bg-green-50" : "bg-red-50"
+            }
+          >
             <CardHeader>
-              <CardTitle className="text-lg font-semibold text-green-800">
+              <CardTitle
+                className={`text-lg font-semibold ${
+                  desiredLevel > currentLevel
+                    ? "text-green-800"
+                    : "text-red-800"
+                }`}
+              >
                 Your Desired Level
               </CardTitle>
-              <p className="text-5xl font-bold text-green-600">
+              <p
+                className={`text-5xl font-bold ${
+                  desiredLevel > currentLevel
+                    ? "text-green-600"
+                    : "text-red-600"
+                }`}
+              >
                 {desiredLevel}
               </p>
             </CardHeader>
