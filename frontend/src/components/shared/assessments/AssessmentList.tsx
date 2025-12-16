@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Assessment } from "../../../types/assessment";
 import { Badge } from "../../../components/ui/badge";
 import { Button } from "../../../components/ui/button";
-import { Trash2, Edit } from "lucide-react";
+import { ClipboardList, Edit, Trash2 } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,6 +26,9 @@ interface AssessmentListProps {
   userRoles: string[];
 }
 
+/**
+ * Card-based list of draft assessments with actions to answer, edit and delete.
+ */
 export function AssessmentList({
   assessments,
   userRoles,
@@ -63,6 +66,10 @@ export function AssessmentList({
     navigate(`/${basePath}/assessment/${id}`);
   };
 
+  const canEditOrDelete =
+    !userRoles.includes(ROLES.COOP_ADMIN.toLowerCase()) &&
+    !userRoles.includes(ROLES.COOP_USER.toLowerCase());
+
   return (
     <div className="space-y-4">
       {assessments
@@ -70,35 +77,25 @@ export function AssessmentList({
         .map((assessment) => (
           <div
             key={assessment.id}
-            className="bg-white p-6 rounded-lg shadow-md flex items-center justify-between"
+            className="flex items-center justify-between gap-6 rounded-xl border border-border bg-gradient-to-r from-card to-card/60 px-6 py-5 shadow-sm transition-all duration-200 hover:border-primary/20 hover:shadow-md"
           >
-            <div className="flex items-center">
-              <div className="mr-4">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-8 w-8 text-gray-400"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                  />
-                </svg>
+            <div className="flex items-start gap-4">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/15">
+                <ClipboardList className="h-5 w-5" aria-hidden="true" />
               </div>
-              <div>
-                <h3 className="text-lg font-semibold">{assessment.name}</h3>
-                <div className="flex items-center text-sm text-gray-500 mt-1">
-                  <span>11/5/2025</span>
-                  <span className="mx-2">|</span>
-                  <span>11:14:15 AM</span>
+              <div className="space-y-2">
+                <div>
+                  <h3 className="text-base font-semibold text-foreground">
+                    {assessment.name}
+                  </h3>
+                  {/* TODO: replace with real dates when available */}
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Draft assessment
+                  </p>
                 </div>
-                <div className="mt-2 flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2">
                   {isLoadingDimensions ? (
-                    <Badge variant="outline">Loading dimensions...</Badge>
+                    <Badge variant="outline">Loading dimensions…</Badge>
                   ) : (
                     assessment.dimensionIds?.map((id) => {
                       const dimension = dimensions?.find((d) => d.id === id);
@@ -106,8 +103,8 @@ export function AssessmentList({
                       return (
                         <Badge
                           key={id}
-                          variant="default"
-                          className="bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900 dark:text-green-300"
+                          variant="outline"
+                          className="border-emerald-200 bg-emerald-50 text-emerald-800"
                         >
                           {dimension.name}
                         </Badge>
@@ -116,53 +113,60 @@ export function AssessmentList({
                   )}
                 </div>
               </div>
-              <AlertDialog
-                open={isDeleteDialogOpen}
-                onOpenChange={setDeleteDialogOpen}
-              >
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This action cannot be undone. This will permanently delete
-                      the assessment and remove its data from our servers.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={confirmDelete}>
-                      Continue
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
             </div>
-            <div className="flex items-center space-x-2">
-              <Button onClick={() => handleAnswer(assessment.id)}>
+            <div className="flex flex-col items-end gap-2 sm:flex-row sm:items-center sm:gap-3">
+              <Button
+                size="sm"
+                onClick={() => handleAnswer(assessment.id)}
+                className="min-w-[96px]"
+              >
                 Answer
               </Button>
-              {!userRoles.includes(ROLES.COOP_ADMIN.toLowerCase()) &&
-                !userRoles.includes(ROLES.COOP_USER.toLowerCase()) && (
-                  <>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleEdit(assessment)}
-                    >
-                      <Edit className="h-5 w-5 text-blue-500" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleDelete(assessment)}
-                    >
-                      <Trash2 className="h-5 w-5 text-red-500" />
-                    </Button>
-                  </>
-                )}
+              {canEditOrDelete && (
+                <div className="flex items-center gap-1.5">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleEdit(assessment)}
+                    className="text-blue-600 hover:text-blue-700"
+                    aria-label="Edit assessment"
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleDelete(assessment)}
+                    className="text-red-600 hover:text-red-700"
+                    aria-label="Delete assessment"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
         ))}
+      <AlertDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete draft assessment?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. The assessment and its configuration
+              will be permanently removed.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete}>
+              Continue
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       {selectedAssessment && (
         <EditAssessmentForm
           isOpen={isEditDialogOpen}

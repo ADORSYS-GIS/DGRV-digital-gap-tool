@@ -27,7 +27,7 @@ export const DeleteCooperationDialog: React.FC<
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant="destructive" size="sm">
+        <Button variant="destructive" size="sm" className="w-full shadow-sm hover:shadow-md transition-all">
           <Trash2 className="mr-2 h-4 w-4" /> Delete
         </Button>
       </AlertDialogTrigger>
