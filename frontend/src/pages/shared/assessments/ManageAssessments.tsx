@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
 import { AddAssessmentForm } from "@/components/shared/assessments/AddAssessmentForm";
@@ -10,9 +10,11 @@ import { useAuth } from "@/context/AuthContext";
 import { ROLES } from "@/constants/roles";
 import { useOrganizationId } from "@/hooks/organizations/useOrganizationId";
 import { useCooperationId } from "@/hooks/cooperations/useCooperationId";
+import { useCooperationIdFromPath } from "@/hooks/cooperations/useCooperationIdFromPath";
 import { useOrganizationDimensions } from "@/hooks/organization_dimensions/useOrganizationDimensions";
 import { useCooperations } from "@/hooks/cooperations/useCooperations";
 import { toast } from "sonner";
+import { SyncStatus } from "@/types/sync";
 
 /**
  * Unified management screen for draft assessments.
@@ -23,6 +25,15 @@ export default function ManageAssessments() {
   const { user } = useAuth();
   const organizationId = useOrganizationId();
   const cooperationId = useCooperationId();
+  const {
+    cooperationId: cooperationIdFromPath,
+    cooperationPath,
+    isLoading: isLoadingCoopIdFromPath,
+    error: coopIdFromPathError,
+  } = useCooperationIdFromPath();
+
+  // Prefer a route param if present; otherwise fall back to the token-derived ID
+  const effectiveCooperationId = cooperationId || cooperationIdFromPath;
 
   // Normalize roles to lowercase for case-insensitive comparison
   const userRoles = (user?.roles || []).map((role) => role.toLowerCase());
@@ -32,6 +43,14 @@ export default function ManageAssessments() {
     useOrganizationDimensions(organizationId || "");
 
   const { data: cooperations } = useCooperations(organizationId || undefined);
+
+  const cooperationsById = useMemo(() => {
+    const map: Record<string, string> = {};
+    cooperations?.forEach((c) => {
+      map[c.id] = c.name;
+    });
+    return map;
+  }, [cooperations]);
 
   const handleAddAssessmentClick = () => {
     if (
@@ -59,7 +78,10 @@ export default function ManageAssessments() {
   // Debug logs
   console.log("User roles from token:", user?.roles);
   console.log("Organization ID:", organizationId);
-  console.log("Cooperation ID:", cooperationId);
+  console.log("Cooperation ID (route):", cooperationId);
+  console.log("Cooperation path (token):", cooperationPath);
+  console.log("Cooperation ID (from path):", cooperationIdFromPath);
+  console.log("Effective cooperation ID:", effectiveCooperationId);
   const isCoopUser =
     userRoles.includes(ROLES.COOP_USER.toLowerCase()) ||
     userRoles.includes(ROLES.COOP_ADMIN.toLowerCase());
@@ -81,8 +103,8 @@ export default function ManageAssessments() {
     isLoading: isLoadingCoop,
     error: coopError,
     isFetching: isFetchingCoop,
-  } = useAssessmentsByCooperation(cooperationId || "", {
-    enabled: isCoopUser && !!cooperationId, // Only fetch for coop users with a cooperation ID
+  } = useAssessmentsByCooperation(effectiveCooperationId || "", {
+    enabled: isCoopUser && !!effectiveCooperationId, // Only fetch for coop users with a cooperation ID
     status: ["draft"], // Only fetch draft assessments
   });
 
@@ -100,17 +122,27 @@ export default function ManageAssessments() {
   useEffect(() => {
     console.log("useAssessmentsByCooperation state:", {
       isCoopUser,
-      cooperationId,
+      cooperationId: effectiveCooperationId,
       isFetching: isFetchingCoop,
       data: coopAssessments,
       error: coopError,
     });
-  }, [isCoopUser, cooperationId, isFetchingCoop, coopAssessments, coopError]);
+  }, [
+    isCoopUser,
+    effectiveCooperationId,
+    isFetchingCoop,
+    coopAssessments,
+    coopError,
+  ]);
 
   // Determine which data to use based on user role
-  const assessments = isOrgAdmin ? orgAssessments : coopAssessments;
-  const isLoading = isLoadingOrg || isLoadingCoop;
-  const error = orgError || coopError;
+  const syncedCoopAssessments =
+    coopAssessments?.filter(
+      (assessment) => assessment.syncStatus === SyncStatus.SYNCED,
+    ) || [];
+  const assessments = isOrgAdmin ? orgAssessments : syncedCoopAssessments;
+  const isLoading = isLoadingOrg || isLoadingCoop || isLoadingCoopIdFromPath;
+  const error = orgError || coopError || coopIdFromPathError;
 
   return (
     <div className="min-h-screen bg-background">
@@ -150,6 +182,16 @@ export default function ManageAssessments() {
           </div>
         )}
 
+        {!isLoading && !error && isCoopUser && !effectiveCooperationId && (
+          <div className="rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+            <p className="font-medium">No cooperation determined.</p>
+            <p className="mt-1 opacity-90">
+              We could not resolve your cooperation from the route or token.
+              Please contact your administrator.
+            </p>
+          </div>
+        )}
+
         {!isLoading && !error && assessments && assessments.length === 0 && (
           <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-muted-foreground/30 bg-muted/40 px-6 py-12 text-center">
             <h2 className="text-lg font-semibold text-foreground">
@@ -179,7 +221,11 @@ export default function ManageAssessments() {
             aria-label="Draft assessments list"
             className="space-y-4 rounded-xl border border-border bg-card p-4 shadow-sm sm:p-6"
           >
-            <AssessmentList assessments={assessments} userRoles={userRoles} />
+            <AssessmentList
+              assessments={assessments}
+              userRoles={userRoles}
+              cooperationsById={cooperationsById}
+            />
           </section>
         )}
 

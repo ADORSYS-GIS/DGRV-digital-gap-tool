@@ -11,6 +11,7 @@ import {
   getDimensionWithStates as getDimensionWithStatesApi,
   updateDimensionAssessment as updateDimensionAssessmentApi,
 } from "../../openapi-client/services.gen";
+import { ApiError } from "@/openapi-client/core/ApiError";
 import { db } from "../db";
 import { syncService } from "../sync/syncService";
 
@@ -270,6 +271,7 @@ export const dimensionAssessmentRepository = {
    */
   submitAssessment: async (
     payload: ISubmitDimensionAssessmentRequest,
+    forceCreate: boolean = false,
   ): Promise<IDimensionAssessment> => {
     if (!payload.assessmentId) {
       throw new Error("Assessment ID is required");
@@ -285,12 +287,29 @@ export const dimensionAssessmentRepository = {
         payload.assessmentId,
       );
 
-    if (existingAssessment) {
-      // If assessment exists, update it instead of creating a new one
-      return dimensionAssessmentRepository.updateAssessment(
-        existingAssessment.id,
-        payload,
-      );
+    // If we already have a synced record and we're not forcing creation, try to update
+    if (
+      existingAssessment &&
+      existingAssessment.syncStatus === SyncStatus.SYNCED &&
+      !forceCreate
+    ) {
+      try {
+        return await dimensionAssessmentRepository.updateAssessment(
+          existingAssessment.id,
+          payload,
+        );
+      } catch (error) {
+        const status = error instanceof ApiError ? error.status : undefined;
+        // If backend says not found, fall back to create
+        if (status === 404) {
+          console.warn(
+            "Update failed with 404; retrying as create for assessment",
+            payload.assessmentId,
+          );
+        } else {
+          throw error;
+        }
+      }
     }
 
     const requestBody: {
@@ -311,8 +330,9 @@ export const dimensionAssessmentRepository = {
       requestBody.cooperation_id = payload.cooperationId;
     }
 
+    const newAssessmentId = existingAssessment?.id || uuidv4();
     const newAssessment: IDimensionAssessment = {
-      id: uuidv4(),
+      id: newAssessmentId,
       dimensionId: payload.dimensionId,
       assessmentId: payload.assessmentId,
       currentState: {
@@ -338,7 +358,14 @@ export const dimensionAssessmentRepository = {
     };
 
     try {
-      await db.dimensionAssessments.add({
+      // If we already have a local record for this dimension+assessment,
+      // update it in place; otherwise create a new one. This avoids
+      // Dexie "Key already exists in the object store" constraint errors.
+      const writeFn = existingAssessment
+        ? db.dimensionAssessments.put.bind(db.dimensionAssessments)
+        : db.dimensionAssessments.add.bind(db.dimensionAssessments);
+
+      await writeFn({
         ...newAssessment,
         syncStatus: SyncStatus.PENDING,
         lastError: "",
@@ -388,6 +415,17 @@ export const dimensionAssessmentRepository = {
           }
         } catch (error) {
           console.error("Error submitting assessment:", error);
+
+          // If the backend reports that the parent assessment is missing,
+          // keep the local record as pending and do NOT treat this as a hard failure.
+          if (error instanceof ApiError && error.status === 404) {
+            await dimensionAssessmentRepository.markAsFailed(
+              newAssessment.id,
+              "Remote assessment not found yet; keeping local record pending.",
+            );
+            return newAssessment;
+          }
+
           await dimensionAssessmentRepository.markAsFailed(
             newAssessment.id,
             error instanceof Error

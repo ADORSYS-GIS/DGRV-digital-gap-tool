@@ -128,59 +128,129 @@ export default function EnhancedOnboardingFlow() {
 
   if (!currentStepData) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">
-            Something went wrong
-          </h1>
-          <p className="text-gray-600">Please refresh the page to continue.</p>
+      <div className="min-h-screen bg-background">
+        <div className="mx-auto flex max-w-6xl flex-1 items-center justify-center px-4 py-8 sm:px-6 lg:px-8">
+          <div className="text-center space-y-2">
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+              Something went wrong
+            </h1>
+            <p className="max-w-md text-sm text-muted-foreground">
+              We could not load your onboarding steps. Please refresh the page
+              or try again later.
+            </p>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 flex items-center justify-center px-4">
-      <div className="max-w-lg w-full">
-        <ProgressIndicators
-          totalSteps={onboardingSteps.length}
-          currentStep={currentStep}
-          isCompleted={showCompletion}
-        />
+    <div className="min-h-screen bg-background">
+      <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-8 sm:px-6 lg:px-8">
+        {/* Welcome header */}
+        <header className="space-y-2">
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+            Welcome to your digitalization journey
+          </h1>
+          <p className="max-w-2xl text-sm text-muted-foreground">
+            {user ? (
+              <>
+                Hello{" "}
+                <span className="font-medium text-foreground">
+                  {user.name || user.preferred_username || "there"}
+                </span>
+                . Follow these quick steps to understand your current
+                digitalization level, define your goals, and get tailored
+                recommendations.
+              </>
+            ) : (
+              <>
+                Follow these quick steps to understand your current
+                digitalization level, define your goals, and get tailored
+                recommendations.
+              </>
+            )}
+          </p>
+        </header>
 
-        {showCompletion ? (
-          <OnboardingCompletion
-            isTransitioning={isTransitioning}
-            handleGetStarted={handleGetStarted}
-            handlePrevious={handlePrevious}
-          />
-        ) : (
-          <OnboardingStep
-            step={currentStepData}
-            isTransitioning={isTransitioning}
-            currentStep={currentStep}
-            totalSteps={onboardingSteps.length}
-            handlePrevious={handlePrevious}
-            handleNext={handleNext}
-          />
-        )}
+        {/* Main onboarding card */}
+        <section className="grid gap-8 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] items-start">
+          <div className="flex flex-col gap-6">
+            <div className="rounded-2xl border bg-card shadow-sm">
+              <div className="border-b px-6 py-4">
+                <h2 className="text-base font-semibold tracking-tight text-foreground">
+                  Step {currentStep + 1} of {onboardingSteps.length}
+                </h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Complete each step to unlock personalized insights for your
+                  cooperative.
+                </p>
+              </div>
+              <div className="px-4 py-6 sm:px-6">
+                {showCompletion ? (
+                  <OnboardingCompletion
+                    isTransitioning={isTransitioning}
+                    handleGetStarted={handleGetStarted}
+                    handlePrevious={handlePrevious}
+                  />
+                ) : (
+                  <OnboardingStep
+                    step={currentStepData}
+                    isTransitioning={isTransitioning}
+                    currentStep={currentStep}
+                    totalSteps={onboardingSteps.length}
+                    handlePrevious={handlePrevious}
+                    handleNext={handleNext}
+                  />
+                )}
+              </div>
+            </div>
 
-        {!showCompletion && (
-          <div className="flex justify-center mt-8 space-x-2">
-            {onboardingSteps.map((step, index) => (
-              <div
-                key={index}
-                className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                  index === currentStep
-                    ? step.color.replace("text-", "bg-")
-                    : index < currentStep
-                      ? "bg-green-400"
-                      : "bg-gray-300"
-                }`}
-              />
-            ))}
+            {!showCompletion && (
+              <div className="flex items-center justify-center gap-2">
+                {onboardingSteps.map((step, index) => (
+                  <div
+                    key={index}
+                    aria-hidden="true"
+                    className={`h-1.5 w-6 rounded-full transition-all duration-300 ${
+                      index === currentStep
+                        ? step.color.replace("text-", "bg-")
+                        : index < currentStep
+                          ? "bg-emerald-500"
+                          : "bg-muted"
+                    }`}
+                  />
+                ))}
+              </div>
+            )}
           </div>
-        )}
+
+          {/* Context panel */}
+          <aside className="space-y-4 rounded-2xl border bg-card p-6 shadow-sm">
+            <h2 className="text-base font-semibold tracking-tight text-foreground">
+              What you can expect
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              This onboarding takes just a few moments and helps us tailor the
+              digital gap assessment experience to your cooperative&apos;s
+              needs.
+            </p>
+            <ul className="space-y-2 text-sm text-muted-foreground">
+              <li className="flex gap-2">
+                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-blue-500" />
+                Understand your current digitalization level.
+              </li>
+              <li className="flex gap-2">
+                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-blue-500" />
+                Define your desired future state and priorities.
+              </li>
+              <li className="flex gap-2">
+                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-blue-500" />
+                Receive data-driven recommendations and next steps.
+              </li>
+            </ul>
+          </aside>
+        </section>
       </div>
     </div>
   );

@@ -1,11 +1,28 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { ApiError } from "@/openapi-client/core/ApiError";
 import { downloadLatestReportByAssessment } from "@/openapi-client/services.gen";
 
 export const useDownloadReportByAssessment = () => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: async (assessmentId: string) => {
+      // Try to get the assessment title from any cached submission summary
+      const cachedSummaries =
+        queryClient
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          .getQueriesData<any>({
+            queryKey: ["submissions"],
+          })
+          .flatMap(([, data]) => (Array.isArray(data) ? data : [])) || [];
+
+      const matchingSummary = cachedSummaries.find(
+        (s) => s?.assessment?.assessment_id === assessmentId,
+      );
+      const assessmentTitle =
+        matchingSummary?.assessment?.document_title || "report";
+
       // The OpenAPI client already returns a Blob for binary responses
       const blob = await downloadLatestReportByAssessment({
         assessmentId,
@@ -17,7 +34,16 @@ export const useDownloadReportByAssessment = () => {
       // Create a link and click it to trigger download
       const link = document.createElement("a");
       link.href = url;
-      link.setAttribute("download", `report-${assessmentId}.pdf`);
+      // Use a filesystem-safe file name based on assessment title
+      const safeTitle = assessmentTitle
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "")
+        .slice(0, 80);
+      link.setAttribute(
+        "download",
+        `${safeTitle || "report"}-${assessmentId}.pdf`,
+      );
       document.body.appendChild(link);
       link.click();
 

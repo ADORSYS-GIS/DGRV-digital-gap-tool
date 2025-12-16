@@ -9,6 +9,17 @@ import { useCooperationUsers } from "@/hooks/cooperationUsers/useCooperationUser
 export default function ManageCooperationUsersPage() {
   const { data: users, isLoading, error } = useCooperationUsers();
 
+  // Debug logs to see what cooperationId is being used inside the hook
+  // eslint-disable-next-line no-console
+  console.log("[ManageCooperationUsersPage] users:", users);
+  // eslint-disable-next-line no-console
+  console.log(
+    "[ManageCooperationUsersPage] isLoading:",
+    isLoading,
+    "error:",
+    error,
+  );
+
   return (
     <div className="min-h-screen bg-background">
       <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-8 sm:px-6 lg:px-8">

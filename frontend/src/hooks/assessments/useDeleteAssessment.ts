@@ -34,6 +34,8 @@ export function useDeleteAssessment() {
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["assessments"] });
+      // Also invalidate submissions queries since deleting an assessment removes its submission
+      queryClient.invalidateQueries({ queryKey: ["submissions"] });
     },
   });
 }

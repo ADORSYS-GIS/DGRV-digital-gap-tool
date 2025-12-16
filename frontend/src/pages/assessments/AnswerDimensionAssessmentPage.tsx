@@ -4,6 +4,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { useOrganizationId } from "@/hooks/organizations/useOrganizationId";
 import { useCooperationId } from "@/hooks/cooperations/useCooperationId";
+import { useCooperationIdFromPath } from "@/hooks/cooperations/useCooperationIdFromPath";
 import { DimensionAssessmentAnswer } from "@/components/assessment/answering/DimensionAssessmentAnswer";
 import { GapDescriptionDisplay } from "@/components/assessment/answering/GapDescriptionDisplay";
 import { DimensionIcon } from "@/components/shared/DimensionIcon";
@@ -44,6 +45,9 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
   const { user } = useAuth();
   const organizationId = useOrganizationId();
   const cooperationId = useCooperationId() || null; // Ensure null instead of undefined
+  const { cooperationId: cooperationIdFromPath, cooperationPath } =
+    useCooperationIdFromPath();
+  const effectiveCooperationId = cooperationId || cooperationIdFromPath || null;
   const userRoles = useMemo(() => user?.roles || [], [user?.roles]);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -173,7 +177,10 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
           desiredLevelDescription: desiredState.description,
         });
 
-        if (!organizationId) {
+        const effectiveOrganizationId =
+          organizationId || assessment?.organization_id || null;
+
+        if (!effectiveOrganizationId) {
           throw new Error("Organization ID is required");
         }
 
@@ -185,8 +192,8 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
           gapScore: calculateGapScore(currentLevel, desiredLevel),
           currentLevel,
           desiredLevel,
-          organizationId,
-          cooperationId,
+          organizationId: effectiveOrganizationId,
+          cooperationId: effectiveCooperationId,
           userRoles,
         };
 

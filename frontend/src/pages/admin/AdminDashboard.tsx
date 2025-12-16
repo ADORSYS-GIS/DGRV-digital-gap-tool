@@ -234,7 +234,7 @@ const AdminDashboard: React.FC = () => {
           {submissions && (
             <SubmissionList
               submissions={submissions}
-              limit={5}
+              limit={3}
               basePath="admin"
               onSubmissionSelect={(submissionId) => {
                 const selectedSubmission = submissions.find(

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Assessment } from "../../../types/assessment";
 import { Badge } from "../../../components/ui/badge";
@@ -24,6 +24,7 @@ import { ROLES } from "@/constants/roles";
 interface AssessmentListProps {
   assessments: Assessment[];
   userRoles: string[];
+  cooperationsById?: Record<string, string>;
 }
 
 /**
@@ -32,6 +33,7 @@ interface AssessmentListProps {
 export function AssessmentList({
   assessments,
   userRoles,
+  cooperationsById,
 }: AssessmentListProps) {
   const [isEditDialogOpen, setEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -70,6 +72,21 @@ export function AssessmentList({
     !userRoles.includes(ROLES.COOP_ADMIN.toLowerCase()) &&
     !userRoles.includes(ROLES.COOP_USER.toLowerCase());
 
+  const cooperationLabel = useMemo(
+    () => (assessment: Assessment) => {
+      if (!cooperationsById || !assessment.cooperation_id) return null;
+      const name = cooperationsById[assessment.cooperation_id];
+      if (!name) return null;
+      return (
+        <p className="mt-0.5 text-xs text-muted-foreground">
+          Assigned to{" "}
+          <span className="font-medium text-foreground">{name}</span>
+        </p>
+      );
+    },
+    [cooperationsById],
+  );
+
   return (
     <div className="space-y-4">
       {assessments
@@ -92,6 +109,7 @@ export function AssessmentList({
                   <p className="mt-1 text-xs text-muted-foreground">
                     Draft assessment
                   </p>
+                  {cooperationLabel(assessment)}
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {isLoadingDimensions ? (
