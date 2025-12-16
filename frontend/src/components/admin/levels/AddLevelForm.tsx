@@ -33,7 +33,11 @@ import {
 
 const formSchema = z.object({
   description: z.string().optional(),
-  state: z.number().min(1, "Please select a state").max(5),
+  state: z
+    .number()
+    .min(1, "Please select a state")
+    .max(5)
+    .refine((state) => state !== 0, "Level ID is required"),
   levelName: z.string().optional(),
 });
 
@@ -82,10 +86,36 @@ export const AddLevelForm = ({
   }, [isOpen, reset]);
 
   const onSubmit: SubmitHandler<FormValues> = (data) => {
+    // Client-side uniqueness validation for state (Level ID)
+    const isDuplicateState = existingLevels.some(
+      (level) => level.state === data.state,
+    );
+    if (isDuplicateState) {
+      setError("state", {
+        type: "manual",
+        message: "Level ID already exists for this dimension",
+      });
+      return;
+    }
+
+    // Client-side uniqueness validation for levelName (Level Name)
     if (!descriptions && (!data.levelName || data.levelName.trim() === "")) {
       setError("levelName", {
         type: "manual",
         message: "Level Name is required for custom dimensions",
+      });
+      return;
+    }
+
+    const isDuplicateLevelName = existingLevels.some(
+      (level) =>
+        level.level?.toLowerCase() === data.levelName?.toLowerCase() &&
+        data.levelName?.trim() !== "",
+    );
+    if (isDuplicateLevelName) {
+      setError("levelName", {
+        type: "manual",
+        message: "Level Name already exists for this dimension",
       });
       return;
     }
@@ -173,7 +203,7 @@ export const AddLevelForm = ({
                     }
                     return (
                       availableStates.includes(value) ||
-                      "State already exists or is invalid"
+                      "Level ID already exists or is invalid"
                     );
                   },
                 }}
@@ -182,7 +212,7 @@ export const AddLevelForm = ({
                     <Input
                       {...field}
                       type="number"
-                      placeholder="State Number (1-5)"
+                      placeholder="Level ID (1-5)"
                       min={1}
                       max={5}
                       onChange={(e) => {
