@@ -152,7 +152,7 @@ const UserDashboard: React.FC = () => {
           {submissions && (
             <SubmissionList
               submissions={submissions}
-              limit={5}
+              limit={3}
               basePath="/user"
             />
           )}

@@ -199,7 +199,7 @@ const ThirdAdminDashboard: React.FC = () => {
                 submissions.length > 0 && (
                   <SubmissionList
                     submissions={submissions}
-                    limit={5}
+                    limit={3}
                     basePath="/third-admin"
                   />
                 )}

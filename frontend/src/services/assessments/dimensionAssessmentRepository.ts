@@ -299,10 +299,7 @@ export const dimensionAssessmentRepository = {
           payload,
         );
       } catch (error) {
-        const status =
-          error instanceof ApiError
-            ? error.status
-            : undefined;
+        const status = error instanceof ApiError ? error.status : undefined;
         // If backend says not found, fall back to create
         if (status === 404) {
           console.warn(

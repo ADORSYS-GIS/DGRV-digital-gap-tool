@@ -1,7 +1,22 @@
+import { useState } from "react";
 import { AssessmentSummary } from "@/types/assessment";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
-import { Leaf } from "lucide-react";
+import { Leaf, Trash2 } from "lucide-react";
+import { useDeleteAssessment } from "@/hooks/assessments/useDeleteAssessment";
+import { useAuth } from "@/context/AuthContext";
+import { ROLES } from "@/constants/roles";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
 
 interface SubmissionListProps {
   submissions: AssessmentSummary[];
@@ -43,11 +58,43 @@ export const SubmissionList = ({
   showOrganization = false,
   onSubmissionSelect,
 }: SubmissionListProps) => {
+  const { user } = useAuth();
+  const deleteAssessment = useDeleteAssessment();
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [submissionToDelete, setSubmissionToDelete] =
+    useState<AssessmentSummary | null>(null);
+
+  const userRoles = (user?.roles || []).map((role) => role.toLowerCase());
+  const canDelete =
+    userRoles.includes(ROLES.ORG_ADMIN.toLowerCase()) ||
+    userRoles.includes(ROLES.COOP_ADMIN.toLowerCase());
+
   const items = limit ? submissions.slice(0, limit) : submissions;
 
   const handleSubmissionClick = (submissionId: string) => {
     if (onSubmissionSelect) {
       onSubmissionSelect(submissionId);
+    }
+  };
+
+  const handleDeleteClick = (
+    e: React.MouseEvent,
+    submission: AssessmentSummary,
+  ) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setSubmissionToDelete(submission);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (submissionToDelete?.assessment?.assessment_id) {
+      deleteAssessment.mutate(submissionToDelete.assessment.assessment_id, {
+        onSuccess: () => {
+          setDeleteDialogOpen(false);
+          setSubmissionToDelete(null);
+        },
+      });
     }
   };
 
@@ -214,17 +261,59 @@ export const SubmissionList = ({
                   </div>
                 </div>
 
-                <div className="text-sm font-medium text-muted-foreground group-hover:text-primary transition-colors flex items-center">
-                  View details
-                  <span className="ml-1 transition-transform group-hover:translate-x-1">
-                    →
-                  </span>
+                <div className="flex items-center gap-2">
+                  {canDelete && (
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleDeleteClick(e, submission);
+                      }}
+                      className="p-1.5 text-muted-foreground hover:text-destructive transition-colors rounded-md hover:bg-destructive/10"
+                      aria-label="Delete submission"
+                      title="Delete submission"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  )}
+                  <div className="text-sm font-medium text-muted-foreground group-hover:text-primary transition-colors flex items-center">
+                    View details
+                    <span className="ml-1 transition-transform group-hover:translate-x-1">
+                      →
+                    </span>
+                  </div>
                 </div>
               </div>
             </Link>
           </div>
         ),
       )}
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete submission?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete{" "}
+              <span className="font-medium">
+                {submissionToDelete?.assessment?.document_title ||
+                  "this submission"}
+              </span>
+              ? This action cannot be undone and will permanently remove the
+              submission and all associated data.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleteAssessment.isPending ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

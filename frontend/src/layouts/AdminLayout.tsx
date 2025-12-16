@@ -28,7 +28,7 @@ const AdminLayout: React.FC = () => {
             Admin Panel
           </span>
         </div>
-        <nav className="flex-1 px-2 py-4 space-y-1">
+        <nav className="flex-1 px-2 py-4 space-y-1 overflow-hidden">
           {navLinks.map((link) => {
             const isActive = location.pathname.startsWith(link.to);
             return (
