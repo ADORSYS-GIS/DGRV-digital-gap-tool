@@ -91,7 +91,7 @@ const ExportReportPage: React.FC = () => {
           </h2>
         </div>
         <div className="p-6">
-          <SubmissionDetail submission={submission} />
+          <SubmissionDetail summary={submission} />
         </div>
       </div>
     </div>

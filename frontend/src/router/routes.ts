@@ -7,8 +7,8 @@
  * - Error routes for handling 404s and unauthorized access
  */
 import { ROLES } from "@/constants/roles";
-import AdminLayout from "@/layouts/AdminLayout";
-import SecondAdminLayout from "@/layouts/SecondAdminLayout";
+import { AdminLayout } from "@/layouts/AdminLayout";
+import { SecondAdminLayout } from "@/layouts/SecondAdminLayout";
 import ThirdAdminLayout from "@/layouts/ThirdAdminLayout";
 import UserLayout from "@/layouts/UserLayout";
 import AnswerDimensionAssessmentPage from "@/pages/assessments/AnswerDimensionAssessmentPage";

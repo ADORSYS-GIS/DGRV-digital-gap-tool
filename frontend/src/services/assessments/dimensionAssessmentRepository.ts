@@ -270,6 +270,7 @@ export const dimensionAssessmentRepository = {
    */
   submitAssessment: async (
     payload: ISubmitDimensionAssessmentRequest,
+    forceCreate: boolean = false,
   ): Promise<IDimensionAssessment> => {
     if (!payload.assessmentId) {
       throw new Error("Assessment ID is required");
@@ -285,12 +286,32 @@ export const dimensionAssessmentRepository = {
         payload.assessmentId,
       );
 
-    if (existingAssessment) {
-      // If assessment exists, update it instead of creating a new one
-      return dimensionAssessmentRepository.updateAssessment(
-        existingAssessment.id,
-        payload,
-      );
+    // If we already have a synced record and we're not forcing creation, try to update
+    if (
+      existingAssessment &&
+      existingAssessment.syncStatus === SyncStatus.SYNCED &&
+      !forceCreate
+    ) {
+      try {
+        return await dimensionAssessmentRepository.updateAssessment(
+          existingAssessment.id,
+          payload,
+        );
+      } catch (error) {
+        const status =
+          (error as any)?.status ||
+          (error as any)?.response?.status ||
+          (error as any)?.cause?.status;
+        // If backend says not found, fall back to create
+        if (status === 404) {
+          console.warn(
+            "Update failed with 404; retrying as create for assessment",
+            payload.assessmentId,
+          );
+        } else {
+          throw error;
+        }
+      }
     }
 
     const requestBody: {
@@ -311,8 +332,9 @@ export const dimensionAssessmentRepository = {
       requestBody.cooperation_id = payload.cooperationId;
     }
 
+    const newAssessmentId = existingAssessment?.id || uuidv4();
     const newAssessment: IDimensionAssessment = {
-      id: uuidv4(),
+      id: newAssessmentId,
       dimensionId: payload.dimensionId,
       assessmentId: payload.assessmentId,
       currentState: {

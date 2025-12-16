@@ -2,6 +2,7 @@ import { useAuth } from "@/context/AuthContext";
 import { ROLES } from "@/constants/roles";
 import { useOrganizationId } from "@/hooks/organizations/useOrganizationId";
 import { useCooperationId } from "@/hooks/cooperations/useCooperationId";
+import { useCooperationIdFromPath } from "@/hooks/cooperations/useCooperationIdFromPath";
 import { SubmissionList } from "@/components/shared/submissions/SubmissionList";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { useSubmissionsByOrganization } from "@/hooks/submissions/useSubmissionsByOrganization";
@@ -14,11 +15,23 @@ export default function ManageSubmissionsPage() {
   const location = useLocation();
   const organizationId = useOrganizationId();
   const cooperationId = useCooperationId();
+  const {
+    cooperationId: cooperationIdFromPath,
+    cooperationPath,
+    isLoading: isLoadingCoopIdFromPath,
+    error: coopIdFromPathError,
+  } = useCooperationIdFromPath();
+
+  // Prefer a route param cooperationId if present; otherwise use the token-derived ID
+  const effectiveCooperationId = cooperationId || cooperationIdFromPath;
 
   // Debug logs (remove in production)
   console.log("User roles from token:", user?.roles);
   console.log("Organization ID:", organizationId);
-  console.log("Cooperation ID:", cooperationId);
+  console.log("Cooperation ID (route):", cooperationId);
+  console.log("Cooperation path (token):", cooperationPath);
+  console.log("Cooperation ID (from path):", cooperationIdFromPath);
+  console.log("Effective Cooperation ID:", effectiveCooperationId);
   console.log("Assessment ID:", assessmentId);
 
   // Normalize roles to lowercase for case-insensitive comparison
@@ -47,8 +60,8 @@ export default function ManageSubmissionsPage() {
     error: coopError,
     isFetching: isFetchingCoop,
     refetch: refetchCoopSubmissions,
-  } = useSubmissionsByCooperation(cooperationId || "", {
-    enabled: isCoopUser && !!cooperationId,
+  } = useSubmissionsByCooperation(effectiveCooperationId || "", {
+    enabled: isCoopUser && !!effectiveCooperationId,
     refetchOnMount: true,
     refetchOnWindowFocus: false,
   });
@@ -72,12 +85,14 @@ export default function ManageSubmissionsPage() {
     : isCoopUser
       ? coopSubmissions
       : [];
-  const isLoading = isOrgAdmin
-    ? isLoadingOrg
+  const isLoading =
+    (isOrgAdmin ? isLoadingOrg : isCoopUser ? isLoadingCoop : false) ||
+    isLoadingCoopIdFromPath;
+  const error = isOrgAdmin
+    ? orgError
     : isCoopUser
-      ? isLoadingCoop
-      : false;
-  const error = isOrgAdmin ? orgError : isCoopUser ? coopError : null;
+      ? coopError || coopIdFromPathError
+      : null;
   const isFetching = isOrgAdmin
     ? isFetchingOrg
     : isCoopUser
@@ -179,6 +194,15 @@ export default function ManageSubmissionsPage() {
       )}
 
       {/* Submissions list */}
+      {!isLoading && !error && isCoopUser && !effectiveCooperationId && (
+        <div className="text-center py-12 border-2 border-dashed rounded-lg">
+          <p className="text-gray-500">
+            No cooperation determined for your account. Please contact your
+            administrator.
+          </p>
+        </div>
+      )}
+
       {!isLoading && !error && submissions.length > 0 && (
         <div className="space-y-6">
           <SubmissionList

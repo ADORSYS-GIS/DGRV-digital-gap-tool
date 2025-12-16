@@ -4,8 +4,8 @@ import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { SimpleCooperationCard } from "@/components/second_admin/cooperations/SimpleCooperationCard";
 import { useAuth } from "@/context/AuthContext";
 import { ROLES } from "@/constants/roles";
-import { useCooperationId } from "@/hooks/cooperations/useCooperationId";
 import { useOrganizationId } from "@/hooks/organizations/useOrganizationId";
+import { useCooperationIdFromPath } from "@/hooks/cooperations/useCooperationIdFromPath";
 
 /**
  * Entry screen for selecting which cooperation's users to manage.
@@ -22,20 +22,77 @@ export default function ManageCooperationUsers() {
   } = useCooperations(organizationId || undefined);
   const location = useLocation();
   const basePath = location.pathname.split("/").slice(0, 2).join("/");
-  const cooperationId = useCooperationId();
-
   const isCoopAdmin = user?.roles?.includes(ROLES.COOP_ADMIN);
+  const {
+    cooperationId: coopIdFromPath,
+    cooperationPath,
+    isLoading: isLoadingCoopFromPath,
+    error: coopFromPathError,
+  } = useCooperationIdFromPath();
+
+  // Debug logs to understand coop-admin flow and available cooperations
+  console.log("[ManageCooperationUsers] user roles:", user?.roles);
+  console.log("[ManageCooperationUsers] basePath:", basePath);
+  console.log("[ManageCooperationUsers] cooperations data:", cooperations);
+  console.log(
+    "[ManageCooperationUsers] cooperationPath from token:",
+    cooperationPath,
+  );
+  console.log(
+    "[ManageCooperationUsers] cooperationId from path:",
+    coopIdFromPath,
+  );
 
   if (isCoopAdmin) {
-    if (cooperationId) {
+    if (isLoading || isLoadingCoopFromPath) {
+      return (
+        <div className="flex min-h-[200px] items-center justify-center">
+          <LoadingSpinner />
+        </div>
+      );
+    }
+
+    // Prefer the resolved ID from the token path if available
+    const targetCooperationId = coopIdFromPath || cooperations?.[0]?.id;
+
+    if (targetCooperationId) {
       return (
         <Navigate
-          to={`${basePath}/manage-cooperation-users/${cooperationId}`}
+          to={`${basePath}/manage-cooperation-users/${targetCooperationId}`}
           replace
         />
       );
     }
-    return <LoadingSpinner />;
+
+    if (coopFromPathError) {
+      return (
+        <div className="min-h-screen bg-background">
+          <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-8 sm:px-6 lg:px-8">
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+              Unable to resolve cooperation
+            </h1>
+            <p className="max-w-2xl text-sm text-muted-foreground">
+              We could not resolve your cooperation from the token path. Please
+              contact your organization administrator to verify your access.
+            </p>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="min-h-screen bg-background">
+        <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-8 sm:px-6 lg:px-8">
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+            No cooperation found
+          </h1>
+          <p className="max-w-2xl text-sm text-muted-foreground">
+            We couldn&apos;t determine which cooperation you manage. Please
+            contact your organization administrator to verify your access.
+          </p>
+        </div>
+      </div>
+    );
   }
 
   return (

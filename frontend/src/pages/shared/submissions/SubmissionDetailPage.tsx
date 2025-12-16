@@ -3,6 +3,7 @@ import { useAuth } from "@/context/AuthContext";
 import { ROLES } from "@/constants/roles";
 import { useOrganizationId } from "@/hooks/organizations/useOrganizationId";
 import { useCooperationId } from "@/hooks/cooperations/useCooperationId";
+import { useCooperationIdFromPath } from "@/hooks/cooperations/useCooperationIdFromPath";
 import { useSubmissionSummary } from "@/hooks/submissions/useSubmissionSummary";
 import { useSubmissionSummaryByOrganization } from "@/hooks/submissions/useSubmissionSummaryByOrganization";
 import { useSubmissionSummaryByCooperation } from "@/hooks/submissions/useSubmissionSummaryByCooperation";
@@ -13,7 +14,13 @@ export default function SubmissionDetailPage() {
   const { submissionId } = useParams<{ submissionId: string }>();
   const { user } = useAuth();
   const organizationId = useOrganizationId();
-  const cooperationId = useCooperationId();
+  const cooperationIdFromRoute = useCooperationId();
+  const {
+    cooperationId: cooperationIdFromPath,
+    isLoading: isLoadingCoopFromPath,
+    error: coopFromPathError,
+  } = useCooperationIdFromPath();
+  const cooperationId = cooperationIdFromRoute || cooperationIdFromPath || null;
 
   const isOrgAdmin = user?.roles?.includes(ROLES.ORG_ADMIN);
   const isCoopAdminOrUser = user?.roles?.some((role) =>
@@ -30,7 +37,10 @@ export default function SubmissionDetailPage() {
   const coopHook = useSubmissionSummaryByCooperation(
     submissionId!,
     cooperationId!,
-    { enabled: Boolean(isCoopAdminOrUser && cooperationId) },
+    {
+      enabled:
+        Boolean(isCoopAdminOrUser && cooperationId) && !isLoadingCoopFromPath,
+    },
   );
 
   // Determine which hook result to use based on role
@@ -52,16 +62,18 @@ export default function SubmissionDetailPage() {
           </p>
         </header>
 
-        {isLoading && (
+        {(isLoading || isLoadingCoopFromPath) && (
           <div className="flex min-h-[200px] items-center justify-center rounded-xl border border-dashed border-muted-foreground/30 bg-muted/40">
             <LoadingSpinner />
           </div>
         )}
 
-        {error && (
+        {(error || coopFromPathError) && (
           <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
             <p className="font-semibold">Unable to load submission</p>
-            <p className="mt-1 opacity-90">{error.message}</p>
+            <p className="mt-1 opacity-90">
+              {error?.message || (coopFromPathError as Error)?.message}
+            </p>
           </div>
         )}
 
