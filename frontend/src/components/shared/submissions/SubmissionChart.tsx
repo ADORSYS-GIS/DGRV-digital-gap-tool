@@ -61,10 +61,8 @@ const SubmissionChart: React.FC<SubmissionChartProps> = ({ submission }) => {
               // Looking at IDimensionState in frontend/src/types/dimension.ts, it has 'level'.
               // But let's be safe and check for 'score' as well if 'level' is missing, just in case of type mismatch at runtime.
 
-              // @ts-expect-error - score property might exist on API response but not in type definition
               const currentLevel =
                 currentState?.score ?? currentState?.level ?? 0;
-              // @ts-expect-error - score property might exist on API response but not in type definition
               const desiredLevel =
                 desiredState?.score ?? desiredState?.level ?? 0;
 
@@ -123,14 +121,47 @@ const SubmissionChart: React.FC<SubmissionChartProps> = ({ submission }) => {
           left: 20,
           bottom: 5,
         }}
+        barGap={10}
+        barCategoryGap="20%"
       >
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="name" />
-        <YAxis />
-        <Tooltip />
-        <Legend />
-        <Bar dataKey="Current State" fill="#8884d8" />
-        <Bar dataKey="Desired State" fill="#82ca9d" />
+        <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
+        <XAxis
+          dataKey="name"
+          tick={{ fill: "#6b7280", fontSize: 12 }}
+          axisLine={{ stroke: "#d1d5db" }}
+          tickLine={{ stroke: "#d1d5db" }}
+        />
+        <YAxis
+          tick={{ fill: "#6b7280", fontSize: 12 }}
+          axisLine={{ stroke: "#d1d5db" }}
+          tickLine={{ stroke: "#d1d5db" }}
+        />
+        <Tooltip
+          cursor={{ fill: "rgba(243, 244, 246, 0.5)" }}
+          contentStyle={{
+            background: "#ffffff",
+            border: "1px solid #e5e7eb",
+            borderRadius: "0.5rem",
+            boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+          }}
+        />
+        <Legend
+          wrapperStyle={{
+            paddingTop: "20px",
+          }}
+        />
+        <Bar
+          dataKey="Current State"
+          fill="#3b82f6"
+          radius={[4, 4, 0, 0]}
+          background={{ fill: "#f3f4f6", radius: 4 }}
+        />
+        <Bar
+          dataKey="Desired State"
+          fill="#f97316"
+          radius={[4, 4, 0, 0]}
+          background={{ fill: "#f3f4f6", radius: 4 }}
+        />
       </BarChart>
     </ResponsiveContainer>
   );
