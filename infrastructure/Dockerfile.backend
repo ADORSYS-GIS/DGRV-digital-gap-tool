@@ -21,6 +21,7 @@ RUN apt-get update && \
     apt-get install -y libssl-dev ca-certificates curl && \
     rm -rf /var/lib/apt/lists/*
 COPY --from=builder /app/target/release/dgat-backend /app/dgrv-digital-gap-tool
+COPY --from=builder /app/target/release/seed /app/seed
 COPY doc/ /app/doc/
 COPY templates/ /app/templates/
 ENTRYPOINT ["/app/dgrv-digital-gap-tool"]

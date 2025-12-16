@@ -45,6 +45,26 @@ services:
     networks: [dgrv-net]
 
   #
+  # ─────────────────────────────── SEEDER ────────────────────────────────
+  #
+  backend-seed:
+    build:
+      context: .
+      dockerfile: ./infrastructure/Dockerfile.backend
+    image: ${BACKEND_IMAGE:-dgrv-digital-gap-tool-backend:latest}
+    container_name: dgrv-digital-gap-tool-backend-seed
+    command: ["/app/seed"]
+    env_file: .env
+    environment:
+      DGAT_DATABASE_URL: "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks: [dgrv-net]
+    # This service will run the seed command and then exit.
+    # It's typically not exposed via ports.
+
+  #
   # ────────────────────────────── MINIO ──────────────────────────────
   #
   minio:
