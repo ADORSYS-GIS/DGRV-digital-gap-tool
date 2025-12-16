@@ -396,9 +396,7 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
               data-testid="continue-button"
               className="min-w-[220px]"
             >
-              {isLastDimension
-                ? "Finish assessment"
-                : "Continue to next topic"}
+              {isLastDimension ? "Finish assessment" : "Continue to next topic"}
             </Button>
           </div>
         )}

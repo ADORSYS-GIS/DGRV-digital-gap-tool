@@ -72,8 +72,8 @@ export default function ManageCooperationUsers() {
               No cooperations available yet
             </h2>
             <p className="mt-2 max-w-md text-sm text-muted-foreground">
-              Once cooperations have been created for this organization, you&apos;ll
-              be able to select one here and manage its users.
+              Once cooperations have been created for this organization,
+              you&apos;ll be able to select one here and manage its users.
             </p>
           </div>
         )}

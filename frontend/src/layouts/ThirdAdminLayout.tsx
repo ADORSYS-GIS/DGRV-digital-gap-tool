@@ -1,6 +1,12 @@
 import React from "react";
 import { Outlet } from "react-router-dom";
-import { Users, FilePenLine, ClipboardList, Inbox, BarChart3 } from "lucide-react";
+import {
+  Users,
+  FilePenLine,
+  ClipboardList,
+  Inbox,
+  BarChart3,
+} from "lucide-react";
 import { Sidebar } from "@/components/shared/Sidebar";
 
 const navLinks = [
@@ -10,8 +16,16 @@ const navLinks = [
     icon: Users,
     text: "Manage Users",
   },
-  { to: "/third-admin/assessments", icon: FilePenLine, text: "Answer Assessment" },
-  { to: "/third-admin/action-plans", icon: ClipboardList, text: "View Action Plan" },
+  {
+    to: "/third-admin/assessments",
+    icon: FilePenLine,
+    text: "Answer Assessment",
+  },
+  {
+    to: "/third-admin/action-plans",
+    icon: ClipboardList,
+    text: "View Action Plan",
+  },
   { to: "/third-admin/submissions", icon: Inbox, text: "View Submissions" },
 ];
 

@@ -125,4 +125,3 @@ export const EditCooperationForm: React.FC<EditCooperationFormProps> = ({
     </Dialog>
   );
 };
-

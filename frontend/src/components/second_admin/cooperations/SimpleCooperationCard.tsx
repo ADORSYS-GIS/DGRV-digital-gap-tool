@@ -23,7 +23,10 @@ export const SimpleCooperationCard = ({
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary ring-1 ring-primary/15">
             <span className="sr-only">Cooperation</span>
             <Handshake className="hidden h-5 w-5 sm:block" aria-hidden="true" />
-            <span className="text-sm font-semibold sm:hidden" aria-hidden="true">
+            <span
+              className="text-sm font-semibold sm:hidden"
+              aria-hidden="true"
+            >
               {initial}
             </span>
           </div>

@@ -44,7 +44,8 @@ export const SubmissionDetail = ({ summary }: SubmissionDetailProps) => {
               </div>
               <div>
                 <h1 className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
-                  {submission.assessment.document_title || "Untitled assessment"}
+                  {submission.assessment.document_title ||
+                    "Untitled assessment"}
                 </h1>
                 <p className="text-sm text-muted-foreground">
                   Submission overview and dimension outcomes.

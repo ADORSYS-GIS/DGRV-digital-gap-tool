@@ -50,7 +50,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
           title={isOpen ? "Collapse sidebar" : "Expand sidebar"}
         >
           <ChevronLeft
-            className={cn("h-4 w-4 transition-transform", !isOpen && "rotate-180")}
+            className={cn(
+              "h-4 w-4 transition-transform",
+              !isOpen && "rotate-180",
+            )}
           />
         </button>
       </div>

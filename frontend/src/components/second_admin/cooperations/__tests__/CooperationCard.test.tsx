@@ -21,7 +21,7 @@ describe("CooperationCard", () => {
         cooperation={cooperation}
         onUpdate={handleUpdate}
         onDelete={handleDelete}
-      />,\
+      />,
     );
 
     expect(

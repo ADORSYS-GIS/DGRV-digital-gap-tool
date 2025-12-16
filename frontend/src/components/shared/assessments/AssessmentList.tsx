@@ -147,10 +147,7 @@ export function AssessmentList({
             </div>
           </div>
         ))}
-      <AlertDialog
-        open={isDeleteDialogOpen}
-        onOpenChange={setDeleteDialogOpen}
-      >
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete draft assessment?</AlertDialogTitle>

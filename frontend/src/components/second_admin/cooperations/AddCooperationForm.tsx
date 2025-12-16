@@ -12,13 +12,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { PlusCircle } from "lucide-react";
 import { useAddCooperation } from "@/hooks/cooperations/useAddCooperation";
 
-interface AddCooperationFormProps {}
-
 /**
  * Entry point for creating a new cooperation profile.
  * Uses a dialog-based form with clear labels, helper copy and loading states.
  */
-export const AddCooperationForm: React.FC<AddCooperationFormProps> = () => {
+export const AddCooperationForm: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");

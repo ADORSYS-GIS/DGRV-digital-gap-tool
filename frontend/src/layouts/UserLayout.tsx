@@ -1,6 +1,11 @@
 import React from "react";
 import { Outlet } from "react-router-dom";
-import { FilePlus2, ClipboardList, ClipboardCheck, BarChart3 } from "lucide-react";
+import {
+  FilePlus2,
+  ClipboardList,
+  ClipboardCheck,
+  BarChart3,
+} from "lucide-react";
 import { Sidebar } from "@/components/shared/Sidebar";
 
 const navLinks = [

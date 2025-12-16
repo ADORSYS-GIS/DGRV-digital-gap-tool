@@ -18,9 +18,7 @@ describe("AddCooperationForm", () => {
 
     render(<AddCooperationForm />);
 
-    fireEvent.click(
-      screen.getByRole("button", { name: /add cooperative/i }),
-    );
+    fireEvent.click(screen.getByRole("button", { name: /add cooperative/i }));
 
     fireEvent.change(screen.getByLabelText(/name/i), {
       target: { value: "Test Cooperative" },

@@ -37,14 +37,17 @@ const mockedUseAssessmentsByOrganization =
 const mockedUseAssessmentsByCooperation =
   useAssessmentsByCooperation as unknown as ReturnType<typeof vi.fn>;
 const mockedUseAuth = useAuth as unknown as ReturnType<typeof vi.fn>;
-const mockedUseOrganizationId =
-  useOrganizationId as unknown as ReturnType<typeof vi.fn>;
-const mockedUseCooperationId =
-  useCooperationId as unknown as ReturnType<typeof vi.fn>;
+const mockedUseOrganizationId = useOrganizationId as unknown as ReturnType<
+  typeof vi.fn
+>;
+const mockedUseCooperationId = useCooperationId as unknown as ReturnType<
+  typeof vi.fn
+>;
 const mockedUseOrganizationDimensions =
   useOrganizationDimensions as unknown as ReturnType<typeof vi.fn>;
-const mockedUseCooperations =
-  useCooperations as unknown as ReturnType<typeof vi.fn>;
+const mockedUseCooperations = useCooperations as unknown as ReturnType<
+  typeof vi.fn
+>;
 
 describe("ManageAssessments", () => {
   it("renders assessments list for org admin", () => {

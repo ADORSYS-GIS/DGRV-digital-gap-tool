@@ -86,7 +86,9 @@ const ManageCooperations: React.FC = () => {
                 />
               </svg>
             </div>
-            <h3 className="mt-4 text-lg font-semibold">No cooperations found</h3>
+            <h3 className="mt-4 text-lg font-semibold">
+              No cooperations found
+            </h3>
             <p className="mb-4 mt-2 text-sm text-muted-foreground max-w-sm">
               Get started by creating a new cooperative profile.
             </p>

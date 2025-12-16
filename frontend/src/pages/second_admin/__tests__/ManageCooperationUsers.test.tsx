@@ -39,9 +39,7 @@ describe("ManageCooperationUsers", () => {
     mockedUseOrganizationId.mockReturnValue("org-1");
     mockedUseCooperationId.mockReturnValue(undefined);
     mockedUseCooperations.mockReturnValue({
-      data: [
-        { id: "c1", name: "Coop One", description: "Desc", domains: [] },
-      ],
+      data: [{ id: "c1", name: "Coop One", description: "Desc", domains: [] }],
       isLoading: false,
       error: null,
     });

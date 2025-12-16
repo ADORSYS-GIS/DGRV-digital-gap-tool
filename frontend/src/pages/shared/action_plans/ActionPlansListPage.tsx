@@ -50,20 +50,24 @@ export default function ActionPlansListPage() {
           : [];
 
     return (raw || []).map((s) => ({
-        ...s,
-        id: s.assessment.assessment_id,
-        syncStatus: SyncStatus.SYNCED,
-        assessment: {
-          ...s.assessment,
-          started_at: s.assessment.started_at || null,
-          completed_at: s.assessment.completed_at || null,
-          dimensions_id: s.assessment.dimensions_id as string[],
-        },
-        overall_score: s.overall_score ?? null,
-      }));
+      ...s,
+      id: s.assessment.assessment_id,
+      syncStatus: SyncStatus.SYNCED,
+      assessment: {
+        ...s.assessment,
+        started_at: s.assessment.started_at || null,
+        completed_at: s.assessment.completed_at || null,
+        dimensions_id: s.assessment.dimensions_id as string[],
+      },
+      overall_score: s.overall_score ?? null,
+    }));
   }, [coopSubmissions, isCoopUser, isOrgAdmin, orgSubmissions]);
 
-  const isLoading = isOrgAdmin ? isLoadingOrg : isCoopUser ? isLoadingCoop : false;
+  const isLoading = isOrgAdmin
+    ? isLoadingOrg
+    : isCoopUser
+      ? isLoadingCoop
+      : false;
   const error = isOrgAdmin ? orgError : isCoopUser ? coopError : null;
 
   const handleSubmissionSelect = (submissionId: string) => {

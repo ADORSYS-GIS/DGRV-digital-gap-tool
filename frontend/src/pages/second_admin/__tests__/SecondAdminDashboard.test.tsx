@@ -17,8 +17,9 @@ vi.mock("@/hooks/submissions/useSubmissionsByOrganization", () => ({
 }));
 
 const mockedUseAuth = useAuth as unknown as ReturnType<typeof vi.fn>;
-const mockedUseOrganizationId =
-  useOrganizationId as unknown as ReturnType<typeof vi.fn>;
+const mockedUseOrganizationId = useOrganizationId as unknown as ReturnType<
+  typeof vi.fn
+>;
 const mockedUseSubmissionsByOrganization =
   useSubmissionsByOrganization as unknown as ReturnType<typeof vi.fn>;
 
@@ -39,7 +40,9 @@ describe("SecondAdminDashboard", () => {
     expect(
       screen.getByText(/cooperative management dashboard/i),
     ).toBeInTheDocument();
-    expect(screen.getByText(/manage cooperatives/i)).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: /manage cooperatives/i }),
+    ).toBeInTheDocument();
     expect(screen.getByText(/manage users/i)).toBeInTheDocument();
     expect(screen.getByText(/create assessment/i)).toBeInTheDocument();
   });

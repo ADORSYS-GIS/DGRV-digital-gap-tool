@@ -18,9 +18,21 @@ const navLinks = [
     icon: Users,
     text: "Manage Users",
   },
-  { to: "/second-admin/assessments", icon: FilePlus2, text: "Create Assessment" },
-  { to: "/second-admin/action-plans", icon: ClipboardList, text: "Action Plan" },
-  { to: "/second-admin/submissions", icon: ClipboardCheck, text: "Submissions" },
+  {
+    to: "/second-admin/assessments",
+    icon: FilePlus2,
+    text: "Create Assessment",
+  },
+  {
+    to: "/second-admin/action-plans",
+    icon: ClipboardList,
+    text: "Action Plan",
+  },
+  {
+    to: "/second-admin/submissions",
+    icon: ClipboardCheck,
+    text: "Submissions",
+  },
 ];
 
 const SecondAdminLayout: React.FC = () => {

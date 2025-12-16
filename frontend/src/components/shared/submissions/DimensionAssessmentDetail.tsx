@@ -66,7 +66,9 @@ export const DimensionAssessmentDetail = ({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div
           className={`p-4 rounded-lg ${
-            currentState && desiredState && currentState.level < desiredState.level
+            currentState &&
+            desiredState &&
+            currentState.level < desiredState.level
               ? "bg-red-100"
               : "bg-green-100"
           }`}
@@ -77,7 +79,9 @@ export const DimensionAssessmentDetail = ({
         </div>
         <div
           className={`p-4 rounded-lg ${
-            currentState && desiredState && currentState.level > desiredState.level
+            currentState &&
+            desiredState &&
+            currentState.level > desiredState.level
               ? "bg-red-100"
               : "bg-green-100"
           }`}
