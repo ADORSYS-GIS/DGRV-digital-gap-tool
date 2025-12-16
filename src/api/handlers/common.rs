@@ -24,10 +24,6 @@ pub fn handle_error(error: AppError) -> (StatusCode, Json<serde_json::Value>) {
         AppError::InternalServerError(msg) => (StatusCode::INTERNAL_SERVER_ERROR, msg),
         AppError::AuthError(msg) => (StatusCode::UNAUTHORIZED, msg),
         AppError::AnyhowError(err) => (StatusCode::INTERNAL_SERVER_ERROR, err.to_string()),
-        AppError::LevelIdAlreadyExists => (
-            StatusCode::CONFLICT,
-            "Level id already assigned to another state".to_string(),
-        ),
     };
 
     let response = ApiResponse::<()>::error(message);
