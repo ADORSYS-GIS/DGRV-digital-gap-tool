@@ -11,7 +11,6 @@ export const useCooperationId = (): string | null => {
 
   // Debug log to visualize what the router is providing.
   // This log is intentional per user request.
-  // eslint-disable-next-line no-console
   console.log(
     "[useCooperationId] cooperationId from route params:",
     cooperationId,

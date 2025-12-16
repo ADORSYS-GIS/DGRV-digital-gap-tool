@@ -11,6 +11,7 @@ export const useDownloadReportByAssessment = () => {
       // Try to get the assessment title from any cached submission summary
       const cachedSummaries =
         queryClient
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           .getQueriesData<any>({
             queryKey: ["submissions"],
           })
