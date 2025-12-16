@@ -112,58 +112,63 @@ const SubmissionChart: React.FC<SubmissionChartProps> = ({ submission }) => {
   }
 
   return (
-    <ResponsiveContainer width="100%" height={400}>
-      <BarChart
-        data={chartData}
-        margin={{
-          top: 20,
-          right: 30,
-          left: 20,
-          bottom: 5,
-        }}
-        barGap={10}
-        barCategoryGap="20%"
-      >
-        <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
-        <XAxis
-          dataKey="name"
-          tick={{ fill: "#6b7280", fontSize: 12 }}
-          axisLine={{ stroke: "#d1d5db" }}
-          tickLine={{ stroke: "#d1d5db" }}
-        />
-        <YAxis
-          tick={{ fill: "#6b7280", fontSize: 12 }}
-          axisLine={{ stroke: "#d1d5db" }}
-          tickLine={{ stroke: "#d1d5db" }}
-        />
-        <Tooltip
-          cursor={{ fill: "rgba(243, 244, 246, 0.5)" }}
-          contentStyle={{
-            background: "#ffffff",
-            border: "1px solid #e5e7eb",
-            borderRadius: "0.5rem",
-            boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+    <div className="space-y-4">
+      <h3 className="text-lg font-semibold text-center">
+        Assessment: {submission.assessment.document_title}
+      </h3>
+      <ResponsiveContainer width="100%" height={400}>
+        <BarChart
+          data={chartData}
+          margin={{
+            top: 20,
+            right: 30,
+            left: 20,
+            bottom: 5,
           }}
-        />
-        <Legend
-          wrapperStyle={{
-            paddingTop: "20px",
-          }}
-        />
-        <Bar
-          dataKey="Current State"
-          fill="#3b82f6"
-          radius={[4, 4, 0, 0]}
-          background={{ fill: "#f3f4f6", radius: 4 }}
-        />
-        <Bar
-          dataKey="Desired State"
-          fill="#f97316"
-          radius={[4, 4, 0, 0]}
-          background={{ fill: "#f3f4f6", radius: 4 }}
-        />
-      </BarChart>
-    </ResponsiveContainer>
+          barGap={10}
+          barCategoryGap="20%"
+        >
+          <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
+          <XAxis
+            dataKey="name"
+            tick={{ fill: "#6b7280", fontSize: 12 }}
+            axisLine={{ stroke: "#d1d5db" }}
+            tickLine={{ stroke: "#d1d5db" }}
+          />
+          <YAxis
+            tick={{ fill: "#6b7280", fontSize: 12 }}
+            axisLine={{ stroke: "#d1d5db" }}
+            tickLine={{ stroke: "#d1d5db" }}
+          />
+          <Tooltip
+            cursor={{ fill: "rgba(243, 244, 246, 0.5)" }}
+            contentStyle={{
+              background: "#ffffff",
+              border: "1px solid #e5e7eb",
+              borderRadius: "0.5rem",
+              boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+            }}
+          />
+          <Legend
+            wrapperStyle={{
+              paddingTop: "20px",
+            }}
+          />
+          <Bar
+            dataKey="Current State"
+            fill="#3b82f6"
+            radius={[4, 4, 0, 0]}
+            background={{ fill: "#f3f4f6", radius: 4 }}
+          />
+          <Bar
+            dataKey="Desired State"
+            fill="#f97316"
+            radius={[4, 4, 0, 0]}
+            background={{ fill: "#f3f4f6", radius: 4 }}
+          />
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
   );
 };
 
