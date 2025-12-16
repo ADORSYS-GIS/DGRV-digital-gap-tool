@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   IDimensionAssessment,
   IDimensionState,
@@ -12,6 +11,7 @@ import {
   getDimensionWithStates as getDimensionWithStatesApi,
   updateDimensionAssessment as updateDimensionAssessmentApi,
 } from "../../openapi-client/services.gen";
+import { ApiError } from "@/openapi-client/core/ApiError";
 import { db } from "../db";
 import { syncService } from "../sync/syncService";
 
@@ -300,9 +300,9 @@ export const dimensionAssessmentRepository = {
         );
       } catch (error) {
         const status =
-          (error as any)?.status ||
-          (error as any)?.response?.status ||
-          (error as any)?.cause?.status;
+          error instanceof ApiError
+            ? error.status
+            : undefined;
         // If backend says not found, fall back to create
         if (status === 404) {
           console.warn(
@@ -361,7 +361,14 @@ export const dimensionAssessmentRepository = {
     };
 
     try {
-      await db.dimensionAssessments.add({
+      // If we already have a local record for this dimension+assessment,
+      // update it in place; otherwise create a new one. This avoids
+      // Dexie "Key already exists in the object store" constraint errors.
+      const writeFn = existingAssessment
+        ? db.dimensionAssessments.put.bind(db.dimensionAssessments)
+        : db.dimensionAssessments.add.bind(db.dimensionAssessments);
+
+      await writeFn({
         ...newAssessment,
         syncStatus: SyncStatus.PENDING,
         lastError: "",
@@ -411,6 +418,17 @@ export const dimensionAssessmentRepository = {
           }
         } catch (error) {
           console.error("Error submitting assessment:", error);
+
+          // If the backend reports that the parent assessment is missing,
+          // keep the local record as pending and do NOT treat this as a hard failure.
+          if (error instanceof ApiError && error.status === 404) {
+            await dimensionAssessmentRepository.markAsFailed(
+              newAssessment.id,
+              "Remote assessment not found yet; keeping local record pending.",
+            );
+            return newAssessment;
+          }
+
           await dimensionAssessmentRepository.markAsFailed(
             newAssessment.id,
             error instanceof Error

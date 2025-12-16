@@ -18,8 +18,9 @@ RUN cargo build --release
 FROM debian:bookworm-slim
 WORKDIR /app
 RUN apt-get update && \
-    apt-get install -y libssl-dev ca-certificates curl && \
+    apt-get install -y libssl-dev ca-certificates curl chromium && \
     rm -rf /var/lib/apt/lists/*
+ENV CHROME=/usr/bin/chromium
 COPY --from=builder /app/target/release/dgat-backend /app/dgrv-digital-gap-tool
 COPY doc/ /app/doc/
 COPY templates/ /app/templates/
