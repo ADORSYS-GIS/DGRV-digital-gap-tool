@@ -2,11 +2,16 @@ import { db } from "@/services/db";
 import {
   listActionPlans,
   getActionPlanByAssessmentId,
+  createActionItem,
+  updateActionItem,
+  deleteActionItem,
 } from "@/openapi-client/services.gen";
 import { ActionPlan, ActionItem } from "@/types/actionPlan";
 import {
   ActionPlanResponse,
   ActionItemResponse,
+  CreateActionItemRequest,
+  UpdateActionItemRequest,
 } from "@/openapi-client/types.gen";
 
 const mapToActionPlan = (data: ActionPlanResponse): ActionPlan => {
@@ -58,6 +63,65 @@ class ActionPlanRepository {
       .where("assessment_id")
       .equals(assessmentId)
       .first();
+  }
+
+  async createActionItem(
+    actionPlanId: string,
+    requestBody: CreateActionItemRequest,
+  ): Promise<ActionItem | undefined> {
+    try {
+      const response = await createActionItem({ actionPlanId, requestBody });
+      if (response.success && response.data) {
+        // Assuming the backend returns the full ActionItem
+        return {
+          ...response.data,
+          status: response.data.status as ActionItem["status"],
+          priority: response.data.priority as ActionItem["priority"],
+          action_plan_id: actionPlanId,
+        };
+      }
+    } catch (error) {
+      console.error("Failed to create action item:", error);
+    }
+    return undefined;
+  }
+
+  async updateActionItem(
+    actionPlanId: string,
+    actionItemId: string,
+    requestBody: UpdateActionItemRequest,
+  ): Promise<ActionItem | undefined> {
+    try {
+      const response = await updateActionItem({
+        actionPlanId,
+        actionItemId,
+        requestBody,
+      });
+      if (response.success && response.data) {
+        return {
+          ...response.data,
+          status: response.data.status as ActionItem["status"],
+          priority: response.data.priority as ActionItem["priority"],
+          action_plan_id: actionPlanId,
+        };
+      }
+    } catch (error) {
+      console.error("Failed to update action item:", error);
+    }
+    return undefined;
+  }
+
+  async deleteActionItem(
+    actionPlanId: string,
+    actionItemId: string,
+  ): Promise<boolean> {
+    try {
+      const response = await deleteActionItem({ actionPlanId, actionItemId });
+      return response.success;
+    } catch (error) {
+      console.error("Failed to delete action item:", error);
+      return false;
+    }
   }
 }
 
