@@ -374,9 +374,9 @@ pub async fn create_current_state(
         .map_err(crate::api::handlers::common::handle_error)?
         .is_some()
         {
-            return Err(crate::api::handlers::common::handle_error(
-                AppError::Conflict("Current state with this description already exists".to_string()),
-            ));
+           return Err(crate::api::handlers::common::handle_error(AppError::Conflict(
+               "Current state with this description already exists".to_string(),
+           )));
         }
     }
 
@@ -447,30 +447,32 @@ pub async fn update_current_state(
 
     // Update fields if provided
     if let Some(description) = request.description.clone() {
-        if let Some(existing_current_state) = CurrentStatesRepository::find_by_dimension_id_and_description(
-            db.as_ref(),
-            dimension_id,
-            description.clone(),
-        )
-        .await
-        .map_err(crate::api::handlers::common::handle_error)?
+        if let Some(existing_current_state) =
+            CurrentStatesRepository::find_by_dimension_id_and_description(
+                db.as_ref(),
+                dimension_id,
+                description.clone(),
+            )
+            .await
+            .map_err(crate::api::handlers::common::handle_error)?
         {
             if existing_current_state.current_state_id != current_state_id {
-                return Err(crate::api::handlers::common::handle_error(
-                    AppError::Conflict("Current state with this description already exists".to_string()),
-                ));
-            }
-        }
-        current_state.description = Some(description);
+               return Err(crate::api::handlers::common::handle_error(AppError::Conflict(
+                   "Current state with this description already exists".to_string(),
+               )));
+           }
+       }
+       current_state.description = Some(description);
     }
     if let Some(score) = request.score {
-        if let Some(existing_current_state) = CurrentStatesRepository::find_by_dimension_id_and_score(
-            db.as_ref(),
-            dimension_id,
-            score,
-        )
-        .await
-        .map_err(crate::api::handlers::common::handle_error)?
+        if let Some(existing_current_state) =
+            CurrentStatesRepository::find_by_dimension_id_and_score(
+                db.as_ref(),
+                dimension_id,
+                score,
+            )
+            .await
+            .map_err(crate::api::handlers::common::handle_error)?
         {
             if existing_current_state.current_state_id != current_state_id {
                 return Err(crate::api::handlers::common::handle_error(
@@ -541,10 +543,10 @@ pub async fn create_desired_state(
     .map_err(crate::api::handlers::common::handle_error)?
     .is_some()
     {
-        return Err(crate::api::handlers::common::handle_error(
-            AppError::Conflict("Desired state with this score already exists".to_string()),
-        ));
-    }
+       return Err(crate::api::handlers::common::handle_error(AppError::Conflict(
+           "Desired state with this score already exists".to_string(),
+       )));
+   }
 
     // Check for existing desired state with same description
     if let Some(description) = request.description.clone() {
@@ -557,11 +559,11 @@ pub async fn create_desired_state(
         .map_err(crate::api::handlers::common::handle_error)?
         .is_some()
         {
-            return Err(crate::api::handlers::common::handle_error(
-                AppError::Conflict("Desired state with this description already exists".to_string()),
-            ));
-        }
-    }
+           return Err(crate::api::handlers::common::handle_error(AppError::Conflict(
+               "Desired state with this description already exists".to_string(),
+           )));
+       }
+   }
 
     let active_model = crate::entities::desired_states::ActiveModel {
         desired_state_id: sea_orm::Set(Uuid::new_v4()),
@@ -630,30 +632,32 @@ pub async fn update_desired_state(
 
     // Update fields if provided
     if let Some(description) = request.description.clone() {
-        if let Some(existing_desired_state) = DesiredStatesRepository::find_by_dimension_id_and_description(
-            db.as_ref(),
-            dimension_id,
-            description.clone(),
-        )
-        .await
-        .map_err(crate::api::handlers::common::handle_error)?
+        if let Some(existing_desired_state) =
+            DesiredStatesRepository::find_by_dimension_id_and_description(
+                db.as_ref(),
+                dimension_id,
+                description.clone(),
+            )
+            .await
+            .map_err(crate::api::handlers::common::handle_error)?
         {
             if existing_desired_state.desired_state_id != desired_state_id {
-                return Err(crate::api::handlers::common::handle_error(
-                    AppError::Conflict("Desired state with this description already exists".to_string()),
-                ));
-            }
-        }
-        desired_state.description = Some(description);
+               return Err(crate::api::handlers::common::handle_error(AppError::Conflict(
+                   "Desired state with this description already exists".to_string(),
+               )));
+           }
+       }
+       desired_state.description = Some(description);
     }
     if let Some(score) = request.score {
-        if let Some(existing_desired_state) = DesiredStatesRepository::find_by_dimension_id_and_score(
-            db.as_ref(),
-            dimension_id,
-            score,
-        )
-        .await
-        .map_err(crate::api::handlers::common::handle_error)?
+        if let Some(existing_desired_state) =
+            DesiredStatesRepository::find_by_dimension_id_and_score(
+                db.as_ref(),
+                dimension_id,
+                score,
+            )
+            .await
+            .map_err(crate::api::handlers::common::handle_error)?
         {
             if existing_desired_state.desired_state_id != desired_state_id {
                 return Err(crate::api::handlers::common::handle_error(

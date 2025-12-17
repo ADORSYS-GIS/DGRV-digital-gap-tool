@@ -23,6 +23,7 @@ pub fn handle_error(error: AppError) -> (StatusCode, Json<serde_json::Value>) {
         AppError::BadRequest(msg) => (StatusCode::BAD_REQUEST, msg),
         AppError::InternalServerError(msg) => (StatusCode::INTERNAL_SERVER_ERROR, msg),
         AppError::AuthError(msg) => (StatusCode::UNAUTHORIZED, msg),
+        AppError::Conflict(msg) => (StatusCode::CONFLICT, msg),
         AppError::AnyhowError(err) => (StatusCode::INTERNAL_SERVER_ERROR, err.to_string()),
     };
 
