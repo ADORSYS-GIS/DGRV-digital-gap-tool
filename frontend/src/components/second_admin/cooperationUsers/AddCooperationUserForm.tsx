@@ -9,12 +9,14 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { PlusCircle } from "lucide-react";
 import { useAddCooperationUser } from "@/hooks/cooperationUsers/useAddCooperationUser";
 import { AddCooperationUser } from "@/types/cooperationUser";
 import { useAuth } from "@/context/AuthContext";
 import { ROLES } from "@/constants/roles";
+import { useDimensions } from "@/hooks/dimensions/useDimensions";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 
 /**
  * Dialog form for inviting a new user into a cooperation.
@@ -25,9 +27,13 @@ export const AddCooperationUserForm = () => {
   const [email, setEmail] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const [selectedDimensionIds, setSelectedDimensionIds] = useState<string[]>(
+    [],
+  );
   const { mutate: addUser, isPending } = useAddCooperationUser();
   const { user: currentUser } = useAuth();
   const { cooperationId } = useParams<{ cooperationId: string }>();
+  const { data: dimensions = [] } = useDimensions();
 
   const getNewUserRole = () => {
     if (currentUser?.roles?.includes(ROLES.COOP_ADMIN)) {
@@ -53,6 +59,9 @@ export const AddCooperationUserForm = () => {
       firstName,
       lastName,
       roles: [newUserRole],
+      // Only coop_users need dimension-level restrictions; coop_admins can manage all.
+      dimensionIds:
+        newUserRole === ROLES.COOP_USER ? selectedDimensionIds : undefined,
     };
     addUser(
       { user, cooperationId },
@@ -62,6 +71,7 @@ export const AddCooperationUserForm = () => {
           setEmail("");
           setFirstName("");
           setLastName("");
+          setSelectedDimensionIds([]);
         },
       },
     );
@@ -133,6 +143,42 @@ export const AddCooperationUserForm = () => {
               />
             </div>
           </div>
+          {newUserRole === ROLES.COOP_USER && (
+            <div className="space-y-2">
+              <Label>Dimensions this user can answer</Label>
+              <p className="text-xs text-muted-foreground">
+                Select the assessment dimensions that this cooperation user is
+                allowed to answer. They will only see and answer these
+                dimensions in assigned assessments.
+              </p>
+              <div className="mt-2 grid gap-2 max-h-56 overflow-y-auto rounded-md border bg-muted/40 p-3">
+                {dimensions.length === 0 && (
+                  <p className="text-xs text-muted-foreground">
+                    No dimensions available yet. Create dimensions first in the
+                    admin panel.
+                  </p>
+                )}
+                {dimensions.map((dimension) => (
+                  <label
+                    key={dimension.id}
+                    className="flex items-center gap-2 text-sm"
+                  >
+                    <Checkbox
+                      checked={selectedDimensionIds.includes(dimension.id)}
+                      onCheckedChange={(checked) => {
+                        setSelectedDimensionIds((prev) =>
+                          checked
+                            ? [...prev, dimension.id]
+                            : prev.filter((id) => id !== dimension.id),
+                        );
+                      }}
+                    />
+                    <span>{dimension.name}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
           <div className="space-y-2">
             <Label htmlFor="coop-user-role">Role</Label>
             <Input

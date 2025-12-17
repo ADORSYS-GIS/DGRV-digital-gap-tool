@@ -27,15 +27,41 @@ pub async fn add_member(
     Json(payload): Json<AddMemberRequest>,
 ) -> AppResult<impl IntoResponse> {
     // Find user by email
+    tracing::info!(
+        "add_member: incoming roles={:?}, dimension_ids={:?}",
+        payload.roles,
+        payload.dimension_ids
+    );
+
     let existing_user = state
         .keycloak_service
         .find_user_by_username_or_email(&token, &payload.email)
         .await?;
 
+    // Build attributes payload if any dimensions were provided
+    let dimension_attrs = payload
+        .dimension_ids
+        .as_ref()
+        .map(|dimension_ids| serde_json::json!({ "assigned_dimensions": dimension_ids }));
+
     let user_id = if let Some(user) = existing_user {
+        // If user exists, update attributes when provided
+        if let Some(attrs) = &dimension_attrs {
+            tracing::info!(
+                "add_member: updating existing user {} with attrs={}",
+                user.id,
+                attrs
+            );
+            state
+                .keycloak_service
+                .update_user_attributes(&token, &user.id, attrs.clone(), Some(&payload.email))
+                .await?;
+        }
         user.id
     } else {
         // Create user if not exists
+        // When creating a new user we can attach dimension-level permissions
+        // as a Keycloak attribute so they can be used later for filtering.
         let user_request = CreateUserRequest {
             username: payload.email.clone(),
             email: payload.email.clone(),
@@ -43,7 +69,7 @@ pub async fn add_member(
             last_name: payload.last_name,
             email_verified: Some(true),
             enabled: Some(true),
-            attributes: None,
+            attributes: dimension_attrs.clone(),
             credentials: None,
             required_actions: None,
         };
@@ -52,6 +78,18 @@ pub async fn add_member(
             .keycloak_service
             .create_user_with_email_verification(&token, &user_request)
             .await?;
+        // Ensure attributes are persisted by explicitly updating after creation
+        if let Some(attrs) = &dimension_attrs {
+            tracing::info!(
+                "add_member: updating newly created user {} with attrs={}",
+                new_user.id,
+                attrs
+            );
+            state
+                .keycloak_service
+                .update_user_attributes(&token, &new_user.id, attrs.clone(), Some(&payload.email))
+                .await?;
+        }
         new_user.id
     };
 
@@ -63,19 +101,27 @@ pub async fn add_member(
             .await?;
 
         if role == "coop_admin" {
-            let realm_management_roles = vec!["manage-users", "view-users", "query-users"];
+            // Required client roles for coop_admin
+            let realm_management_roles = vec![
+                "manage-users",
+                "view-users",
+                "query-users",
+                "query-groups",
+                "view-groups",
+            ];
             for role in realm_management_roles {
                 state
                     .keycloak_service
                     .assign_client_role_to_user(&token, &user_id, "realm-management", role)
                     .await?;
             }
-
-            let account_roles = vec!["view-groups"];
-            for role in account_roles {
+        } else if role == "coop_user" {
+            // Required client roles for coop_user
+            let realm_management_roles = vec!["query-groups", "view-groups", "view-users"];
+            for role in realm_management_roles {
                 state
                     .keycloak_service
-                    .assign_client_role_to_user(&token, &user_id, "account", role)
+                    .assign_client_role_to_user(&token, &user_id, "realm-management", role)
                     .await?;
             }
         }

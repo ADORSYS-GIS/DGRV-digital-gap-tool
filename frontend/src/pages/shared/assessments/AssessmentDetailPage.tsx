@@ -8,11 +8,13 @@ import { IDimension } from "@/types/dimension";
 import React, { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
+import { useAuth } from "@/context/AuthContext";
 
 const AssessmentDetailPage: React.FC = () => {
   const { assessmentId } = useParams<{ assessmentId: string }>();
   const navigate = useNavigate();
   const location = useLocation();
+  const { user } = useAuth();
   const [assessment, setAssessment] = useState<Assessment | null>(null);
   const [dimensions, setDimensions] = useState<IDimension[]>([]);
   const [loading, setLoading] = useState(true);
@@ -55,9 +57,35 @@ const AssessmentDetailPage: React.FC = () => {
 
   const { data: dimensionAssessments } = useDimensionAssessments(assessmentId);
 
+  const userRoles = useMemo(() => user?.roles || [], [user?.roles]);
+  const isCoopUserRestricted = useMemo(
+    () =>
+      userRoles.map((r) => r.toLowerCase()).includes("coop_user") &&
+      !userRoles.map((r) => r.toLowerCase()).includes("coop_admin"),
+    [userRoles],
+  );
+  const assignedDimensionIds = useMemo(
+    () => user?.assigned_dimensions || [],
+    [user?.assigned_dimensions],
+  );
+
+  const filteredDimensions = useMemo(() => {
+    if (!isCoopUserRestricted) return dimensions;
+    if (!assignedDimensionIds.length) return [];
+    return dimensions.filter((d) => assignedDimensionIds.includes(d.id));
+  }, [dimensions, assignedDimensionIds, isCoopUserRestricted]);
+
   const submittedDimensionIds = useMemo(() => {
-    return new Set(dimensionAssessments?.map((da) => da.dimensionId));
-  }, [dimensionAssessments]);
+    return new Set(
+      (dimensionAssessments || [])
+        .filter((da) =>
+          !isCoopUserRestricted
+            ? true
+            : assignedDimensionIds.includes(da.dimensionId),
+        )
+        .map((da) => da.dimensionId),
+    );
+  }, [dimensionAssessments, assignedDimensionIds, isCoopUserRestricted]);
 
   const completedPerspectives = submittedDimensionIds.size;
 
@@ -102,8 +130,8 @@ const AssessmentDetailPage: React.FC = () => {
   }
 
   const progressPercentage =
-    dimensions.length > 0
-      ? (completedPerspectives / dimensions.length) * 100
+    filteredDimensions.length > 0
+      ? (completedPerspectives / filteredDimensions.length) * 100
       : 0;
 
   return (
@@ -125,7 +153,7 @@ const AssessmentDetailPage: React.FC = () => {
               <div className="flex items-center justify-between text-xs font-medium text-muted-foreground">
                 <span>Your progress</span>
                 <span>
-                  {completedPerspectives} of {dimensions.length}
+                  {completedPerspectives} of {filteredDimensions.length}
                 </span>
               </div>
               <Progress value={progressPercentage} className="h-2" />
@@ -142,21 +170,23 @@ const AssessmentDetailPage: React.FC = () => {
             Welcome to your digital journey
           </h2>
           <p className="mx-auto mt-2 max-w-2xl text-sm text-muted-foreground">
-            Assess your cooperative across {dimensions.length} key digital
-            perspectives. Select a card below to start or continue an
+            Assess your cooperative across {filteredDimensions.length} key
+            digital perspectives. Select a card below to start or continue an
             assessment.
           </p>
         </section>
 
         {/* Dimensions grid */}
         <section aria-label="Assessment dimensions">
-          {dimensions.length === 0 ? (
+          {filteredDimensions.length === 0 ? (
             <div className="flex min-h-[160px] items-center justify-center rounded-xl border border-dashed border-muted-foreground/30 bg-muted/40 px-6 py-10 text-center text-sm text-muted-foreground">
-              No dimensions are configured for this assessment yet.
+              {isCoopUserRestricted
+                ? "No dimensions are assigned to your account for this assessment."
+                : "No dimensions are configured for this assessment yet."}
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {dimensions.map((dimension) => (
+              {filteredDimensions.map((dimension) => (
                 <DimensionCard
                   key={dimension.id}
                   dimension={dimension}

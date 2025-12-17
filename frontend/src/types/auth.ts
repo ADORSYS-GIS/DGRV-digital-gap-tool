@@ -11,6 +11,11 @@ export interface UserProfile {
   organization_name?: string;
   organization?: string;
   cooperation?: string;
+  /**
+   * Optional list of dimension IDs the user is allowed to answer.
+   * Relevant for coop_user role.
+   */
+  assigned_dimensions?: string[];
 }
 
 /**

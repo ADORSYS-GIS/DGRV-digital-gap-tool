@@ -12,6 +12,8 @@ interface CustomKeycloakTokenParsed extends KeycloakTokenParsed {
     };
   };
   cooperation?: string[];
+  // Custom attribute carrying allowed dimensions for coop_user
+  assigned_dimensions?: string[];
 }
 
 /**
@@ -115,6 +117,9 @@ export const authService = {
       }
       if (token.realm_access) {
         userProfile.realm_access = { roles: token.realm_access.roles || [] };
+      }
+      if (token.assigned_dimensions) {
+        userProfile.assigned_dimensions = token.assigned_dimensions;
       }
       const orgs = token.organizations;
       if (orgs) {
