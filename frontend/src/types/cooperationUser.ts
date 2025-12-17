@@ -10,6 +10,11 @@ export interface CooperationUser {
   cooperationId: string;
   syncStatus: SyncStatus;
   emailVerified?: boolean;
+  /**
+   * Optional list of dimension IDs that this user is allowed to answer.
+   * Only relevant for coop_user roles.
+   */
+  dimensionIds?: string[];
 }
 
 export type AddCooperationUser = Omit<

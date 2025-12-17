@@ -592,6 +592,55 @@ impl KeycloakService {
         }
     }
 
+    /// Update user attributes (e.g., to store dimension permissions)
+    pub async fn update_user_attributes(
+        &self,
+        token: &str,
+        user_id: &str,
+        attributes: serde_json::Value,
+        email: Option<&str>,
+    ) -> Result<()> {
+        let url = format!(
+            "{}/admin/realms/{}/users/{}",
+            self.config.keycloak.url, self.config.keycloak.realm, user_id
+        );
+
+        let mut payload = json!({
+            "attributes": attributes,
+        });
+
+        if let Some(email) = email {
+            // Some realms enforce email as required on update
+            payload["email"] = json!(email);
+        }
+
+        info!(url = %url, user_id = %user_id, "Updating user attributes");
+        info!("update_user_attributes payload: {}", attributes);
+
+        let response = self
+            .client
+            .put(&url)
+            .bearer_auth(token)
+            .json(&payload)
+            .send()
+            .await?;
+
+        match response.status() {
+            StatusCode::NO_CONTENT => Ok(()),
+            StatusCode::OK => Ok(()),
+            _ => {
+                let status = response.status();
+                let error_text = response.text().await?;
+                error!(status = %status, "Failed to update user attributes: {}", error_text);
+                Err(anyhow!(
+                    "Failed to update user attributes (status: {}): {}",
+                    status,
+                    error_text
+                ))
+            }
+        }
+    }
+
     /// Get user by ID
     pub async fn get_user_by_id(&self, token: &str, user_id: &str) -> Result<KeycloakUser> {
         let url = format!(

@@ -21,6 +21,15 @@ vi.mock("@/hooks/assessments/useDimensionAssessments", () => ({
   useDimensionAssessments: vi.fn(),
 }));
 
+vi.mock("@/context/AuthContext", () => ({
+  useAuth: () => ({
+    user: {
+      roles: [],
+      assigned_dimensions: [],
+    },
+  }),
+}));
+
 vi.mock("@/services/assessments/assessmentRepository", () => ({
   assessmentRepository: {
     getById: vi.fn(),

@@ -31,10 +31,13 @@ export const cooperationUserSyncService = {
     await addMember({
       groupId: user.cooperationId,
       requestBody: {
-        email: user.email,
+        email: user.email || "",
         first_name: user.firstName ?? null,
         last_name: user.lastName ?? null,
         roles: user.roles,
+        // Pass through any assigned dimensions so they can be stored as
+        // Keycloak user attributes.
+        dimension_ids: user.dimensionIds ?? undefined,
       },
     });
     await cooperationUserRepository.updateSyncStatus(

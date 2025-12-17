@@ -49,6 +49,20 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
     useCooperationIdFromPath();
   const effectiveCooperationId = cooperationId || cooperationIdFromPath || null;
   const userRoles = useMemo(() => user?.roles || [], [user?.roles]);
+  const assignedDimensionIds = useMemo(
+    () => user?.assigned_dimensions || [],
+    [user?.assigned_dimensions],
+  );
+  const isCoopUserRestricted = useMemo(
+    () =>
+      userRoles
+        .map((r) => r.toLowerCase())
+        .includes("coop_user".toLowerCase()) &&
+      !userRoles
+        .map((r) => r.toLowerCase())
+        .includes("coop_admin".toLowerCase()),
+    [userRoles],
+  );
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showResult, setShowResult] = useState(false);
@@ -112,13 +126,36 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
     return rawAssessment;
   }, [dimensionAssessments, dimensionId, dimension]);
 
+  // Allowed dimensions for this user in this assessment
+  const allowedDimensionIds = useMemo(() => {
+    if (!assessment?.dimensionIds) return [];
+    if (!isCoopUserRestricted) return assessment.dimensionIds;
+    if (!assignedDimensionIds.length) return [];
+    return assessment.dimensionIds.filter((id) =>
+      assignedDimensionIds.includes(id),
+    );
+  }, [assessment?.dimensionIds, assignedDimensionIds, isCoopUserRestricted]);
+
+  const isDimensionAllowed = useMemo(() => {
+    if (!dimensionId) return false;
+    if (!assessment?.dimensionIds) return false;
+    if (!isCoopUserRestricted) return true;
+    return allowedDimensionIds.includes(dimensionId);
+  }, [
+    dimensionId,
+    assessment?.dimensionIds,
+    allowedDimensionIds,
+    isCoopUserRestricted,
+  ]);
+
   const isLastDimension = useMemo(() => {
-    if (assessment?.dimensionIds && dimensionId) {
-      const currentIndex = assessment.dimensionIds.indexOf(dimensionId);
-      return currentIndex === assessment.dimensionIds.length - 1;
-    }
-    return false;
-  }, [assessment, dimensionId]);
+    if (!dimensionId) return false;
+    const list = allowedDimensionIds.length
+      ? allowedDimensionIds
+      : assessment?.dimensionIds || [];
+    const idx = list.indexOf(dimensionId);
+    return idx !== -1 && idx === list.length - 1;
+  }, [allowedDimensionIds, assessment?.dimensionIds, dimensionId]);
 
   useEffect(() => {
     // Reset state when dimension changes
@@ -234,19 +271,21 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
   }, [navigate, fromAssessmentDetail, assessmentId, location.pathname]);
 
   const handleContinue = useCallback(async () => {
-    if (assessment && assessment.dimensionIds && dimensionId) {
-      const currentIndex = assessment.dimensionIds.indexOf(dimensionId);
-      if (
-        currentIndex !== -1 &&
-        currentIndex < assessment.dimensionIds.length - 1
-      ) {
-        const nextDimensionId = assessment.dimensionIds[currentIndex + 1];
+    const list = (
+      allowedDimensionIds.length
+        ? allowedDimensionIds
+        : assessment?.dimensionIds
+    ) as string[] | undefined;
+    if (assessment && list && dimensionId) {
+      const currentIndex = list.indexOf(dimensionId);
+      if (currentIndex !== -1 && currentIndex < list.length - 1) {
+        const nextDimensionId = list[currentIndex + 1];
         const basePath = location.pathname.split("/")[1];
         navigate(
           `/${basePath}/assessment/${assessmentId}/dimension/${nextDimensionId}`,
         );
       } else {
-        // Last dimension, submit the full assessment
+        // Last allowed dimension, submit the full assessment
         if (assessmentId) {
           await submitFullAssessment(assessmentId);
           const basePath = location.pathname.split("/")[1];
@@ -256,11 +295,12 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
     }
   }, [
     assessment,
-    dimensionId,
     assessmentId,
     navigate,
     submitFullAssessment,
     location.pathname,
+    allowedDimensionIds,
+    dimensionId,
   ]);
 
   const handleCloseError = useCallback(() => {
@@ -287,6 +327,28 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
           <p className="font-semibold">Failed to load dimension details.</p>
           <p className="opacity-90">
             {dimensionError?.message || "Please try again later."}
+          </p>
+          <div className="pt-1">
+            <Button variant="outline" size="sm" onClick={handleBack}>
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to assessment
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Access control: coop_user can only answer assigned dimensions
+  if (isCoopUserRestricted && !isDimensionAllowed) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background px-4">
+        <div className="max-w-md space-y-4 rounded-xl border border-destructive/40 bg-destructive/10 px-6 py-5 text-sm text-destructive">
+          <p className="font-semibold">
+            You are not allowed to answer this dimension.
+          </p>
+          <p className="opacity-90">
+            This assessment dimension is not assigned to your account.
           </p>
           <div className="pt-1">
             <Button variant="outline" size="sm" onClick={handleBack}>
