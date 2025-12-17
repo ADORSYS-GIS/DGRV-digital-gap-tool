@@ -74,29 +74,29 @@ impl CurrentStatesRepository {
             .await
             .map_err(AppError::from)
     }
-   pub async fn find_by_dimension_id_and_score(
-       db: &DbConn,
-       dimension_id: Uuid,
-       score: i32,
-   ) -> Result<Option<current_states::Model>, AppError> {
-       CurrentStates::find()
-           .filter(current_states::Column::DimensionId.eq(dimension_id))
-           .filter(current_states::Column::Score.eq(score))
-           .one(db)
-           .await
-           .map_err(AppError::from)
-   }
+    pub async fn find_by_dimension_id_and_score(
+        db: &DbConn,
+        dimension_id: Uuid,
+        score: i32,
+    ) -> Result<Option<current_states::Model>, AppError> {
+        CurrentStates::find()
+            .filter(current_states::Column::DimensionId.eq(dimension_id))
+            .filter(current_states::Column::Score.eq(score))
+            .one(db)
+            .await
+            .map_err(AppError::from)
+    }
 
-   pub async fn find_by_dimension_id_and_description(
-       db: &DbConn,
-       dimension_id: Uuid,
-       description: String,
-   ) -> Result<Option<current_states::Model>, AppError> {
-       CurrentStates::find()
-           .filter(current_states::Column::DimensionId.eq(dimension_id))
-           .filter(current_states::Column::Description.eq(description))
-           .one(db)
-           .await
-           .map_err(AppError::from)
-   }
+    pub async fn find_by_dimension_id_and_description(
+        db: &DbConn,
+        dimension_id: Uuid,
+        description: String,
+    ) -> Result<Option<current_states::Model>, AppError> {
+        CurrentStates::find()
+            .filter(current_states::Column::DimensionId.eq(dimension_id))
+            .filter(current_states::Column::Description.eq(description))
+            .one(db)
+            .await
+            .map_err(AppError::from)
+    }
 }
