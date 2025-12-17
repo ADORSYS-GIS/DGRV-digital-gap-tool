@@ -83,6 +83,7 @@ impl MigrationTrait for Migration {
     }
 }
 
+#[allow(dead_code)]
 #[derive(DeriveIden)]
 enum Recommendations {
     Table,

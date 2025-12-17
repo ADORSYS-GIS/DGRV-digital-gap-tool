@@ -8,7 +8,6 @@ use axum::{
     response::IntoResponse,
     Json,
 };
-use serde_json::json;
 
 /// Add a member to a group (cooperation)
 #[utoipa::path(

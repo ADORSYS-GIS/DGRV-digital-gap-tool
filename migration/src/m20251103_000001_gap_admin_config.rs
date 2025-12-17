@@ -17,6 +17,7 @@ impl MigrationTrait for Migration {
     }
 }
 
+#[allow(dead_code)]
 #[derive(DeriveIden)]
 enum GapSeverityRules {
     Table,
@@ -29,6 +30,7 @@ enum GapSeverityRules {
     UpdatedAt,
 }
 
+#[allow(dead_code)]
 #[derive(DeriveIden)]
 enum GapDescriptions {
     Table,
