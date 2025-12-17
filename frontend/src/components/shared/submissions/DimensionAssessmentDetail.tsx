@@ -64,17 +64,31 @@ export const DimensionAssessmentDetail = ({
   return (
     <div className="space-y-6 p-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <p className="font-semibold text-gray-600 mb-1">Current State</p>
-          <p className="text-gray-800 bg-gray-50 p-3 rounded-md">
-            {currentState?.description || "N/A"}
-          </p>
+        <div
+          className={`p-4 rounded-lg ${
+            currentState &&
+            desiredState &&
+            currentState.level < desiredState.level
+              ? "bg-red-100"
+              : "bg-green-100"
+          }`}
+        >
+          <p className="font-semibold text-gray-600 mb-1">Your Current Level</p>
+          <p className="text-2xl font-bold">{currentState?.level}</p>
+          <p className="text-gray-800">{currentState?.description || "N/A"}</p>
         </div>
-        <div>
-          <p className="font-semibold text-gray-600 mb-1">Desired State</p>
-          <p className="text-gray-800 bg-gray-50 p-3 rounded-md">
-            {desiredState?.description || "N/A"}
-          </p>
+        <div
+          className={`p-4 rounded-lg ${
+            currentState &&
+            desiredState &&
+            currentState.level > desiredState.level
+              ? "bg-red-100"
+              : "bg-green-100"
+          }`}
+        >
+          <p className="font-semibold text-gray-600 mb-1">Your Desired Level</p>
+          <p className="text-2xl font-bold">{desiredState?.level}</p>
+          <p className="text-gray-800">{desiredState?.description || "N/A"}</p>
         </div>
       </div>
       <div>
@@ -87,7 +101,7 @@ export const DimensionAssessmentDetail = ({
             <Lightbulb className="h-6 w-6 text-blue-600 mr-3 flex-shrink-0 mt-1" />
             <div>
               <p className="font-semibold text-blue-800">Gap Description</p>
-              <p className="text-gray-700 mt-1">{gap.scope}</p>
+              <p className="text-gray-700 mt-1">{gap.description}</p>
             </div>
           </div>
         </div>

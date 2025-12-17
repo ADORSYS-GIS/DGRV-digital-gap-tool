@@ -37,6 +37,9 @@ interface EditAssessmentFormProps {
   assessment: Assessment;
 }
 
+/**
+ * Dialog form for updating an existing draft assessment.
+ */
 export function EditAssessmentForm({
   isOpen,
   onClose,
@@ -50,7 +53,7 @@ export function EditAssessmentForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: assessment.name,
-      dimensionIds: [], // Add logic to get the dimensions of the assessment
+      dimensionIds: assessment.dimensionIds ?? [],
     },
   });
 
@@ -73,20 +76,30 @@ export function EditAssessmentForm({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent>
+      <DialogContent className="sm:max-w-[520px]">
         <DialogHeader>
-          <DialogTitle>Edit Assessment</DialogTitle>
+          <DialogTitle className="text-lg font-semibold">
+            Edit assessment
+          </DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-5 pt-2"
+          >
             <FormField
               control={form.control}
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Assessment Name</FormLabel>
+                  <FormLabel>
+                    Assessment name <span className="text-destructive">*</span>
+                  </FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., Q4 Security Review" {...field} />
+                    <Input
+                      placeholder="e.g. 2025 Digital Maturity Baseline"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -97,17 +110,21 @@ export function EditAssessmentForm({
               name="dimensionIds"
               render={({ field }) => (
                 <FormItem>
-                  <div className="mb-4">
-                    <FormLabel>Dimensions</FormLabel>
+                  <div className="mb-1">
+                    <FormLabel>
+                      Dimensions <span className="text-destructive">*</span>
+                    </FormLabel>
                   </div>
                   {isLoadingDimensions ? (
-                    <LoadingSpinner />
+                    <div className="flex items-center justify-center py-4">
+                      <LoadingSpinner />
+                    </div>
                   ) : (
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                    <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
                       {dimensions?.map((dimension) => (
                         <FormItem
                           key={dimension.id}
-                          className="flex flex-row items-start space-x-3 space-y-0"
+                          className="flex flex-row items-start space-x-3 space-y-0 rounded-md border border-muted bg-muted/40 px-3 py-2"
                         >
                           <FormControl>
                             <Checkbox
@@ -139,12 +156,12 @@ export function EditAssessmentForm({
                 </FormItem>
               )}
             />
-            <DialogFooter>
-              <Button type="button" variant="ghost" onClick={onClose}>
+            <DialogFooter className="pt-2">
+              <Button type="button" variant="outline" onClick={onClose}>
                 Cancel
               </Button>
               <Button type="submit" disabled={isUpdating}>
-                {isUpdating ? "Saving..." : "Save Changes"}
+                {isUpdating ? "Saving…" : "Save changes"}
               </Button>
             </DialogFooter>
           </form>

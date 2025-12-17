@@ -29,7 +29,7 @@ pub fn create_api_routes(_app_state: AppState) -> Router<AppState> {
         .route("/assessments/:id/summary", get(get_assessment_summary))
         .route(
             "/assessments/:id/dimension-assessments",
-            post(create_dimension_assessment),
+            post(create_dimension_assessment).get(list_dimension_assessments),
         )
         .route(
             "/assessments/:assessment_id/dimension-assessments/:dimension_assessment_id",

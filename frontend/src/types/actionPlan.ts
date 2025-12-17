@@ -6,6 +6,7 @@ export interface ActionItem {
   title: string;
   description: string;
   dimension: string;
+  action_plan_id: string;
 }
 
 export interface ActionPlan {

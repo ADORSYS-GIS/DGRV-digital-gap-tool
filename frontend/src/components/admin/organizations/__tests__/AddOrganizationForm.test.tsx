@@ -29,6 +29,8 @@ describe("AddOrganizationForm", () => {
     });
 
     // Submit the form
-    fireEvent.click(screen.getByRole("button", { name: "Add Organization" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: "Create Organization" }),
+    );
   });
 });

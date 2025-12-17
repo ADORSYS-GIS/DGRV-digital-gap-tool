@@ -544,6 +544,61 @@ export const dimensionAssessmentRepository = {
   getByAssessment: async (
     assessmentId: string,
   ): Promise<IDimensionAssessment[]> => {
+    // Try to fetch from backend first if online
+    if (navigator.onLine) {
+      try {
+        const { listDimensionAssessments } = await import(
+          "../../openapi-client/services.gen"
+        );
+
+        const response = await listDimensionAssessments({
+          assessmentId: assessmentId,
+        });
+
+        if (response.data?.dimension_assessments) {
+          // Map the API response to our domain model and store in IndexedDB
+          const assessments: IDimensionAssessment[] =
+            response.data.dimension_assessments.map((da) => ({
+              id: da.dimension_assessment_id,
+              dimensionId: da.dimension_id,
+              assessmentId: da.assessment_id,
+              currentState: {
+                id: da.current_state_id,
+                dimensionId: da.dimension_id,
+                level: 0, // Will be populated from states
+                description: "",
+                createdAt: da.created_at,
+                updatedAt: da.updated_at,
+              },
+              desiredState: {
+                id: da.desired_state_id,
+                dimensionId: da.dimension_id,
+                level: 0, // Will be populated from states
+                description: "",
+                createdAt: da.created_at,
+                updatedAt: da.updated_at,
+              },
+              gap_id: da.gap_id,
+              createdAt: da.created_at,
+              updatedAt: da.updated_at,
+              syncStatus: SyncStatus.SYNCED,
+              lastError: "",
+            }));
+
+          // Store in IndexedDB for offline access
+          for (const assessment of assessments) {
+            await db.dimensionAssessments.put(assessment);
+          }
+
+          return assessments;
+        }
+      } catch (error) {
+        console.error("Error fetching dimension assessments from API:", error);
+        // Fall through to local DB
+      }
+    }
+
+    // Fall back to local DB if offline or API call fails
     return db.dimensionAssessments
       .where("assessmentId")
       .equals(assessmentId)

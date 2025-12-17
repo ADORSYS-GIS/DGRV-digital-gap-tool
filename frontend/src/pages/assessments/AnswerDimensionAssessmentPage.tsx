@@ -4,8 +4,6 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { useOrganizationId } from "@/hooks/organizations/useOrganizationId";
 import { useCooperationId } from "@/hooks/cooperations/useCooperationId";
-// Core React and routing
-// Material-UI components
 import { DimensionAssessmentAnswer } from "@/components/assessment/answering/DimensionAssessmentAnswer";
 import { GapDescriptionDisplay } from "@/components/assessment/answering/GapDescriptionDisplay";
 import { DimensionIcon } from "@/components/shared/DimensionIcon";
@@ -19,18 +17,8 @@ import {
   IDimensionState,
   IDimensionWithStates,
 } from "@/types/dimension";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import {
-  Alert,
-  Box,
-  Button,
-  CircularProgress,
-  Container,
-  Snackbar,
-  Typography,
-  useMediaQuery,
-  useTheme,
-} from "@mui/material";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
 
 interface RouteParams extends Record<string, string | undefined> {
   assessmentId: string;
@@ -51,8 +39,6 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
   const { assessmentId, dimensionId } = useParams<RouteParams>();
   const navigate = useNavigate();
   const location = useLocation();
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   // Get user info and IDs
   const { user } = useAuth();
@@ -91,8 +77,36 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
   );
 
   const existingAssessment = useMemo(() => {
-    return dimensionAssessments?.find((da) => da.dimensionId === dimensionId);
-  }, [dimensionAssessments, dimensionId]);
+    const rawAssessment = dimensionAssessments?.find(
+      (da) => da.dimensionId === dimensionId,
+    );
+
+    // If we have an existing assessment and dimension data, enrich it with actual levels
+    if (rawAssessment && dimension) {
+      const currentState = dimension.current_states?.find(
+        (s) => s.id === rawAssessment.currentState.id,
+      );
+      const desiredState = dimension.desired_states?.find(
+        (s) => s.id === rawAssessment.desiredState.id,
+      );
+
+      return {
+        ...rawAssessment,
+        currentState: {
+          ...rawAssessment.currentState,
+          level: currentState?.level || 0,
+          description: currentState?.description || "",
+        },
+        desiredState: {
+          ...rawAssessment.desiredState,
+          level: desiredState?.level || 0,
+          description: desiredState?.description || "",
+        },
+      };
+    }
+
+    return rawAssessment;
+  }, [dimensionAssessments, dimensionId, dimension]);
 
   const isLastDimension = useMemo(() => {
     if (assessment?.dimensionIds && dimensionId) {
@@ -249,107 +263,145 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
   // Loading state
   if (isLoading) {
     return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        minHeight="60vh"
-        data-testid="loading-indicator"
-      >
-        <CircularProgress />
-      </Box>
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+          <span>Loading assessment…</span>
+        </div>
+      </div>
     );
   }
 
   // Error state
   if (dimensionError || !dimension) {
     return (
-      <Container maxWidth="md" sx={{ py: 4 }}>
-        <Box
-          bgcolor="error.light"
-          color="error.contrastText"
-          p={2}
-          mb={2}
-          borderRadius={1}
-        >
-          Failed to load dimension details.{" "}
-          {dimensionError?.message || "Please try again later."}
-        </Box>
-        <Button
-          variant="outlined"
-          onClick={handleBack}
-          startIcon={<ArrowBackIcon />}
-        >
-          Back to Assessment
-        </Button>
-      </Container>
+      <div className="flex min-h-screen items-center justify-center bg-background px-4">
+        <div className="max-w-md space-y-4 rounded-xl border border-destructive/40 bg-destructive/10 px-6 py-5 text-sm text-destructive">
+          <p className="font-semibold">Failed to load dimension details.</p>
+          <p className="opacity-90">
+            {dimensionError?.message || "Please try again later."}
+          </p>
+          <div className="pt-1">
+            <Button variant="outline" size="sm" onClick={handleBack}>
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to assessment
+            </Button>
+          </div>
+        </div>
+      </div>
     );
   }
 
   return (
-    <Container maxWidth="md" sx={{ py: isMobile ? 2 : 4 }}>
-      <Box mb={3} display="flex" flexDirection="column" alignItems="center">
-        <DimensionIcon
-          name={dimension.name}
-          className="w-16 h-16 mb-2 text-primary"
-        />
-        <Typography variant="h4" component="h1" sx={{ color: "primary.main" }}>
-          {dimension.name} Assessment
-        </Typography>
-      </Box>
-
-      <Snackbar
-        open={!!error}
-        autoHideDuration={6000}
-        onClose={handleCloseError}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <Alert
-          onClose={handleCloseError}
-          severity="error"
-          sx={{ width: "100%" }}
-        >
-          {error}
-        </Alert>
-      </Snackbar>
-
-      <DimensionAssessmentAnswer
-        dimension={{
-          ...dimension,
-          currentState: dimension.currentState || null,
-          desiredState: dimension.desiredState || null,
-        }}
-        isSubmitting={isSubmitting}
-        onSubmit={handleSubmit}
-        error={error || null}
-        existingAssessment={existingAssessment || null}
-      />
-
-      {showResult && gapId && submittedData && (
-        <GapDescriptionDisplay
-          gapId={gapId}
-          currentLevel={submittedData.currentLevel}
-          desiredLevel={submittedData.desiredLevel}
-          currentLevelDescription={submittedData.currentLevelDescription || ""}
-          desiredLevelDescription={submittedData.desiredLevelDescription || ""}
-        />
-      )}
-
-      {showResult && (
-        <Box mt={4} display="flex" justifyContent="center">
+    <div className="min-h-screen bg-background">
+      <div className="mx-auto flex max-w-4xl flex-col gap-6 px-4 py-8 sm:px-6 lg:px-8">
+        {/* Back link */}
+        <div>
           <Button
-            variant="contained"
-            color="primary"
-            onClick={handleContinue}
-            data-testid="continue-button"
+            variant="ghost"
+            size="sm"
+            className="inline-flex items-center gap-2 px-0 text-sm font-medium text-muted-foreground hover:text-foreground"
+            onClick={handleBack}
           >
-            {isLastDimension
-              ? "Finish Assessment"
-              : "Continue to Next Assessment"}
+            <ArrowLeft className="h-4 w-4" />
+            Back
           </Button>
-        </Box>
-      )}
-    </Container>
+        </div>
+
+        {/* Header */}
+        <header className="flex flex-col items-center gap-3 text-center">
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <DimensionIcon
+              name={dimension.name}
+              className="h-8 w-8 text-primary"
+            />
+          </div>
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+              {dimension.name} assessment
+            </h1>
+            {dimension.description && (
+              <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
+                {dimension.description}
+              </p>
+            )}
+          </div>
+        </header>
+
+        {/* Inline error banner */}
+        {error && (
+          <div className="rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+            <div className="flex items-start justify-between gap-3">
+              <p>{error}</p>
+              <button
+                type="button"
+                onClick={handleCloseError}
+                className="text-xs font-medium underline underline-offset-2"
+              >
+                Dismiss
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Main answer form */}
+        <DimensionAssessmentAnswer
+          dimension={{
+            ...dimension,
+            currentState: dimension.currentState || null,
+            desiredState: dimension.desiredState || null,
+          }}
+          isSubmitting={isSubmitting}
+          onSubmit={handleSubmit}
+          error={error || null}
+          existingAssessment={existingAssessment || null}
+        />
+
+        {/* Show analysis for both new submissions and existing assessments */}
+        {((showResult && gapId && submittedData) ||
+          (existingAssessment?.gap_id &&
+            existingAssessment.currentState.level > 0 &&
+            existingAssessment.desiredState.level > 0)) && (
+          <GapDescriptionDisplay
+            gapId={(showResult && gapId) || existingAssessment?.gap_id || ""}
+            currentLevel={
+              submittedData?.currentLevel ||
+              existingAssessment?.currentState.level ||
+              0
+            }
+            desiredLevel={
+              submittedData?.desiredLevel ||
+              existingAssessment?.desiredState.level ||
+              0
+            }
+            currentLevelDescription={
+              submittedData?.currentLevelDescription ||
+              existingAssessment?.currentState.description ||
+              ""
+            }
+            desiredLevelDescription={
+              submittedData?.desiredLevelDescription ||
+              existingAssessment?.desiredState.description ||
+              ""
+            }
+          />
+        )}
+
+        {showResult && (
+          <div className="flex justify-center pb-4 pt-2">
+            <Button
+              variant="default"
+              size="lg"
+              onClick={handleContinue}
+              data-testid="continue-button"
+              className="min-w-[220px]"
+            >
+              {isLastDimension ? "Finish assessment" : "Continue to next topic"}
+            </Button>
+          </div>
+        )}
+      </div>
+    </div>
   );
 };
 

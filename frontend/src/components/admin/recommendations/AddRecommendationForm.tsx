@@ -1,4 +1,5 @@
 import React from "react";
+import { Lightbulb, Layers, AlertCircle, FileText } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -136,107 +137,142 @@ export function AddRecommendationForm({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[600px]">
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <DialogHeader>
-              <DialogTitle>Add New Recommendation</DialogTitle>
-              <DialogDescription>
-                Fill in the details below to create a new recommendation.
-              </DialogDescription>
-            </DialogHeader>
-
-            <div className="grid gap-4 py-4">
-              <FormField
-                control={form.control}
-                name="dimension_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Dimension *</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a dimension" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {dimensions.map((dimension) => (
-                          <SelectItem key={dimension.id} value={dimension.id}>
-                            {dimension.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="priority"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Priority *</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select priority" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="LOW">Low</SelectItem>
-                        <SelectItem value="MEDIUM">Medium</SelectItem>
-                        <SelectItem value="HIGH">High</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Description *</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Enter detailed description"
-                        className="min-h-[120px]"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+      <DialogContent className="sm:max-w-[600px] p-0 overflow-hidden rounded-2xl border-0 shadow-2xl">
+        <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent p-6 border-b border-primary/10">
+          <DialogHeader className="mb-0">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2 rounded-lg bg-primary/10 text-primary">
+                <Lightbulb className="h-5 w-5" />
+              </div>
+              <DialogTitle className="text-2xl font-bold text-gray-900">
+                Add New Recommendation
+              </DialogTitle>
             </div>
+            <DialogDescription className="text-sm text-muted-foreground pl-12">
+              Fill in the details below to create a new recommendation.
+            </DialogDescription>
+          </DialogHeader>
+        </div>
 
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={onClose}
-                disabled={addRecommendation.isPending}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" disabled={addRecommendation.isPending}>
-                {addRecommendation.isPending
-                  ? "Adding..."
-                  : "Add Recommendation"}
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
+        <div className="p-6 pt-4">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+              <div className="grid gap-5">
+                <FormField
+                  control={form.control}
+                  name="dimension_id"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-700">
+                        Dimension *
+                      </FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <div className="relative">
+                            <Layers className="absolute left-3 top-3 h-4 w-4 text-gray-400 z-10" />
+                            <SelectTrigger className="pl-10 h-11 rounded-lg border-gray-200 focus:border-primary focus:ring-primary/20 transition-all">
+                              <SelectValue placeholder="Select a dimension" />
+                            </SelectTrigger>
+                          </div>
+                        </FormControl>
+                        <SelectContent>
+                          {dimensions.map((dimension) => (
+                            <SelectItem key={dimension.id} value={dimension.id}>
+                              {dimension.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="priority"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-700">
+                        Priority *
+                      </FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <div className="relative">
+                            <AlertCircle className="absolute left-3 top-3 h-4 w-4 text-gray-400 z-10" />
+                            <SelectTrigger className="pl-10 h-11 rounded-lg border-gray-200 focus:border-primary focus:ring-primary/20 transition-all">
+                              <SelectValue placeholder="Select priority" />
+                            </SelectTrigger>
+                          </div>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="LOW">Low</SelectItem>
+                          <SelectItem value="MEDIUM">Medium</SelectItem>
+                          <SelectItem value="HIGH">High</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-700">
+                        Description *
+                      </FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <FileText className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                          <Textarea
+                            placeholder="Enter detailed description"
+                            className="pl-10 min-h-[120px] rounded-lg border-gray-200 focus:border-primary focus:ring-primary/20 transition-all resize-none"
+                            {...field}
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="pt-2 flex gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={onClose}
+                  disabled={addRecommendation.isPending}
+                  className="flex-1 h-11 rounded-lg border-gray-200 hover:bg-gray-50 text-gray-700"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={addRecommendation.isPending}
+                  className="flex-1 h-11 rounded-lg bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white font-medium shadow-md hover:shadow-lg transition-all duration-300"
+                >
+                  {addRecommendation.isPending ? (
+                    <span className="flex items-center gap-2">
+                      <span className="animate-spin">⏳</span> Adding...
+                    </span>
+                  ) : (
+                    "Add Recommendation"
+                  )}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </div>
       </DialogContent>
     </Dialog>
   );

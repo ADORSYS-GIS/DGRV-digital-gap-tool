@@ -43,6 +43,12 @@ const ManageDigitalGaps = React.lazy(
   () => import("../pages/admin/ManageDigitalGaps"),
 );
 const ViewReports = React.lazy(() => import("../pages/admin/ViewReports"));
+const OrganizationReportsPage = React.lazy(
+  () => import("../pages/admin/OrganizationReportsPage"),
+);
+const ExportReportPage = React.lazy(
+  () => import("../pages/admin/ExportReportPage"),
+);
 const SecondAdminDashboard = React.lazy(
   () => import("../pages/second_admin/SecondAdminDashboard"),
 );
@@ -149,6 +155,14 @@ const routes = [
       {
         path: "reports",
         element: React.createElement(ViewReports),
+      },
+      {
+        path: "reports/:organizationId",
+        element: React.createElement(OrganizationReportsPage),
+      },
+      {
+        path: "reports/:organizationId/:submissionId/export",
+        element: React.createElement(ExportReportPage),
       },
     ],
   },

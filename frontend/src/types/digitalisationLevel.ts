@@ -18,9 +18,11 @@ export interface IDigitalisationLevel extends OfflineEntity {
 export interface ICreateCurrentStateRequest extends CreateCurrentStateRequest {
   id?: string; // Temporary ID for offline creation
   levelType: LevelType; // Add levelType for internal use
+  level?: string | null;
 }
 
 export interface ICreateDesiredStateRequest extends CreateDesiredStateRequest {
   id?: string; // Temporary ID for offline creation
   levelType: LevelType; // Add levelType for internal use
+  level?: string | null;
 }
