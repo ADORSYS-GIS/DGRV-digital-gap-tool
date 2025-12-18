@@ -7,6 +7,7 @@ import {
   ClipboardList,
   ClipboardCheck,
   BarChart3,
+  FileText,
 } from "lucide-react";
 import { Sidebar } from "@/components/shared/Sidebar";
 
@@ -32,6 +33,16 @@ const navLinks = [
     to: "/second-admin/submissions",
     icon: ClipboardCheck,
     text: "Submissions",
+  },
+  {
+    to: "/second-admin/reports",
+    icon: BarChart3,
+    text: "View Reports",
+  },
+  {
+    to: "/second-admin/consolidated-report",
+    icon: FileText,
+    text: "Consolidated Report",
   },
 ];
 

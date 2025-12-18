@@ -68,8 +68,17 @@
         "attributes": {}
       },
       {
+        "id": "bbdd130b-a06c-4509-974e-4e99b1f89961",
+        "name": "coop_user",
+        "description": "",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "2f846b6a-f462-44ed-9e2a-87a0456a3aad",
+        "attributes": {}
+      },
+      {
         "id": "96d8c9c7-ad49-4c54-ac0b-94afcf46231c",
-        "name": "default-roles-digital-gap",
+        "name": "default-roles-sustainability-realm",
         "description": "${role_default-roles}",
         "composite": true,
         "composites": {
@@ -493,31 +502,10 @@
       ]
     }
   },
-  "groups": [
-    {
-      "id": "33fe702a-9bbd-4c15-88de-4fdd529c4e11",
-      "name": "e906d5f1-e92f-409b-8d1e-5e25c4754ac7-qwerty",
-      "description": "qwertyuio",
-      "path": "/e906d5f1-e92f-409b-8d1e-5e25c4754ac7-qwerty",
-      "subGroups": [],
-      "attributes": {},
-      "realmRoles": [],
-      "clientRoles": {}
-    },
-    {
-      "id": "36073918-2463-4ec0-9c9e-edfeeefc2b15",
-      "name": "e906d5f1-e92f-409b-8d1e-5e25c4754ac7-tttttttttt",
-      "description": "ttttttttt",
-      "path": "/e906d5f1-e92f-409b-8d1e-5e25c4754ac7-tttttttttt",
-      "subGroups": [],
-      "attributes": {},
-      "realmRoles": [],
-      "clientRoles": {}
-    }
-  ],
+  "groups": [],
   "defaultRole": {
     "id": "96d8c9c7-ad49-4c54-ac0b-94afcf46231c",
-    "name": "default-roles-digital-gap",
+    "name": "default-roles-sustainability-realm",
     "description": "${role_default-roles}",
     "composite": true,
     "clientRole": false,
@@ -592,13 +580,13 @@
       "clientId": "account",
       "name": "${client_account}",
       "rootUrl": "${authBaseUrl}",
-      "baseUrl": "/realms/digital-gap/account/",
+      "baseUrl": "/realms/sustainability-realm/account/",
       "surrogateAuthRequired": false,
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
       "redirectUris": [
-        "/realms/digital-gap/account/*"
+        "/realms/sustainability-realm/account/*"
       ],
       "webOrigins": [],
       "notBefore": 0,
@@ -639,14 +627,14 @@
       "clientId": "account-console",
       "name": "${client_account-console}",
       "rootUrl": "${authBaseUrl}",
-      "baseUrl": "/realms/digital-gap/account/",
+      "baseUrl": "/realms/sustainability-realm/account/",
       "surrogateAuthRequired": false,
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
       "redirectUris": [
-        "/realms/digital-gap/account/*",
-        "/realms/digital-gap/portal/*"
+        "/realms/sustainability-realm/account/*",
+        "/realms/sustainability-realm/portal/*"
       ],
       "webOrigins": [],
       "notBefore": 0,
@@ -743,13 +731,13 @@
       "name": "Admin portal",
       "description": "Portal for self-administration of profile and organizations.",
       "rootUrl": "${authBaseUrl}",
-      "baseUrl": "/realms/digital-gap/portal/",
+      "baseUrl": "/realms/sustainability-realm/portal/",
       "surrogateAuthRequired": false,
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
       "redirectUris": [
-        "/realms/digital-gap/portal/*"
+        "/realms/sustainability-realm/portal/*"
       ],
       "webOrigins": [
         "/*"
@@ -930,13 +918,13 @@
       "name": "IdP Config Wizard",
       "description": "Wizards for configuring various vendor IdPs.",
       "rootUrl": "${authBaseUrl}",
-      "baseUrl": "/realms/digital-gap/wizard/",
+      "baseUrl": "/realms/sustainability-realm/wizard/",
       "surrogateAuthRequired": false,
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
       "redirectUris": [
-        "/realms/digital-gap/wizard/*"
+        "/realms/sustainability-realm/wizard/*"
       ],
       "webOrigins": [
         "/*"
@@ -1053,13 +1041,13 @@
       "clientId": "security-admin-console",
       "name": "${client_security-admin-console}",
       "rootUrl": "${authAdminUrl}",
-      "baseUrl": "/admin/digital-gap/console/",
+      "baseUrl": "/admin/sustainability-realm/console/",
       "surrogateAuthRequired": false,
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
       "redirectUris": [
-        "/admin/digital-gap/console/*"
+        "/admin/sustainability-realm/console/*"
       ],
       "webOrigins": [
         "+"
@@ -1800,39 +1788,6 @@
       ]
     },
     {
-      "id": "6a4232ce-5ac7-46b5-aa3a-0efce4bfd3e6",
-      "name": "user_attributes",
-      "description": "",
-      "protocol": "openid-connect",
-      "attributes": {
-        "include.in.token.scope": "false",
-        "display.on.consent.screen": "true",
-        "gui.order": "",
-        "consent.screen.text": ""
-      },
-      "protocolMappers": [
-        {
-          "id": "f6cc1f23-2434-4a9b-a49c-c52737eb6254",
-          "name": "categories",
-          "protocol": "openid-connect",
-          "protocolMapper": "oidc-usermodel-attribute-mapper",
-          "consentRequired": false,
-          "config": {
-            "aggregate.attrs": "false",
-            "introspection.token.claim": "true",
-            "multivalued": "true",
-            "userinfo.token.claim": "true",
-            "user.attribute": "categories",
-            "id.token.claim": "true",
-            "lightweight.claim": "false",
-            "access.token.claim": "true",
-            "claim.name": "categories",
-            "jsonType.label": "String"
-          }
-        }
-      ]
-    },
-    {
       "id": "8bbcfa47-095a-4214-a585-63f249a0e8c8",
       "name": "microprofile-jwt",
       "description": "Microprofile - JWT built-in scope",
@@ -1872,6 +1827,38 @@
             "id.token.claim": "true",
             "access.token.claim": "true",
             "claim.name": "upn",
+            "jsonType.label": "String"
+          }
+        }
+      ]
+    },
+    {
+      "id": "1bcc687c-cfb2-4ae3-a888-d9739c2a38b2",
+      "name": "user_attributes",
+      "description": "",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "false",
+        "display.on.consent.screen": "true",
+        "gui.order": "",
+        "consent.screen.text": ""
+      },
+      "protocolMappers": [
+        {
+          "id": "13e2f546-41df-4d18-8eb8-db9531f5465e",
+          "name": "assigned_dimensions",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "introspection.token.claim": "true",
+            "userinfo.token.claim": "true",
+            "multivalued": "true",
+            "user.attribute": "assigned_dimensions",
+            "id.token.claim": "true",
+            "lightweight.claim": "false",
+            "access.token.claim": "true",
+            "claim.name": "assigned_dimensions",
             "jsonType.label": "String"
           }
         }
@@ -1944,8 +1931,8 @@
     "basic",
     "org",
     "realm_roles",
-    "user_attributes",
-    "cooperation"
+    "cooperation",
+    "user_attributes"
   ],
   "defaultOptionalClientScopes": [
     "offline_access",
@@ -2056,14 +2043,14 @@
         "subComponents": {},
         "config": {
           "allowed-protocol-mapper-types": [
+            "oidc-sha256-pairwise-sub-mapper",
+            "oidc-usermodel-attribute-mapper",
+            "saml-user-property-mapper",
             "oidc-full-name-mapper",
-            "oidc-usermodel-property-mapper",
             "saml-user-attribute-mapper",
             "oidc-address-mapper",
-            "saml-role-list-mapper",
-            "saml-user-property-mapper",
-            "oidc-sha256-pairwise-sub-mapper",
-            "oidc-usermodel-attribute-mapper"
+            "oidc-usermodel-property-mapper",
+            "saml-role-list-mapper"
           ]
         }
       },
@@ -2087,14 +2074,14 @@
         "subComponents": {},
         "config": {
           "allowed-protocol-mapper-types": [
-            "oidc-full-name-mapper",
-            "saml-user-property-mapper",
-            "saml-role-list-mapper",
-            "oidc-address-mapper",
-            "saml-user-attribute-mapper",
-            "oidc-sha256-pairwise-sub-mapper",
             "oidc-usermodel-attribute-mapper",
-            "oidc-usermodel-property-mapper"
+            "oidc-sha256-pairwise-sub-mapper",
+            "saml-user-property-mapper",
+            "oidc-usermodel-property-mapper",
+            "oidc-address-mapper",
+            "saml-role-list-mapper",
+            "saml-user-attribute-mapper",
+            "oidc-full-name-mapper"
           ]
         }
       }
@@ -2106,7 +2093,7 @@
         "subComponents": {},
         "config": {
           "kc.user.profile.config": [
-            "{\"attributes\":[{\"name\":\"username\",\"displayName\":\"${username}\",\"validations\":{\"length\":{\"min\":3,\"max\":255},\"username-prohibited-characters\":{},\"up-username-not-idn-homograph\":{}},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"multivalued\":false},{\"name\":\"email\",\"displayName\":\"${email}\",\"validations\":{\"email\":{},\"length\":{\"max\":255}},\"required\":{\"roles\":[\"user\"]},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"multivalued\":false},{\"name\":\"firstName\",\"displayName\":\"${firstName}\",\"validations\":{\"length\":{\"max\":255},\"person-name-prohibited-characters\":{}},\"required\":{\"roles\":[\"user\"]},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"multivalued\":false},{\"name\":\"lastName\",\"displayName\":\"${lastName}\",\"validations\":{\"length\":{\"max\":255},\"person-name-prohibited-characters\":{}},\"required\":{\"roles\":[\"user\"]},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"multivalued\":false},{\"name\":\"org.ro.active\",\"displayName\":\"Active organization ID\",\"permissions\":{\"view\":[\"admin\"],\"edit\":[\"admin\"]},\"multivalued\":false},{\"name\":\"categories\",\"displayName\":\"categories\",\"validations\":{},\"annotations\":{},\"permissions\":{\"view\":[],\"edit\":[\"admin\"]},\"multivalued\":true}],\"groups\":[{\"name\":\"user-metadata\",\"displayHeader\":\"User metadata\",\"displayDescription\":\"Attributes, which refer to user metadata\"}]}"
+            "{\"attributes\":[{\"name\":\"username\",\"displayName\":\"${username}\",\"validations\":{\"length\":{\"min\":3,\"max\":255},\"username-prohibited-characters\":{},\"up-username-not-idn-homograph\":{}},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"multivalued\":false},{\"name\":\"email\",\"displayName\":\"${email}\",\"validations\":{\"email\":{},\"length\":{\"max\":255}},\"required\":{\"roles\":[\"user\"]},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"multivalued\":false},{\"name\":\"firstName\",\"displayName\":\"${firstName}\",\"validations\":{\"length\":{\"max\":255},\"person-name-prohibited-characters\":{}},\"required\":{\"roles\":[\"user\"]},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"multivalued\":false},{\"name\":\"lastName\",\"displayName\":\"${lastName}\",\"validations\":{\"length\":{\"max\":255},\"person-name-prohibited-characters\":{}},\"required\":{\"roles\":[\"user\"]},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"multivalued\":false},{\"name\":\"org.ro.active\",\"displayName\":\"Active organization ID\",\"permissions\":{\"view\":[\"admin\"],\"edit\":[\"admin\"]},\"multivalued\":false},{\"name\":\"categories\",\"displayName\":\"categories\",\"validations\":{},\"annotations\":{},\"permissions\":{\"view\":[],\"edit\":[\"admin\"]},\"multivalued\":true},{\"name\":\"assigned_dimensions\",\"displayName\":\"assigned_dimensions\",\"validations\":{},\"annotations\":{},\"permissions\":{\"view\":[],\"edit\":[\"admin\"]},\"multivalued\":true}],\"groups\":[{\"name\":\"user-metadata\",\"displayHeader\":\"User metadata\",\"displayDescription\":\"Attributes, which refer to user metadata\"}]}"
           ]
         }
       }

@@ -205,6 +205,22 @@ const AdminDashboard: React.FC = () => {
               variant="default"
             />
           </Link>
+          <Link to="/admin/reports">
+            <DashboardCard
+              title="View Reports"
+              description="View reports by organization and submission"
+              icon={FileText}
+              variant="default"
+            />
+          </Link>
+          <Link to="/admin/consolidated-report">
+            <DashboardCard
+              title="Consolidated Report"
+              description="View consolidated report for all organizations"
+              icon={FileText}
+              variant="default"
+            />
+          </Link>
         </div>
       </div>
 

@@ -2,6 +2,7 @@ pub mod action_items;
 pub mod action_plans;
 pub mod assessment_recommendations;
 pub mod assessments;
+pub mod consolidated_report;
 pub mod current_states;
 pub mod desired_states;
 pub mod dimension_assessments;

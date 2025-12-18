@@ -6,6 +6,7 @@ use utoipa_swagger_ui::SwaggerUi;
 use crate::api::dto::action_plan::*;
 use crate::api::dto::assessment::*;
 use crate::api::dto::common::*;
+use crate::api::dto::consolidated_report::*;
 use crate::api::dto::dimension::*;
 use crate::api::dto::gap::*;
 use crate::api::dto::group::*;
@@ -20,6 +21,8 @@ use crate::models::keycloak::KeycloakUser;
 #[derive(OpenApi)]
 #[openapi(
     paths(
+        crate::api::handlers::consolidated_report::dgrv_admin_consolidated_report,
+        crate::api::handlers::consolidated_report::org_admin_consolidated_report,
         crate::api::handlers::organization::create_organization,
         crate::api::handlers::organization::get_organizations,
         crate::api::handlers::organization::get_organization,
@@ -224,9 +227,13 @@ use crate::models::keycloak::KeycloakUser;
             AssignDimensionRequest,
             OrganisationDimensionResponse,
             UpdateOrganisationDimensionsRequest,
+            ConsolidatedReport,
+            DimensionSummary,
+            RiskLevelDistribution,
         )
     ),
     tags(
+        (name = "Consolidated Reports", description = "Consolidated report endpoints"),
         (name = "Organization", description = "Organization endpoints"),
         (name = "Group", description = "Group management endpoints"),
         (name = "Assessments", description = "Assessment endpoints"),

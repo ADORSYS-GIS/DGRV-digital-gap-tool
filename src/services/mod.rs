@@ -1,4 +1,5 @@
 pub mod action_plan_service;
+pub mod consolidated_report;
 pub mod keycloak;
 pub mod pdf_generator;
 pub mod report_service;

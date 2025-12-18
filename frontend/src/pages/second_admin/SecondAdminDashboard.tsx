@@ -22,6 +22,7 @@ import {
   ClipboardCheck,
   History,
   Download,
+  FileText,
 } from "lucide-react";
 import React from "react";
 import { Link } from "react-router-dom";
@@ -121,6 +122,22 @@ const SecondAdminDashboard: React.FC = () => {
                 title="View submissions"
                 description="Track and evaluate assessment submissions."
                 icon={ClipboardCheck}
+                variant="default"
+              />
+            </Link>
+            <Link to="/second-admin/reports">
+              <DashboardCard
+                title="View Reports"
+                description="View reports by cooperative and submission"
+                icon={FileText}
+                variant="default"
+              />
+            </Link>
+            <Link to={`/second-admin/consolidated-report/${organizationId}`}>
+              <DashboardCard
+                title="Consolidated Report"
+                description="View consolidated report for all cooperatives"
+                icon={FileText}
                 variant="default"
               />
             </Link>

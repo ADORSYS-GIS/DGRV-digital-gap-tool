@@ -86,15 +86,15 @@ export const GapDescriptionDisplay: React.FC<GapDescriptionDisplayProps> = ({
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-center">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Card
-            className={
+            className={`flex flex-col ${
               currentLevel < desiredLevel ? "bg-red-50" : "bg-green-50"
-            }
+            }`}
           >
-            <CardHeader>
+            <CardHeader className="text-center pb-3">
               <CardTitle
-                className={`text-lg font-semibold ${
+                className={`text-lg font-semibold mb-2 ${
                   currentLevel < desiredLevel
                     ? "text-red-800"
                     : "text-green-800"
@@ -112,20 +112,20 @@ export const GapDescriptionDisplay: React.FC<GapDescriptionDisplayProps> = ({
                 {currentLevel}
               </p>
             </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground h-12">
-                {currentLevelDescription}
+            <CardContent className="pt-0 flex-1 flex flex-col min-h-0">
+              <p className="text-sm text-muted-foreground break-words leading-relaxed">
+                {currentLevelDescription || "No description available"}
               </p>
             </CardContent>
           </Card>
           <Card
-            className={
+            className={`flex flex-col ${
               desiredLevel > currentLevel ? "bg-green-50" : "bg-red-50"
-            }
+            }`}
           >
-            <CardHeader>
+            <CardHeader className="text-center pb-3">
               <CardTitle
-                className={`text-lg font-semibold ${
+                className={`text-lg font-semibold mb-2 ${
                   desiredLevel > currentLevel
                     ? "text-green-800"
                     : "text-red-800"
@@ -143,9 +143,9 @@ export const GapDescriptionDisplay: React.FC<GapDescriptionDisplayProps> = ({
                 {desiredLevel}
               </p>
             </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground h-12">
-                {desiredLevelDescription}
+            <CardContent className="pt-0 flex-1 flex flex-col min-h-0">
+              <p className="text-sm text-muted-foreground break-words leading-relaxed">
+                {desiredLevelDescription || "No description available"}
               </p>
             </CardContent>
           </Card>
