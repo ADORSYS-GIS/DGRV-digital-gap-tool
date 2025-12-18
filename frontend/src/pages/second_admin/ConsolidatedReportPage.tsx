@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { ConsolidatedReport } from "@/openapi-client";
 import { getOrgAdminConsolidatedReport } from "@/services/consolidated_reports/consolidatedReportRepository";
@@ -41,8 +41,11 @@ import {
   BarChart3,
   PieChart as PieChartIcon,
   Users,
+  Download,
 } from "lucide-react";
 import { cn } from "@/utils/utils";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
 interface ChartData {
   dimension_name: string;
@@ -179,6 +182,22 @@ export function ConsolidatedReportPage() {
   const [report, setReport] = useState<ConsolidatedReport | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const reportRef = useRef<HTMLDivElement>(null);
+
+  const handleExportPDF = () => {
+    if (reportRef.current) {
+      html2canvas(reportRef.current, { scale: 2 }).then(
+        (canvas: HTMLCanvasElement) => {
+          const imgData = canvas.toDataURL("image/png");
+          const pdf = new jsPDF("p", "mm", "a4");
+          const pdfWidth = pdf.internal.pageSize.getWidth();
+          const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+          pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+          pdf.save("consolidated-report.pdf");
+        },
+      );
+    }
+  };
 
   const fetchReport = useCallback(async () => {
     if (!organizationId) {
@@ -395,15 +414,21 @@ export function ConsolidatedReportPage() {
   }
 
   return (
-    <div className="container mx-auto max-w-7xl p-6 space-y-8">
+    <div ref={reportRef} className="container mx-auto max-w-7xl p-6 space-y-8">
       {/* Page Header */}
-      <div className="space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight">
-          Organization Consolidated Report
-        </h1>
-        <p className="text-muted-foreground">
-          Comprehensive overview of digital gap analysis for your organization
-        </p>
+      <div className="flex justify-between items-start">
+        <div className="space-y-2">
+          <h1 className="text-3xl font-bold tracking-tight">
+            Organization Consolidated Report
+          </h1>
+          <p className="text-muted-foreground">
+            Comprehensive overview of digital gap analysis for your organization
+          </p>
+        </div>
+        <Button onClick={handleExportPDF} className="gap-2">
+          <Download className="h-4 w-4" />
+          Export PDF
+        </Button>
       </div>
 
       {/* High-Level Summary Metrics */}

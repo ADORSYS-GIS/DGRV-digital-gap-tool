@@ -12,6 +12,11 @@ const navLinks = [
   { to: "/admin/digital-gaps", icon: Settings, text: "Digital Gaps" },
   { to: "/admin/manage-users", icon: Users, text: "Manage Users" },
   { to: "/admin/reports", icon: BarChart3, text: "View Reports" },
+  {
+    to: "/admin/consolidated-report",
+    icon: FileText,
+    text: "Consolidated Report",
+  },
 ];
 
 const AdminLayout: React.FC = () => {

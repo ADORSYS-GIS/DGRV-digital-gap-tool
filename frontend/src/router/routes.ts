@@ -212,6 +212,10 @@ const routes = [
         element: React.createElement(SubmissionDetailPage),
       },
       {
+        path: "reports",
+        element: React.createElement(ManageSubmissionsPage),
+      },
+      {
         path: "action-plans",
         element: React.createElement(ActionPlansListPage),
       },
