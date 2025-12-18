@@ -1241,6 +1241,49 @@
         }
       }
     },
+    "/consolidated-reports/dgrv-admin": {
+      "get": {
+        "tags": ["crate::api::handlers::consolidated_report"],
+        "summary": "Get consolidated report for DGRV admin",
+        "operationId": "dgrv_admin_consolidated_report",
+        "responses": {
+          "200": {
+            "description": "Consolidated report for DGRV admin",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ConsolidatedReport" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/consolidated-reports/org-admin/{organization_id}": {
+      "get": {
+        "tags": ["crate::api::handlers::consolidated_report"],
+        "summary": "Get consolidated report for an organization admin",
+        "operationId": "org_admin_consolidated_report",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "description": "Organization ID",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Consolidated report for an organization admin",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ConsolidatedReport" }
+              }
+            }
+          }
+        }
+      }
+    },
     "/dimension-assessments/{dimension_assessment_id}/gaps": {
       "get": {
         "tags": ["Gaps"],
@@ -3839,6 +3882,42 @@
           }
         }
       },
+      "ConsolidatedReport": {
+        "type": "object",
+        "required": [
+          "total_entities_analyzed",
+          "total_submissions",
+          "overall_average_risk_level",
+          "overall_average_gap_score",
+          "dimension_summaries"
+        ],
+        "properties": {
+          "dimension_summaries": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/DimensionSummary" }
+          },
+          "overall_average_gap_score": {
+            "type": "number",
+            "format": "double",
+            "example": "3.1"
+          },
+          "overall_average_risk_level": {
+            "type": "number",
+            "format": "double",
+            "example": "2.5"
+          },
+          "total_entities_analyzed": {
+            "type": "integer",
+            "format": "int64",
+            "example": "10"
+          },
+          "total_submissions": {
+            "type": "integer",
+            "format": "int64",
+            "example": "50"
+          }
+        }
+      },
       "CreateActionItemRequest": {
         "type": "object",
         "required": [
@@ -4094,6 +4173,36 @@
           "name": { "type": "string" },
           "updated_at": { "type": "string", "format": "date-time" },
           "weight": { "type": "integer", "format": "int32", "nullable": true }
+        }
+      },
+      "DimensionSummary": {
+        "type": "object",
+        "required": [
+          "dimension_name",
+          "average_risk_level",
+          "average_gap_score",
+          "risk_level_distribution",
+          "top_recommendations"
+        ],
+        "properties": {
+          "average_gap_score": {
+            "type": "number",
+            "format": "double",
+            "example": "4.0"
+          },
+          "average_risk_level": {
+            "type": "number",
+            "format": "double",
+            "example": "3.2"
+          },
+          "dimension_name": { "type": "string", "example": "Finance" },
+          "risk_level_distribution": {
+            "$ref": "#/components/schemas/RiskLevelDistribution"
+          },
+          "top_recommendations": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
         }
       },
       "DimensionWithStatesResponse": {
@@ -4817,6 +4926,31 @@
         "description": "Report type enumeration",
         "enum": ["Summary", "Detailed", "ActionPlan"]
       },
+      "RiskLevelDistribution": {
+        "type": "object",
+        "required": [
+          "high_risk_percentage",
+          "medium_risk_percentage",
+          "low_risk_percentage"
+        ],
+        "properties": {
+          "high_risk_percentage": {
+            "type": "number",
+            "format": "double",
+            "example": "60.0"
+          },
+          "low_risk_percentage": {
+            "type": "number",
+            "format": "double",
+            "example": "10.0"
+          },
+          "medium_risk_percentage": {
+            "type": "number",
+            "format": "double",
+            "example": "30.0"
+          }
+        }
+      },
       "SeverityRuleDto": {
         "type": "object",
         "required": ["min_abs_gap", "max_abs_gap", "gap_severity"],
@@ -5003,6 +5137,10 @@
     }
   },
   "tags": [
+    {
+      "name": "Consolidated Reports",
+      "description": "Consolidated report endpoints"
+    },
     { "name": "Organization", "description": "Organization endpoints" },
     { "name": "Group", "description": "Group management endpoints" },
     { "name": "Assessments", "description": "Assessment endpoints" },

@@ -102,7 +102,7 @@ fn create_app(
 
     // Create API router with all routes
     let api_router =
-        routes::api::create_api_routes(state.clone()).layer(axum::middleware::from_fn_with_state(
+        routes::api::create_api_routes().layer(axum::middleware::from_fn_with_state(
             state.clone(),
             crate::auth::middleware::auth_middleware,
         ));

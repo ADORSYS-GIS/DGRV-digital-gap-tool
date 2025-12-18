@@ -16,10 +16,13 @@ use crate::api::dto::organization_dimension::*;
 use crate::api::dto::recommendation::*;
 use crate::api::dto::report::*;
 use crate::models::keycloak::KeycloakUser;
+use crate::api::dto::consolidated_report::*;
 
 #[derive(OpenApi)]
 #[openapi(
     paths(
+        crate::api::handlers::consolidated_report::dgrv_admin_consolidated_report,
+        crate::api::handlers::consolidated_report::org_admin_consolidated_report,
         crate::api::handlers::organization::create_organization,
         crate::api::handlers::organization::get_organizations,
         crate::api::handlers::organization::get_organization,
@@ -224,9 +227,13 @@ use crate::models::keycloak::KeycloakUser;
             AssignDimensionRequest,
             OrganisationDimensionResponse,
             UpdateOrganisationDimensionsRequest,
+            ConsolidatedReport,
+            DimensionSummary,
+            RiskLevelDistribution,
         )
     ),
     tags(
+        (name = "Consolidated Reports", description = "Consolidated report endpoints"),
         (name = "Organization", description = "Organization endpoints"),
         (name = "Group", description = "Group management endpoints"),
         (name = "Assessments", description = "Assessment endpoints"),
