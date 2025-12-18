@@ -6,12 +6,9 @@ use axum::{
 
 use crate::api::handlers::{assessment::*, dimension::*, gap::*};
 use crate::api::routes::{
-    action_plan::create_action_plan_routes,
-    consolidated_report::consolidated_report_routes,
-    group::create_group_routes,
-    organization::create_organization_routes,
-    recommendation::create_recommendation_routes,
-    submissions::create_submission_routes,
+    action_plan::create_action_plan_routes, consolidated_report::consolidated_report_routes,
+    group::create_group_routes, organization::create_organization_routes,
+    recommendation::create_recommendation_routes, submissions::create_submission_routes,
     user::user_routes,
 };
 

@@ -164,5 +164,9 @@ fn calculate_dimension_metrics(
         0.0
     };
 
-    (average_gap_score, risk_level_distribution, average_risk_level)
+    (
+        average_gap_score,
+        risk_level_distribution,
+        average_risk_level,
+    )
 }

@@ -6,6 +6,7 @@ use utoipa_swagger_ui::SwaggerUi;
 use crate::api::dto::action_plan::*;
 use crate::api::dto::assessment::*;
 use crate::api::dto::common::*;
+use crate::api::dto::consolidated_report::*;
 use crate::api::dto::dimension::*;
 use crate::api::dto::gap::*;
 use crate::api::dto::group::*;
@@ -16,7 +17,6 @@ use crate::api::dto::organization_dimension::*;
 use crate::api::dto::recommendation::*;
 use crate::api::dto::report::*;
 use crate::models::keycloak::KeycloakUser;
-use crate::api::dto::consolidated_report::*;
 
 #[derive(OpenApi)]
 #[openapi(

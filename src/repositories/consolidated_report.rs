@@ -1,4 +1,4 @@
-use sea_orm::{DatabaseConnection, DbErr, EntityTrait, QueryFilter, ColumnTrait};
+use sea_orm::{ColumnTrait, DatabaseConnection, DbErr, EntityTrait, QueryFilter};
 use uuid::Uuid;
 
 use crate::entities::assessments::{self, AssessmentStatus, Entity as Assessments};
