@@ -156,7 +156,6 @@ pub async fn get_dimension_with_states(
             dimension_id: cs.dimension_id,
             description: cs.description,
             score: cs.score,
-            level: cs.level,
             created_at: cs.created_at,
             updated_at: cs.updated_at,
         })
@@ -169,7 +168,6 @@ pub async fn get_dimension_with_states(
             dimension_id: ds.dimension_id,
             description: ds.description,
             score: ds.score,
-            level: ds.level,
             created_at: ds.created_at,
             updated_at: ds.updated_at,
         })
@@ -384,29 +382,11 @@ pub async fn create_current_state(
         }
     }
 
-    // Check for existing current state with same level
-    if let Some(level) = request.level.clone() {
-        if CurrentStatesRepository::find_by_dimension_id_and_level(
-            db.as_ref(),
-            dimension_id,
-            level,
-        )
-        .await
-        .map_err(crate::api::handlers::common::handle_error)?
-        .is_some()
-        {
-            return Err(crate::api::handlers::common::handle_error(
-                AppError::Conflict("Current state with this level already exists".to_string()),
-            ));
-        }
-    }
-
     let active_model = crate::entities::current_states::ActiveModel {
         current_state_id: sea_orm::Set(Uuid::new_v4()),
         dimension_id: sea_orm::Set(dimension_id),
         description: sea_orm::Set(request.description),
         score: sea_orm::Set(request.score),
-        level: sea_orm::Set(request.level),
         ..Default::default()
     };
 
@@ -419,7 +399,6 @@ pub async fn create_current_state(
         dimension_id: current_state.dimension_id,
         description: current_state.description,
         score: current_state.score,
-        level: current_state.level,
         created_at: current_state.created_at,
         updated_at: current_state.updated_at,
     };
@@ -507,24 +486,6 @@ pub async fn update_current_state(
         }
         current_state.score = score;
     }
-    if let Some(level) = request.level.clone() {
-        if let Some(existing_current_state) =
-            CurrentStatesRepository::find_by_dimension_id_and_level(
-                db.as_ref(),
-                dimension_id,
-                level.clone(),
-            )
-            .await
-            .map_err(crate::api::handlers::common::handle_error)?
-        {
-            if existing_current_state.current_state_id != current_state_id {
-                return Err(crate::api::handlers::common::handle_error(
-                    AppError::Conflict("Current state with this level already exists".to_string()),
-                ));
-            }
-        }
-        current_state.level = Some(level);
-    }
 
     current_state.updated_at = chrono::Utc::now();
 
@@ -539,7 +500,6 @@ pub async fn update_current_state(
         dimension_id: updated_current_state.dimension_id,
         description: updated_current_state.description,
         score: updated_current_state.score,
-        level: updated_current_state.level,
         created_at: updated_current_state.created_at,
         updated_at: updated_current_state.updated_at,
     };
@@ -611,29 +571,11 @@ pub async fn create_desired_state(
         }
     }
 
-    // Check for existing desired state with same level
-    if let Some(level) = request.level.clone() {
-        if DesiredStatesRepository::find_by_dimension_id_and_level(
-            db.as_ref(),
-            dimension_id,
-            level,
-        )
-        .await
-        .map_err(crate::api::handlers::common::handle_error)?
-        .is_some()
-        {
-            return Err(crate::api::handlers::common::handle_error(
-                AppError::Conflict("Desired state with this level already exists".to_string()),
-            ));
-        }
-    }
-
     let active_model = crate::entities::desired_states::ActiveModel {
         desired_state_id: sea_orm::Set(Uuid::new_v4()),
         dimension_id: sea_orm::Set(dimension_id),
         description: sea_orm::Set(request.description),
         score: sea_orm::Set(request.score),
-        level: sea_orm::Set(request.level),
         ..Default::default()
     };
 
@@ -646,7 +588,6 @@ pub async fn create_desired_state(
         dimension_id: desired_state.dimension_id,
         description: desired_state.description,
         score: desired_state.score,
-        level: desired_state.level,
         created_at: desired_state.created_at,
         updated_at: desired_state.updated_at,
     };
@@ -734,24 +675,6 @@ pub async fn update_desired_state(
         }
         desired_state.score = score;
     }
-    if let Some(level) = request.level.clone() {
-        if let Some(existing_desired_state) =
-            DesiredStatesRepository::find_by_dimension_id_and_level(
-                db.as_ref(),
-                dimension_id,
-                level.clone(),
-            )
-            .await
-            .map_err(crate::api::handlers::common::handle_error)?
-        {
-            if existing_desired_state.desired_state_id != desired_state_id {
-                return Err(crate::api::handlers::common::handle_error(
-                    AppError::Conflict("Desired state with this level already exists".to_string()),
-                ));
-            }
-        }
-        desired_state.level = Some(level);
-    }
 
     desired_state.updated_at = chrono::Utc::now();
 
@@ -766,7 +689,6 @@ pub async fn update_desired_state(
         dimension_id: updated_desired_state.dimension_id,
         description: updated_desired_state.description,
         score: updated_desired_state.score,
-        level: updated_desired_state.level,
         created_at: updated_desired_state.created_at,
         updated_at: updated_desired_state.updated_at,
     };

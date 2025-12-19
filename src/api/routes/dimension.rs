@@ -5,9 +5,9 @@ use axum::{
 };
 
 use crate::api::handlers::dimension::{
-    create_current_state, create_desired_state, create_dimension, delete_current_state,
-    delete_desired_state, delete_dimension, get_dimension, get_dimension_with_states,
-    list_dimensions, update_current_state, update_desired_state, update_dimension,
+    create_current_state, create_desired_state, create_dimension, delete_dimension, get_dimension,
+    get_dimension_with_states, list_dimensions, update_current_state, update_desired_state,
+    update_dimension,
 };
 
 /// Create dimension routes
@@ -26,18 +26,10 @@ pub fn create_dimension_routes() -> Router<AppState> {
             "/:id/current-states/:current_state_id",
             put(update_current_state),
         )
-        .route(
-            "/:id/current-states/:current_state_id",
-            axum::routing::delete(delete_current_state),
-        )
         // Desired state operations
         .route("/:id/desired-states", post(create_desired_state))
         .route(
             "/:id/desired-states/:desired_state_id",
             put(update_desired_state),
-        )
-        .route(
-            "/:id/desired-states/:desired_state_id",
-            axum::routing::delete(delete_desired_state),
         )
 }
