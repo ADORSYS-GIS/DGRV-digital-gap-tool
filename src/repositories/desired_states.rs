@@ -49,6 +49,9 @@ impl DesiredStatesRepository {
         if let ActiveValue::Set(score) = desired_state_data.score {
             active_model.score = Set(score);
         }
+        if let ActiveValue::Set(level) = desired_state_data.level {
+            active_model.level = Set(level);
+        }
         active_model.updated_at = Set(chrono::Utc::now());
 
         active_model.update(db).await.map_err(AppError::from)
@@ -94,6 +97,19 @@ impl DesiredStatesRepository {
         DesiredStates::find()
             .filter(desired_states::Column::DimensionId.eq(dimension_id))
             .filter(desired_states::Column::Description.eq(description))
+            .one(db)
+            .await
+            .map_err(AppError::from)
+    }
+
+    pub async fn find_by_dimension_id_and_level(
+        db: &DbConn,
+        dimension_id: Uuid,
+        level: String,
+    ) -> Result<Option<desired_states::Model>, AppError> {
+        DesiredStates::find()
+            .filter(desired_states::Column::DimensionId.eq(dimension_id))
+            .filter(desired_states::Column::Level.eq(level))
             .one(db)
             .await
             .map_err(AppError::from)

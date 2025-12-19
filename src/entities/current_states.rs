@@ -8,6 +8,7 @@ pub struct Model {
     pub dimension_id: Uuid,
     pub description: Option<String>,
     pub score: i32,
+    pub level: Option<String>,
     pub created_at: DateTimeUtc,
     pub updated_at: DateTimeUtc,
 }
