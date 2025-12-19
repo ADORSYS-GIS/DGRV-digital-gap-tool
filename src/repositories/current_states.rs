@@ -49,6 +49,9 @@ impl CurrentStatesRepository {
         if current_state_data.score.is_set() {
             active_model.score = current_state_data.score;
         }
+        if current_state_data.level.is_set() {
+            active_model.level = current_state_data.level;
+        }
 
         active_model.updated_at = Set(chrono::Utc::now());
 
@@ -95,6 +98,19 @@ impl CurrentStatesRepository {
         CurrentStates::find()
             .filter(current_states::Column::DimensionId.eq(dimension_id))
             .filter(current_states::Column::Description.eq(description))
+            .one(db)
+            .await
+            .map_err(AppError::from)
+    }
+
+    pub async fn find_by_dimension_id_and_level(
+        db: &DbConn,
+        dimension_id: Uuid,
+        level: String,
+    ) -> Result<Option<current_states::Model>, AppError> {
+        CurrentStates::find()
+            .filter(current_states::Column::DimensionId.eq(dimension_id))
+            .filter(current_states::Column::Level.eq(level))
             .one(db)
             .await
             .map_err(AppError::from)
