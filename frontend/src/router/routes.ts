@@ -93,7 +93,9 @@ const ManageCooperationUsersPage = React.lazy(
   () => import("../pages/second_admin/ManageCooperationUsersPage"),
 );
 
-const routes = [
+import { RouteConfig } from "@/types/router";
+
+const routes: RouteConfig[] = [
   { path: "/", element: React.createElement(HomePage) },
   {
     path: "/unauthorized",
@@ -322,6 +324,7 @@ const routes = [
             element: React.createElement(ActionPlanPage),
           },
         ],
+        path: "",
       },
     ],
   },

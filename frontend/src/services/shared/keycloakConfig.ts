@@ -27,4 +27,5 @@ export const keycloakInitOptions = {
   checkLoginIframe: false,
   enableLogging: import.meta.env.DEV,
   silentCheckSsoRedirectUri: window.location.origin + "/silent-check-sso.html",
+  redirectUri: window.location.origin,
 };

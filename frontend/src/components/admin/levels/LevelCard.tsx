@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/card";
 import { useDeleteDigitalisationLevel } from "@/hooks/digitalisationLevels/useDeleteDigitalisationLevel";
 import { IDigitalisationLevel } from "@/types/digitalisationLevel";
+import { useQueryClient } from "@tanstack/react-query";
 import { Edit, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { EditLevelForm } from "./EditLevelForm";
@@ -32,28 +33,19 @@ export const LevelCard = ({ level, existingLevels }: LevelCardProps) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const deleteLevelMutation = useDeleteDigitalisationLevel();
-
+  const queryClient = useQueryClient();
   const handleDelete = () => {
-    setIsDeleting(true);
-    deleteLevelMutation.mutate(
-      {
-        dimensionId: level.dimensionId,
-        levelId: level.id,
-        levelType: level.levelType,
-      },
-      {
-        onSettled: () => {
-          setIsDeleting(false);
-        },
-      },
-    );
+    deleteLevelMutation.mutate({
+      dimensionId: level.dimensionId,
+      levelId: level.id,
+    });
   };
 
   return (
     <Card className="flex flex-col">
       <CardHeader>
         <div className="flex justify-between items-start">
-          <CardTitle>{level.level || `State ${level.state}`}</CardTitle>
+          <CardTitle>{`Level ${level.state}: ${level.level || ""}`}</CardTitle>
         </div>
       </CardHeader>
       <CardContent className="flex-grow">

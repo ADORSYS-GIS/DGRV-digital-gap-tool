@@ -1,25 +1,26 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { calculateGapScore } from "@/utils/gapCalculation";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { useAuth } from "@/context/AuthContext";
-import { useOrganizationId } from "@/hooks/organizations/useOrganizationId";
-import { useCooperationId } from "@/hooks/cooperations/useCooperationId";
-import { useCooperationIdFromPath } from "@/hooks/cooperations/useCooperationIdFromPath";
 import { DimensionAssessmentAnswer } from "@/components/assessment/answering/DimensionAssessmentAnswer";
 import { GapDescriptionDisplay } from "@/components/assessment/answering/GapDescriptionDisplay";
 import { DimensionIcon } from "@/components/shared/DimensionIcon";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/context/AuthContext";
 import { useAssessment } from "@/hooks/assessments/useAssessment";
+import { useDimensionAssessments } from "@/hooks/assessments/useDimensionAssessments";
 import { useDimensionWithStates } from "@/hooks/assessments/useDimensionWithStates";
 import { useSubmitDimensionAssessment } from "@/hooks/assessments/useSubmitDimensionAssessment";
+import { useCooperationId } from "@/hooks/cooperations/useCooperationId";
+import { useCooperationIdFromPath } from "@/hooks/cooperations/useCooperationIdFromPath";
+import { useOrganizationId } from "@/hooks/organizations/useOrganizationId";
 import { useSubmitAssessment } from "@/hooks/submissions/useSubmitAssessment";
-import { useDimensionAssessments } from "@/hooks/assessments/useDimensionAssessments";
+import { syncManager } from "@/services/sync/syncManager";
 import {
   IDimensionAssessment,
   IDimensionState,
   IDimensionWithStates,
 } from "@/types/dimension";
-import { Button } from "@/components/ui/button";
+import { calculateGapScore } from "@/utils/gapCalculation";
 import { ArrowLeft } from "lucide-react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 interface RouteParams extends Record<string, string | undefined> {
   assessmentId: string;
@@ -148,14 +149,24 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
     isCoopUserRestricted,
   ]);
 
-  const isLastDimension = useMemo(() => {
-    if (!dimensionId) return false;
+  const { isFirstDimension, isLastDimension } = useMemo(() => {
+    if (!dimensionId) return { isFirstDimension: true, isLastDimension: true };
     const list = allowedDimensionIds.length
       ? allowedDimensionIds
       : assessment?.dimensionIds || [];
     const idx = list.indexOf(dimensionId);
-    return idx !== -1 && idx === list.length - 1;
+    return {
+      isFirstDimension: idx === 0,
+      isLastDimension: idx !== -1 && idx === list.length - 1,
+    };
   }, [allowedDimensionIds, assessment?.dimensionIds, dimensionId]);
+
+  const allDimensionsCompleted = useMemo(() => {
+    const allDimensionIds = assessment?.dimensionIds || [];
+    const answeredDimensionIds =
+      dimensionAssessments?.map((da) => da.dimensionId) || [];
+    return allDimensionIds.every((id) => answeredDimensionIds.includes(id));
+  }, [assessment?.dimensionIds, dimensionAssessments]);
 
   useEffect(() => {
     // Reset state when dimension changes
@@ -270,7 +281,7 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
     }
   }, [navigate, fromAssessmentDetail, assessmentId, location.pathname]);
 
-  const handleContinue = useCallback(async () => {
+  const handleNext = useCallback(async () => {
     const list = (
       allowedDimensionIds.length
         ? allowedDimensionIds
@@ -284,7 +295,9 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
         navigate(
           `/${basePath}/assessment/${assessmentId}/dimension/${nextDimensionId}`,
         );
-      } else {
+      } else if (isLastDimension) {
+        // Before finishing, sync to ensure we have the latest data
+        await syncManager.syncAll();
         // Last allowed dimension, submit the full assessment
         if (assessmentId) {
           await submitFullAssessment(assessmentId);
@@ -298,6 +311,32 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
     assessmentId,
     navigate,
     submitFullAssessment,
+    location.pathname,
+    allowedDimensionIds,
+    dimensionId,
+    isLastDimension,
+  ]);
+
+  const handlePrevious = useCallback(() => {
+    const list = (
+      allowedDimensionIds.length
+        ? allowedDimensionIds
+        : assessment?.dimensionIds
+    ) as string[] | undefined;
+    if (assessment && list && dimensionId) {
+      const currentIndex = list.indexOf(dimensionId);
+      if (currentIndex > 0) {
+        const prevDimensionId = list[currentIndex - 1];
+        const basePath = location.pathname.split("/")[1];
+        navigate(
+          `/${basePath}/assessment/${assessmentId}/dimension/${prevDimensionId}`,
+        );
+      }
+    }
+  }, [
+    assessment,
+    assessmentId,
+    navigate,
     location.pathname,
     allowedDimensionIds,
     dimensionId,
@@ -456,19 +495,38 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
           />
         )}
 
-        {showResult && (
-          <div className="flex justify-center pb-4 pt-2">
+        <div className="flex justify-between pb-4 pt-2">
+          <Button
+            variant="outline"
+            size="lg"
+            onClick={handlePrevious}
+            disabled={isFirstDimension}
+            className="min-w-[180px]"
+          >
+            Previous
+          </Button>
+          {isLastDimension ? (
             <Button
               variant="default"
               size="lg"
-              onClick={handleContinue}
+              onClick={handleBack}
               data-testid="continue-button"
-              className="min-w-[220px]"
+              className="min-w-[180px]"
             >
-              {isLastDimension ? "Finish assessment" : "Continue to next topic"}
+              Go Back
             </Button>
-          </div>
-        )}
+          ) : (
+            <Button
+              variant="default"
+              size="lg"
+              onClick={handleNext}
+              data-testid="continue-button"
+              className="min-w-[180px]"
+            >
+              Next
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );

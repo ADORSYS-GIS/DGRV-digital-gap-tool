@@ -1,7 +1,8 @@
-import { useDimensionWithStates } from "@/hooks/assessments/useDimensionWithStates";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
-import { IDimensionState } from "@/types/dimension";
+import { Badge } from "@/components/ui/badge";
+import { useDimensionWithStates } from "@/hooks/assessments/useDimensionWithStates";
 import { useDigitalisationGap } from "@/hooks/digitalisationGaps/useDigitalisationGap";
+import { IDimensionState } from "@/types/dimension";
 import { Lightbulb } from "lucide-react";
 
 interface DimensionAssessmentDetailProps {
@@ -91,21 +92,35 @@ export const DimensionAssessmentDetail = ({
           <p className="text-gray-800">{desiredState?.description || "N/A"}</p>
         </div>
       </div>
-      <div>
-        <p className="font-semibold text-gray-600 mb-1">Gap Score</p>
-        <p className="text-2xl font-bold text-blue-600">{gapScore}</p>
-      </div>
-      {gap && (
-        <div className="mt-4 p-4 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg">
-          <div className="flex items-start">
-            <Lightbulb className="h-6 w-6 text-blue-600 mr-3 flex-shrink-0 mt-1" />
-            <div>
-              <p className="font-semibold text-blue-800">Gap Description</p>
-              <p className="text-gray-700 mt-1">{gap.description}</p>
+      <div className="mt-6 space-y-4">
+        {gap && (
+          <div>
+            <p className="font-semibold text-gray-600 mb-1">Risk Level</p>
+            <Badge
+              className={`text-sm font-semibold ${
+                gap.gap_severity === "HIGH"
+                  ? "bg-red-500 text-white"
+                  : gap.gap_severity === "MEDIUM"
+                    ? "bg-yellow-500 text-black"
+                    : "bg-green-500 text-white"
+              }`}
+            >
+              {gap.gap_severity}
+            </Badge>
+          </div>
+        )}
+        {gap && (
+          <div className="p-4 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg">
+            <div className="flex items-start">
+              <Lightbulb className="h-6 w-6 text-blue-600 mr-3 flex-shrink-0 mt-1" />
+              <div>
+                <p className="font-semibold text-blue-800">Gap Description</p>
+                <p className="text-gray-700 mt-1">{gap.description}</p>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };

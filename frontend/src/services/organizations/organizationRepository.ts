@@ -1,4 +1,7 @@
-import { getOrganizations } from "@/openapi-client/services.gen";
+import {
+  createOrganization,
+  getOrganizations,
+} from "@/openapi-client/services.gen";
 import { Organization } from "@/types/organization";
 import { db } from "../db";
 import { syncService } from "../sync/syncService";
@@ -14,6 +17,10 @@ export const organizationRepository = {
             ...org,
             id: org.id || "",
             domain: org.domains?.[0]?.name || "",
+            description:
+              (org.attributes as { description: string[] })?.description?.[0] ||
+              org.description ||
+              "",
             syncStatus: "synced" as const,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
@@ -39,21 +46,53 @@ export const organizationRepository = {
       "id" | "syncStatus" | "createdAt" | "updatedAt"
     >,
   ) {
-    const newOrg: Organization = {
-      id: crypto.randomUUID(),
-      ...organization,
-      syncStatus: "new",
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    await db.organizations.add(newOrg);
-    await syncService.addToSyncQueue(
-      "Organization",
-      newOrg.id,
-      "CREATE",
-      newOrg,
-    );
-    return newOrg;
+    if (navigator.onLine) {
+      try {
+        const response = await createOrganization({
+          requestBody: {
+            name: organization.name,
+            domains: [{ name: organization.domain }],
+            redirectUrl: "http://localhost:8000/",
+            enabled: "true",
+            attributes: {
+              description: [organization.description],
+            },
+          },
+        });
+
+        const newOrg: Organization = {
+          id: response.id,
+          name: response.name,
+          domain: response.domains?.[0]?.name || "",
+          description: organization.description,
+          syncStatus: "synced",
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+
+        await db.organizations.add(newOrg);
+        return newOrg;
+      } catch (error) {
+        console.error("Failed to create organization on server:", error);
+        throw error;
+      }
+    } else {
+      const newOrg: Organization = {
+        id: crypto.randomUUID(),
+        ...organization,
+        syncStatus: "new",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      await db.organizations.add(newOrg);
+      await syncService.addToSyncQueue(
+        "Organization",
+        newOrg.id,
+        "CREATE",
+        newOrg,
+      );
+      return newOrg;
+    }
   },
 
   async update(id: string, updates: Partial<Organization>) {

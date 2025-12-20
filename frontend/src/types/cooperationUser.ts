@@ -9,6 +9,7 @@ export interface CooperationUser {
   roles: string[];
   cooperationId: string;
   syncStatus: SyncStatus;
+  syncRetries?: number;
   emailVerified?: boolean;
   /**
    * Optional list of dimension IDs that this user is allowed to answer.
@@ -17,9 +18,11 @@ export interface CooperationUser {
   dimensionIds?: string[];
 }
 
-export type AddCooperationUser = Omit<
-  CooperationUser,
-  "id" | "syncStatus" | "cooperationId"
-> & {
+export interface AddCooperationUser {
+  username?: string;
   email: string;
-};
+  firstName?: string;
+  lastName?: string;
+  roles: string[];
+  dimensionIds?: string[];
+}

@@ -7,18 +7,27 @@ import { db } from "@/services/db";
 import { cooperationUserRepository } from "./cooperationUserRepository";
 import { CooperationUser } from "@/types/cooperationUser";
 import { SyncStatus } from "@/types/sync";
+import { syncService } from "../sync/syncService";
+
+interface Role {
+  name: string;
+}
 
 export const cooperationUserSyncService = {
   async fetchAndStoreUsers(cooperationId: string) {
     const remoteUsers = await getGroupMembers({ groupId: cooperationId });
-    const localUsers = remoteUsers.map(
-      (user) =>
-        ({
-          ...user,
-          cooperationId,
-          syncStatus: SyncStatus.SYNCED,
-        }) as CooperationUser,
-    );
+    const localUsers = remoteUsers.map((user) => {
+      const roles =
+        user.roles && Array.isArray(user.roles)
+          ? user.roles.map((role: Role) => role.name)
+          : [];
+      return {
+        ...user,
+        roles,
+        cooperationId,
+        syncStatus: SyncStatus.SYNCED,
+      } as CooperationUser;
+    });
     await cooperationUserRepository.clear();
     await cooperationUserRepository.bulkAdd(localUsers);
     return localUsers;
@@ -37,7 +46,7 @@ export const cooperationUserSyncService = {
         roles: user.roles,
         // Pass through any assigned dimensions so they can be stored as
         // Keycloak user attributes.
-        dimension_ids: user.dimensionIds ?? undefined,
+        dimension_ids: user.dimensionIds ?? null,
       },
     });
     await cooperationUserRepository.updateSyncStatus(
@@ -58,15 +67,13 @@ export const cooperationUserSyncService = {
       .toArray();
 
     for (const user of pendingUsers) {
-      try {
+      await syncService.trySync(db.cooperationUsers, user, async () => {
         if (user.syncStatus === SyncStatus.NEW) {
           await this.add(user);
         } else if (user.syncStatus === SyncStatus.DELETED) {
           await this.delete(user);
         }
-      } catch (error) {
-        console.error(`Failed to sync user ${user.id}:`, error);
-      }
+      });
     }
   },
 };

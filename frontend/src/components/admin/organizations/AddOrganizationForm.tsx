@@ -1,4 +1,7 @@
 import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -11,27 +14,52 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { useAddOrganization } from "@/hooks/organizations/useAddOrganization";
 import { PlusCircle, Building2 } from "lucide-react";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+
+const organizationSchema = z.object({
+  name: z
+    .string()
+    .min(1, "Organization name is required")
+    .refine((s) => !s.includes(" "), "Spaces are not allowed in the name"),
+  domain: z.string().min(1, "Domain is required"),
+  description: z.string().optional(),
+});
+
+type OrganizationFormValues = z.infer<typeof organizationSchema>;
 
 export const AddOrganizationForm: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const addOrganizationMutation = useAddOrganization();
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    const name = formData.get("name") as string;
-    const domain = formData.get("domain") as string;
-    const description = formData.get("description") as string;
+  const form = useForm<OrganizationFormValues>({
+    resolver: zodResolver(organizationSchema),
+    defaultValues: {
+      name: "",
+      domain: "",
+      description: "",
+    },
+  });
 
-    if (name && domain) {
-      addOrganizationMutation.mutate({
-        name,
-        domain,
-        description: description || "",
-      });
-      setIsOpen(false);
-      event.currentTarget.reset();
-    }
+  const handleSubmit = (values: OrganizationFormValues) => {
+    addOrganizationMutation.mutate(
+      {
+        ...values,
+        description: values.description || "",
+      },
+      {
+        onSuccess: () => {
+          setIsOpen(false);
+          form.reset();
+        },
+      },
+    );
   };
 
   return (
@@ -58,69 +86,79 @@ export const AddOrganizationForm: React.FC = () => {
           </DialogHeader>
         </div>
         <div className="p-6 pt-4">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
-              <label
-                htmlFor="name"
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-gray-700"
-              >
-                Organization Name
-              </label>
-              <Input
-                id="name"
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(handleSubmit)}
+              className="space-y-6"
+            >
+              <FormField
+                control={form.control}
                 name="name"
-                type="text"
-                required
-                placeholder="e.g. Green Valley Coop"
-                className="h-11 rounded-lg border-gray-200 focus:border-primary focus:ring-primary/20 transition-all"
-              />
-            </div>
-            <div className="space-y-2">
-              <label
-                htmlFor="domain"
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-gray-700"
-              >
-                Domain
-              </label>
-              <Input
-                id="domain"
-                name="domain"
-                type="text"
-                required
-                placeholder="e.g. greenvalley.com"
-                className="h-11 rounded-lg border-gray-200 focus:border-primary focus:ring-primary/20 transition-all"
-              />
-            </div>
-            <div className="space-y-2">
-              <label
-                htmlFor="description"
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-gray-700"
-              >
-                Description
-              </label>
-              <Textarea
-                id="description"
-                name="description"
-                placeholder="Brief description of the organization"
-                className="min-h-[100px] rounded-lg border-gray-200 focus:border-primary focus:ring-primary/20 transition-all resize-none"
-              />
-            </div>
-            <div className="pt-2">
-              <Button
-                type="submit"
-                disabled={addOrganizationMutation.isPending}
-                className="w-full h-11 rounded-lg bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white font-medium shadow-md hover:shadow-lg transition-all duration-300"
-              >
-                {addOrganizationMutation.isPending ? (
-                  <span className="flex items-center gap-2">
-                    <span className="animate-spin">⏳</span> Adding...
-                  </span>
-                ) : (
-                  "Create Organization"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Organization Name</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="e.g. GreenValleyCoop"
+                        {...field}
+                        className="h-11 rounded-lg border-gray-200 focus:border-primary focus:ring-primary/20 transition-all"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
-              </Button>
-            </div>
-          </form>
+              />
+              <FormField
+                control={form.control}
+                name="domain"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Domain</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="e.g. greenvalley.com"
+                        {...field}
+                        className="h-11 rounded-lg border-gray-200 focus:border-primary focus:ring-primary/20 transition-all"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Description</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Brief description of the organization"
+                        {...field}
+                        className="min-h-[100px] rounded-lg border-gray-200 focus:border-primary focus:ring-primary/20 transition-all resize-none"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <div className="pt-2">
+                <Button
+                  type="submit"
+                  disabled={addOrganizationMutation.isPending}
+                  className="w-full h-11 rounded-lg bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white font-medium shadow-md hover:shadow-lg transition-all duration-300"
+                >
+                  {addOrganizationMutation.isPending ? (
+                    <span className="flex items-center gap-2">
+                      <span className="animate-spin">⏳</span> Adding...
+                    </span>
+                  ) : (
+                    "Create Organization"
+                  )}
+                </Button>
+              </div>
+            </form>
+          </Form>
         </div>
       </DialogContent>
     </Dialog>

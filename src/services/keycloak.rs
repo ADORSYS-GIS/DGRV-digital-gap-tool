@@ -1281,7 +1281,9 @@ impl KeycloakService {
                         .await?;
                     if roles_response.status() == StatusCode::OK {
                         let roles: serde_json::Value = roles_response.json().await?;
-                        user.roles = Some(roles);
+                        if let Some(real_mappings) = roles.get("realmMappings") {
+                            user.roles = Some(real_mappings.clone());
+                        }
                     }
                 }
                 info!(group_id = %group_id, count = users.len(), "Successfully retrieved group members");

@@ -9,6 +9,7 @@ import { RouteConfig } from "@/types/router";
 import React from "react";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import routes from "./routes";
+import { useAuth } from "@/hooks/useAuth";
 
 const renderRoutes = (routes: RouteConfig[]) => {
   return routes.map(({ path, element, children }, idx) => (
@@ -19,6 +20,12 @@ const renderRoutes = (routes: RouteConfig[]) => {
 };
 
 const AppRouter = () => {
+  const { loading } = useAuth();
+
+  if (loading) {
+    return <LoadingSpinner />;
+  }
+
   return (
     <Router>
       <MainLayout>

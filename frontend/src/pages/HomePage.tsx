@@ -10,7 +10,7 @@ import { BenefitCard } from "@/components/home/BenefitCard";
 import { FeatureCard } from "@/components/home/FeatureCard";
 import { Button } from "@/components/ui/button";
 import { ROLES } from "@/constants/roles";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/hooks/useAuth";
 import {
   ArrowRight,
   BarChart3,

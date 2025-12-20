@@ -7,13 +7,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useAddDigitalisationLevel } from "@/hooks/digitalisationLevels/useAddDigitalisationLevel";
 import { useDimension } from "@/hooks/dimensions/useDimension";
@@ -23,14 +16,10 @@ import {
   LevelType,
 } from "@/types/digitalisationLevel";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import * as z from "zod";
-import {
-  currentStateDescriptions,
-  desiredStateDescriptions,
-} from "@/constants/level-descriptions";
-
 const formSchema = z.object({
   description: z.string().optional(),
   state: z
@@ -38,7 +27,7 @@ const formSchema = z.object({
     .min(1, "Please select a state")
     .max(5)
     .refine((state) => state !== 0, "Level ID is required"),
-  levelName: z.string().optional(),
+  levelName: z.string().min(1, "Level name is required"),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -59,7 +48,7 @@ export const AddLevelForm = ({
   existingLevels,
 }: AddLevelFormProps) => {
   const { data: dimension } = useDimension(dimensionId);
-
+  const queryClient = useQueryClient();
   const {
     register,
     handleSubmit,
@@ -99,7 +88,7 @@ export const AddLevelForm = ({
     }
 
     // Client-side uniqueness validation for levelName (Level Name)
-    if (!descriptions && (!data.levelName || data.levelName.trim() === "")) {
+    if (!data.levelName || data.levelName.trim() === "") {
       setError("levelName", {
         type: "manual",
         message: "Level Name is required for custom dimensions",
@@ -124,10 +113,9 @@ export const AddLevelForm = ({
       dimension_id: dimensionId,
       score: data.state as LevelState,
       description: data.description ?? null,
-      level:
-        data.levelName && data.levelName.trim() !== ""
-          ? data.levelName
-          : (descriptions?.[data.state - 1] ?? `Level ${data.state}`),
+      level: data.levelName,
+      levelType: levelType,
+      dimensionId: dimensionId,
     };
 
     addLevelMutation.mutate(
@@ -138,6 +126,9 @@ export const AddLevelForm = ({
       },
       {
         onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: ["digitalisationLevels", dimensionId],
+          });
           onClose();
         },
       },
@@ -148,18 +139,6 @@ export const AddLevelForm = ({
     (state) => !existingLevels.some((level) => level.state === state),
   );
 
-  const descriptions =
-    dimension && levelType === "current"
-      ? currentStateDescriptions[dimension.name]
-      : dimension
-        ? desiredStateDescriptions[dimension.name]
-        : undefined;
-
-  const handleStateChange = (value: string) => {
-    const state = parseInt(value, 10);
-    setValue("state", state);
-  };
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
@@ -169,80 +148,56 @@ export const AddLevelForm = ({
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          {descriptions && availableStates.length > 0 ? (
+          <>
             <Controller
               name="state"
               control={control}
+              rules={{
+                validate: (value) => {
+                  if (typeof value !== "number" || isNaN(value)) {
+                    return "State must be a number";
+                  }
+                  return (
+                    availableStates.includes(value) ||
+                    "Level ID already exists or is invalid"
+                  );
+                },
+              }}
               render={({ field }) => (
-                <Select
-                  onValueChange={handleStateChange}
-                  defaultValue={field.value ? String(field.value) : ""}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a state" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {availableStates.map((state) => (
-                      <SelectItem key={state} value={String(state)}>
-                        {descriptions[state - 1]}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div>
+                  <Input
+                    {...field}
+                    type="number"
+                    placeholder="Level ID (1-5)"
+                    min={1}
+                    max={5}
+                    onChange={(e) => {
+                      const value = parseInt(e.target.value, 10);
+                      field.onChange(isNaN(value) ? undefined : value); // Pass undefined if not a valid number
+                    }}
+                    value={field.value ?? ""} // Use nullish coalescing for controlled component
+                  />
+                  {errors.state && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.state.message}
+                    </p>
+                  )}
+                </div>
               )}
             />
-          ) : (
-            <>
-              <Controller
-                name="state"
-                control={control}
-                rules={{
-                  validate: (value) => {
-                    if (typeof value !== "number" || isNaN(value)) {
-                      return "State must be a number";
-                    }
-                    return (
-                      availableStates.includes(value) ||
-                      "Level ID already exists or is invalid"
-                    );
-                  },
-                }}
-                render={({ field }) => (
-                  <div>
-                    <Input
-                      {...field}
-                      type="number"
-                      placeholder="Level ID (1-5)"
-                      min={1}
-                      max={5}
-                      onChange={(e) => {
-                        const value = parseInt(e.target.value, 10);
-                        field.onChange(isNaN(value) ? undefined : value); // Pass undefined if not a valid number
-                      }}
-                      value={field.value ?? ""} // Use nullish coalescing for controlled component
-                    />
-                    {errors.state && (
-                      <p className="text-red-500 text-sm mt-1">
-                        {errors.state.message}
-                      </p>
-                    )}
-                  </div>
-                )}
+            <div>
+              <Input
+                {...register("levelName")}
+                placeholder="Level Name (e.g., Initial Phase)"
+                className="mb-2"
               />
-              <div>
-                <Input
-                  {...register("levelName")}
-                  placeholder="Level Name (e.g., Initial Phase)"
-                  className="mb-2"
-                />
-                {errors.levelName && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.levelName.message}
-                  </p>
-                )}
-              </div>
-            </>
-          )}
+              {errors.levelName && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.levelName.message}
+                </p>
+              )}
+            </div>
+          </>
 
           <Textarea {...register("description")} placeholder="Description" />
 

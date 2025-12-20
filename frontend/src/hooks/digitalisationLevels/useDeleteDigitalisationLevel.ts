@@ -1,11 +1,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { digitalisationLevelRepository } from "@/services/digitalisationLevels/digitalisationLevelRepository";
-import { IDigitalisationLevel, LevelType } from "@/types/digitalisationLevel";
+import { IDigitalisationLevel } from "@/types/digitalisationLevel";
+import { toast } from "sonner";
 
 interface DeleteDigitalisationLevelVariables {
   dimensionId: string;
   levelId: string;
-  levelType: LevelType;
 }
 
 export const useDeleteDigitalisationLevel = () => {
@@ -17,22 +17,8 @@ export const useDeleteDigitalisationLevel = () => {
     DeleteDigitalisationLevelVariables,
     { previousLevels: IDigitalisationLevel[] | undefined }
   >({
-    mutationFn: async ({
-      dimensionId,
-      levelId,
-      levelType,
-    }: DeleteDigitalisationLevelVariables) => {
-      if (levelType === "current") {
-        await digitalisationLevelRepository.deleteCurrentState(
-          dimensionId,
-          levelId,
-        );
-      } else {
-        await digitalisationLevelRepository.deleteDesiredState(
-          dimensionId,
-          levelId,
-        );
-      }
+    mutationFn: async ({ levelId }: DeleteDigitalisationLevelVariables) => {
+      await digitalisationLevelRepository.delete(levelId);
     },
     onMutate: async (deletedLevel) => {
       const queryKey = ["digitalisationLevels", deletedLevel.dimensionId];
@@ -50,6 +36,9 @@ export const useDeleteDigitalisationLevel = () => {
 
       return { previousLevels };
     },
+    onSuccess: () => {
+      toast.success("Level deleted successfully");
+    },
     onError: (err, deletedLevel, context) => {
       if (context?.previousLevels) {
         queryClient.setQueryData(
@@ -57,6 +46,7 @@ export const useDeleteDigitalisationLevel = () => {
           context.previousLevels,
         );
       }
+      toast.error(`Failed to delete level: ${err.message}`);
     },
     onSettled: (data, error, variables) => {
       queryClient.invalidateQueries({

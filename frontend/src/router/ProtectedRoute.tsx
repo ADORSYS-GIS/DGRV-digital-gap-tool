@@ -8,7 +8,7 @@
  * - Support for both wrapper and outlet patterns
  */
 import { Navigate, Outlet, useLocation } from "react-router-dom";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/hooks/useAuth";
 import { LoadingSpinner } from "../components/shared/LoadingSpinner";
 import React from "react";
 import { ROLES } from "@/constants/roles";

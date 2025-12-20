@@ -1,6 +1,8 @@
+import { authService } from "../shared/authService";
+import { cooperationUserSyncService } from "@/services/cooperationUsers/cooperationUserSyncService";
 import { cooperationSyncService } from "./cooperationSyncService";
+import { digitalisationLevelSyncService } from "./digitalisationLevelSyncService";
 import { organizationDimensionSyncService } from "./organizationDimensionSyncService";
-import { cooperationUserSyncService } from "../cooperationUsers/cooperationUserSyncService";
 
 export const syncManager = {
   initialize() {
@@ -15,18 +17,22 @@ export const syncManager = {
 
   handleOnline() {
     console.log("Application is back online. Starting sync...");
-    syncManager.syncAll();
+    const organizationId = authService.getOrganizationId();
+    syncManager.syncAll(organizationId);
   },
 
   handleOffline() {
     console.log("Application is offline.");
   },
 
-  async syncAll() {
+  async syncAll(organizationId: string | null) {
     try {
-      await cooperationSyncService.sync();
-      await organizationDimensionSyncService.syncPendingAssignments();
-      await cooperationUserSyncService.sync();
+      await digitalisationLevelSyncService.sync();
+      if (organizationId) {
+        await cooperationSyncService.sync(organizationId);
+        await organizationDimensionSyncService.syncPendingAssignments();
+        await cooperationUserSyncService.sync();
+      }
       // Add other sync services here in the future
       console.log("All data synced successfully.");
     } catch (error) {

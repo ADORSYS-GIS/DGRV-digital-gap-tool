@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useMemo } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface LevelSelectorProps {
@@ -12,10 +12,8 @@ interface LevelSelectorProps {
   level: number;
   /** Callback when the level changes */
   onChange: (value: number) => void;
-  /** Maximum level available (default: 5) */
-  maxLevel?: number;
-  /** Minimum level available (default: 1) */
-  minLevel?: number;
+  /** The available levels to select from */
+  availableLevels: number[];
   /** Disable all interactions */
   disabled?: boolean;
   /** Additional class names */
@@ -34,27 +32,31 @@ export function LevelSelector({
   description,
   level,
   onChange,
-  maxLevel = 5,
-  minLevel = 1,
+  availableLevels,
   disabled = false,
   className,
   testId = "level-selector",
   levelDescription,
 }: LevelSelectorProps) {
+  const levels = useMemo(
+    () => availableLevels.sort((a, b) => a - b),
+    [availableLevels],
+  );
+  const minLevel = levels[0] ?? 1;
+  const maxLevel = levels[levels.length - 1] ?? 1;
+
   // Ensure level is within bounds
   useEffect(() => {
-    if (level < minLevel || level > maxLevel) {
+    if (levels.length > 0 && !levels.includes(level)) {
       console.warn(
-        `Level ${level} is out of bounds. Clamping to [${minLevel}, ${maxLevel}]`,
+        `Level ${level} is not in the available levels. Clamping to the first available level.`,
       );
-      onChange(Math.min(Math.max(minLevel, level), maxLevel));
+      const firstLevel = levels[0];
+      if (firstLevel !== undefined) {
+        onChange(firstLevel);
+      }
     }
-  }, [level, minLevel, maxLevel, onChange]);
-
-  const levels = Array.from(
-    { length: maxLevel - minLevel + 1 },
-    (_, i) => minLevel + i,
-  );
+  }, [level, levels, onChange]);
 
   const handleLevelClick = useCallback(
     (lvl: number) => {
@@ -69,6 +71,8 @@ export function LevelSelector({
     (e: React.KeyboardEvent, lvl: number) => {
       if (disabled) return;
 
+      const currentIndex = levels.indexOf(lvl);
+
       switch (e.key) {
         case "Enter":
         case " ":
@@ -77,27 +81,47 @@ export function LevelSelector({
           break;
         case "ArrowLeft":
           e.preventDefault();
-          if (lvl > minLevel) handleLevelClick(lvl - 1);
+          if (currentIndex > 0) {
+            const prevLevel = levels[currentIndex - 1];
+            if (prevLevel !== undefined) {
+              handleLevelClick(prevLevel);
+            }
+          }
           break;
         case "ArrowRight":
           e.preventDefault();
-          if (lvl < maxLevel) handleLevelClick(lvl + 1);
+          if (currentIndex < levels.length - 1) {
+            const nextLevel = levels[currentIndex + 1];
+            if (nextLevel !== undefined) {
+              handleLevelClick(nextLevel);
+            }
+          }
           break;
         case "Home":
           e.preventDefault();
-          handleLevelClick(minLevel);
+          if (levels.length > 0) {
+            const firstLevel = levels[0];
+            if (firstLevel !== undefined) {
+              handleLevelClick(firstLevel);
+            }
+          }
           break;
         case "End":
           e.preventDefault();
-          handleLevelClick(maxLevel);
+          if (levels.length > 0) {
+            const lastLevel = levels[levels.length - 1];
+            if (lastLevel !== undefined) {
+              handleLevelClick(lastLevel);
+            }
+          }
           break;
       }
     },
-    [disabled, handleLevelClick, minLevel, maxLevel],
+    [disabled, handleLevelClick, levels],
   );
 
   // Ensure level is within bounds for rendering
-  const safeLevel = Math.min(Math.max(minLevel, level), maxLevel);
+  const safeLevel = levels.includes(level) ? level : minLevel;
 
   // Generate level indicators with visual representation
   const renderLevelIndicators = () => {
@@ -135,8 +159,16 @@ export function LevelSelector({
       <div className="flex items-center justify-between mt-2">
         <button
           type="button"
-          onClick={() => handleLevelClick(Math.max(minLevel, safeLevel - 1))}
-          disabled={safeLevel <= minLevel || disabled}
+          onClick={() => {
+            const currentIndex = levels.indexOf(safeLevel);
+            if (currentIndex > 0) {
+              const prevLevel = levels[currentIndex - 1];
+              if (prevLevel !== undefined) {
+                handleLevelClick(prevLevel);
+              }
+            }
+          }}
+          disabled={safeLevel === minLevel || disabled}
           className={cn(
             "p-1 rounded-full hover:bg-muted",
             safeLevel <= minLevel && "opacity-50 cursor-not-allowed",
@@ -152,8 +184,16 @@ export function LevelSelector({
 
         <button
           type="button"
-          onClick={() => handleLevelClick(Math.min(maxLevel, safeLevel + 1))}
-          disabled={safeLevel >= maxLevel || disabled}
+          onClick={() => {
+            const currentIndex = levels.indexOf(safeLevel);
+            if (currentIndex < levels.length - 1) {
+              const nextLevel = levels[currentIndex + 1];
+              if (nextLevel !== undefined) {
+                handleLevelClick(nextLevel);
+              }
+            }
+          }}
+          disabled={safeLevel === maxLevel || disabled}
           className={cn(
             "p-1 rounded-full hover:bg-muted",
             safeLevel >= maxLevel && "opacity-50 cursor-not-allowed",

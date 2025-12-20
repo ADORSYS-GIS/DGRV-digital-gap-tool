@@ -107,21 +107,41 @@ pub async fn add_member(
                 "view-users",
                 "query-users",
                 "query-groups",
-                "view-groups",
+                "view-realm",
+                "query-clients",
+                "view-clients",
             ];
+            let account_roles = vec!["view-groups"];
+
             for role in realm_management_roles {
                 state
                     .keycloak_service
                     .assign_client_role_to_user(&token, &user_id, "realm-management", role)
                     .await?;
             }
+
+            for role in account_roles {
+                state
+                    .keycloak_service
+                    .assign_client_role_to_user(&token, &user_id, "account", role)
+                    .await?;
+            }
         } else if role == "coop_user" {
             // Required client roles for coop_user
-            let realm_management_roles = vec!["query-groups", "view-groups", "view-users"];
+            let realm_management_roles = vec!["query-groups", "view-users"];
+            let account_roles = vec!["view-groups"];
+
             for role in realm_management_roles {
                 state
                     .keycloak_service
                     .assign_client_role_to_user(&token, &user_id, "realm-management", role)
+                    .await?;
+            }
+
+            for role in account_roles {
+                state
+                    .keycloak_service
+                    .assign_client_role_to_user(&token, &user_id, "account", role)
                     .await?;
             }
         }

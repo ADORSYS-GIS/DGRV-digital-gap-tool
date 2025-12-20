@@ -53,9 +53,7 @@ pub async fn create_organization(
         Ok(organization) => Ok((StatusCode::CREATED, Json(organization))),
         Err(e) => {
             tracing::error!("Failed to create organization: {}", e);
-            Err(AppError::InternalServerError(
-                "Failed to create organization".to_string(),
-            ))
+            Err(AppError::BadRequest(e.to_string()))
         }
     }
 }

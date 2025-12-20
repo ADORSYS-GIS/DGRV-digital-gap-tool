@@ -2,11 +2,12 @@ import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
 import { AddAssessmentForm } from "@/components/shared/assessments/AddAssessmentForm";
+import { NoDimensionsModal } from "@/components/shared/assessments/NoDimensionsModal";
 import { AssessmentList } from "@/components/shared/assessments/AssessmentList";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { useAssessmentsByOrganization } from "@/hooks/assessments/useAssessmentsByOrganization";
 import { useAssessmentsByCooperation } from "@/hooks/assessments/useAssessmentsByCooperation";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/hooks/useAuth";
 import { ROLES } from "@/constants/roles";
 import { useOrganizationId } from "@/hooks/organizations/useOrganizationId";
 import { useCooperationId } from "@/hooks/cooperations/useCooperationId";
@@ -22,6 +23,7 @@ import { SyncStatus } from "@/types/sync";
  */
 export default function ManageAssessments() {
   const [isAddDialogOpen, setAddDialogOpen] = useState(false);
+  const [isNoDimensionsModalOpen, setNoDimensionsModalOpen] = useState(false);
   const { user } = useAuth();
   const organizationId = useOrganizationId();
   const cooperationId = useCooperationId();
@@ -57,10 +59,7 @@ export default function ManageAssessments() {
       isOrgAdmin &&
       (!assignedDimensionIds || assignedDimensionIds.length === 0)
     ) {
-      toast.error("No Dimensions Assigned", {
-        description:
-          "Please assign dimensions to your organization before creating an assessment.",
-      });
+      setNoDimensionsModalOpen(true);
       return;
     }
 
@@ -164,7 +163,7 @@ export default function ManageAssessments() {
               className="gap-2 rounded-full shadow-sm transition-all hover:shadow-md"
             >
               <PlusCircle className="h-4 w-4" aria-hidden="true" />
-              <span>Add assessment</span>
+              <span>Create assessment</span>
             </Button>
           )}
         </header>
@@ -232,6 +231,10 @@ export default function ManageAssessments() {
         <AddAssessmentForm
           isOpen={isAddDialogOpen}
           onClose={() => setAddDialogOpen(false)}
+        />
+        <NoDimensionsModal
+          isOpen={isNoDimensionsModalOpen}
+          onClose={() => setNoDimensionsModalOpen(false)}
         />
       </div>
     </div>

@@ -27,3 +27,8 @@ export interface AuthState {
   roles: string[];
   loading: boolean;
 }
+
+export interface AuthContextType extends AuthState {
+  login: () => Promise<void>;
+  logout: () => Promise<void>;
+}

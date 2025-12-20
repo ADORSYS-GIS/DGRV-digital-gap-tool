@@ -17,6 +17,7 @@ import { ROLES } from "@/constants/roles";
 import { useDimensions } from "@/hooks/dimensions/useDimensions";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { toast } from "sonner";
 
 /**
  * Dialog form for inviting a new user into a cooperation.
@@ -67,11 +68,15 @@ export const AddCooperationUserForm = () => {
       { user, cooperationId },
       {
         onSuccess: () => {
+          toast.success("User successfully invited.");
           setIsOpen(false);
           setEmail("");
           setFirstName("");
           setLastName("");
           setSelectedDimensionIds([]);
+        },
+        onError: (error) => {
+          toast.error(error.message || "Failed to invite user.");
         },
       },
     );
@@ -185,7 +190,7 @@ export const AddCooperationUserForm = () => {
               id="coop-user-role"
               value={
                 newUserRole
-                  ? newUserRole === "coop_admin"
+                  ? newUserRole === ROLES.COOP_ADMIN
                     ? "Cooperation admin"
                     : "Cooperation user"
                   : "No role will be assigned with your current permissions"

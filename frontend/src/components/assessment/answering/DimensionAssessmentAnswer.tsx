@@ -33,14 +33,20 @@ export function DimensionAssessmentAnswer({
   className,
   existingAssessment,
 }: DimensionAssessmentAnswerProps) {
+  const currentAvailableLevels =
+    dimension.current_states?.map((s) => s.level).sort((a, b) => a - b) ?? [];
+  const desiredAvailableLevels =
+    dimension.desired_states?.map((s) => s.level).sort((a, b) => a - b) ?? [];
+
   const [currentLevel, setCurrentLevel] = useState<number>(
-    existingAssessment?.currentState?.level ?? 1,
+    () =>
+      existingAssessment?.currentState?.level ?? currentAvailableLevels[0] ?? 1,
   );
   const [desiredLevel, setDesiredLevel] = useState<number>(
-    existingAssessment?.desiredState?.level ?? 1,
+    () =>
+      existingAssessment?.desiredState?.level ?? desiredAvailableLevels[0] ?? 1,
   );
   const [localError, setLocalError] = useState<string | null>(null);
-  const maxLevel = 5;
 
   const currentLevelDescription = dimension.current_states?.find(
     (state) => state.level === currentLevel,
@@ -79,11 +85,6 @@ export function DimensionAssessmentAnswer({
       return;
     }
 
-    if (currentLevel === desiredLevel) {
-      setLocalError("Current and desired levels cannot be the same");
-      return;
-    }
-
     try {
       onSubmit(currentLevel, desiredLevel);
     } catch (err) {
@@ -94,11 +95,8 @@ export function DimensionAssessmentAnswer({
   };
 
   const isFormValid =
-    currentLevel > 0 &&
-    desiredLevel > 0 &&
-    currentLevel <= maxLevel &&
-    desiredLevel <= maxLevel &&
-    currentLevel !== desiredLevel &&
+    currentAvailableLevels.includes(currentLevel) &&
+    desiredAvailableLevels.includes(desiredLevel) &&
     !!currentLevelDescription &&
     !!desiredLevelDescription;
 
@@ -134,8 +132,8 @@ export function DimensionAssessmentAnswer({
             description="Select your current level for this dimension"
             level={currentLevel}
             onChange={setCurrentLevel}
-            maxLevel={maxLevel}
-            disabled={isSubmitting}
+            availableLevels={currentAvailableLevels}
+            disabled={isSubmitting || currentAvailableLevels.length === 0}
             levelDescription={currentLevelDescription}
           />
 
@@ -144,8 +142,8 @@ export function DimensionAssessmentAnswer({
             description="Select your desired level for this dimension"
             level={desiredLevel}
             onChange={setDesiredLevel}
-            maxLevel={maxLevel}
-            disabled={isSubmitting}
+            availableLevels={desiredAvailableLevels}
+            disabled={isSubmitting || desiredAvailableLevels.length === 0}
             levelDescription={desiredLevelDescription}
           />
 

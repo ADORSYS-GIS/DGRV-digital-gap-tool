@@ -2,23 +2,27 @@ import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { AddCooperationUserForm } from "@/components/second_admin/cooperationUsers/AddCooperationUserForm";
 import { CooperationUserList } from "@/components/second_admin/cooperationUsers/CooperationUserList";
 import { useCooperationUsers } from "@/hooks/cooperationUsers/useCooperationUsers";
+import { useAuth } from "@/context/AuthContext";
+import { ROLES } from "@/constants/roles";
+import { useMemo } from "react";
 
 /**
  * Detail page for managing the users of a specific cooperation.
  */
 export default function ManageCooperationUsersPage() {
   const { data: users, isLoading, error } = useCooperationUsers();
+  const { user: currentUser } = useAuth();
 
-  // Debug logs to see what cooperationId is being used inside the hook
-  // eslint-disable-next-line no-console
-  console.log("[ManageCooperationUsersPage] users:", users);
-  // eslint-disable-next-line no-console
-  console.log(
-    "[ManageCooperationUsersPage] isLoading:",
-    isLoading,
-    "error:",
-    error,
-  );
+  const filteredUsers = useMemo(() => {
+    if (!users) return [];
+    if (currentUser?.roles?.includes(ROLES.ORG_ADMIN)) {
+      return users.filter((user) => user.roles.includes(ROLES.COOP_ADMIN));
+    }
+    if (currentUser?.roles?.includes(ROLES.COOP_ADMIN)) {
+      return users.filter((user) => user.roles.includes(ROLES.COOP_USER));
+    }
+    return users;
+  }, [users, currentUser]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -49,7 +53,7 @@ export default function ManageCooperationUsersPage() {
           </div>
         )}
 
-        {!isLoading && !error && users && users.length === 0 && (
+        {!isLoading && !error && filteredUsers.length === 0 && (
           <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-muted-foreground/30 bg-muted/40 px-6 py-12 text-center">
             <h2 className="text-lg font-semibold text-foreground">
               No users added yet
@@ -63,12 +67,12 @@ export default function ManageCooperationUsersPage() {
           </div>
         )}
 
-        {!isLoading && !error && users && users.length > 0 && (
+        {!isLoading && !error && filteredUsers.length > 0 && (
           <section
             aria-label="Cooperation users table"
             className="rounded-xl border border-border bg-card p-4 shadow-sm sm:p-6"
           >
-            <CooperationUserList users={users} />
+            <CooperationUserList users={filteredUsers} />
           </section>
         )}
       </div>

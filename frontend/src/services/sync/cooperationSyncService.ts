@@ -7,6 +7,8 @@ import {
 import { KeycloakGroup } from "@/openapi-client/types.gen";
 import { db } from "@/services/db";
 import { Cooperation } from "@/types/cooperation";
+import { SyncStatus } from "@/types/sync";
+import { syncService } from "./syncService";
 
 const mapRemoteCooperationToLocal = (
   cooperation: KeycloakGroup,
@@ -16,7 +18,8 @@ const mapRemoteCooperationToLocal = (
   description: cooperation.description || "",
   path: cooperation.path,
   domains: [],
-  syncStatus: "synced" as const,
+  syncStatus: SyncStatus.SYNCED,
+  syncRetries: 0,
 });
 
 export const cooperationSyncService = {
@@ -33,44 +36,53 @@ export const cooperationSyncService = {
 
     const pendingCreations = await db.cooperations
       .where("syncStatus")
-      .equals("new")
+      .equals(SyncStatus.NEW)
       .toArray();
     for (const cooperation of pendingCreations) {
-      const { id, syncStatus, ...payload } = cooperation;
-      const response = await createGroup({
-        orgId: organizationId,
-        requestBody: {
-          name: payload.name,
-          description: payload.description,
-        },
+      await syncService.trySync(db.cooperations, cooperation, async () => {
+        const { id, syncStatus, ...payload } = cooperation;
+        const response = await createGroup({
+          orgId: organizationId,
+          requestBody: {
+            name: payload.name,
+            description: payload.description,
+          },
+        });
+        await db.cooperations.delete(id);
+        await db.cooperations.add(mapRemoteCooperationToLocal(response));
       });
-      await db.cooperations.delete(id);
-      await db.cooperations.add(mapRemoteCooperationToLocal(response));
     }
 
     const pendingUpdates = await db.cooperations
       .where("syncStatus")
-      .equals("updated")
+      .equals(SyncStatus.UPDATED)
       .toArray();
     for (const cooperation of pendingUpdates) {
-      const { syncStatus, ...payload } = cooperation;
-      await updateGroup({
-        groupId: cooperation.id,
-        requestBody: {
-          name: payload.name,
-          description: payload.description,
-        },
+      await syncService.trySync(db.cooperations, cooperation, async () => {
+        const { syncStatus, ...payload } = cooperation;
+        await updateGroup({
+          groupId: cooperation.id,
+          requestBody: {
+            name: payload.name,
+            description: payload.description,
+          },
+        });
+        await db.cooperations.update(cooperation.id, {
+          syncStatus: SyncStatus.SYNCED,
+          syncRetries: 0,
+        });
       });
-      await db.cooperations.update(cooperation.id, { syncStatus: "synced" });
     }
 
     const pendingDeletions = await db.cooperations
       .where("syncStatus")
-      .equals("deleted")
+      .equals(SyncStatus.DELETED)
       .toArray();
     for (const cooperation of pendingDeletions) {
-      await deleteGroup({ groupId: cooperation.id });
-      await db.cooperations.delete(cooperation.id);
+      await syncService.trySync(db.cooperations, cooperation, async () => {
+        await deleteGroup({ groupId: cooperation.id });
+        await db.cooperations.delete(cooperation.id);
+      });
     }
 
     const remoteCooperations = await getGroupsByOrganization({
@@ -79,6 +91,19 @@ export const cooperationSyncService = {
     const localCooperations = remoteCooperations.map(
       mapRemoteCooperationToLocal,
     );
+    const remoteIds = new Set(localCooperations.map((c) => c.id));
+
+    const cooperationsToDelete = await db.cooperations
+      .where("syncStatus")
+      .equals(SyncStatus.SYNCED)
+      .filter((c) => !remoteIds.has(c.id))
+      .toArray();
+
+    if (cooperationsToDelete.length > 0) {
+      const idsToDelete = cooperationsToDelete.map((c) => c.id);
+      await db.cooperations.bulkDelete(idsToDelete);
+    }
+
     await db.cooperations.bulkPut(localCooperations);
   },
 };

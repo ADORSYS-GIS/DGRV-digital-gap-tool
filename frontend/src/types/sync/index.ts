@@ -12,6 +12,7 @@ export interface OfflineEntity {
   id: string;
   syncStatus: SyncStatus;
   lastError?: string;
+  syncRetries?: number;
 }
 
 export interface SyncQueueItem {

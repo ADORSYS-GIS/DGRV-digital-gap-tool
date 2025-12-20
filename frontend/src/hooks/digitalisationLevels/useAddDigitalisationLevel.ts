@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { digitalisationLevelRepository } from "@/services/digitalisationLevels/digitalisationLevelRepository";
+import { toast } from "sonner";
 import {
   ICreateCurrentStateRequest,
   ICreateDesiredStateRequest,
@@ -7,15 +7,14 @@ import {
   LevelState,
   LevelType,
 } from "@/types/digitalisationLevel";
-import { v4 as uuidv4 } from "uuid";
 import { SyncStatus } from "@/types/sync";
+import { digitalisationLevelRepository } from "@/services/digitalisationLevels/digitalisationLevelRepository";
+import { v4 as uuidv4 } from "uuid";
 
 interface AddDigitalisationLevelVariables {
   dimensionId: string;
   levelType: LevelType;
-  levelData:
-    | Omit<ICreateCurrentStateRequest, "levelType" | "id">
-    | Omit<ICreateDesiredStateRequest, "levelType" | "id">;
+  levelData: ICreateCurrentStateRequest | ICreateDesiredStateRequest;
 }
 
 export const useAddDigitalisationLevel = () => {
@@ -25,72 +24,61 @@ export const useAddDigitalisationLevel = () => {
     IDigitalisationLevel,
     Error,
     AddDigitalisationLevelVariables,
-    { previousLevels: IDigitalisationLevel[] | undefined }
+    {
+      previousLevels: IDigitalisationLevel[] | undefined;
+      optimisticLevel: IDigitalisationLevel;
+    }
   >({
     mutationFn: async ({
       dimensionId,
-      levelType,
       levelData,
+      levelType,
     }: AddDigitalisationLevelVariables) => {
-      if (levelType === "current") {
-        return await digitalisationLevelRepository.addCurrentState(
-          dimensionId,
-          levelData as ICreateCurrentStateRequest,
-        );
-      } else {
-        return await digitalisationLevelRepository.addDesiredState(
-          dimensionId,
-          levelData as ICreateDesiredStateRequest,
-        );
-      }
+      return await digitalisationLevelRepository.add(
+        dimensionId,
+        levelData,
+        levelType,
+      );
     },
     onMutate: async (newLevel) => {
       const queryKey = ["digitalisationLevels", newLevel.dimensionId];
       await queryClient.cancelQueries({ queryKey });
 
       const previousLevels =
-        queryClient.getQueryData<IDigitalisationLevel[]>(queryKey);
+        queryClient.getQueryData<IDigitalisationLevel[]>(queryKey) ?? [];
 
       const optimisticLevel: IDigitalisationLevel = {
         id: uuidv4(),
-        syncStatus: SyncStatus.PENDING,
         dimensionId: newLevel.dimensionId,
         levelType: newLevel.levelType,
         state: newLevel.levelData.score as LevelState,
         description: newLevel.levelData.description ?? null,
         level: newLevel.levelData.level ?? null,
-        ...("characteristics" in newLevel.levelData && {
-          characteristics: newLevel.levelData.characteristics,
-        }),
-        ...("success_criteria" in newLevel.levelData && {
-          success_criteria: newLevel.levelData.success_criteria,
-        }),
-        ...("target_date" in newLevel.levelData && {
-          target_date: newLevel.levelData.target_date,
-        }),
+        syncStatus: SyncStatus.PENDING,
+        lastError: "",
       };
 
-      if (previousLevels) {
-        queryClient.setQueryData<IDigitalisationLevel[]>(queryKey, [
-          ...previousLevels,
-          optimisticLevel,
-        ]);
-      }
+      queryClient.setQueryData<IDigitalisationLevel[]>(queryKey, (old = []) => [
+        ...old,
+        optimisticLevel,
+      ]);
 
-      return { previousLevels };
+      return { previousLevels, optimisticLevel };
     },
-    onError: (err, newLevel, context) => {
-      if (context?.previousLevels) {
-        queryClient.setQueryData(
-          ["digitalisationLevels", newLevel.dimensionId],
-          context.previousLevels,
-        );
-      }
+    onSuccess: (data, variables, context) => {
+      if (!context?.optimisticLevel) return;
+      const queryKey = ["digitalisationLevels", variables.dimensionId];
+      queryClient.setQueryData<IDigitalisationLevel[]>(queryKey, (old = []) =>
+        old.map((level) =>
+          level.id === context.optimisticLevel.id ? data : level,
+        ),
+      );
+      toast.success("Level added successfully");
     },
-    onSettled: (data, error, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: ["digitalisationLevels", variables.dimensionId],
-      });
+    onError: (error: Error, variables, context) => {
+      const queryKey = ["digitalisationLevels", variables.dimensionId];
+      queryClient.setQueryData(queryKey, context?.previousLevels);
+      toast.error(`Failed to add level: ${error.message}`);
     },
   });
 };

@@ -1,4 +1,5 @@
 import { DimensionCard } from "@/components/shared/DimensionCard";
+import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { useDimensionAssessments } from "@/hooks/assessments/useDimensionAssessments";
 import { assessmentRepository } from "@/services/assessments/assessmentRepository";
@@ -9,9 +10,11 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
+import { useSubmitAssessment } from "@/hooks/submissions/useSubmitAssessment";
 
 const AssessmentDetailPage: React.FC = () => {
   const { assessmentId } = useParams<{ assessmentId: string }>();
+  const { mutateAsync: submitAssessment } = useSubmitAssessment();
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
@@ -97,6 +100,19 @@ const AssessmentDetailPage: React.FC = () => {
       );
     } else {
       toast.error("Assessment ID not found.");
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (assessmentId) {
+      try {
+        await submitAssessment(assessmentId);
+        toast.success("Assessment submitted successfully!");
+        const basePath = location.pathname.split("/")[1];
+        navigate(`/${basePath}/assessments`);
+      } catch (error) {
+        toast.error("Failed to submit assessment.");
+      }
     }
   };
 
@@ -197,6 +213,19 @@ const AssessmentDetailPage: React.FC = () => {
             </div>
           )}
         </section>
+
+        {/* Finish Assessment Button */}
+        {!isCoopUserRestricted && (
+          <section className="mt-10 text-center">
+            <Button
+              size="lg"
+              disabled={progressPercentage < 100}
+              onClick={handleSubmit}
+            >
+              Finish assessment
+            </Button>
+          </section>
+        )}
       </div>
     </div>
   );
