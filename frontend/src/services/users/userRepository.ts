@@ -50,17 +50,40 @@ class UserRepository {
     if (navigator.onLine) {
       try {
         const members = await getOrganizationMembers({ orgId });
-        await db.users.where("orgId").equals(orgId).delete();
-        const membersWithOrgId = members.map((member) => ({
-          ...member,
-          orgId,
-          syncStatus: SyncStatus.SYNCED,
-        }));
-        await db.users.bulkPut(membersWithOrgId as UserWithSync[]);
-        return this.getMembersOffline(orgId);
+        const localUsers = await this.getMembersOffline(orgId);
+        const localUsersMap = new Map(localUsers.map((u) => [u.id, u]));
+        const backendUserIds = new Set(members.map((m) => m.id));
+
+        const usersToPut = members
+          .map((member) => {
+            const localUser = localUsersMap.get(member.id);
+            if (localUser && localUser.syncStatus === SyncStatus.PENDING) {
+              return null;
+            }
+            return {
+              ...member,
+              orgId,
+              syncStatus: SyncStatus.SYNCED,
+            };
+          })
+          .filter((u) => u !== null) as UserWithSync[];
+
+        const idsToDelete = localUsers
+          .filter(
+            (u) =>
+              u.syncStatus !== SyncStatus.PENDING && !backendUserIds.has(u.id),
+          )
+          .map((u) => u.id);
+
+        if (usersToPut.length > 0) {
+          await db.users.bulkPut(usersToPut);
+        }
+
+        if (idsToDelete.length > 0) {
+          await db.users.bulkDelete(idsToDelete);
+        }
       } catch (error) {
         console.error("Failed to fetch organization members:", error);
-        return this.getMembersOffline(orgId);
       }
     }
     return this.getMembersOffline(orgId);
@@ -85,9 +108,16 @@ class UserRepository {
     });
   }
 
-  async deleteUser(userId: string): Promise<void> {
-    // TODO: Add offline support for user deletion
-    await deleteUser({ userId });
+  async deleteUser(userId: string, orgId: string): Promise<void> {
+    const userToDelete = await db.users.get(userId);
+    if (userToDelete) {
+      await db.users.delete(userId);
+    }
+
+    await syncService.addToSyncQueue("User", userId, "DELETE", {
+      id: userId,
+      orgId: orgId,
+    });
   }
 }
 

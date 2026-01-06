@@ -20,29 +20,61 @@ export const recommendationRepository = {
       if (navigator.onLine) {
         const response = await listRecommendations({});
         if (response.data) {
-          // Handle API response format
           const items = Array.isArray(response.data)
             ? response.data
             : response.data.items || [];
 
           if (items.length > 0) {
-            // Clear existing and bulk add new recommendations from backend
-            await db.recommendations.clear();
+            const localRecommendations = await db.recommendations.toArray();
+            const localRecommendationsMap = new Map(
+              localRecommendations.map((r) => [r.id, r]),
+            );
+            const backendRecommendationIds = new Set(
+              items.map((item) => item.recommendation_id || item.id),
+            );
 
-            const syncedRecommendations = items.map((item) => ({
-              id: item.recommendation_id || item.id || `temp-${Date.now()}`,
-              recommendation_id:
-                item.recommendation_id || item.id || `temp-${Date.now()}`,
-              dimension_id: item.dimension_id,
-              priority: item.priority,
-              description: item.description,
-              syncStatus: SyncStatus.SYNCED,
-              lastError: "",
-              created_at: item.created_at || new Date().toISOString(),
-              updated_at: item.updated_at || new Date().toISOString(),
-            }));
+            const recommendationsToPut: IRecommendation[] = items
+              .map((item) => {
+                const recommendationId =
+                  item.recommendation_id || item.id || `temp-${Date.now()}`;
+                const localRecommendation =
+                  localRecommendationsMap.get(recommendationId);
+                if (
+                  localRecommendation &&
+                  localRecommendation.syncStatus === SyncStatus.PENDING
+                ) {
+                  return null; // Keep local pending changes
+                }
+                return {
+                  id: recommendationId,
+                  recommendation_id: recommendationId,
+                  dimension_id: item.dimension_id,
+                  priority: item.priority ?? "MEDIUM",
+                  description: item.description,
+                  syncStatus: SyncStatus.SYNCED,
+                  lastError: "",
+                  created_at: item.created_at || new Date().toISOString(),
+                  updated_at: item.updated_at || new Date().toISOString(),
+                };
+              })
+              .filter((r) => r !== null)
+              .map((r) => r as IRecommendation);
 
-            await db.recommendations.bulkAdd(syncedRecommendations);
+            if (recommendationsToPut.length > 0) {
+              await db.recommendations.bulkPut(recommendationsToPut);
+            }
+
+            const idsToDelete = localRecommendations
+              .filter(
+                (r) =>
+                  r.syncStatus !== SyncStatus.PENDING &&
+                  !backendRecommendationIds.has(r.id),
+              )
+              .map((r) => r.id);
+
+            if (idsToDelete.length > 0) {
+              await db.recommendations.bulkDelete(idsToDelete);
+            }
             console.log(
               "Recommendations fetched from backend and synced to IndexedDB.",
             );
@@ -72,7 +104,7 @@ export const recommendationRepository = {
             // Only include optional fields if they have values
             ...(data.title && { title: data.title }),
             ...(data.category && { category: data.category }),
-            ...(data.priority && { priority: data.priority }),
+            priority: data.priority ?? "MEDIUM",
             ...(data.effort && { effort: data.effort }),
             ...(data.cost !== undefined && { cost: data.cost }),
             ...(data.impact !== undefined && { impact: data.impact }),
@@ -134,43 +166,57 @@ export const recommendationRepository = {
     id: string,
     changes: Omit<IUpdateRecommendationRequest, "id">,
   ): Promise<void> => {
-    const existing = await db.recommendations.get(id);
+    let existing = await db.recommendations.get(id);
+    if (!existing) {
+      existing = await db.recommendations
+        .where("recommendation_id")
+        .equals(id)
+        .first();
+    }
+
     if (!existing) {
       console.warn(`Recommendation with ID ${id} not found in IndexedDB.`);
       return;
     }
 
+    const localId = existing.id;
+
     // Update in IndexedDB with PENDING status
-    await db.recommendations.update(id, {
+    await db.recommendations.update(localId, {
       ...changes,
       updated_at: new Date().toISOString(),
       syncStatus: SyncStatus.PENDING,
     });
 
-    syncService.addToSyncQueue("Recommendation", id, "UPDATE", {
+    syncService.addToSyncQueue("Recommendation", localId, "UPDATE", {
       ...existing,
       ...changes,
     });
   },
 
   delete: async (id: string): Promise<void> => {
-    const existing = await db.recommendations.get(id);
+    let existing = await db.recommendations.get(id);
+    if (!existing) {
+      existing = await db.recommendations
+        .where("recommendation_id")
+        .equals(id)
+        .first();
+    }
+
     if (!existing) {
       console.warn(`Recommendation with ID ${id} not found in IndexedDB.`);
       return;
     }
 
+    const localId = existing.id;
+
+    // If the item was synced with the server, we need to queue a delete action.
     if (existing.syncStatus === SyncStatus.SYNCED) {
-      // Mark for deletion if synced
-      await db.recommendations.update(id, {
-        syncStatus: SyncStatus.PENDING,
-        updated_at: new Date().toISOString(),
-      });
-      syncService.addToSyncQueue("Recommendation", id, "DELETE", existing);
-    } else {
-      // Delete immediately if never synced
-      await db.recommendations.delete(id);
+      syncService.addToSyncQueue("Recommendation", localId, "DELETE", existing);
     }
+
+    // Always delete the item from the local database for immediate UI feedback.
+    await db.recommendations.delete(localId);
   },
 
   markAsSynced: async (offlineId: string, serverId: string): Promise<void> => {

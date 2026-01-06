@@ -26,7 +26,7 @@ export const useAddCooperationUser = () => {
       queryClient.invalidateQueries({
         queryKey: ["cooperationUsers", variables.cooperationId],
       });
-      syncManager.sync();
+      syncManager.syncAll(null);
     },
   });
 };

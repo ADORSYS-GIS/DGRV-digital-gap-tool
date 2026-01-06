@@ -29,12 +29,28 @@ export const digitalisationLevelRepository = {
   },
 
   syncByDimensionId: async (dimensionId: string): Promise<void> => {
+    const pendingDeletes = await db.sync_queue
+      .where({ action: "DELETE" })
+      .filter((item) => {
+        const payload = item.payload as { dimensionId?: string };
+        return (
+          (item.entityType === "CurrentState" ||
+            item.entityType === "DesiredState") &&
+          payload.dimensionId === dimensionId
+        );
+      })
+      .toArray();
+    const pendingDeleteIds = new Set(pendingDeletes.map((item) => item.entityId));
+
     const backendData = await getDimensionWithStates({ id: dimensionId });
+    const localLevels = await db.digitalisationLevels
+      .where({ dimensionId })
+      .toArray();
+    const localLevelsMap = new Map(localLevels.map((l) => [l.id, l]));
 
     // Sync Current States
     const beCurrentStates = backendData.data?.current_states ?? [];
     const syncedCurrentStates = beCurrentStates.map((s) => ({
-      ...s,
       id: s.current_state_id,
       dimensionId: dimensionId,
       levelType: "current" as LevelType,
@@ -48,7 +64,6 @@ export const digitalisationLevelRepository = {
     // Sync Desired States
     const beDesiredStates = backendData.data?.desired_states ?? [];
     const syncedDesiredStates = beDesiredStates.map((s) => ({
-      ...s,
       id: s.desired_state_id,
       dimensionId: dimensionId,
       levelType: "desired" as LevelType,
@@ -60,11 +75,31 @@ export const digitalisationLevelRepository = {
     }));
 
     const allSyncedStates = [...syncedCurrentStates, ...syncedDesiredStates];
+    const nonPendingDeleteStates = allSyncedStates.filter(
+      (s) => !pendingDeleteIds.has(s.id),
+    );
+    const backendLevelIds = new Set(nonPendingDeleteStates.map((s) => s.id));
 
-    if (allSyncedStates.length > 0) {
+    const levelsToPut = nonPendingDeleteStates.filter((s) => {
+      const localLevel = localLevelsMap.get(s.id);
+      return !localLevel || localLevel.syncStatus !== SyncStatus.PENDING;
+    });
+
+    const idsToDelete = localLevels
+      .filter(
+        (l) =>
+          l.syncStatus !== SyncStatus.PENDING && !backendLevelIds.has(l.id),
+      )
+      .map((l) => l.id);
+
+    if (levelsToPut.length > 0 || idsToDelete.length > 0) {
       await db.transaction("rw", db.digitalisationLevels, async () => {
-        await db.digitalisationLevels.where({ dimensionId }).delete();
-        await db.digitalisationLevels.bulkAdd(allSyncedStates);
+        if (levelsToPut.length > 0) {
+          await db.digitalisationLevels.bulkPut(levelsToPut);
+        }
+        if (idsToDelete.length > 0) {
+          await db.digitalisationLevels.bulkDelete(idsToDelete);
+        }
       });
       console.log(
         `Digitalisation levels for dimension ${dimensionId} fetched from backend and synced.`,

@@ -33,16 +33,16 @@ export class AppDB extends Dexie {
 
   constructor() {
     super("AppDB");
-    this.version(9).stores({
+    this.version(10).stores({
       assessments: "id, organization_id, cooperation_id",
       submissions: "id, assessment.organization_id",
       organizations: "id",
       cooperations: "id, syncStatus, syncRetries",
       digitalisationGaps: "id, syncStatus",
       action_plans: "action_plan_id, assessment_id",
-      sync_queue: "++id, entityType",
+      sync_queue: "++id, entityType, action",
       dimensions: "id",
-      recommendations: "id",
+      recommendations: "id, recommendation_id",
       dimensionAssessments: "id, [dimensionId+assessmentId], assessmentId",
       users: "id, orgId",
       organizationDimensions: "id, organizationId, syncStatus",

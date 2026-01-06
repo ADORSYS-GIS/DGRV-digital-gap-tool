@@ -16,14 +16,16 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useDeleteUser } from "@/hooks/users/useDeleteUser";
+import { useParams } from "react-router-dom";
 
 interface UserTableRowProps {
   user: KeycloakUser;
 }
 
 export const UserTableRow: React.FC<UserTableRowProps> = ({ user }) => {
+  const { orgId } = useParams<{ orgId: string }>();
   const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const deleteUserMutation = useDeleteUser(user.orgId);
+  const deleteUserMutation = useDeleteUser(orgId!);
 
   const getStatusVariant = (status: boolean | undefined) => {
     if (status === undefined) return "secondary";
@@ -32,7 +34,7 @@ export const UserTableRow: React.FC<UserTableRowProps> = ({ user }) => {
 
   const handleDelete = () => {
     if (user.id) {
-      deleteUserMutation.mutate(user.id, {
+      deleteUserMutation.mutate(user.id!, {
         onSuccess: () => {
           setDeleteDialogOpen(false);
         },

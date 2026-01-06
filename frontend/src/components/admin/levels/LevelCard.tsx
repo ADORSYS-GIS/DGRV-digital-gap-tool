@@ -45,14 +45,15 @@ export const LevelCard = ({ level, existingLevels }: LevelCardProps) => {
     <Card className="flex flex-col">
       <CardHeader>
         <div className="flex justify-between items-start">
-          <CardTitle>{`Level ${level.state}: ${level.level || ""}`}</CardTitle>
+          <div>
+            <CardTitle>{level.level || ""}</CardTitle>
+            <p className="text-sm text-gray-600 dark:text-gray-400 pt-2">
+              {level.description}
+            </p>
+          </div>
         </div>
       </CardHeader>
-      <CardContent className="flex-grow">
-        <p className="text-sm text-gray-600 dark:text-gray-400">
-          {level.description}
-        </p>
-      </CardContent>
+      <CardContent className="flex-grow"></CardContent>
       <CardFooter className="mt-auto flex justify-end space-x-2 p-4">
         <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
           <Edit className="mr-2 h-4 w-4" />

@@ -13,28 +13,43 @@ export const dimensionRepository = {
       if (navigator.onLine) {
         const backendDimensions = await listDimensions({});
         if (backendDimensions.data) {
-          const backendIds = new Set(
+          const localDimensions = await db.dimensions.toArray();
+          const localDimensionsMap = new Map(
+            localDimensions.map((d) => [d.id, d]),
+          );
+          const backendDimensionIds = new Set(
             backendDimensions.data.items.map((d) => d.dimension_id),
           );
-          const localDimensions = await db.dimensions.toArray();
+
+          const dimensionsToPut = [];
+          for (const beDim of backendDimensions.data.items) {
+            const localDim = localDimensionsMap.get(beDim.dimension_id);
+            // Only update local if it's not pending sync
+            if (!localDim || localDim.syncStatus !== SyncStatus.PENDING) {
+              dimensionsToPut.push({
+                ...beDim,
+                id: beDim.dimension_id,
+                syncStatus: SyncStatus.SYNCED,
+                lastError: "",
+              });
+            }
+          }
+
+          if (dimensionsToPut.length > 0) {
+            await db.dimensions.bulkPut(dimensionsToPut);
+          }
 
           const idsToDelete = localDimensions
             .filter(
               (d) =>
-                d.syncStatus !== SyncStatus.PENDING && !backendIds.has(d.id),
+                d.syncStatus !== SyncStatus.PENDING &&
+                !backendDimensionIds.has(d.id),
             )
             .map((d) => d.id);
+
           if (idsToDelete.length > 0) {
             await db.dimensions.bulkDelete(idsToDelete);
           }
-
-          const syncedDimensions = backendDimensions.data.items.map((d) => ({
-            ...d,
-            id: d.dimension_id,
-            syncStatus: SyncStatus.SYNCED,
-            lastError: "",
-          }));
-          await db.dimensions.bulkPut(syncedDimensions);
           console.log(
             "Dimensions fetched from backend and synced to IndexedDB.",
           );

@@ -3,6 +3,10 @@ import { cooperationUserSyncService } from "@/services/cooperationUsers/cooperat
 import { cooperationSyncService } from "./cooperationSyncService";
 import { digitalisationLevelSyncService } from "./digitalisationLevelSyncService";
 import { organizationDimensionSyncService } from "./organizationDimensionSyncService";
+import { dimensionSyncService } from "./dimensionSyncService";
+import { digitalisationGapSyncService } from "./digitalisationGapSyncService";
+import { recommendationSyncService } from "./recommendationSyncService";
+import { userSyncService } from "./userSyncService";
 
 export const syncManager = {
   initialize() {
@@ -27,7 +31,11 @@ export const syncManager = {
 
   async syncAll(organizationId: string | null) {
     try {
+      await dimensionSyncService.sync();
       await digitalisationLevelSyncService.sync();
+      await digitalisationGapSyncService.sync();
+      await recommendationSyncService.sync();
+      await userSyncService.sync();
       if (organizationId) {
         await cooperationSyncService.sync(organizationId);
         await organizationDimensionSyncService.syncPendingAssignments();

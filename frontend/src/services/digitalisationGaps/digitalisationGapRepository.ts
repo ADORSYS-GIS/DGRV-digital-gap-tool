@@ -20,28 +20,34 @@ export const digitalisationGapRepository = {
           const backendGaps = backendGapsResponse.data.items;
           const backendGapIds = new Set(backendGaps.map((d) => d.gap_id));
 
-          const localSyncedGaps = await db.digitalisationGaps
-            .where("syncStatus")
-            .equals(SyncStatus.SYNCED)
-            .toArray();
-          const localSyncedGapIds = new Set(localSyncedGaps.map((g) => g.id));
+          const localGaps = await db.digitalisationGaps.toArray();
+          const localGapsMap = new Map(localGaps.map((g) => [g.id, g]));
 
-          const gapsToUpsert = backendGaps.map((d) => {
-            return {
-              id: d.gap_id,
-              dimensionId: d.dimension_id,
-              gap_severity: d.gap_severity as Gap,
-              description: d.gap_description || "",
-              syncStatus: SyncStatus.SYNCED,
-              lastError: "",
-              createdAt: d.created_at,
-              updatedAt: d.updated_at,
-            } as IDigitalisationGap;
-          });
+          const gapsToUpsert = backendGaps
+            .map((d) => {
+              const localGap = localGapsMap.get(d.gap_id);
+              if (localGap && localGap.syncStatus === SyncStatus.PENDING) {
+                return null; // Keep local pending changes
+              }
+              return {
+                id: d.gap_id,
+                dimensionId: d.dimension_id,
+                gap_severity: d.gap_severity as Gap,
+                description: d.gap_description || "",
+                syncStatus: SyncStatus.SYNCED,
+                lastError: "",
+                createdAt: d.created_at,
+                updatedAt: d.updated_at,
+              } as IDigitalisationGap;
+            })
+            .filter((g): g is IDigitalisationGap => g !== null);
 
-          const idsToDelete = [...localSyncedGapIds].filter(
-            (id) => !backendGapIds.has(id),
-          );
+          const idsToDelete = localGaps
+            .filter(
+              (g) =>
+                g.syncStatus !== SyncStatus.PENDING && !backendGapIds.has(g.id),
+            )
+            .map((g) => g.id);
 
           await db.transaction("rw", db.digitalisationGaps, async () => {
             if (gapsToUpsert.length > 0) {
