@@ -17,7 +17,8 @@ export function useDeleteRecommendation() {
 
       queryClient.setQueryData<IRecommendation[]>(
         ["recommendations"],
-        (old = []) => old.filter((r) => r.id !== id && r.recommendation_id !== id),
+        (old = []) =>
+          old.filter((r) => r.id !== id && r.recommendation_id !== id),
       );
 
       return { previousRecommendations };

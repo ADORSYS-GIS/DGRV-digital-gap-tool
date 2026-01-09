@@ -60,7 +60,10 @@ export const digitalisationGapSyncService = {
           id: op.entityId,
           requestBody,
         });
-        await digitalisationGapRepository.markAsSynced(op.entityId, op.entityId);
+        await digitalisationGapRepository.markAsSynced(
+          op.entityId,
+          op.entityId,
+        );
         break;
       }
       case "DELETE": {

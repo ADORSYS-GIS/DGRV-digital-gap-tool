@@ -21,10 +21,7 @@ export const dimensionSyncService = {
         await db.sync_queue.delete(op.id!);
       } catch (error) {
         console.error(`Failed to sync dimension operation ${op.id}:`, error);
-        dimensionRepository.markAsFailed(
-          op.entityId,
-          (error as Error).message,
-        );
+        dimensionRepository.markAsFailed(op.entityId, (error as Error).message);
       }
     }
   },

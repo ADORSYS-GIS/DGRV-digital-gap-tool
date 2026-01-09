@@ -40,7 +40,9 @@ export const digitalisationLevelRepository = {
         );
       })
       .toArray();
-    const pendingDeleteIds = new Set(pendingDeletes.map((item) => item.entityId));
+    const pendingDeleteIds = new Set(
+      pendingDeletes.map((item) => item.entityId),
+    );
 
     const backendData = await getDimensionWithStates({ id: dimensionId });
     const localLevels = await db.digitalisationLevels

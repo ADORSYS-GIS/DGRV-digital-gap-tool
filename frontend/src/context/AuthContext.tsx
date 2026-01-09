@@ -38,10 +38,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const user = authService.getUserProfile();
     const roles = user?.roles || [];
 
-    if (
-      roles.includes(ROLES.ORG_ADMIN) &&
-      user?.is_member_of === false
-    ) {
+    if (roles.includes(ROLES.ORG_ADMIN) && user?.is_member_of === false) {
       setIsInvitationPending(true);
     } else {
       setIsInvitationPending(false);
