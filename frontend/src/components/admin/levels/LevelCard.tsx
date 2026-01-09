@@ -46,9 +46,9 @@ export const LevelCard = ({ level, existingLevels }: LevelCardProps) => {
       <CardHeader>
         <div className="flex justify-between items-start">
           <div>
-            <CardTitle>{level.level || ""}</CardTitle>
+            <CardTitle>{level.title || "No Title"}</CardTitle>
             <p className="text-sm text-gray-600 dark:text-gray-400 pt-2">
-              {level.description}
+              {level.description || "No description available."}
             </p>
           </div>
         </div>

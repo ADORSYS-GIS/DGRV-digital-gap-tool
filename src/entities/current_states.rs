@@ -6,7 +6,8 @@ pub struct Model {
     #[sea_orm(primary_key, auto_generate = false)]
     pub current_state_id: Uuid,
     pub dimension_id: Uuid,
-    pub description: Option<String>,
+    pub title: String,
+    pub description: String,
     pub score: i32,
     pub created_at: DateTimeUtc,
     pub updated_at: DateTimeUtc,

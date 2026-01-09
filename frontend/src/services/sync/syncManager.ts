@@ -7,6 +7,7 @@ import { dimensionSyncService } from "./dimensionSyncService";
 import { digitalisationGapSyncService } from "./digitalisationGapSyncService";
 import { recommendationSyncService } from "./recommendationSyncService";
 import { userSyncService } from "./userSyncService";
+import { queryClient } from "@/main";
 
 export const syncManager = {
   initialize() {
@@ -45,6 +46,8 @@ export const syncManager = {
       console.log("All data synced successfully.");
     } catch (error) {
       console.error("An error occurred during sync:", error);
+    } finally {
+      queryClient.invalidateQueries({ queryKey: ["digitalisationLevels"] });
     }
   },
 };

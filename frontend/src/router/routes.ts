@@ -237,6 +237,10 @@ const routes: RouteConfig[] = [
         path: "consolidated-report/:organizationId",
         element: React.createElement(OrgAdminConsolidatedReportPage),
       },
+      {
+        path: "consolidated-report",
+        element: React.createElement(OrgAdminConsolidatedReportPage),
+      },
     ],
   },
   {

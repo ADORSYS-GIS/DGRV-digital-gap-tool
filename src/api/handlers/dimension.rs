@@ -149,29 +149,10 @@ pub async fn get_dimension_with_states(
         updated_at: DateTime::from_naive_utc_and_offset(dimension.updated_at, Utc),
     };
 
-    let current_states_response: Vec<CurrentStateResponse> = current_states
-        .into_iter()
-        .map(|cs| CurrentStateResponse {
-            current_state_id: cs.current_state_id,
-            dimension_id: cs.dimension_id,
-            description: cs.description,
-            score: cs.score,
-            created_at: cs.created_at,
-            updated_at: cs.updated_at,
-        })
-        .collect();
-
-    let desired_states_response: Vec<DesiredStateResponse> = desired_states
-        .into_iter()
-        .map(|ds| DesiredStateResponse {
-            desired_state_id: ds.desired_state_id,
-            dimension_id: ds.dimension_id,
-            description: ds.description,
-            score: ds.score,
-            created_at: ds.created_at,
-            updated_at: ds.updated_at,
-        })
-        .collect();
+    let current_states_response: Vec<CurrentStateResponse> =
+        current_states.into_iter().map(Into::into).collect();
+    let desired_states_response: Vec<DesiredStateResponse> =
+        desired_states.into_iter().map(Into::into).collect();
 
     let response = DimensionWithStatesResponse {
         dimension: dimension_response,
@@ -364,27 +345,24 @@ pub async fn create_current_state(
     }
 
     // Check for existing current state with same description
-    if let Some(description) = request.description.clone() {
-        if CurrentStatesRepository::find_by_dimension_id_and_description(
-            db.as_ref(),
-            dimension_id,
-            description,
-        )
-        .await
-        .map_err(crate::api::handlers::common::handle_error)?
-        .is_some()
-        {
-            return Err(crate::api::handlers::common::handle_error(
-                AppError::Conflict(
-                    "Current state with this description already exists".to_string(),
-                ),
-            ));
-        }
+    if CurrentStatesRepository::find_by_dimension_id_and_description(
+        db.as_ref(),
+        dimension_id,
+        request.description.clone(),
+    )
+    .await
+    .map_err(crate::api::handlers::common::handle_error)?
+    .is_some()
+    {
+        return Err(crate::api::handlers::common::handle_error(
+            AppError::Conflict("Current state with this description already exists".to_string()),
+        ));
     }
 
     let active_model = crate::entities::current_states::ActiveModel {
         current_state_id: sea_orm::Set(Uuid::new_v4()),
         dimension_id: sea_orm::Set(dimension_id),
+        title: sea_orm::Set(request.title),
         description: sea_orm::Set(request.description),
         score: sea_orm::Set(request.score),
         ..Default::default()
@@ -397,6 +375,7 @@ pub async fn create_current_state(
     let response = CurrentStateResponse {
         current_state_id: current_state.current_state_id,
         dimension_id: current_state.dimension_id,
+        title: current_state.title,
         description: current_state.description,
         score: current_state.score,
         created_at: current_state.created_at,
@@ -429,7 +408,7 @@ pub async fn update_current_state(
     Json(request): Json<UpdateCurrentStateRequest>,
 ) -> Result<Json<ApiResponse<CurrentStateResponse>>, (StatusCode, Json<serde_json::Value>)> {
     let db = &state.db;
-    let mut current_state = CurrentStatesRepository::find_by_id(db.as_ref(), current_state_id)
+    let _existing = CurrentStatesRepository::find_by_id(db.as_ref(), current_state_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?
         .ok_or_else(|| {
@@ -438,58 +417,21 @@ pub async fn update_current_state(
             ))
         })?;
 
-    // Verify it belongs to the dimension
-    if current_state.dimension_id != dimension_id {
-        return Err(crate::api::handlers::common::handle_error(
-            AppError::ValidationError(
-                "Current state does not belong to this dimension".to_string(),
-            ),
-        ));
-    }
+    let mut active_model = crate::entities::current_states::ActiveModel {
+        current_state_id: sea_orm::Set(current_state_id),
+        ..Default::default()
+    };
 
-    // Update fields if provided
-    if let Some(description) = request.description.clone() {
-        if let Some(existing_current_state) =
-            CurrentStatesRepository::find_by_dimension_id_and_description(
-                db.as_ref(),
-                dimension_id,
-                description.clone(),
-            )
-            .await
-            .map_err(crate::api::handlers::common::handle_error)?
-        {
-            if existing_current_state.current_state_id != current_state_id {
-                return Err(crate::api::handlers::common::handle_error(
-                    AppError::Conflict(
-                        "Current state with this description already exists".to_string(),
-                    ),
-                ));
-            }
-        }
-        current_state.description = Some(description);
+    if let Some(title) = request.title {
+        active_model.title = sea_orm::Set(title);
+    }
+    if let Some(description) = request.description {
+        active_model.description = sea_orm::Set(description);
     }
     if let Some(score) = request.score {
-        if let Some(existing_current_state) =
-            CurrentStatesRepository::find_by_dimension_id_and_score(
-                db.as_ref(),
-                dimension_id,
-                score,
-            )
-            .await
-            .map_err(crate::api::handlers::common::handle_error)?
-        {
-            if existing_current_state.current_state_id != current_state_id {
-                return Err(crate::api::handlers::common::handle_error(
-                    AppError::Conflict("Current state with this score already exists".to_string()),
-                ));
-            }
-        }
-        current_state.score = score;
+        active_model.score = sea_orm::Set(score);
     }
 
-    current_state.updated_at = chrono::Utc::now();
-
-    let active_model: crate::entities::current_states::ActiveModel = current_state.into();
     let updated_current_state =
         CurrentStatesRepository::update(db.as_ref(), current_state_id, active_model)
             .await
@@ -498,6 +440,7 @@ pub async fn update_current_state(
     let response = CurrentStateResponse {
         current_state_id: updated_current_state.current_state_id,
         dimension_id: updated_current_state.dimension_id,
+        title: updated_current_state.title,
         description: updated_current_state.description,
         score: updated_current_state.score,
         created_at: updated_current_state.created_at,
@@ -553,27 +496,24 @@ pub async fn create_desired_state(
     }
 
     // Check for existing desired state with same description
-    if let Some(description) = request.description.clone() {
-        if DesiredStatesRepository::find_by_dimension_id_and_description(
-            db.as_ref(),
-            dimension_id,
-            description,
-        )
-        .await
-        .map_err(crate::api::handlers::common::handle_error)?
-        .is_some()
-        {
-            return Err(crate::api::handlers::common::handle_error(
-                AppError::Conflict(
-                    "Desired state with this description already exists".to_string(),
-                ),
-            ));
-        }
+    if DesiredStatesRepository::find_by_dimension_id_and_description(
+        db.as_ref(),
+        dimension_id,
+        request.description.clone(),
+    )
+    .await
+    .map_err(crate::api::handlers::common::handle_error)?
+    .is_some()
+    {
+        return Err(crate::api::handlers::common::handle_error(
+            AppError::Conflict("Desired state with this description already exists".to_string()),
+        ));
     }
 
     let active_model = crate::entities::desired_states::ActiveModel {
         desired_state_id: sea_orm::Set(Uuid::new_v4()),
         dimension_id: sea_orm::Set(dimension_id),
+        title: sea_orm::Set(request.title),
         description: sea_orm::Set(request.description),
         score: sea_orm::Set(request.score),
         ..Default::default()
@@ -586,6 +526,7 @@ pub async fn create_desired_state(
     let response = DesiredStateResponse {
         desired_state_id: desired_state.desired_state_id,
         dimension_id: desired_state.dimension_id,
+        title: desired_state.title,
         description: desired_state.description,
         score: desired_state.score,
         created_at: desired_state.created_at,
@@ -637,25 +578,11 @@ pub async fn update_desired_state(
     }
 
     // Update fields if provided
-    if let Some(description) = request.description.clone() {
-        if let Some(existing_desired_state) =
-            DesiredStatesRepository::find_by_dimension_id_and_description(
-                db.as_ref(),
-                dimension_id,
-                description.clone(),
-            )
-            .await
-            .map_err(crate::api::handlers::common::handle_error)?
-        {
-            if existing_desired_state.desired_state_id != desired_state_id {
-                return Err(crate::api::handlers::common::handle_error(
-                    AppError::Conflict(
-                        "Desired state with this description already exists".to_string(),
-                    ),
-                ));
-            }
-        }
-        desired_state.description = Some(description);
+    if let Some(title) = request.title.clone() {
+        desired_state.title = title;
+    }
+    if let Some(description) = request.description {
+        desired_state.description = description;
     }
     if let Some(score) = request.score {
         if let Some(existing_desired_state) =
@@ -687,6 +614,7 @@ pub async fn update_desired_state(
     let response = DesiredStateResponse {
         desired_state_id: updated_desired_state.desired_state_id,
         dimension_id: updated_desired_state.dimension_id,
+        title: updated_desired_state.title,
         description: updated_desired_state.description,
         score: updated_desired_state.score,
         created_at: updated_desired_state.created_at,
@@ -787,4 +715,32 @@ pub async fn delete_desired_state(
         (),
         "Desired state deleted successfully".to_string(),
     ))
+}
+
+impl From<crate::entities::current_states::Model> for CurrentStateResponse {
+    fn from(model: crate::entities::current_states::Model) -> Self {
+        Self {
+            current_state_id: model.current_state_id,
+            dimension_id: model.dimension_id,
+            title: model.title,
+            description: model.description,
+            score: model.score,
+            created_at: model.created_at,
+            updated_at: model.updated_at,
+        }
+    }
+}
+
+impl From<crate::entities::desired_states::Model> for DesiredStateResponse {
+    fn from(model: crate::entities::desired_states::Model) -> Self {
+        Self {
+            desired_state_id: model.desired_state_id,
+            dimension_id: model.dimension_id,
+            title: model.title,
+            description: model.description,
+            score: model.score,
+            created_at: model.created_at,
+            updated_at: model.updated_at,
+        }
+    }
 }

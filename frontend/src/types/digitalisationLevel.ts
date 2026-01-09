@@ -11,7 +11,8 @@ export interface IDigitalisationLevel extends OfflineEntity {
   dimensionId: string;
   levelType: LevelType;
   state: LevelState; // This corresponds to 'score' from API
-  description?: string | null;
+  title: string;
+  description: string | null;
   level?: string | null; // This is the 'level' string from API, not the numeric state
 }
 
@@ -19,10 +20,12 @@ export interface ICreateCurrentStateRequest extends CreateCurrentStateRequest {
   id?: string; // Temporary ID for offline creation
   levelType: LevelType; // Add levelType for internal use
   level?: string | null;
+  title: string;
 }
 
 export interface ICreateDesiredStateRequest extends CreateDesiredStateRequest {
   id?: string; // Temporary ID for offline creation
   levelType: LevelType; // Add levelType for internal use
   level?: string | null;
+  title: string;
 }

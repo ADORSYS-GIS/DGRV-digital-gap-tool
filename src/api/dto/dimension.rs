@@ -40,13 +40,15 @@ pub struct DimensionResponse {
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct CreateCurrentStateRequest {
     pub dimension_id: Uuid,
-    pub description: Option<String>,
+    pub title: String,
+    pub description: String,
     pub score: i32,
 }
 
 /// Current state update request
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct UpdateCurrentStateRequest {
+    pub title: Option<String>,
     pub description: Option<String>,
     pub score: Option<i32>,
 }
@@ -56,7 +58,8 @@ pub struct UpdateCurrentStateRequest {
 pub struct CurrentStateResponse {
     pub current_state_id: Uuid,
     pub dimension_id: Uuid,
-    pub description: Option<String>,
+    pub title: String,
+    pub description: String,
     pub score: i32,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
@@ -66,13 +69,15 @@ pub struct CurrentStateResponse {
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct CreateDesiredStateRequest {
     pub dimension_id: Uuid,
-    pub description: Option<String>,
+    pub title: String,
+    pub description: String,
     pub score: i32,
 }
 
 /// Desired state update request
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct UpdateDesiredStateRequest {
+    pub title: Option<String>,
     pub description: Option<String>,
     pub score: Option<i32>,
 }
@@ -82,7 +87,8 @@ pub struct UpdateDesiredStateRequest {
 pub struct DesiredStateResponse {
     pub desired_state_id: Uuid,
     pub dimension_id: Uuid,
-    pub description: Option<String>,
+    pub title: String,
+    pub description: String,
     pub score: i32,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,

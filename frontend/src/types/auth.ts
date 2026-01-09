@@ -16,6 +16,7 @@ export interface UserProfile {
    * Relevant for coop_user role.
    */
   assigned_dimensions?: string[];
+  is_member_of?: boolean;
 }
 
 /**

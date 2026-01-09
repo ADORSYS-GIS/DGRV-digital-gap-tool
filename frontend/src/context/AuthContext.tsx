@@ -9,6 +9,8 @@ import {
   useEffect,
   useState,
 } from "react";
+import { InvitationPendingDialog } from "@/components/shared/InvitationPendingDialog";
+import { ROLES } from "@/constants/roles";
 
 export const AuthContext = createContext<AuthContextType | undefined>(
   undefined,
@@ -29,11 +31,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     roles: [],
     loading: true,
   });
+  const [isInvitationPending, setIsInvitationPending] = useState(false);
 
   const updateAuthState = useCallback(() => {
     const isAuthenticated = !!keycloak.token;
     const user = authService.getUserProfile();
     const roles = user?.roles || [];
+
+    if (
+      roles.includes(ROLES.ORG_ADMIN) &&
+      user?.is_member_of === false
+    ) {
+      setIsInvitationPending(true);
+    } else {
+      setIsInvitationPending(false);
+    }
+
     setAuthState({
       isAuthenticated,
       user,
@@ -111,6 +124,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   return (
     <AuthContext.Provider value={{ ...authState, login, logout }}>
       {children}
+      <InvitationPendingDialog isOpen={isInvitationPending} />
     </AuthContext.Provider>
   );
 };

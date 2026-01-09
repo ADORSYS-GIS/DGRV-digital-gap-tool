@@ -14,6 +14,7 @@ interface CustomKeycloakTokenParsed extends KeycloakTokenParsed {
   cooperation?: string[];
   // Custom attribute carrying allowed dimensions for coop_user
   assigned_dimensions?: string[];
+  is_member_of?: boolean;
 }
 
 /**
@@ -132,6 +133,10 @@ export const authService = {
             userProfile.organization = organizationDetails.id;
           }
         }
+      }
+
+      if (token.is_member_of) {
+        userProfile.is_member_of = token.is_member_of;
       }
 
       return userProfile;

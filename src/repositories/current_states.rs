@@ -40,14 +40,17 @@ impl CurrentStatesRepository {
 
         let mut active_model: current_states::ActiveModel = current_state.into();
 
-        if current_state_data.dimension_id.is_set() {
-            active_model.dimension_id = current_state_data.dimension_id;
+        if let ActiveValue::Set(dimension_id) = current_state_data.dimension_id {
+            active_model.dimension_id = Set(dimension_id);
         }
-        if current_state_data.description.is_set() {
-            active_model.description = current_state_data.description;
+        if let ActiveValue::Set(title) = current_state_data.title {
+            active_model.title = Set(title);
         }
-        if current_state_data.score.is_set() {
-            active_model.score = current_state_data.score;
+        if let ActiveValue::Set(description) = current_state_data.description {
+            active_model.description = Set(description);
+        }
+        if let ActiveValue::Set(score) = current_state_data.score {
+            active_model.score = Set(score);
         }
 
         active_model.updated_at = Set(chrono::Utc::now());

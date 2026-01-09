@@ -33,7 +33,7 @@ OpenAPI.interceptors.request.use(async (request) => {
   return request;
 });
 
-const queryClient = new QueryClient();
+export const queryClient = new QueryClient();
 const root = createRoot(document.getElementById("root")!);
 
 const renderApp = () => {

@@ -52,6 +52,7 @@ export const useAddDigitalisationLevel = () => {
         dimensionId: newLevel.dimensionId,
         levelType: newLevel.levelType,
         state: newLevel.levelData.score as LevelState,
+        title: newLevel.levelData.title,
         description: newLevel.levelData.description ?? null,
         level: newLevel.levelData.level ?? null,
         syncStatus: SyncStatus.PENDING,

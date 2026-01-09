@@ -17,13 +17,13 @@ import { useEffect } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import * as z from "zod";
 const formSchema = z.object({
-  description: z.string().optional(),
+  title: z.string().min(1, "Title is required"),
+  description: z.string().min(1, "Description is required"),
   state: z
     .number()
     .min(1, "Please select a state")
     .max(5)
     .refine((state) => state !== 0, "Level ID is required"),
-  levelName: z.string().min(1, "Level name is required"),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -54,8 +54,8 @@ export const EditLevelForm = ({
     resolver: zodResolver(formSchema),
     defaultValues: {
       state: level.state,
+      title: level.title ?? "",
       description: level.description ?? "",
-      levelName: level.level ?? "",
     },
   });
 
@@ -65,8 +65,8 @@ export const EditLevelForm = ({
     if (isOpen) {
       reset({
         state: level.state,
+        title: level.title ?? "",
         description: level.description ?? "",
-        levelName: level.level ?? "",
       });
     }
   }, [isOpen, level, reset]);
@@ -84,34 +84,11 @@ export const EditLevelForm = ({
       return;
     }
 
-    // Client-side uniqueness validation for levelName (Level Name)
-    if (!data.levelName || data.levelName.trim() === "") {
-      setError("levelName", {
-        type: "manual",
-        message: "Level Name is required for custom dimensions",
-      });
-      return;
-    }
-
-    const isDuplicateLevelName = existingLevels.some(
-      (l) =>
-        l.level?.toLowerCase() === data.levelName?.toLowerCase() &&
-        data.levelName?.trim() !== "" &&
-        l.id !== level.id,
-    );
-    if (isDuplicateLevelName) {
-      setError("levelName", {
-        type: "manual",
-        message: "Level Name already exists for this dimension",
-      });
-      return;
-    }
-
     const changes = {
       dimension_id: level.dimensionId,
       score: data.state as LevelState,
-      description: data.description ?? null,
-      level: data.levelName,
+      title: data.title,
+      description: data.description,
     };
 
     updateLevelMutation.mutate(
@@ -182,22 +159,23 @@ export const EditLevelForm = ({
                 </div>
               )}
             />
-            <div>
-              <Input
-                {...register("levelName")}
-                placeholder="Level Name (e.g., Initial Phase)"
-                className="mb-2"
-              />
-              {errors.levelName && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.levelName.message}
-                </p>
-              )}
-            </div>
           </>
-
-          <Textarea {...register("description")} placeholder="Description" />
-
+          <div>
+            <Input {...register("title")} placeholder="Level Name" />
+            {errors.title && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.title.message}
+              </p>
+            )}
+          </div>
+          <div>
+            <Textarea {...register("description")} placeholder="Description" />
+            {errors.description && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.description.message}
+              </p>
+            )}
+          </div>
           <DialogFooter>
             <Button type="submit" disabled={updateLevelMutation.isPending}>
               {updateLevelMutation.isPending ? "Saving..." : "Save Changes"}

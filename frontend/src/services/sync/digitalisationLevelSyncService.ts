@@ -14,6 +14,7 @@ import {
   UpdateDesiredStateRequest,
 } from "@/openapi-client/types.gen";
 import { IDigitalisationLevel } from "@/types/digitalisationLevel";
+import { SyncStatus } from "@/types/sync";
 
 type DigitalisationLevelSyncPayload =
   | IDigitalisationLevel
@@ -36,6 +37,7 @@ export const digitalisationLevelSyncService = {
             const levelPayload = payload as IDigitalisationLevel;
             const requestBody = {
               dimension_id: levelPayload.dimensionId,
+              title: levelPayload.title,
               description: levelPayload.description,
               level: levelPayload.level,
               score: levelPayload.state,
@@ -70,6 +72,7 @@ export const digitalisationLevelSyncService = {
           case "UPDATE": {
             const levelPayload = payload as IDigitalisationLevel;
             const requestBody = {
+              title: levelPayload.title,
               description: levelPayload.description,
               level: levelPayload.level,
               score: levelPayload.state,
@@ -113,10 +116,18 @@ export const digitalisationLevelSyncService = {
         }
 
         if (success) {
+          await db.digitalisationLevels.update(item.entityId, {
+            syncStatus: SyncStatus.SYNCED,
+            lastError: "",
+          });
           await db.sync_queue.delete(item.id!);
         }
       } catch (error) {
         console.error(`Failed to sync item ${item.id}:`, error);
+        await db.digitalisationLevels.update(item.entityId, {
+          syncStatus: SyncStatus.FAILED,
+          lastError: (error as Error).message,
+        });
       }
     }
   },
