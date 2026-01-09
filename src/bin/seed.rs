@@ -115,7 +115,7 @@ async fn seed_states(db: &sea_orm::DatabaseConnection) -> anyhow::Result<()> {
                 let new_state = current_states::ActiveModel {
                     current_state_id: Set(Uuid::new_v4()),
                     dimension_id: Set(dimension.dimension_id),
-                    description: Set(Some(description.to_owned())),
+                    description: Set(description.to_owned()),
                     score: Set(score),
                     ..Default::default()
                 };
@@ -126,7 +126,7 @@ async fn seed_states(db: &sea_orm::DatabaseConnection) -> anyhow::Result<()> {
                 let new_state = desired_states::ActiveModel {
                     desired_state_id: Set(Uuid::new_v4()),
                     dimension_id: Set(dimension.dimension_id),
-                    description: Set(Some(description.to_owned())),
+                    description: Set(description.to_owned()),
                     score: Set(score),
                     ..Default::default()
                 };

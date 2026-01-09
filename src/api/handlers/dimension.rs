@@ -404,7 +404,7 @@ pub async fn create_current_state(
 )]
 pub async fn update_current_state(
     State(state): State<AppState>,
-    Path((dimension_id, current_state_id)): Path<(Uuid, Uuid)>,
+    Path((_dimension_id, current_state_id)): Path<(Uuid, Uuid)>,
     Json(request): Json<UpdateCurrentStateRequest>,
 ) -> Result<Json<ApiResponse<CurrentStateResponse>>, (StatusCode, Json<serde_json::Value>)> {
     let db = &state.db;
