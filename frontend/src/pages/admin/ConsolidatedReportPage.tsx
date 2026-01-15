@@ -142,10 +142,20 @@ const MetricCard = ({
   );
 };
 
-const InfoPopover = ({ title, children }: { title: string; children: React.ReactNode }) => (
+const InfoPopover = ({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) => (
   <Popover>
     <PopoverTrigger asChild>
-      <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:bg-muted-foreground/20">
+      <Button
+        variant="ghost"
+        size="icon"
+        className="h-6 w-6 text-muted-foreground hover:bg-muted-foreground/20"
+      >
         <Info className="h-4 w-4" />
       </Button>
     </PopoverTrigger>
@@ -183,7 +193,8 @@ export function ConsolidatedReportPage() {
     try {
       setLoading(true);
       setError(null);
-      const data = await consolidatedReportRepository.getDgrvAdminConsolidatedReport();
+      const data =
+        await consolidatedReportRepository.getDgrvAdminConsolidatedReport();
       setReport(data);
     } catch (err) {
       setError("Failed to fetch consolidated report. Please try again.");
@@ -385,12 +396,27 @@ export function ConsolidatedReportPage() {
               <CardTitle>Dimension Analysis</CardTitle>
               <InfoPopover title="About Dimension Analysis">
                 <p>
-                  This table provides a detailed breakdown of risk distribution for each dimension across all submissions. It helps in identifying which areas of your organization are most exposed to digital risks.
+                  This table provides a detailed breakdown of risk distribution
+                  for each dimension across all submissions. It helps in
+                  identifying which areas of your organization are most exposed
+                  to digital risks.
                 </p>
                 <ul className="mt-2 list-disc pl-4 space-y-1">
-                  <li><strong>High Risk %:</strong> The percentage of submissions where the dimension was assessed as high risk. High-risk areas require immediate attention.</li>
-                  <li><strong>Medium Risk %:</strong> The percentage of submissions where the dimension was assessed as medium risk. These areas should be monitored.</li>
-                  <li><strong>Low Risk %:</strong> The percentage of submissions where the dimension was assessed as low risk. These are areas of strength.</li>
+                  <li>
+                    <strong>High Risk %:</strong> The percentage of submissions
+                    where the dimension was assessed as high risk. High-risk
+                    areas require immediate attention.
+                  </li>
+                  <li>
+                    <strong>Medium Risk %:</strong> The percentage of
+                    submissions where the dimension was assessed as medium risk.
+                    These areas should be monitored.
+                  </li>
+                  <li>
+                    <strong>Low Risk %:</strong> The percentage of submissions
+                    where the dimension was assessed as low risk. These are
+                    areas of strength.
+                  </li>
                 </ul>
               </InfoPopover>
             </div>
@@ -459,10 +485,15 @@ export function ConsolidatedReportPage() {
                 <CardTitle>Highest Risk Dimension & Recommendations</CardTitle>
                 <InfoPopover title="About Highest Risk Dimension">
                   <p>
-                    This section automatically identifies the dimension with the highest average risk level across all submissions. It represents the most critical area of vulnerability that requires immediate focus.
+                    This section automatically identifies the dimension with the
+                    highest average risk level across all submissions. It
+                    represents the most critical area of vulnerability that
+                    requires immediate focus.
                   </p>
                   <p className="mt-2">
-                    The provided recommendations are tailored to address the specific challenges of this dimension and should be prioritized in your action plan.
+                    The provided recommendations are tailored to address the
+                    specific challenges of this dimension and should be
+                    prioritized in your action plan.
                   </p>
                 </InfoPopover>
               </div>
@@ -494,9 +525,7 @@ export function ConsolidatedReportPage() {
                       (rec, index) => (
                         <li key={index} className="flex items-start gap-3">
                           <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-destructive shrink-0" />
-                          <span className="text-sm leading-relaxed">
-                            {rec}
-                          </span>
+                          <span className="text-sm leading-relaxed">{rec}</span>
                         </li>
                       ),
                     )}
@@ -517,10 +546,15 @@ export function ConsolidatedReportPage() {
                 <CardTitle>Dominant Risk level by Dimension</CardTitle>
                 <InfoPopover title="About Dominant Risk">
                   <p>
-                    This bar chart visualizes the most dominant risk level (High, Medium, or Low) for each dimension. The dominant risk is the risk level with the highest percentage of submissions for that dimension.
+                    This bar chart visualizes the most dominant risk level
+                    (High, Medium, or Low) for each dimension. The dominant risk
+                    is the risk level with the highest percentage of submissions
+                    for that dimension.
                   </p>
                   <p className="mt-2">
-                    This provides a quick overview of the general risk profile of each dimension, helping you to easily spot which dimensions are consistently ranked as high-risk.
+                    This provides a quick overview of the general risk profile
+                    of each dimension, helping you to easily spot which
+                    dimensions are consistently ranked as high-risk.
                   </p>
                 </InfoPopover>
               </div>

@@ -60,8 +60,7 @@ export const AddCooperationUserForm = () => {
       firstName,
       lastName,
       roles: [newUserRole],
-      dimensionIds:
-        newUserRole === ROLES.COOP_USER ? selectedDimensionIds : [],
+      dimensionIds: newUserRole === ROLES.COOP_USER ? selectedDimensionIds : [],
     };
     addUser(
       { user, cooperationId },

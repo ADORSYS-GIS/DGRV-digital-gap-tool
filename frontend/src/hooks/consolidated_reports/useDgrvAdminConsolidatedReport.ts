@@ -4,6 +4,7 @@ import { consolidatedReportRepository } from "@/services/consolidated_reports/co
 export const useDgrvAdminConsolidatedReport = () => {
   return useQuery({
     queryKey: ["dgrvAdminConsolidatedReport"],
-    queryFn: () => consolidatedReportRepository.getDgrvAdminConsolidatedReport(),
+    queryFn: () =>
+      consolidatedReportRepository.getDgrvAdminConsolidatedReport(),
   });
 };

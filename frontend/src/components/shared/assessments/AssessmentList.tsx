@@ -43,7 +43,6 @@ export function AssessmentList({
   const navigate = useNavigate();
   const location = useLocation();
 
-
   const handleDelete = (assessment: Assessment) => {
     setSelectedAssessment(assessment);
     setDeleteDialogOpen(true);
