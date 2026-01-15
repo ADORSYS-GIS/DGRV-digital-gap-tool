@@ -20,8 +20,9 @@ const UserLayout: React.FC = () => {
     <div className="flex min-h-screen bg-muted/30">
       <Sidebar
         navLinks={navLinks}
-        panelName="User Panel"
+        panelName="Cooperative User"
         panelAbbreviation="U"
+        infoText="This panel is for cooperative users to create assessments and view action plans."
       />
       <main className="flex-1">
         <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">

@@ -1,7 +1,13 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Button } from "../ui/button";
 
 interface NavLink {
   to: string;
@@ -13,12 +19,14 @@ interface SidebarProps {
   navLinks: NavLink[];
   panelName: string;
   panelAbbreviation: string;
+  infoText: string;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
   navLinks,
   panelName,
   panelAbbreviation,
+  infoText,
 }) => {
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(true);
@@ -40,9 +48,30 @@ export const Sidebar: React.FC<SidebarProps> = ({
           {panelAbbreviation}
         </div>
         {isOpen && (
-          <span className="ml-4 text-base font-semibold tracking-tight">
-            {panelName}
-          </span>
+          <>
+            <span className="ml-4 text-base font-semibold tracking-tight">
+              {panelName}
+            </span>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6 text-white/50 hover:bg-white/20"
+                >
+                  <Info className="h-4 w-4" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-80">
+                <div className="space-y-2">
+                  <h4 className="font-semibold leading-none">{panelName}</h4>
+                  <div className="text-sm text-muted-foreground">
+                    {infoText}
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+          </>
         )}
         <button
           onClick={() => setIsOpen(!isOpen)}

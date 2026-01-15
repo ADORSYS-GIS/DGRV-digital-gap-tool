@@ -26,6 +26,7 @@ const AdminLayout: React.FC = () => {
         navLinks={navLinks}
         panelName="Admin Panel"
         panelAbbreviation="A"
+        infoText="This is the administrator panel for managing the entire system, including organizations, dimensions, and recommendations."
       />
       <main className="flex-1">
         <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">

@@ -34,8 +34,9 @@ const ThirdAdminLayout: React.FC = () => {
     <div className="flex min-h-screen bg-muted/30">
       <Sidebar
         navLinks={navLinks}
-        panelName="Third Admin"
+        panelName="Cooperative Admin"
         panelAbbreviation="T"
+        infoText="This panel is for cooperative administrators to manage users and answer assessments for their cooperative."
       />
       <main className="flex-1">
         <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">

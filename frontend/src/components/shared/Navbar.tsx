@@ -135,8 +135,8 @@ export const Navbar = () => {
                           <span className="font-semibold text-gray-700 leading-none mb-0.5">
                             {getUserDisplay()}
                           </span>
-                          <span className="text-[10px] text-gray-500 font-medium uppercase tracking-wide">
-                            {roles[0] || "User"}
+                          <span className="text-[10px] text-gray-500 font-medium tracking-wide">
+                            {user?.email || "No email"}
                           </span>
                         </div>
                       </Button>

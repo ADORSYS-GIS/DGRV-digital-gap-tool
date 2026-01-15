@@ -59,8 +59,9 @@ const SecondAdminLayout: React.FC = () => {
     <div className="flex min-h-screen bg-muted/30">
       <Sidebar
         navLinks={navLinks}
-        panelName="Cooperative Panel"
+        panelName="Organisation Admin"
         panelAbbreviation="C"
+        infoText="This panel is for organization administrators to manage their cooperatives, users, and assessments."
       />
       <main className="flex-1">
         <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
