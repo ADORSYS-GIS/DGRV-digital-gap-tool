@@ -29,7 +29,7 @@
   "oauth2DevicePollingInterval": 5,
   "enabled": true,
   "sslRequired": "external",
-  "registrationAllowed": false,
+  "registrationAllowed": true,
   "registrationEmailAsUsername": true,
   "rememberMe": true,
   "verifyEmail": false,
@@ -502,28 +502,7 @@
       ]
     }
   },
-  "groups": [
-    {
-      "id": "3b8d4721-7ebb-4dc1-a4a5-ec776e222357",
-      "name": "316930e0-c5db-4b76-ae16-e432bcf6a060-wwwwwww",
-      "description": "wwwwwwwwwwwwwwww",
-      "path": "/316930e0-c5db-4b76-ae16-e432bcf6a060-wwwwwww",
-      "subGroups": [],
-      "attributes": {},
-      "realmRoles": [],
-      "clientRoles": {}
-    },
-    {
-      "id": "14770277-8b2f-41f7-a198-c0a67b4b50f8",
-      "name": "8ab0b5a9-ef7b-4287-b254-7b8672b5e980-frfrffrff",
-      "description": "frfrfrfrfrfrfrfr",
-      "path": "/8ab0b5a9-ef7b-4287-b254-7b8672b5e980-frfrffrff",
-      "subGroups": [],
-      "attributes": {},
-      "realmRoles": [],
-      "clientRoles": {}
-    }
-  ],
+  "groups": [],
   "defaultRole": {
     "id": "96d8c9c7-ad49-4c54-ac0b-94afcf46231c",
     "name": "default-roles-sustainability-realm",
@@ -875,9 +854,9 @@
       "clientId": "dgat-client",
       "name": "",
       "description": "",
-      "rootUrl": "https://ec2-3-127-149-67.eu-central-1.compute.amazonaws.com/",
-      "adminUrl": "https://ec2-3-127-149-67.eu-central-1.compute.amazonaws.com/",
-      "baseUrl": "https://ec2-3-127-149-67.eu-central-1.compute.amazonaws.com/",
+      "rootUrl": "https://ec2-3-127-149-67.eu-central-1.compute.amazonaws.com",
+      "adminUrl": "https://ec2-3-127-149-67.eu-central-1.compute.amazonaws.com",
+      "baseUrl": "https://ec2-3-127-149-67.eu-central-1.compute.amazonaws.com",
       "surrogateAuthRequired": false,
       "enabled": true,
       "alwaysDisplayInConsole": true,
@@ -2064,14 +2043,14 @@
         "subComponents": {},
         "config": {
           "allowed-protocol-mapper-types": [
+            "oidc-sha256-pairwise-sub-mapper",
+            "oidc-usermodel-attribute-mapper",
             "saml-user-property-mapper",
             "oidc-full-name-mapper",
-            "oidc-sha256-pairwise-sub-mapper",
+            "saml-user-attribute-mapper",
             "oidc-address-mapper",
             "oidc-usermodel-property-mapper",
-            "saml-role-list-mapper",
-            "saml-user-attribute-mapper",
-            "oidc-usermodel-attribute-mapper"
+            "saml-role-list-mapper"
           ]
         }
       },
@@ -2100,9 +2079,9 @@
             "saml-user-property-mapper",
             "oidc-usermodel-property-mapper",
             "oidc-address-mapper",
+            "saml-role-list-mapper",
             "saml-user-attribute-mapper",
-            "oidc-full-name-mapper",
-            "saml-role-list-mapper"
+            "oidc-full-name-mapper"
           ]
         }
       }
@@ -2114,7 +2093,7 @@
         "subComponents": {},
         "config": {
           "kc.user.profile.config": [
-            "{\"attributes\":[{\"name\":\"username\",\"displayName\":\"${username}\",\"validations\":{\"length\":{\"min\":3,\"max\":255},\"username-prohibited-characters\":{},\"up-username-not-idn-homograph\":{}},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"multivalued\":false},{\"name\":\"email\",\"displayName\":\"${email}\",\"validations\":{\"email\":{},\"length\":{\"max\":255}},\"required\":{\"roles\":[\"user\"]},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"multivalued\":false},{\"name\":\"firstName\",\"displayName\":\"${firstName}\",\"validations\":{\"length\":{\"max\":255},\"person-name-prohibited-characters\":{}},\"annotations\":{},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"multivalued\":false},{\"name\":\"lastName\",\"displayName\":\"${lastName}\",\"validations\":{\"length\":{\"max\":255},\"person-name-prohibited-characters\":{}},\"annotations\":{},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"multivalued\":false},{\"name\":\"org.ro.active\",\"displayName\":\"Active organization ID\",\"permissions\":{\"view\":[\"admin\"],\"edit\":[\"admin\"]},\"multivalued\":false},{\"name\":\"categories\",\"displayName\":\"categories\",\"validations\":{},\"annotations\":{},\"permissions\":{\"view\":[],\"edit\":[\"admin\"]},\"multivalued\":true},{\"name\":\"assigned_dimensions\",\"displayName\":\"assigned_dimensions\",\"validations\":{},\"annotations\":{},\"permissions\":{\"view\":[],\"edit\":[\"admin\"]},\"multivalued\":true}],\"groups\":[{\"name\":\"user-metadata\",\"displayHeader\":\"User metadata\",\"displayDescription\":\"Attributes, which refer to user metadata\"}]}"
+            "{\"attributes\":[{\"name\":\"username\",\"displayName\":\"${username}\",\"validations\":{\"length\":{\"min\":3,\"max\":255},\"username-prohibited-characters\":{},\"up-username-not-idn-homograph\":{}},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"multivalued\":false},{\"name\":\"email\",\"displayName\":\"${email}\",\"validations\":{\"email\":{},\"length\":{\"max\":255}},\"required\":{\"roles\":[\"user\"]},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"multivalued\":false},{\"name\":\"firstName\",\"displayName\":\"${firstName}\",\"validations\":{\"length\":{\"max\":255},\"person-name-prohibited-characters\":{}},\"required\":{\"roles\":[\"user\"]},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"multivalued\":false},{\"name\":\"lastName\",\"displayName\":\"${lastName}\",\"validations\":{\"length\":{\"max\":255},\"person-name-prohibited-characters\":{}},\"required\":{\"roles\":[\"user\"]},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"multivalued\":false},{\"name\":\"org.ro.active\",\"displayName\":\"Active organization ID\",\"permissions\":{\"view\":[\"admin\"],\"edit\":[\"admin\"]},\"multivalued\":false},{\"name\":\"categories\",\"displayName\":\"categories\",\"validations\":{},\"annotations\":{},\"permissions\":{\"view\":[],\"edit\":[\"admin\"]},\"multivalued\":true},{\"name\":\"assigned_dimensions\",\"displayName\":\"assigned_dimensions\",\"validations\":{},\"annotations\":{},\"permissions\":{\"view\":[],\"edit\":[\"admin\"]},\"multivalued\":true}],\"groups\":[{\"name\":\"user-metadata\",\"displayHeader\":\"User metadata\",\"displayDescription\":\"Attributes, which refer to user metadata\"}]}"
           ]
         }
       }
