@@ -60,9 +60,8 @@ export const AddCooperationUserForm = () => {
       firstName,
       lastName,
       roles: [newUserRole],
-      // Only coop_users need dimension-level restrictions; coop_admins can manage all.
       dimensionIds:
-        newUserRole === ROLES.COOP_USER ? selectedDimensionIds : undefined,
+        newUserRole === ROLES.COOP_USER ? selectedDimensionIds : [],
     };
     addUser(
       { user, cooperationId },
@@ -152,7 +151,7 @@ export const AddCooperationUserForm = () => {
             <div className="space-y-2">
               <Label>Dimensions this user can answer</Label>
               <p className="text-xs text-muted-foreground">
-                Select the assessment dimensions that this cooperation user is
+                Select the assessment dimensions that this Cooperative user is
                 allowed to answer. They will only see and answer these
                 dimensions in assigned assessments.
               </p>
@@ -191,8 +190,8 @@ export const AddCooperationUserForm = () => {
               value={
                 newUserRole
                   ? newUserRole === ROLES.COOP_ADMIN
-                    ? "Cooperation admin"
-                    : "Cooperation user"
+                    ? "Cooperative admin"
+                    : "Cooperative user"
                   : "No role will be assigned with your current permissions"
               }
               disabled

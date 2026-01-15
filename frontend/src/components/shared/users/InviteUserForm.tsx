@@ -23,6 +23,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Mail, User, Shield, UserPlus } from "lucide-react";
+import { toast } from "sonner";
 
 const inviteUserSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
@@ -76,8 +77,14 @@ export const InviteUserForm: React.FC<InviteUserFormProps> = ({
     };
     inviteUserMutation.mutate(invitation, {
       onSuccess: () => {
+        toast.success("Invitation sent successfully");
         onClose();
         form.reset();
+      },
+      onError: (error) => {
+        toast.error("Failed to send invitation", {
+          description: error.message,
+        });
       },
     });
   };

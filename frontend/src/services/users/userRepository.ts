@@ -18,32 +18,14 @@ class UserRepository {
     orgId: string,
     invitation: Omit<UserInvitationRequest, "id">,
   ): Promise<void> {
-    const invitationWithId = {
-      ...invitation,
-      id: uuidv4(),
-      orgId: orgId,
-      syncStatus: SyncStatus.PENDING,
-    };
-
-    // This is a temporary solution until a proper table for invitations is created.
-    // We will add it to the user table for now to track the sync status.
-    // A proper implementation would have an `invitations` table in Dexie.
-    const temporaryUserForSync = {
-      id: invitationWithId.id,
-      email: invitation.email,
-      orgId: orgId,
-      syncStatus: SyncStatus.PENDING,
-      username: invitation.email,
-    };
-
-    await db.users.add(temporaryUserForSync as UserWithSync);
-
-    await syncService.addToSyncQueue(
-      "UserInvitation",
-      invitationWithId.id,
-      "CREATE",
-      { ...invitation, orgId },
-    );
+    try {
+      await inviteUserToOrganization({
+        orgId,
+        requestBody: invitation,
+      });
+    } catch (error) {
+      throw new Error("Failed to send invitation. Please try again later.");
+    }
   }
 
   async getMembers(orgId: string): Promise<UserWithSync[]> {
@@ -109,15 +91,13 @@ class UserRepository {
   }
 
   async deleteUser(userId: string, orgId: string): Promise<void> {
-    const userToDelete = await db.users.get(userId);
-    if (userToDelete) {
+    try {
+      await deleteUser(userId);
       await db.users.delete(userId);
+    } catch (error) {
+      console.error("Failed to delete user:", error);
+      throw new Error("Failed to delete user. Please try again later.");
     }
-
-    await syncService.addToSyncQueue("User", userId, "DELETE", {
-      id: userId,
-      orgId: orgId,
-    });
   }
 }
 

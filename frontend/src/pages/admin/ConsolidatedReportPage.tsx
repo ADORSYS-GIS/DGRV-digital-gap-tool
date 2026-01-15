@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { ConsolidatedReport } from "@/openapi-client";
-import { getDgrvAdminConsolidatedReport } from "@/services/consolidated_reports/consolidatedReportRepository";
+import { consolidatedReportRepository } from "@/services/consolidated_reports/consolidatedReportRepository";
 import {
   Card,
   CardContent,
@@ -190,7 +190,7 @@ export function ConsolidatedReportPage() {
     try {
       setLoading(true);
       setError(null);
-      const data = await getDgrvAdminConsolidatedReport();
+      const data = await consolidatedReportRepository.getDgrvAdminConsolidatedReport();
       setReport(data);
     } catch (err) {
       setError("Failed to fetch consolidated report. Please try again.");

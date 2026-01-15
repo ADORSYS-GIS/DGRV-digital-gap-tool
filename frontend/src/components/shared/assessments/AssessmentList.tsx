@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Assessment } from "../../../types/assessment";
 import { Badge } from "../../../components/ui/badge";
 import { Button } from "../../../components/ui/button";
-import { ClipboardList, Edit, Trash2 } from "lucide-react";
+import { ClipboardList, Trash2 } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,7 +14,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "../../../components/ui/alert-dialog";
-import { EditAssessmentForm } from "./EditAssessmentForm";
 import { useDeleteAssessment } from "../../../hooks/assessments/useDeleteAssessment";
 import { useUpdateAssessment } from "../../../hooks/assessments/useUpdateAssessment";
 import { useDimensions } from "../../../hooks/dimensions/useDimensions";
@@ -35,7 +34,6 @@ export function AssessmentList({
   userRoles,
   cooperationsById,
 }: AssessmentListProps) {
-  const [isEditDialogOpen, setEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedAssessment, setSelectedAssessment] =
     useState<Assessment | null>(null);
@@ -45,10 +43,6 @@ export function AssessmentList({
   const navigate = useNavigate();
   const location = useLocation();
 
-  const handleEdit = (assessment: Assessment) => {
-    setSelectedAssessment(assessment);
-    setEditDialogOpen(true);
-  };
 
   const handleDelete = (assessment: Assessment) => {
     setSelectedAssessment(assessment);
@@ -145,15 +139,6 @@ export function AssessmentList({
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => handleEdit(assessment)}
-                    className="text-blue-600 hover:text-blue-700"
-                    aria-label="Edit assessment"
-                  >
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
                     onClick={() => handleDelete(assessment)}
                     className="text-red-600 hover:text-red-700"
                     aria-label="Delete assessment"
@@ -182,13 +167,6 @@ export function AssessmentList({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-      {selectedAssessment && (
-        <EditAssessmentForm
-          isOpen={isEditDialogOpen}
-          onClose={() => setEditDialogOpen(false)}
-          assessment={selectedAssessment}
-        />
-      )}
     </div>
   );
 }
