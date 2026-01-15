@@ -11,42 +11,50 @@ import {
 } from "lucide-react";
 import { Sidebar } from "@/components/shared/Sidebar";
 
-const navLinks = [
-  { to: "/second-admin/dashboard", icon: BarChart3, text: "Dashboard" },
-  { to: "/second-admin/cooperations", icon: Building2, text: "Cooperatives" },
-  {
-    to: "/second-admin/manage-cooperation-users",
-    icon: Users,
-    text: "Manage Users",
-  },
-  {
-    to: "/second-admin/assessments",
-    icon: FilePlus2,
-    text: "Create Assessment",
-  },
-  {
-    to: "/second-admin/action-plans",
-    icon: ClipboardList,
-    text: "Action Plan",
-  },
-  {
-    to: "/second-admin/submissions",
-    icon: ClipboardCheck,
-    text: "Submissions",
-  },
-  {
-    to: "/second-admin/reports",
-    icon: BarChart3,
-    text: "View Reports",
-  },
-  {
-    to: "/second-admin/consolidated-report",
-    icon: FileText,
-    text: "Consolidated Report",
-  },
-];
+import { useOrganizationId } from "@/hooks/organizations/useOrganizationId";
 
 const SecondAdminLayout: React.FC = () => {
+  const organizationId = useOrganizationId();
+
+  const navLinks = [
+    { to: "/second-admin/dashboard", icon: BarChart3, text: "Dashboard" },
+    {
+      to: "/second-admin/cooperations",
+      icon: Building2,
+      text: "Cooperatives",
+    },
+    {
+      to: "/second-admin/manage-cooperation-users",
+      icon: Users,
+      text: "Manage Users",
+    },
+    {
+      to: "/second-admin/assessments",
+      icon: FilePlus2,
+      text: "Create Assessment",
+    },
+    {
+      to: "/second-admin/action-plans",
+      icon: ClipboardList,
+      text: "Action Plan",
+    },
+    {
+      to: "/second-admin/submissions",
+      icon: ClipboardCheck,
+      text: "Submissions",
+    },
+    {
+      to: "/second-admin/reports",
+      icon: BarChart3,
+      text: "View Reports",
+    },
+    {
+      to: `/second-admin/consolidated-report/${organizationId}`,
+      icon: FileText,
+      text: "Consolidated Report",
+    },
+  ];
+
   return (
     <div className="flex min-h-screen bg-muted/30">
       <Sidebar

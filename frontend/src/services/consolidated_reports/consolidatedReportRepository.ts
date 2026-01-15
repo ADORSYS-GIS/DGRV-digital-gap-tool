@@ -2,20 +2,13 @@ import {
   dgrvAdminConsolidatedReport,
   orgAdminConsolidatedReport,
 } from "@/openapi-client/services.gen";
-import { ConsolidatedReport } from "@/openapi-client/types.gen";
 
-class ConsolidatedReportRepository {
-  async getDgrvAdminConsolidatedReport(): Promise<ConsolidatedReport> {
-    const response = await dgrvAdminConsolidatedReport();
-    return response;
-  }
+export const consolidatedReportRepository = {
+  getDgrvAdminConsolidatedReport: async () => {
+    return await dgrvAdminConsolidatedReport();
+  },
 
-  async getOrgAdminConsolidatedReport(
-    organizationId: string,
-  ): Promise<ConsolidatedReport> {
-    const response = await orgAdminConsolidatedReport({ organizationId });
-    return response;
-  }
-}
-
-export const consolidatedReportRepository = new ConsolidatedReportRepository();
+  getOrgAdminConsolidatedReport: async (organizationId: string) => {
+    return await orgAdminConsolidatedReport({ organizationId });
+  },
+};

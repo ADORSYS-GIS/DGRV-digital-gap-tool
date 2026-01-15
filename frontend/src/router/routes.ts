@@ -50,16 +50,16 @@ const ExportReportPage = React.lazy(
   () => import("../pages/admin/ExportReportPage"),
 );
 const ConsolidatedReportPage = React.lazy(
-  () => import("../pages/admin/ConsolidatedReportPage"),
+  () => import("@/pages/admin/ConsolidatedReportPage"),
 );
 const SecondAdminDashboard = React.lazy(
-  () => import("../pages/second_admin/SecondAdminDashboard"),
+  () => import("@/pages/second_admin/SecondAdminDashboard"),
 );
 const OrgAdminConsolidatedReportPage = React.lazy(
-  () => import("../pages/second_admin/ConsolidatedReportPage"),
+  () => import("@/pages/second_admin/ConsolidatedReportPage"),
 );
 const ManageCooperations = React.lazy(
-  () => import("../pages/second_admin/ManageCooperations"),
+  () => import("@/pages/second_admin/ManageCooperations"),
 );
 const ManageAssessments = React.lazy(
   () => import("../pages/shared/assessments/ManageAssessments"),
@@ -235,10 +235,6 @@ const routes: RouteConfig[] = [
       },
       {
         path: "consolidated-report/:organizationId",
-        element: React.createElement(OrgAdminConsolidatedReportPage),
-      },
-      {
-        path: "consolidated-report",
         element: React.createElement(OrgAdminConsolidatedReportPage),
       },
     ],

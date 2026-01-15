@@ -5,7 +5,9 @@ export const useOrgAdminConsolidatedReport = (organizationId: string) => {
   return useQuery({
     queryKey: ["orgAdminConsolidatedReport", organizationId],
     queryFn: () =>
-      consolidatedReportRepository.getOrgAdminConsolidatedReport(organizationId),
+      consolidatedReportRepository.getOrgAdminConsolidatedReport(
+        organizationId,
+      ),
     enabled: !!organizationId,
   });
 };
