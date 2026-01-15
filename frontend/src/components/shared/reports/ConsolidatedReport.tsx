@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 import {
   Card,
   CardContent,
@@ -15,7 +17,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   BarChart,
   Bar,
@@ -24,18 +32,15 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  PieChart,
-  Pie,
   Cell,
 } from "recharts";
 import {
-  Building2,
   FileText,
   AlertTriangle,
-  TrendingUp,
   AlertCircle,
   BarChart3,
-  PieChart as PieChartIcon,
+  Info,
+  Download,
 } from "lucide-react";
 import { cn } from "@/utils/utils";
 import { useDgrvAdminConsolidatedReport } from "@/hooks/consolidated_reports/useDgrvAdminConsolidatedReport";
@@ -47,13 +52,6 @@ interface ChartData {
   dominant_risk_name: string;
   dominant_risk_value: number;
   dominant_risk_color: string;
-}
-
-interface PieChartDataItem {
-  name: string;
-  value: number;
-  fill: string;
-  [key: string]: string | number;
 }
 
 // Risk level color constants
@@ -69,29 +67,10 @@ const CustomBarTooltip = ({ active, payload }: any) => {
     const data = payload[0].payload as ChartData;
     return (
       <div className="rounded-lg border bg-background p-3 shadow-md">
-        <p className="font-semibold">{data.dimension_name}</p>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-muted-foreground text-center">
           {data.dominant_risk_name}:{" "}
           <span className="font-medium text-foreground">
             {data.dominant_risk_value.toFixed(2)}%
-          </span>
-        </p>
-      </div>
-    );
-  }
-  return null;
-};
-
-// Custom tooltip for pie chart
-const CustomPieTooltip = ({ active, payload }: any) => {
-  if (active && payload && payload.length) {
-    const data = payload[0];
-    return (
-      <div className="rounded-lg border bg-background p-3 shadow-md">
-        <p className="font-semibold">{data.name}</p>
-        <p className="text-sm text-muted-foreground">
-          <span className="font-medium text-foreground">
-            {data.value.toFixed(2)}%
           </span>
         </p>
       </div>
@@ -148,6 +127,22 @@ const MetricCard = ({
   );
 };
 
+const InfoPopover = ({ title, children }: { title: string; children: React.ReactNode }) => (
+  <Popover>
+    <PopoverTrigger asChild>
+      <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:bg-muted-foreground/20">
+        <Info className="h-4 w-4" />
+      </Button>
+    </PopoverTrigger>
+    <PopoverContent className="w-80">
+      <div className="space-y-2">
+        <h4 className="font-semibold leading-none">{title}</h4>
+        <div className="text-sm text-muted-foreground">{children}</div>
+      </div>
+    </PopoverContent>
+  </Popover>
+);
+
 interface ConsolidatedReportProps {
   organizationId?: string;
 }
@@ -169,6 +164,22 @@ export const ConsolidatedReport: React.FC<ConsolidatedReportProps> = ({
   const report = organizationId ? orgData : dgrvData;
   const loading = organizationId ? orgLoading : dgrvLoading;
   const error = organizationId ? orgError : dgrvError;
+  const reportRef = useRef<HTMLDivElement>(null);
+
+  const handleExportPDF = () => {
+    if (reportRef.current) {
+      html2canvas(reportRef.current, { scale: 2 }).then(
+        (canvas: HTMLCanvasElement) => {
+          const imgData = canvas.toDataURL("image/png");
+          const pdf = new jsPDF("p", "mm", "a4");
+          const pdfWidth = pdf.internal.pageSize.getWidth();
+          const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+          pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+          pdf.save("consolidated-report.pdf");
+        },
+      );
+    }
+  };
 
   const highestRiskDimension = useMemo(() => {
     if (
@@ -221,44 +232,6 @@ export const ConsolidatedReport: React.FC<ConsolidatedReportProps> = ({
         dominant_risk_color: dominantRisk.color,
       };
     });
-  }, [report]);
-
-  const pieChartData = useMemo(() => {
-    if (!report?.dimension_summaries) return [];
-
-    const data: PieChartDataItem[] = [];
-
-    report.dimension_summaries.forEach((summary) => {
-      const {
-        high_risk_percentage,
-        medium_risk_percentage,
-        low_risk_percentage,
-      } = summary.risk_level_distribution;
-
-      if (high_risk_percentage > 0) {
-        data.push({
-          name: `${summary.dimension_name} - High Risk`,
-          value: high_risk_percentage,
-          fill: RISK_COLORS.high,
-        });
-      }
-      if (medium_risk_percentage > 0) {
-        data.push({
-          name: `${summary.dimension_name} - Medium Risk`,
-          value: medium_risk_percentage,
-          fill: RISK_COLORS.medium,
-        });
-      }
-      if (low_risk_percentage > 0) {
-        data.push({
-          name: `${summary.dimension_name} - Low Risk`,
-          value: low_risk_percentage,
-          fill: RISK_COLORS.low,
-        });
-      }
-    });
-
-    return data;
   }, [report]);
 
   const getRiskBadgeVariant = (riskLevel: number) => {
@@ -328,244 +301,203 @@ export const ConsolidatedReport: React.FC<ConsolidatedReportProps> = ({
 
   return (
     <div className="container mx-auto max-w-7xl p-6 space-y-8">
-      <div className="space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight">
-          Consolidated Report
-        </h1>
-        <p className="text-muted-foreground">
-          Comprehensive overview of digital gap analysis
-        </p>
+      <div className="flex justify-between items-center">
+        <div className="space-y-2">
+          <h1 className="text-3xl font-bold tracking-tight">
+            Consolidated Report
+          </h1>
+          <p className="text-muted-foreground">
+            Comprehensive overview of digital gap analysis
+          </p>
+        </div>
+        <Button onClick={handleExportPDF} className="gap-2">
+          <Download className="h-4 w-4" />
+          Export PDF
+        </Button>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <MetricCard
-          title="Total Entities Analyzed"
-          value={report.total_entities_analyzed}
-          icon={<Building2 className="h-5 w-5" />}
-        />
-        <MetricCard
-          title="Total Submissions"
-          value={report.total_submissions}
-          icon={<FileText className="h-5 w-5" />}
-        />
-        <MetricCard
-          title="Overall Average Risk"
-          value={report.overall_average_risk_level.toFixed(2)}
-          icon={<AlertTriangle className="h-5 w-5" />}
-          variant="risk"
-        />
-        <MetricCard
-          title="Overall Average Gap"
-          value={report.overall_average_gap_score.toFixed(2)}
-          icon={<TrendingUp className="h-5 w-5" />}
-          variant="gap"
-        />
-      </div>
+      <div ref={reportRef} className="p-4">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <MetricCard
+            title="Total Submissions"
+            value={report.total_submissions}
+            icon={<FileText className="h-5 w-5" />}
+          />
+        </div>
 
-      <Card className="transition-all duration-200 hover:shadow-md">
-        <CardHeader>
-          <CardTitle>Dimension Analysis</CardTitle>
-          <CardDescription>
-            Detailed breakdown of risk levels and gap scores by dimension
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow className="hover:bg-transparent">
-                  <TableHead className="font-semibold">Dimension</TableHead>
-                  <TableHead className="font-semibold">
-                    Avg. Risk Level
-                  </TableHead>
-                  <TableHead className="font-semibold">
-                    Avg. Gap Score
-                  </TableHead>
-                  <TableHead className="font-semibold">High Risk %</TableHead>
-                  <TableHead className="font-semibold">
-                    Medium Risk %
-                  </TableHead>
-                  <TableHead className="font-semibold">Low Risk %</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {report.dimension_summaries.map((summary, index) => (
-                  <TableRow
-                    key={summary.dimension_name}
-                    className={cn(
-                      index % 2 === 0 && "bg-muted/50",
-                      "transition-colors hover:bg-muted",
-                    )}
-                  >
-                    <TableCell className="font-medium">
-                      {summary.dimension_name}
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant={getRiskBadgeVariant(
-                          summary.average_risk_level,
-                        )}
-                      >
-                        {summary.average_risk_level.toFixed(2)}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant={getRiskBadgeVariant(
-                          summary.average_gap_score,
-                        )}
-                      >
-                        {summary.average_gap_score.toFixed(2)}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      {getRiskPercentageBadge(
-                        summary.risk_level_distribution.high_risk_percentage,
-                        "high",
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {getRiskPercentageBadge(
-                        summary.risk_level_distribution
-                          .medium_risk_percentage,
-                        "medium",
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {getRiskPercentageBadge(
-                        summary.risk_level_distribution.low_risk_percentage,
-                        "low",
-                      )}
-                    </TableCell>
+        <Card className="transition-all duration-200 hover:shadow-md mt-6">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <CardTitle>Dimension Analysis</CardTitle>
+              <InfoPopover title="About Dimension Analysis">
+                <p>
+                  This table provides a detailed breakdown of risk distribution for each dimension across all submissions. It helps in identifying which areas of your organization are most exposed to digital risks.
+                </p>
+                <ul className="mt-2 list-disc pl-4 space-y-1">
+                  <li><strong>High Risk %:</strong> The percentage of submissions where the dimension was assessed as high risk. High-risk areas require immediate attention.</li>
+                  <li><strong>Medium Risk %:</strong> The percentage of submissions where the dimension was assessed as medium risk. These areas should be monitored.</li>
+                  <li><strong>Low Risk %:</strong> The percentage of submissions where the dimension was assessed as low risk. These are areas of strength.</li>
+                </ul>
+              </InfoPopover>
+            </div>
+            <CardDescription>
+              Detailed breakdown of risk levels and gap scores by dimension
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow className="hover:bg-transparent">
+                    <TableHead className="font-semibold">Dimension</TableHead>
+                    <TableHead className="font-semibold">High Risk %</TableHead>
+                    <TableHead className="font-semibold">
+                      Medium Risk %
+                    </TableHead>
+                    <TableHead className="font-semibold">Low Risk %</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
-
-      {highestRiskDimension && (
-        <Card className="border-l-4 border-l-destructive transition-all duration-200 hover:shadow-md">
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-destructive" />
-              <CardTitle>Highest Risk Dimension & Recommendations</CardTitle>
+                </TableHeader>
+                <TableBody>
+                  {report.dimension_summaries.map((summary, index) => (
+                    <TableRow
+                      key={summary.dimension_name}
+                      className={cn(
+                        index % 2 === 0 && "bg-muted/50",
+                        "transition-colors hover:bg-muted",
+                      )}
+                    >
+                      <TableCell className="font-medium">
+                        {summary.dimension_name}
+                      </TableCell>
+                      <TableCell>
+                        {getRiskPercentageBadge(
+                          summary.risk_level_distribution.high_risk_percentage,
+                          "high",
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {getRiskPercentageBadge(
+                          summary.risk_level_distribution
+                            .medium_risk_percentage,
+                          "medium",
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {getRiskPercentageBadge(
+                          summary.risk_level_distribution.low_risk_percentage,
+                          "low",
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </div>
-            <CardDescription>
-              Priority focus area requiring immediate attention
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <h3 className="text-xl font-semibold mb-2">
-                {highestRiskDimension.dimension_name}
-              </h3>
+          </CardContent>
+        </Card>
+
+        {highestRiskDimension && (
+          <Card className="border-l-4 border-l-destructive transition-all duration-200 hover:shadow-md mt-6">
+            <CardHeader>
               <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">
-                  Average Risk Level:
-                </span>
-                <Badge variant="destructive" className="text-sm">
-                  {highestRiskDimension.average_risk_level.toFixed(2)}
-                </Badge>
+                <AlertTriangle className="h-5 w-5 text-destructive" />
+                <CardTitle>Highest Risk Dimension & Recommendations</CardTitle>
+                <InfoPopover title="About Highest Risk Dimension">
+                  <p>
+                    This section automatically identifies the dimension with the highest average risk level across all submissions. It represents the most critical area of vulnerability that requires immediate focus.
+                  </p>
+                  <p className="mt-2">
+                    The provided recommendations are tailored to address the specific challenges of this dimension and should be prioritized in your action plan.
+                  </p>
+                </InfoPopover>
               </div>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-3 text-base">
-                Top High-Priority Recommendations
-              </h4>
-              <ul className="space-y-2">
-                {highestRiskDimension.top_recommendations.map(
-                  (rec, index) => (
-                    <li key={index} className="flex items-start gap-3">
-                      <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-destructive shrink-0" />
-                      <span className="text-sm leading-relaxed">{rec}</span>
-                    </li>
-                  ),
-                )}
-              </ul>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+              <CardDescription>
+                Priority focus area requiring immediate attention
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-xl font-semibold mb-2">
+                    {highestRiskDimension.dimension_name}
+                  </h3>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-muted-foreground">
+                      Average Risk Level:
+                    </span>
+                    <Badge variant="destructive" className="text-sm">
+                      {highestRiskDimension.average_risk_level.toFixed(2)}
+                    </Badge>
+                  </div>
+                </div>
+                <div>
+                  <h4 className="font-semibold mb-3 text-base">
+                    Top High-Priority Recommendations
+                  </h4>
+                  <ul className="space-y-2">
+                    {highestRiskDimension.top_recommendations.map(
+                      (rec, index) => (
+                        <li key={index} className="flex items-start gap-3">
+                          <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-destructive shrink-0" />
+                          <span className="text-sm leading-relaxed">{rec}</span>
+                        </li>
+                      ),
+                    )}
+                  </ul>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card className="transition-all duration-200 hover:shadow-md">
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <BarChart3 className="h-5 w-5 text-muted-foreground" />
-              <CardTitle>Dominant Risk by Dimension</CardTitle>
-            </div>
-            <CardDescription>
-              Percentage of dominant risk level per dimension
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={400}>
-              <BarChart
-                data={chartData}
-                margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                <XAxis
-                  dataKey="dimension_name"
-                  angle={-45}
-                  textAnchor="end"
-                  height={100}
-                  tick={{ fontSize: 12 }}
-                />
-                <YAxis unit="%" domain={[0, 100]} tick={{ fontSize: 12 }} />
-                <Tooltip content={<CustomBarTooltip />} />
-                <Bar dataKey="dominant_risk_value" radius={[8, 8, 0, 0]}>
-                  {chartData.map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={entry.dominant_risk_color}
-                    />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-
-        <Card className="transition-all duration-200 hover:shadow-md">
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <PieChartIcon className="h-5 w-5 text-muted-foreground" />
-              <CardTitle>Risk Level Distribution</CardTitle>
-            </div>
-            <CardDescription>
-              Overall distribution of risk levels across all dimensions
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={400}>
-              <PieChart>
-                <Pie
-                  data={pieChartData}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={({ percent }) =>
-                    percent && percent > 0.05
-                      ? `${(percent * 100).toFixed(0)}%`
-                      : ""
-                  }
-                  outerRadius={120}
-                  innerRadius={60}
-                  paddingAngle={2}
-                  dataKey="value"
+        <div className="grid gap-6 lg:grid-cols-1 mt-6">
+          <Card className="transition-all duration-200 hover:shadow-md">
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <BarChart3 className="h-5 w-5 text-muted-foreground" />
+                <CardTitle>Dominant Risk level by Dimension</CardTitle>
+                <InfoPopover title="About Dominant Risk">
+                  <p>
+                    This bar chart visualizes the most dominant risk level (High, Medium, or Low) for each dimension. The dominant risk is the risk level with the highest percentage of submissions for that dimension.
+                  </p>
+                  <p className="mt-2">
+                    This provides a quick overview of the general risk profile of each dimension, helping you to easily spot which dimensions are consistently ranked as high-risk.
+                  </p>
+                </InfoPopover>
+              </div>
+              <CardDescription>
+                Percentage of dominant risk level per dimension
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={400}>
+                <BarChart
+                  data={chartData}
+                  margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
                 >
-                  {pieChartData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.fill} />
-                  ))}
-                </Pie>
-                <Tooltip content={<CustomPieTooltip />} />
-              </PieChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                  <XAxis
+                    dataKey="dimension_name"
+                    angle={-45}
+                    textAnchor="end"
+                    height={100}
+                    tick={{ fontSize: 12 }}
+                  />
+                  <YAxis unit="%" domain={[0, 100]} tick={{ fontSize: 12 }} />
+                  <Tooltip content={<CustomBarTooltip />} />
+                  <Bar dataKey="dominant_risk_value" radius={[8, 8, 0, 0]}>
+                    {chartData.map((entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={entry.dominant_risk_color}
+                      />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
