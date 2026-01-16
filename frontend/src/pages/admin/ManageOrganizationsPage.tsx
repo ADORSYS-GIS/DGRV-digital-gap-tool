@@ -29,29 +29,33 @@ const ManageOrganizationsPage: React.FC = () => {
     <div>
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-3xl font-bold">
-            {t("manageOrganizations.title")}
-          </h1>
+          <h1 className="text-3xl font-bold">Manage Organizations</h1>
           <p className="text-muted-foreground">
-            {t("manageOrganizations.description")}
+            Add and manage cooperative organizations
           </p>
         </div>
-        <AddOrganizationForm />
+        <div className="flex-shrink-0">
+          <AddOrganizationForm />
+        </div>
       </div>
 
       {isLoading && <LoadingSpinner />}
-      {error && (
-        <p>
-          {t("manageOrganizations.errorMessage", {
-            message: (error as Error).message,
-          })}
-        </p>
-      )}
+      {error && <p>Error loading organizations: {error.message}</p>}
       {!isLoading && !error && (
-        <OrganizationList
-          organizations={organizations || []}
-          onAssignDimension={handleOpenAssignDimensionDialog}
-        />
+        <>
+          {organizations && organizations.length > 0 ? (
+            <OrganizationList
+              organizations={organizations}
+              onAssignDimension={handleOpenAssignDimensionDialog}
+            />
+          ) : (
+            <EmptyState
+              icon={Building2}
+              title="No organizations found"
+              description="Get started by adding your first cooperative organization to the system."
+            />
+          )}
+        </>
       )}
 
       <AssignDimensionDialog

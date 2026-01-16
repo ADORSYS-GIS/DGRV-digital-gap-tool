@@ -74,6 +74,15 @@ impl DimensionAssessmentsRepository {
         if assessment_data.dimension_id.is_set() {
             active_model.dimension_id = assessment_data.dimension_id;
         }
+        if assessment_data.current_state_id.is_set() {
+            active_model.current_state_id = assessment_data.current_state_id;
+        }
+        if assessment_data.desired_state_id.is_set() {
+            active_model.desired_state_id = assessment_data.desired_state_id;
+        }
+        if assessment_data.gap_score.is_set() {
+            active_model.gap_score = assessment_data.gap_score;
+        }
         if assessment_data.gap_id.is_set() {
             active_model.gap_id = assessment_data.gap_id;
         }

@@ -42,8 +42,13 @@ const ActionPlansPage: React.FC = () => {
     setSelectedSubmission(null);
   };
 
-  const handleSubmissionSelect = (submission: AssessmentSummary) => {
-    setSelectedSubmission(submission);
+  const handleSubmissionSelect = (submissionId: string) => {
+    const submission = submissions.find((s) => s.id === submissionId);
+    if (submission) {
+      setSelectedSubmission(submission);
+    } else {
+      console.error(`Submission with ID ${submissionId} not found.`);
+    }
   };
 
   if (selectedSubmission) {
@@ -51,14 +56,27 @@ const ActionPlansPage: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl bg-gradient-to-r from-primary/5 via-primary/10 to-transparent p-6 sm:p-10 border border-primary/10">
+        <div className="space-y-2">
+          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-gray-900">
+            Admin Action Plans
+          </h1>
+          <p className="text-lg text-muted-foreground max-w-2xl">
+            Oversee and manage action plans across all organizations.
+          </p>
+        </div>
+      </div>
+
       {!selectedOrganizationId ? (
         <div>
           <h2 className="text-2xl font-bold mb-4">
             {t("adminActionPlans.selectOrganization")}
           </h2>
           {isLoadingOrganizations ? (
-            <LoadingSpinner />
+            <div className="flex justify-center py-12">
+              <LoadingSpinner size="lg" />
+            </div>
           ) : (
             <OrganizationList
               organizations={organizations || []}
@@ -72,7 +90,9 @@ const ActionPlansPage: React.FC = () => {
             {t("adminActionPlans.selectSubmission")}
           </h2>
           {isLoadingSubmissions ? (
-            <LoadingSpinner />
+            <div className="flex justify-center py-12">
+              <LoadingSpinner size="lg" />
+            </div>
           ) : (
             <SubmissionList
               submissions={submissions}

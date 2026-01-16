@@ -34,6 +34,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { AlertTriangle, Layers, Activity, FileText } from "lucide-react";
 import * as z from "zod";
 import { useTranslation } from "react-i18next";
 import i18n from "@/i18n";

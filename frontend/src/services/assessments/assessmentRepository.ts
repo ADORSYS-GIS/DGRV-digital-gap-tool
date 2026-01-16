@@ -1,5 +1,11 @@
-import { getAssessment } from "../../openapi-client/services.gen";
-import { AssessmentResponse } from "@/openapi-client/types.gen";
+import {
+  createAssessment,
+  getAssessment,
+} from "../../openapi-client/services.gen";
+import {
+  AssessmentResponse,
+  CreateAssessmentRequest,
+} from "@/openapi-client/types.gen";
 import { AddAssessmentPayload, Assessment } from "../../types/assessment";
 import { SyncStatus } from "../../types/sync/index";
 import { v4 as uuidv4 } from "uuid";
@@ -38,8 +44,9 @@ export const assessmentRepository = {
     return localAssessment;
   },
   add: async (assessment: AddAssessmentPayload): Promise<Assessment> => {
+    const tempId = uuidv4();
     const newAssessment: Assessment = {
-      id: uuidv4(),
+      id: tempId,
       name: assessment.assessment_name,
       dimensionIds: assessment.dimensions_id,
       organization_id: assessment.organization_id,
@@ -48,14 +55,44 @@ export const assessmentRepository = {
       created_at: new Date().toISOString(),
       status: "Draft",
     };
+
     await db.assessments.add(newAssessment);
-    syncService.addToSyncQueue(
-      "Assessment",
-      newAssessment.id,
-      "CREATE",
-      newAssessment,
-    );
-    return newAssessment;
+
+    try {
+      const backendPayload: CreateAssessmentRequest = {
+        assessment_name: assessment.assessment_name,
+        dimensions_id: assessment.dimensions_id,
+        cooperation_id: assessment.cooperation_id,
+        organization_id: assessment.organization_id,
+      };
+      const backendResponse = await createAssessment({
+        requestBody: backendPayload,
+      });
+
+      if (backendResponse.data?.assessment_id) {
+        const syncedAssessment: Assessment = {
+          ...newAssessment,
+          id: backendResponse.data.assessment_id,
+          syncStatus: SyncStatus.SYNCED,
+          lastError: "",
+        };
+        // Delete the temporary record and add the new one with the correct backend ID
+        await db.assessments.delete(tempId);
+        await db.assessments.add(syncedAssessment);
+        return syncedAssessment;
+      } else {
+        throw new Error("Backend did not return assessment ID");
+      }
+    } catch (error: unknown) {
+      console.error("Failed to create assessment on backend:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      await db.assessments.update(tempId, {
+        syncStatus: SyncStatus.FAILED,
+        lastError: errorMessage,
+      });
+      throw error;
+    }
   },
   bulkAdd: async (assessments: Assessment[]) => {
     await db.assessments.bulkAdd(assessments);

@@ -27,7 +27,11 @@ export const AddOrganizationForm: React.FC = () => {
 
     if (name && domain) {
       // Ensure required fields for type are provided (description included)
-      addOrganizationMutation.mutate({ name, domain, description });
+      addOrganizationMutation.mutate({
+        name,
+        domain, description,
+        
+      });
       setIsOpen(false);
       event.currentTarget.reset();
     }
@@ -36,7 +40,7 @@ export const AddOrganizationForm: React.FC = () => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+        <Button className="bg-primary hover:bg-primary/90 text-white shadow-sm transition-all duration-200">
           <PlusCircle className="mr-2 h-4 w-4" />{" "}
           {t("admin.organizations.add.button", {
             defaultValue: "Add Organization",

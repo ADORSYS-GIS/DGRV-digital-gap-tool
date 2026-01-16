@@ -23,20 +23,20 @@ export default function ActionPlansListPage() {
   return (
     <div className="container mx-auto p-4 md:p-6 lg:p-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          {t("actionPlansListPage.title")}
-        </h1>
-        <p className="text-gray-600">{t("actionPlansListPage.subtitle")}</p>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">Action Plans</h1>
+        <p className="text-gray-600">View and manage all your action plans</p>
       </div>
 
-      {isLoading && <LoadingSpinner />}
-      {error && (
-        <p className="text-red-500">
-          {t("actionPlansListPage.errorMessage", {
-            message: (error as any).message || String(error),
-          })}
-        </p>
+      {isLoading && (
+        <div className="flex justify-center py-12">
+          <LoadingSpinner size="lg" />
+        </div>
       )}
+
+      {error && (
+        <p className="text-red-500">An error occurred: {error.message}</p>
+      )}
+
       {actionPlans && assessments && (
         <ActionPlanList actionPlans={actionPlans} assessments={assessments} />
       )}

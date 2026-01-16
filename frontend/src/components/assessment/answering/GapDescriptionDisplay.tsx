@@ -66,7 +66,33 @@ export const GapDescriptionDisplay: React.FC<GapDescriptionDisplayProps> = ({
       );
     }
 
-    return <p className="text-muted-foreground">{gap.scope}</p>;
+    const getSeverityColor = (severity: Gap) => {
+      switch (severity) {
+        case Gap.HIGH:
+          return "bg-red-100 text-red-800 hover:bg-red-200 border-red-200";
+        case Gap.MEDIUM:
+          return "bg-yellow-100 text-yellow-800 hover:bg-yellow-200 border-yellow-200";
+        case Gap.LOW:
+          return "bg-green-100 text-green-800 hover:bg-green-200 border-green-200";
+        default:
+          return "bg-gray-100 text-gray-800 hover:bg-gray-200 border-gray-200";
+      }
+    };
+
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-center space-x-2">
+          <span className="font-semibold">Severity:</span>
+          <Badge
+            variant="outline"
+            className={`text-sm px-3 py-1 ${getSeverityColor(gap.gap_severity)}`}
+          >
+            {gap.gap_severity} RISK
+          </Badge>
+        </div>
+        <p className="text-muted-foreground">{gap.scope}</p>
+      </div>
+    );
   };
 
   return (

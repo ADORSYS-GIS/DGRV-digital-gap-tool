@@ -51,11 +51,7 @@ export const EditCooperationForm: React.FC<EditCooperationFormProps> = ({
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>
-            {t("secondAdmin.cooperations.edit.title", {
-              defaultValue: "Edit Cooperation",
-            })}
-          </DialogTitle>
+          <DialogTitle>Edit Cooperation</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input

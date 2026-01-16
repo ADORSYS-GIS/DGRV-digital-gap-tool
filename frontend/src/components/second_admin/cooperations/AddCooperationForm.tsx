@@ -19,7 +19,6 @@ interface AddCooperationFormProps {
 }
 
 export const AddCooperationForm: React.FC<AddCooperationFormProps> = ({
-  onAdd,
 }) => {
   const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);

@@ -20,12 +20,11 @@ export default function ActionPlanPage() {
     <div className="container mx-auto p-4 md:p-6 lg:p-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          {t("actionPlanPage.title", {
-            name:
-              assessmentName || t("answerDimensionAssessment.assessmentSuffix"),
-          })}
+          Action Plan for {assessmentName || "Assessment"}
         </h1>
-        <p className="text-gray-600">{t("actionPlanPage.subtitle")}</p>
+        <p className="text-gray-600">
+          Track your action items from to-do to approved.
+        </p>
       </div>
 
       <KanbanBoard submissionId={assessmentId} />

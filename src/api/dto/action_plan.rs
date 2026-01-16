@@ -7,6 +7,7 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 use uuid::Uuid;
+use validator::Validate;
 
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct ActionPlanResponse {
@@ -14,6 +15,29 @@ pub struct ActionPlanResponse {
     pub assessment_id: Uuid,
     pub created_at: DateTime<Utc>,
     pub action_items: Vec<ActionItemResponse>,
+}
+
+#[derive(Debug, Serialize, Deserialize, ToSchema, Validate)]
+pub struct CreateActionItemRequest {
+    #[validate(length(min = 1, message = "Title cannot be empty"))]
+    pub title: String,
+    #[validate(length(min = 1, message = "Description cannot be empty"))]
+    pub description: String,
+    pub priority: String, // Will be validated in service layer
+    pub dimension_assessment_id: Uuid,
+    pub recommendation_id: Option<Uuid>,
+}
+
+#[derive(Debug, Serialize, Deserialize, ToSchema, Validate)]
+pub struct UpdateActionItemRequest {
+    #[validate(length(min = 1, message = "Title cannot be empty"))]
+    pub title: Option<String>,
+    #[validate(length(min = 1, message = "Description cannot be empty"))]
+    pub description: Option<String>,
+    pub status: Option<String>,   // Will be validated in service layer
+    pub priority: Option<String>, // Will be validated in service layer
+    pub dimension_assessment_id: Option<Uuid>,
+    pub recommendation_id: Option<Uuid>,
 }
 
 #[derive(Debug, Serialize, Deserialize, ToSchema)]

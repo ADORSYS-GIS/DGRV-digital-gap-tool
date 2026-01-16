@@ -5,7 +5,10 @@ import { cooperationSyncService } from "@/services/sync/cooperationSyncService";
 import { getGroupByPath } from "@/openapi-client";
 
 export const cooperationRepository = {
-  async getAll() {
+  async getAll(organizationId?: string) {
+    if (organizationId) {
+      await cooperationSyncService.sync(organizationId);
+    }
     return await db.cooperations.toArray();
   },
 

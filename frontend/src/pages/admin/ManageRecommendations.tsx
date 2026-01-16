@@ -39,15 +39,16 @@ export default function ManageRecommendations() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">
-              {t("manageRecommendations.title")}
+              Manage Recommendations
             </h1>
             <p className="text-sm text-muted-foreground mt-1">
-              {t("manageRecommendations.description")}
+              Add, edit, or remove recommendations for the digital gap
+              assessment
             </p>
           </div>
           <Button onClick={() => setAddDialogOpen(true)}>
             <PlusCircle className="mr-2 h-4 w-4" />
-            {t("manageRecommendations.addRecommendation")}
+            Add Recommendation
           </Button>
         </div>
       </div>

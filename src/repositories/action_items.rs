@@ -22,4 +22,19 @@ impl ActionItemsRepository {
             .await
             .map_err(AppError::from)
     }
+
+    pub async fn update(
+        db: &DbConn,
+        action_item_data: action_items::ActiveModel,
+    ) -> Result<action_items::Model, AppError> {
+        action_item_data.update(db).await.map_err(AppError::from)
+    }
+
+    pub async fn delete(db: &DbConn, id: uuid::Uuid) -> Result<(), AppError> {
+        action_items::Entity::delete_by_id(id)
+            .exec(db)
+            .await
+            .map_err(AppError::from)?;
+        Ok(())
+    }
 }

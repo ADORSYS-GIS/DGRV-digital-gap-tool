@@ -1,9 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { cooperationRepository } from "@/services/cooperations/cooperationRepository";
 
-export const useCooperations = () => {
+export const useCooperations = (organizationId?: string) => {
   return useQuery({
-    queryKey: ["cooperations"],
-    queryFn: cooperationRepository.getAll,
+    queryKey: ["cooperations", organizationId],
+    queryFn: () => cooperationRepository.getAll(organizationId),
+    enabled: !!organizationId,
   });
 };

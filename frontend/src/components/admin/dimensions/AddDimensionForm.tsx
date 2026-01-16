@@ -15,6 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useAddDimension } from "@/hooks/dimensions/useAddDimension";
 import { useTranslation } from "react-i18next";
 import i18n from "@/i18n";
+import { Layers, Type, FileText } from "lucide-react";
 
 const formSchema = z.object({
   name: z

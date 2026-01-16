@@ -50,26 +50,39 @@ export const DimensionCard = ({ dimension }: DimensionCardProps) => {
 
   return (
     <>
-      <Card className="group transform transition-all duration-300 hover:scale-105 hover:shadow-xl bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 border-gray-200 dark:border-gray-700 hover:border-blue-500">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg font-semibold text-gray-800 dark:text-gray-200">
-            <Layers className="h-6 w-6 text-blue-500" />
-            {dimension.name}
-          </CardTitle>
+      <Card className="group/card relative overflow-hidden rounded-xl border border-gray-200 bg-gradient-to-br from-white to-gray-50/50 shadow-sm transition-all duration-300 hover:shadow-lg hover:border-primary/20 h-full flex flex-col">
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary/40 via-primary to-primary/40 transition-all duration-500 group-hover/card:h-1.5" />
+        <CardHeader className="pb-4">
+          <div className="flex items-start gap-4">
+            <div className="p-3 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 text-primary ring-1 ring-primary/10 transition-all duration-300 group-hover/card:from-primary/20 group-hover/card:to-primary/10 group-hover/card:ring-primary/20 shadow-sm">
+              <Layers className="h-6 w-6" />
+            </div>
+            <div>
+              <CardTitle className="text-xl font-bold text-gray-900 group-hover/card:text-primary transition-colors duration-200">
+                {dimension.name}
+              </CardTitle>
+            </div>
+          </div>
         </CardHeader>
-        <CardContent>
-          <p className="text-gray-600 dark:text-gray-400 text-sm">
+        <CardContent className="flex-grow">
+          <p className="text-muted-foreground text-sm leading-relaxed">
             {dimension.description}
           </p>
         </CardContent>
-        <CardFooter className="flex-col items-stretch">
-          <div className="flex gap-2 mb-2">
+        <CardFooter className="flex-col items-stretch pt-0 pb-6 px-6 gap-3">
+          <Button
+            onClick={handleManageLevels}
+            className="w-full justify-center bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white shadow-sm hover:shadow transition-all duration-300 border-0"
+          >
+            Manage Levels
+          </Button>
+          <div className="grid grid-cols-2 gap-3 w-full">
             <EditDimensionForm dimension={dimension} />
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button
                   variant="outline"
-                  className="flex-1 border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
+                  className="w-full justify-center border-red-200 text-red-700 hover:bg-red-50 hover:text-red-800 hover:border-red-300 transition-colors"
                 >
                   <Trash2 className="mr-2 h-4 w-4" /> Delete
                 </Button>
@@ -96,9 +109,6 @@ export const DimensionCard = ({ dimension }: DimensionCardProps) => {
               </AlertDialogContent>
             </AlertDialog>
           </div>
-          <Button onClick={handleManageLevels} className="w-full">
-            Manage Levels
-          </Button>
         </CardFooter>
       </Card>
       <SelectStateDialog

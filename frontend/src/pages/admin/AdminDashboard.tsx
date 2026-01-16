@@ -6,9 +6,9 @@
  * - Recent activity tracking
  * - Organization and user management capabilities
  */
-import { SubmissionList } from "@/components/shared/submissions/SubmissionList";
 import { DashboardCard } from "@/components/shared/DashboardCard";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
+import { SubmissionList } from "@/components/shared/submissions/SubmissionList";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -18,15 +18,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useAuth } from "@/context/AuthContext";
-import { Building2, FileText, History, Settings, Users } from "lucide-react";
-import React from "react";
-import { Link } from "react-router-dom";
 import { useDimensions } from "@/hooks/dimensions/useDimensions";
-import { useAssessments } from "@/hooks/assessments/useAssessments";
 import { useOrganizations } from "@/hooks/organizations/useOrganizations";
+import { useAllSubmissions } from "@/hooks/submissions/useAllSubmissions";
 import { useAllOrganizationMembers } from "@/hooks/users/useAllOrganizationMembers";
-import { useOrganizationId } from "@/hooks/organizations/useOrganizationId";
-import { useSubmissionsByOrganization } from "@/hooks/submissions/useSubmissionsByOrganization";
 import { AssessmentSummary } from "@/types/assessment";
 import { SyncStatus } from "@/types/sync";
 import { useTranslation } from "react-i18next";
@@ -39,10 +34,8 @@ const AdminDashboard: React.FC = () => {
     data: submissionsData = [],
     isLoading,
     error,
-  } = useSubmissionsByOrganization(organizationId || "", {
-    enabled: !!organizationId,
-    refetchOnMount: true,
-    refetchOnWindowFocus: false,
+  } = useAllSubmissions({
+    enabled: true,
   });
 
   const submissions: AssessmentSummary[] = submissionsData.map((s) => ({
@@ -58,46 +51,41 @@ const AdminDashboard: React.FC = () => {
     overall_score: s.overall_score ?? null,
   }));
   const { data: dimensions } = useDimensions();
-  const { data: assessments } = useAssessments();
   const { data: organizations } = useOrganizations();
   const { data: allMembers } = useAllOrganizationMembers();
 
   // Log for debugging
-  console.log("Organization ID:", organizationId);
+  // Log for debugging
   console.log("Submissions:", submissions);
 
   const activeUsers =
     allMembers?.filter((member) => member.enabled).length || 0;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
       {/* Welcome Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          {t("adminDashboard.title")}
+          Admin Dashboard
         </h1>
         <p className="text-gray-600">
-          {t("adminDashboard.welcomeMessage", {
-            name:
-              user?.name ||
-              user?.preferred_username ||
-              t("adminDashboard.administrator"),
-          })}
+          Welcome back,{" "}
+          {user?.name || user?.preferred_username || "Administrator"}. Manage
+          the digital gap assessment platform.
         </p>
-        <p className="text-gray-600">{t("adminDashboard.managePlatform")}</p>
       </div>
 
       {/* System Overview */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <Card className="shadow-sm hover:shadow-md transition-shadow duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              {t("adminDashboard.totalOrganizations")}
+              Total Organizations
             </CardTitle>
-            <Building2 className="h-4 w-4 text-muted-foreground" />
+            <Building2 className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div className="text-2xl font-bold tracking-tight">
               {organizations ? organizations.length : 0}
             </div>
             <p className="text-xs text-muted-foreground">
@@ -105,7 +93,7 @@ const AdminDashboard: React.FC = () => {
             </p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="shadow-sm hover:shadow-md transition-shadow duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
               {t("adminDashboard.activeUsers")}
@@ -114,41 +102,35 @@ const AdminDashboard: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{activeUsers}</div>
-            <p className="text-xs text-muted-foreground">
-              {t("adminDashboard.fromLastMonth", { percentage: 0 })}
-            </p>
+            <p className="text-xs text-muted-foreground">+0% from last month</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="shadow-sm hover:shadow-md transition-shadow duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              {t("adminDashboard.assessmentsTaken")}
+              Assessments Taken
             </CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
+            <FileText className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {assessments ? assessments.length : 0}
+            <div className="text-2xl font-bold tracking-tight">
+              {submissions ? submissions.length : 0}
             </div>
-            <p className="text-xs text-muted-foreground">
-              {t("adminDashboard.fromLastMonth", { percentage: 0 })}
-            </p>
+            <p className="text-xs text-muted-foreground">+0% from last month</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="shadow-sm hover:shadow-md transition-shadow duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              {t("adminDashboard.totalDimensions")}
+              Total Dimensions
             </CardTitle>
-            <Settings className="h-4 w-4 text-muted-foreground" />
+            <Settings className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div className="text-2xl font-bold tracking-tight">
               {dimensions ? dimensions.length : 0}
             </div>
-            <p className="text-xs text-muted-foreground">
-              {t("adminDashboard.fromLastMonth", { percentage: 0 })}
-            </p>
+            <p className="text-xs text-muted-foreground">+0% from last month</p>
           </CardContent>
         </Card>
       </div>
@@ -167,6 +149,14 @@ const AdminDashboard: React.FC = () => {
               title={t("adminDashboard.manageOrganizations.title")}
               description={t("adminDashboard.manageOrganizations.description")}
               icon={Building2}
+              variant="default"
+            />
+          </Link>
+          <Link to="/admin/manage-users">
+            <DashboardCard
+              title="Manage Users"
+              description="Create, edit, and manage users"
+              icon={Users}
               variant="default"
             />
           </Link>
@@ -212,16 +202,16 @@ const AdminDashboard: React.FC = () => {
               variant="default"
             />
           </Link>
-          {/* <Link to="/admin/reports">
+          <Link to="/admin/action-plans">
             <DashboardCard
-              title="View Reports"
-              description="View system reports"
-              icon={BarChart3}
+              title="View Action Plans"
+              description="View action plans by organization and submission"
+              icon={Settings}
               variant="default"
             />
-          </Link> */}
-        </CardContent>
-      </Card>
+          </Link>
+        </div>
+      </div>
 
       {/* Recent Activity Placeholder */}
       <Card>
@@ -239,7 +229,7 @@ const AdminDashboard: React.FC = () => {
             <Button variant="outline">{t("adminDashboard.viewAll")}</Button>
           </Link>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-6">
           {isLoading && <LoadingSpinner />}
           {error && (
             <p className="text-red-500">
@@ -253,6 +243,20 @@ const AdminDashboard: React.FC = () => {
               submissions={submissions}
               limit={5}
               basePath="admin"
+              onSubmissionSelect={(submissionId) => {
+                const selectedSubmission = submissions.find(
+                  (s) => s.id === submissionId,
+                );
+                if (selectedSubmission?.assessment.organization_id) {
+                  navigate(
+                    `/admin/reports/${selectedSubmission.assessment.organization_id}/${submissionId}/export`,
+                  );
+                } else {
+                  console.error(
+                    "Organization ID not found for selected submission.",
+                  );
+                }
+              }}
             />
           )}
         </CardContent>

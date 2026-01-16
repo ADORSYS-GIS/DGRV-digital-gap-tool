@@ -127,4 +127,14 @@ impl ActionPlansRepository {
             }
         }
     }
+
+    pub async fn find_by_id(
+        db: &DbConn,
+        id: Uuid,
+    ) -> Result<Option<action_plans::Model>, AppError> {
+        action_plans::Entity::find_by_id(id)
+            .one(db)
+            .await
+            .map_err(AppError::from)
+    }
 }

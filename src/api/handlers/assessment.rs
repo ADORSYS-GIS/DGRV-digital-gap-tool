@@ -474,6 +474,63 @@ pub async fn create_dimension_assessment(
 }
 
 #[utoipa::path(
+    get,
+    path = "/assessments/{assessment_id}/dimension-assessments",
+    params(("assessment_id" = Uuid, Path, description = "Assessment ID")),
+    responses(
+        (status = 200, description = "Dimension assessments list", body = ApiResponseDimensionAssessmentsResponse),
+        (status = 404, description = "Assessment not found")
+    )
+)]
+/// List all dimension assessments for an assessment
+pub async fn list_dimension_assessments(
+    State(state): State<AppState>,
+    Path(assessment_id): Path<Uuid>,
+) -> Result<Json<ApiResponse<DimensionAssessmentsResponse>>, (StatusCode, Json<serde_json::Value>)>
+{
+    let db = &state.db;
+
+    // Verify assessment exists
+    AssessmentsRepository::find_by_id(db.as_ref(), assessment_id)
+        .await
+        .map_err(crate::api::handlers::common::handle_error)?
+        .ok_or_else(|| {
+            crate::api::handlers::common::handle_error(AppError::NotFound(
+                "Assessment not found".to_string(),
+            ))
+        })?;
+
+    // Get all dimension assessments for this assessment
+    let dimension_assessments =
+        DimensionAssessmentsRepository::find_by_assessment_id(db.as_ref(), assessment_id)
+            .await
+            .map_err(crate::api::handlers::common::handle_error)?;
+
+    let dimension_assessments_list: Vec<DimensionAssessmentResponse> = dimension_assessments
+        .into_iter()
+        .map(|da| DimensionAssessmentResponse {
+            dimension_assessment_id: da.dimension_assessment_id,
+            assessment_id: da.assessment_id,
+            dimension_id: da.dimension_id,
+            current_state_id: da.current_state_id,
+            desired_state_id: da.desired_state_id,
+            gap_score: da.gap_score,
+            gap_id: da.gap_id,
+            organization_id: da.organization_id,
+            cooperation_id: da.cooperation_id,
+            created_at: da.created_at,
+            updated_at: da.updated_at,
+        })
+        .collect();
+
+    let response = DimensionAssessmentsResponse {
+        dimension_assessments: dimension_assessments_list,
+    };
+
+    Ok(success_response(response))
+}
+
+#[utoipa::path(
     put,
     path = "/assessments/{assessment_id}/dimension-assessments/{dimension_assessment_id}",
     params(
@@ -504,10 +561,38 @@ pub async fn update_dimension_assessment(
             })?;
 
     let mut active_model: crate::entities::dimension_assessments::ActiveModel =
-        dimension_assessment.into();
+        dimension_assessment.clone().into();
 
+    // If gap_score is being updated, also update the gap_id
     if let Some(gap_score) = request.gap_score {
         active_model.gap_score = sea_orm::Set(gap_score);
+
+        // Look up the corresponding gap by dimension and severity
+        let gap = GapsRepository::find_by_dimension_and_severity(
+            db.as_ref(),
+            dimension_assessment.dimension_id,
+            match gap_score {
+                1 => crate::entities::gaps::GapSeverity::Low,
+                2 => crate::entities::gaps::GapSeverity::Medium,
+                3 => crate::entities::gaps::GapSeverity::High,
+                _ => {
+                    return Err(crate::api::handlers::common::handle_error(
+                        AppError::ValidationError(
+                            "Invalid gap_score. Must be 1, 2, or 3.".to_string(),
+                        ),
+                    ));
+                }
+            },
+        )
+        .await
+        .map_err(crate::api::handlers::common::handle_error)?
+        .ok_or_else(|| {
+            crate::api::handlers::common::handle_error(AppError::NotFound(
+                "Corresponding gap not found for the given dimension and severity".to_string(),
+            ))
+        })?;
+
+        active_model.gap_id = sea_orm::Set(gap.gap_id);
     }
 
     let updated_dimension_assessment =

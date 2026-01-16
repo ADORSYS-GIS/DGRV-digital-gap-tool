@@ -1,6 +1,7 @@
+import { useState } from "react";
 import { useActionPlan } from "@/hooks/action_plans/useActionPlan";
 import { ActionItemCard } from "./ActionItemCard";
-import { Clock, CirclePlay, CircleCheck, ThumbsUp } from "lucide-react";
+import { Clock, CirclePlay, CircleCheck, ThumbsUp, Plus } from "lucide-react";
 import { LoadingSpinner } from "../LoadingSpinner";
 import { useTranslation } from "react-i18next";
 
@@ -59,8 +60,18 @@ export function KanbanBoard({ submissionId }: KanbanBoardProps) {
         </h2>
         <div className="space-y-4">
           {columns.todo.map((item) => (
-            <ActionItemCard key={item.action_item_id} item={item} />
+            <ActionItemCard
+              key={item.action_item_id}
+              item={item}
+              onUpdate={refetch}
+            />
           ))}
+
+          {columns.todo.length === 0 && !canEdit && (
+            <div className="text-center py-8 text-gray-400 text-sm italic">
+              No items in To Do
+            </div>
+          )}
         </div>
       </div>
       <div className="bg-blue-50 p-4 rounded-lg shadow-inner">
@@ -75,8 +86,17 @@ export function KanbanBoard({ submissionId }: KanbanBoardProps) {
         </h2>
         <div className="space-y-4">
           {columns.in_progress.map((item) => (
-            <ActionItemCard key={item.action_item_id} item={item} />
+            <ActionItemCard
+              key={item.action_item_id}
+              item={item}
+              onUpdate={refetch}
+            />
           ))}
+          {columns.in_progress.length === 0 && (
+            <div className="text-center py-8 text-blue-300 text-sm italic">
+              No items in progress
+            </div>
+          )}
         </div>
       </div>
       <div className="bg-green-50 p-4 rounded-lg shadow-inner">
@@ -89,22 +109,39 @@ export function KanbanBoard({ submissionId }: KanbanBoardProps) {
         </h2>
         <div className="space-y-4">
           {columns.done.map((item) => (
-            <ActionItemCard key={item.action_item_id} item={item} />
+            <ActionItemCard
+              key={item.action_item_id}
+              item={item}
+              onUpdate={refetch}
+            />
           ))}
+          {columns.done.length === 0 && (
+            <div className="text-center py-8 text-green-300 text-sm italic">
+              No items completed
+            </div>
+          )}
         </div>
       </div>
       <div className="bg-purple-50 p-4 rounded-lg shadow-inner">
         <h2 className="text-lg font-semibold mb-4 flex items-center text-purple-700">
-          <ThumbsUp className="mr-2 text-purple-500" />{" "}
-          {t("shared.actionPlans.columns.approved", { defaultValue: "Approved" })}
+          <ThumbsUp className="mr-2 text-purple-500" /> Approved
           <span className="ml-auto text-sm font-bold bg-purple-200 text-purple-600 rounded-full px-2.5 py-1">
             {columns.approved.length}
           </span>
         </h2>
         <div className="space-y-4">
           {columns.approved.map((item) => (
-            <ActionItemCard key={item.action_item_id} item={item} />
+            <ActionItemCard
+              key={item.action_item_id}
+              item={item}
+              onUpdate={refetch}
+            />
           ))}
+          {columns.approved.length === 0 && (
+            <div className="text-center py-8 text-purple-300 text-sm italic">
+              No items approved
+            </div>
+          )}
         </div>
       </div>
     </div>

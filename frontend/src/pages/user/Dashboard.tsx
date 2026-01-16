@@ -6,13 +6,6 @@
  * - Assessment management section
  * - Placeholder for additional content
  */
-/**
- * Second admin dashboard page for cooperative management.
- * This page provides:
- * - Cooperative and user management tools
- * - Assessment creation and submission tracking
- * - Action plan overview
- */
 import { DashboardCard } from "@/components/shared/DashboardCard";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { SubmissionList } from "@/components/shared/submissions/SubmissionList";
@@ -25,7 +18,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useAuth } from "@/context/AuthContext";
-import { useSubmissions } from "@/hooks/submissions/useSubmissions";
+import { useSubmissionsByCooperation } from "@/hooks/submissions/useSubmissionsByCooperation";
+import { useCooperationId } from "@/hooks/cooperations/useCooperationId";
 import {
   ClipboardCheck,
   ClipboardList,
@@ -36,6 +30,7 @@ import {
 import React from "react";
 import { Link } from "react-router-dom";
 import { ReportActions } from "@/components/shared/reports/ReportActions";
+import SubmissionChart from "@/components/shared/submissions/SubmissionChart";
 import { AssessmentSummary } from "@/types/assessment";
 import { SyncStatus } from "@/types/sync";
 import { useTranslation } from "react-i18next";
@@ -43,31 +38,28 @@ import { useTranslation } from "react-i18next";
 const UserDashboard: React.FC = () => {
   const { t } = useTranslation();
   const { user } = useAuth();
-  const { data: submissionsData, isLoading, error } = useSubmissions();
+  const cooperationId = useCooperationId();
+  const {
+    data: submissionsData,
+    isLoading,
+    error,
+  } = useSubmissionsByCooperation(cooperationId || "");
 
   const submissions: AssessmentSummary[] =
     submissionsData?.map((s) => ({
-      id: s.id,
-      assessment: {
-        assessment_id: s.id,
-        name: s.name,
-        organization_id: s.organization_id,
-        cooperation_id: s.cooperation_id ?? null,
-        created_at: s.created_at,
-        status: s.status,
-        lastError: s.lastError,
-        started_at: null,
-        completed_at: null,
-        dimensions_id: s.dimensionIds || [],
-        document_title: "",
-        updated_at: "",
-      },
-      dimension_assessments: [],
-      gaps_count: 0,
-      recommendations_count: 0,
-      overall_score: null,
+      ...s,
+      id: s.assessment.assessment_id,
       syncStatus: SyncStatus.SYNCED,
+      assessment: {
+        ...s.assessment,
+        started_at: s.assessment.started_at || null,
+        completed_at: s.assessment.completed_at || null,
+        dimensions_id: s.assessment.dimensions_id as string[],
+      },
+      overall_score: s.overall_score ?? null,
     })) || [];
+
+  const latestSubmission = submissionsData?.[0];
 
   return (
     <div className="space-y-6">
@@ -77,8 +69,9 @@ const UserDashboard: React.FC = () => {
           {t("userDashboard.title")}
         </h1>
         <p className="text-gray-600">
-          {t("userDashboard.welcomeMessage")}{" "}
-          {user?.name || user?.preferred_username || "Administrator"}.
+          Welcome back,{" "}
+          {user?.name || user?.preferred_username || "Administrator"}. Manage
+          cooperatives and their assessments.
         </p>
       </div>
 
@@ -86,8 +79,8 @@ const UserDashboard: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <Link to="/user/assessments">
           <DashboardCard
-            title={t("userDashboard.createAssessmentTitle")}
-            description={t("userDashboard.createAssessmentDescription")}
+            title="Create Assesment"
+            description="Design and deploy new assessments"
             icon={FilePlus2}
             variant="default"
           />
@@ -126,6 +119,18 @@ const UserDashboard: React.FC = () => {
         </CardContent>
       </Card>
 
+      {/* Latest Submission Chart */}
+      {latestSubmission && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Latest Assessment Results</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <SubmissionChart submission={latestSubmission} />
+          </CardContent>
+        </Card>
+      )}
+
       {/* Recent Submissions */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
@@ -153,7 +158,7 @@ const UserDashboard: React.FC = () => {
             <SubmissionList
               submissions={submissions}
               limit={5}
-              basePath="user"
+              basePath="/user"
             />
           )}
         </CardContent>
