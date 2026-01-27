@@ -101,10 +101,10 @@ export default function ManageCooperationUsers() {
         <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-              Select a cooperation to manage users
+              Select a cooperative to manage users
             </h1>
             <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-              Choose a cooperation to view and manage its admins and members.
+              Choose a cooperative to view and manage its admins and members.
               You can invite new users or clean up access when people leave.
             </p>
           </div>
@@ -118,7 +118,7 @@ export default function ManageCooperationUsers() {
 
         {error && (
           <div className="rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-            <p className="font-medium">Unable to load cooperations.</p>
+            <p className="font-medium">Unable to load cooperatives.</p>
             <p className="mt-1 opacity-90">{error.message}</p>
           </div>
         )}
@@ -126,10 +126,10 @@ export default function ManageCooperationUsers() {
         {!isLoading && !error && cooperations && cooperations.length === 0 && (
           <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-muted-foreground/30 bg-muted/40 px-6 py-12 text-center">
             <h2 className="text-lg font-semibold text-foreground">
-              No cooperations available yet
+              No cooperatives available yet
             </h2>
             <p className="mt-2 max-w-md text-sm text-muted-foreground">
-              Once cooperations have been created for this organization,
+              Once cooperatives have been created for this organization,
               you&apos;ll be able to select one here and manage its users.
             </p>
           </div>

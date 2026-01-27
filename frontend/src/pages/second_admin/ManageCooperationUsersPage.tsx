@@ -30,7 +30,7 @@ export default function ManageCooperationUsersPage() {
         <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-              Manage cooperation users
+              Manage cooperative users
             </h1>
             <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
               Invite new admins or members, review access, and keep your
@@ -48,7 +48,7 @@ export default function ManageCooperationUsersPage() {
 
         {error && (
           <div className="rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-            <p className="font-medium">Unable to load cooperation users.</p>
+            <p className="font-medium">Unable to load cooperative users.</p>
             <p className="mt-1 opacity-90">{error.message}</p>
           </div>
         )}
@@ -59,7 +59,7 @@ export default function ManageCooperationUsersPage() {
               No users added yet
             </h2>
             <p className="mt-2 max-w-md text-sm text-muted-foreground">
-              Start by inviting your first admin or member to this cooperation.
+              Start by inviting your first admin or member to this cooperative.
             </p>
             <div className="mt-4">
               <AddCooperationUserForm />

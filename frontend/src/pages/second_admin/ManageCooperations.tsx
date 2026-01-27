@@ -41,7 +41,7 @@ const ManageCooperations: React.FC = () => {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
           <div>
             <h1 className="text-3xl font-bold tracking-tight text-foreground">
-              Manage Cooperations
+              Manage Cooperatives
             </h1>
             <p className="mt-2 text-muted-foreground">
               Add and manage cooperative profiles and data
@@ -87,7 +87,7 @@ const ManageCooperations: React.FC = () => {
               </svg>
             </div>
             <h3 className="mt-4 text-lg font-semibold">
-              No cooperations found
+              No cooperatives found
             </h3>
             <p className="mb-4 mt-2 text-sm text-muted-foreground max-w-sm">
               Get started by creating a new cooperative profile.

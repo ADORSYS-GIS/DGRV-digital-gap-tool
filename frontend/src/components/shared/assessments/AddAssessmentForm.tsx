@@ -35,7 +35,7 @@ import { LoadingSpinner } from "../../shared/LoadingSpinner";
 
 const formSchema = z.object({
   name: z.string().min(1, "Assessment name is required"),
-  cooperationId: z.string().min(1, "Please select a cooperation"),
+  cooperationId: z.string().min(1, "Please select a cooperative"),
   dimensionIds: z.array(z.string()).min(1, "Select at least one dimension"),
 });
 
@@ -99,7 +99,7 @@ export function AddAssessmentForm({ isOpen, onClose }: AddAssessmentFormProps) {
             Create new assessment
           </DialogTitle>
           <p className="text-sm text-muted-foreground">
-            Define the assessment name, select the target cooperation, and pick
+            Define the assessment name, select the target cooperative, and pick
             the dimensions you want to evaluate.
           </p>
         </DialogHeader>
@@ -132,7 +132,7 @@ export function AddAssessmentForm({ isOpen, onClose }: AddAssessmentFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>
-                    Cooperation <span className="text-destructive">*</span>
+                    Cooperative <span className="text-destructive">*</span>
                   </FormLabel>
                   <Select
                     onValueChange={field.onChange}
@@ -141,7 +141,7 @@ export function AddAssessmentForm({ isOpen, onClose }: AddAssessmentFormProps) {
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select a cooperation" />
+                        <SelectValue placeholder="Select a cooperative" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
