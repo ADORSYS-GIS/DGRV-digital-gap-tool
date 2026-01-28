@@ -34,17 +34,25 @@ export function DimensionAssessmentAnswer({
   existingAssessment,
 }: DimensionAssessmentAnswerProps) {
   const currentAvailableLevels =
-    dimension.current_states?.map((s) => s.level).sort((a, b) => a - b) ?? [];
+    dimension.current_states
+      ?.map((s) => ({ value: s.level, name: s.name }))
+      .sort((a, b) => a.value - b.value) ?? [];
   const desiredAvailableLevels =
-    dimension.desired_states?.map((s) => s.level).sort((a, b) => a - b) ?? [];
+    dimension.desired_states
+      ?.map((s) => ({ value: s.level, name: s.name }))
+      .sort((a, b) => a.value - b.value) ?? [];
 
   const [currentLevel, setCurrentLevel] = useState<number>(
     () =>
-      existingAssessment?.currentState?.level ?? currentAvailableLevels[0] ?? 1,
+      existingAssessment?.currentState?.level ??
+      currentAvailableLevels[0]?.value ??
+      1,
   );
   const [desiredLevel, setDesiredLevel] = useState<number>(
     () =>
-      existingAssessment?.desiredState?.level ?? desiredAvailableLevels[0] ?? 1,
+      existingAssessment?.desiredState?.level ??
+      desiredAvailableLevels[0]?.value ??
+      1,
   );
   const [localError, setLocalError] = useState<string | null>(null);
 
@@ -95,8 +103,8 @@ export function DimensionAssessmentAnswer({
   };
 
   const isFormValid =
-    currentAvailableLevels.includes(currentLevel) &&
-    desiredAvailableLevels.includes(desiredLevel) &&
+    currentAvailableLevels.some((l) => l.value === currentLevel) &&
+    desiredAvailableLevels.some((l) => l.value === desiredLevel) &&
     !!currentLevelDescription &&
     !!desiredLevelDescription;
 

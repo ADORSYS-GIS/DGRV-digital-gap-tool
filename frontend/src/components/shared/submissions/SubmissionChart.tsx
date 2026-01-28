@@ -22,7 +22,46 @@ interface ChartDataItem {
   name: string;
   "Current State": number;
   "Desired State": number;
+  currentStateName: string;
+  desiredStateName: string;
 }
+
+interface PayloadItem {
+  payload: ChartDataItem;
+}
+
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: PayloadItem[];
+  label?: string;
+}
+
+const CustomTooltip: React.FC<CustomTooltipProps> = ({
+  active,
+  payload,
+  label,
+}) => {
+  if (active && payload && payload.length && payload[0]) {
+    const data = payload[0].payload;
+    return (
+      <div
+        style={{
+          background: "#ffffff",
+          border: "1px solid #e5e7eb",
+          borderRadius: "0.5rem",
+          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+          padding: "10px",
+        }}
+      >
+        <p className="label">{`${label}`}</p>
+        <p className="intro">{`Current State: ${data["Current State"]} - ${data.currentStateName}`}</p>
+        <p className="intro">{`Desired State: ${data["Desired State"]} - ${data.desiredStateName}`}</p>
+      </div>
+    );
+  }
+
+  return null;
+};
 
 const SubmissionChart: React.FC<SubmissionChartProps> = ({ submission }) => {
   const { data: dimensions } = useDimensions();
@@ -54,22 +93,19 @@ const SubmissionChart: React.FC<SubmissionChartProps> = ({ submission }) => {
                 (s) => s.id === da.desired_state_id,
               );
 
-              // The IDimensionState interface has a 'level' property, but the API response might map it differently.
-              // Based on IDimensionState definition: level: number;
-              // However, if the API returns 'score' instead of 'level', we need to handle that.
-              // Let's check if we need to cast or if the property is indeed 'level'.
-              // Looking at IDimensionState in frontend/src/types/dimension.ts, it has 'level'.
-              // But let's be safe and check for 'score' as well if 'level' is missing, just in case of type mismatch at runtime.
-
               const currentLevel =
                 currentState?.score ?? currentState?.level ?? 0;
               const desiredLevel =
                 desiredState?.score ?? desiredState?.level ?? 0;
+              const currentStateName = currentState?.name ?? "N/A";
+              const desiredStateName = desiredState?.name ?? "N/A";
 
               return {
                 name: dimensionName,
                 "Current State": currentLevel,
                 "Desired State": desiredLevel,
+                currentStateName,
+                desiredStateName,
               };
             } catch (error) {
               console.error(
@@ -80,6 +116,8 @@ const SubmissionChart: React.FC<SubmissionChartProps> = ({ submission }) => {
                 name: dimensionName,
                 "Current State": 0,
                 "Desired State": 0,
+                currentStateName: "Error",
+                desiredStateName: "Error",
               };
             }
           }),
@@ -142,12 +180,7 @@ const SubmissionChart: React.FC<SubmissionChartProps> = ({ submission }) => {
           />
           <Tooltip
             cursor={{ fill: "rgba(243, 244, 246, 0.5)" }}
-            contentStyle={{
-              background: "#ffffff",
-              border: "1px solid #e5e7eb",
-              borderRadius: "0.5rem",
-              boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-            }}
+            content={<CustomTooltip />}
           />
           <Legend
             wrapperStyle={{

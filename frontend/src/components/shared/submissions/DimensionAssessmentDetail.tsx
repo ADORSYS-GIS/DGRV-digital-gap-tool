@@ -75,7 +75,9 @@ export const DimensionAssessmentDetail = ({
           }`}
         >
           <p className="font-semibold text-gray-600 mb-1">Your Current Level</p>
-          <p className="text-2xl font-bold">{currentState?.level}</p>
+          <p className="text-2xl font-bold">
+            {currentState?.level}: {currentState?.name}
+          </p>
           <p className="text-gray-800">{currentState?.description || "N/A"}</p>
         </div>
         <div
@@ -88,7 +90,9 @@ export const DimensionAssessmentDetail = ({
           }`}
         >
           <p className="font-semibold text-gray-600 mb-1">Your Desired Level</p>
-          <p className="text-2xl font-bold">{desiredState?.level}</p>
+          <p className="text-2xl font-bold">
+            {desiredState?.level}: {desiredState?.name}
+          </p>
           <p className="text-gray-800">{desiredState?.description || "N/A"}</p>
         </div>
       </div>

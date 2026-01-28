@@ -13,7 +13,7 @@ interface LevelSelectorProps {
   /** Callback when the level changes */
   onChange: (value: number) => void;
   /** The available levels to select from */
-  availableLevels: number[];
+  availableLevels: { value: number; name: string }[];
   /** Disable all interactions */
   disabled?: boolean;
   /** Additional class names */
@@ -21,6 +21,7 @@ interface LevelSelectorProps {
   /** ID for testing */
   testId?: string;
   levelDescription?: string | undefined;
+  levelName?: string | undefined;
 }
 
 /**
@@ -39,21 +40,21 @@ export function LevelSelector({
   levelDescription,
 }: LevelSelectorProps) {
   const levels = useMemo(
-    () => availableLevels.sort((a, b) => a - b),
+    () => availableLevels.sort((a, b) => a.value - b.value),
     [availableLevels],
   );
-  const minLevel = levels[0] ?? 1;
-  const maxLevel = levels[levels.length - 1] ?? 1;
+  const minLevel = levels[0]?.value ?? 1;
+  const maxLevel = levels[levels.length - 1]?.value ?? 1;
 
   // Ensure level is within bounds
   useEffect(() => {
-    if (levels.length > 0 && !levels.includes(level)) {
+    if (levels.length > 0 && !levels.some((l) => l.value === level)) {
       console.warn(
         `Level ${level} is not in the available levels. Clamping to the first available level.`,
       );
       const firstLevel = levels[0];
       if (firstLevel !== undefined) {
-        onChange(firstLevel);
+        onChange(firstLevel.value);
       }
     }
   }, [level, levels, onChange]);
@@ -71,7 +72,7 @@ export function LevelSelector({
     (e: React.KeyboardEvent, lvl: number) => {
       if (disabled) return;
 
-      const currentIndex = levels.indexOf(lvl);
+      const currentIndex = levels.findIndex((l) => l.value === lvl);
 
       switch (e.key) {
         case "Enter":
@@ -84,7 +85,7 @@ export function LevelSelector({
           if (currentIndex > 0) {
             const prevLevel = levels[currentIndex - 1];
             if (prevLevel !== undefined) {
-              handleLevelClick(prevLevel);
+              handleLevelClick(prevLevel.value);
             }
           }
           break;
@@ -93,7 +94,7 @@ export function LevelSelector({
           if (currentIndex < levels.length - 1) {
             const nextLevel = levels[currentIndex + 1];
             if (nextLevel !== undefined) {
-              handleLevelClick(nextLevel);
+              handleLevelClick(nextLevel.value);
             }
           }
           break;
@@ -102,7 +103,7 @@ export function LevelSelector({
           if (levels.length > 0) {
             const firstLevel = levels[0];
             if (firstLevel !== undefined) {
-              handleLevelClick(firstLevel);
+              handleLevelClick(firstLevel.value);
             }
           }
           break;
@@ -111,7 +112,7 @@ export function LevelSelector({
           if (levels.length > 0) {
             const lastLevel = levels[levels.length - 1];
             if (lastLevel !== undefined) {
-              handleLevelClick(lastLevel);
+              handleLevelClick(lastLevel.value);
             }
           }
           break;
@@ -121,32 +122,35 @@ export function LevelSelector({
   );
 
   // Ensure level is within bounds for rendering
-  const safeLevel = levels.includes(level) ? level : minLevel;
+  const safeLevel = levels.some((l) => l.value === level) ? level : minLevel;
+  const levelName = useMemo(() => {
+    return levels.find((l) => l.value === safeLevel)?.name;
+  }, [safeLevel, levels]);
 
   // Generate level indicators with visual representation
   const renderLevelIndicators = () => {
     return levels.map((lvl) => (
       <button
-        key={lvl}
+        key={lvl.value}
         type="button"
         role="radio"
-        aria-checked={safeLevel === lvl ? "true" : "false"}
-        aria-label={`Level ${lvl}`}
+        aria-checked={safeLevel === lvl.value ? "true" : "false"}
+        aria-label={`Level ${lvl.value}`}
         className={cn(
           "w-10 h-10 flex items-center justify-center rounded-full transition-colors",
           "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background",
-          safeLevel === lvl
+          safeLevel === lvl.value
             ? "bg-primary text-primary-foreground hover:bg-primary/90"
             : "bg-muted hover:bg-muted/80",
           disabled ? "cursor-not-allowed opacity-70" : "cursor-pointer",
         )}
-        onClick={() => handleLevelClick(lvl)}
-        onKeyDown={(e) => handleKeyDown(e, lvl)}
+        onClick={() => handleLevelClick(lvl.value)}
+        onKeyDown={(e) => handleKeyDown(e, lvl.value)}
         disabled={disabled}
         tabIndex={disabled ? -1 : 0}
-        data-testid={`level-${lvl}`}
+        data-testid={`level-${lvl.value}`}
       >
-        {lvl}
+        {lvl.value}
       </button>
     ));
   };
@@ -160,11 +164,11 @@ export function LevelSelector({
         <button
           type="button"
           onClick={() => {
-            const currentIndex = levels.indexOf(safeLevel);
+            const currentIndex = levels.findIndex((l) => l.value === safeLevel);
             if (currentIndex > 0) {
               const prevLevel = levels[currentIndex - 1];
               if (prevLevel !== undefined) {
-                handleLevelClick(prevLevel);
+                handleLevelClick(prevLevel.value);
               }
             }
           }}
@@ -179,17 +183,17 @@ export function LevelSelector({
         </button>
 
         <span className="text-sm text-muted-foreground">
-          Level {safeLevel} of {maxLevel}
+          Level {safeLevel} of {maxLevel}: {levelName}
         </span>
 
         <button
           type="button"
           onClick={() => {
-            const currentIndex = levels.indexOf(safeLevel);
+            const currentIndex = levels.findIndex((l) => l.value === safeLevel);
             if (currentIndex < levels.length - 1) {
               const nextLevel = levels[currentIndex + 1];
               if (nextLevel !== undefined) {
-                handleLevelClick(nextLevel);
+                handleLevelClick(nextLevel.value);
               }
             }
           }}

@@ -17,6 +17,7 @@ export interface IDimensionState {
   id: string;
   dimensionId: string;
   level: number;
+  name: string;
   score?: number;
   description: string;
   createdAt: string;
