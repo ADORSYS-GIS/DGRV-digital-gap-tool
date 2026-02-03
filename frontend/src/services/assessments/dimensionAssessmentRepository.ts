@@ -108,43 +108,43 @@ const mapToDimensionAssessment = (
 
   const currentState: IDimensionState = data.current_state
     ? {
-      id: data.current_state.id,
-      dimensionId: data.current_state.dimension_id,
-      level: data.current_state.level,
-      name: "",
-      description: data.current_state.description,
-      createdAt: data.current_state.created_at,
-      updatedAt: data.current_state.updated_at,
-    }
+        id: data.current_state.id,
+        dimensionId: data.current_state.dimension_id,
+        level: data.current_state.level,
+        name: "",
+        description: data.current_state.description,
+        createdAt: data.current_state.created_at,
+        updatedAt: data.current_state.updated_at,
+      }
     : {
-      id: data.currentState?.id || `temp-${uuidv4()}`,
-      dimensionId: dimensionId,
-      level: currentLevel,
-      name: "",
-      description: `Level ${currentLevel}`,
-      createdAt: data.currentState?.createdAt || new Date().toISOString(),
-      updatedAt: data.currentState?.updatedAt || new Date().toISOString(),
-    };
+        id: data.currentState?.id || `temp-${uuidv4()}`,
+        dimensionId: dimensionId,
+        level: currentLevel,
+        name: "",
+        description: `Level ${currentLevel}`,
+        createdAt: data.currentState?.createdAt || new Date().toISOString(),
+        updatedAt: data.currentState?.updatedAt || new Date().toISOString(),
+      };
 
   const desiredState: IDimensionState = data.desired_state
     ? {
-      id: data.desired_state.id,
-      dimensionId: data.desired_state.dimension_id,
-      level: data.desired_state.level,
-      name: "",
-      description: data.desired_state.description,
-      createdAt: data.desired_state.created_at,
-      updatedAt: data.desired_state.updated_at,
-    }
+        id: data.desired_state.id,
+        dimensionId: data.desired_state.dimension_id,
+        level: data.desired_state.level,
+        name: "",
+        description: data.desired_state.description,
+        createdAt: data.desired_state.created_at,
+        updatedAt: data.desired_state.updated_at,
+      }
     : {
-      id: data.desiredState?.id || `temp-${uuidv4()}`,
-      dimensionId: dimensionId,
-      level: desiredLevel,
-      name: "",
-      description: `Level ${desiredLevel}`,
-      createdAt: data.desiredState?.createdAt || new Date().toISOString(),
-      updatedAt: data.desiredState?.updatedAt || new Date().toISOString(),
-    };
+        id: data.desiredState?.id || `temp-${uuidv4()}`,
+        dimensionId: dimensionId,
+        level: desiredLevel,
+        name: "",
+        description: `Level ${desiredLevel}`,
+        createdAt: data.desiredState?.createdAt || new Date().toISOString(),
+        updatedAt: data.desiredState?.updatedAt || new Date().toISOString(),
+      };
 
   const assessment: IDimensionAssessment = {
     id,
@@ -589,18 +589,24 @@ export const dimensionAssessmentRepository = {
             };
 
             // Try to populate levels from local DB if available
-            const currentLevel = await db.digitalisationLevels.get(da.current_state_id);
+            const currentLevel = await db.digitalisationLevels.get(
+              da.current_state_id,
+            );
             if (currentLevel) {
               assessment.currentState.level = currentLevel.state;
               assessment.currentState.name = currentLevel.title;
-              assessment.currentState.description = currentLevel.description || "";
+              assessment.currentState.description =
+                currentLevel.description || "";
             }
 
-            const desiredLevel = await db.digitalisationLevels.get(da.desired_state_id);
+            const desiredLevel = await db.digitalisationLevels.get(
+              da.desired_state_id,
+            );
             if (desiredLevel) {
               assessment.desiredState.level = desiredLevel.state;
               assessment.desiredState.name = desiredLevel.title;
-              assessment.desiredState.description = desiredLevel.description || "";
+              assessment.desiredState.description =
+                desiredLevel.description || "";
             }
 
             assessments.push(assessment);

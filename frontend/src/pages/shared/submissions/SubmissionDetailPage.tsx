@@ -71,7 +71,8 @@ export default function SubmissionDetailPage() {
               Submission details
             </h1>
             <p className="text-sm text-muted-foreground">
-              Review the assessment submission, its dimensions, and gap analysis.
+              Review the assessment submission, its dimensions, and gap
+              analysis.
             </p>
           </div>
           {summary && (

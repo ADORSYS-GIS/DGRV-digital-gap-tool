@@ -76,8 +76,8 @@ export const SubmissionDetail = ({ summary }: SubmissionDetailProps) => {
                 <p className="text-sm font-medium text-foreground">
                   {submission.assessment.created_at
                     ? new Date(
-                      submission.assessment.created_at,
-                    ).toLocaleString()
+                        submission.assessment.created_at,
+                      ).toLocaleString()
                     : "—"}
                 </p>
               </div>

@@ -139,8 +139,8 @@ const ThirdAdminDashboard: React.FC = () => {
             <span className="font-medium text-foreground">
               {user?.name || user?.preferred_username || "Administrator"}
             </span>
-            . Use these tools to keep your cooperative's assessments,
-            users, and action plans on track.
+            . Use these tools to keep your cooperative's assessments, users, and
+            action plans on track.
           </p>
         </header>
 

@@ -41,29 +41,24 @@ const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
     return (
       <div className="bg-white p-4 border border-gray-200 rounded-lg shadow-lg">
         <p className="font-bold text-lg mb-2">{dimensionName}</p>
-        {payload.map(
-          (
-            entry: Payload,
-            index: number,
-          ) => {
-            const stateName =
-              entry.name === "Current State"
-                ? currentStateName
-                : desiredStateName;
-            return (
-              <p
-                key={`item-${index}`}
-                style={{ color: entry.color }}
-                className="text-sm"
-              >
-                {`${entry.name}: ${entry.value}`}
-                {stateName && (
-                  <span className="text-gray-500 ml-2">({stateName})</span>
-                )}
-              </p>
-            );
-          },
-        )}
+        {payload.map((entry: Payload, index: number) => {
+          const stateName =
+            entry.name === "Current State"
+              ? currentStateName
+              : desiredStateName;
+          return (
+            <p
+              key={`item-${index}`}
+              style={{ color: entry.color }}
+              className="text-sm"
+            >
+              {`${entry.name}: ${entry.value}`}
+              {stateName && (
+                <span className="text-gray-500 ml-2">({stateName})</span>
+              )}
+            </p>
+          );
+        })}
       </div>
     );
   }

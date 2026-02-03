@@ -87,8 +87,8 @@ export default function ManageCooperationUsers() {
             No cooperative found
           </h1>
           <p className="max-w-2xl text-sm text-muted-foreground">
-            We couldn't determine which cooperative you manage. Please
-            contact your organization administrator to verify your access.
+            We couldn't determine which cooperative you manage. Please contact
+            your organization administrator to verify your access.
           </p>
         </div>
       </div>
@@ -129,8 +129,8 @@ export default function ManageCooperationUsers() {
               No cooperatives available yet
             </h2>
             <p className="mt-2 max-w-md text-sm text-muted-foreground">
-              Once cooperatives have been created for this organization,
-              you'll be able to select one here and manage its users.
+              Once cooperatives have been created for this organization, you'll
+              be able to select one here and manage its users.
             </p>
           </div>
         )}

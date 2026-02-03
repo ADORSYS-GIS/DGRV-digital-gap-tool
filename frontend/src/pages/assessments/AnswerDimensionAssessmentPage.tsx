@@ -482,40 +482,40 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
           (existingAssessment?.gap_id &&
             existingAssessment.currentState.level > 0 &&
             existingAssessment.desiredState.level > 0)) && (
-            <GapDescriptionDisplay
-              gapId={(showResult && gapId) || existingAssessment?.gap_id || ""}
-              currentLevel={
-                submittedData?.currentLevel ||
-                existingAssessment?.currentState.level ||
-                0
-              }
-              desiredLevel={
-                submittedData?.desiredLevel ||
-                existingAssessment?.desiredState.level ||
-                0
-              }
-              currentLevelDescription={
-                submittedData?.currentLevelDescription ||
-                existingAssessment?.currentState.description ||
-                ""
-              }
-              desiredLevelDescription={
-                submittedData?.desiredLevelDescription ||
-                existingAssessment?.desiredState.description ||
-                ""
-              }
-              currentLevelTitle={
-                submittedData?.currentLevelTitle ||
-                existingAssessment?.currentState.name ||
-                ""
-              }
-              desiredLevelTitle={
-                submittedData?.desiredLevelTitle ||
-                existingAssessment?.desiredState.name ||
-                ""
-              }
-            />
-          )}
+          <GapDescriptionDisplay
+            gapId={(showResult && gapId) || existingAssessment?.gap_id || ""}
+            currentLevel={
+              submittedData?.currentLevel ||
+              existingAssessment?.currentState.level ||
+              0
+            }
+            desiredLevel={
+              submittedData?.desiredLevel ||
+              existingAssessment?.desiredState.level ||
+              0
+            }
+            currentLevelDescription={
+              submittedData?.currentLevelDescription ||
+              existingAssessment?.currentState.description ||
+              ""
+            }
+            desiredLevelDescription={
+              submittedData?.desiredLevelDescription ||
+              existingAssessment?.desiredState.description ||
+              ""
+            }
+            currentLevelTitle={
+              submittedData?.currentLevelTitle ||
+              existingAssessment?.currentState.name ||
+              ""
+            }
+            desiredLevelTitle={
+              submittedData?.desiredLevelTitle ||
+              existingAssessment?.desiredState.name ||
+              ""
+            }
+          />
+        )}
 
         <div className="flex justify-between pb-4 pt-2">
           <Button

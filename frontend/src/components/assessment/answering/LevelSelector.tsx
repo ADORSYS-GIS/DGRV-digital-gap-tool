@@ -13,7 +13,11 @@ interface LevelSelectorProps {
   /** Callback when the level changes */
   onChange: (value: number) => void;
   /** The available levels to select from */
-  availableLevels: { value: number; name: string; description: string | null }[];
+  availableLevels: {
+    value: number;
+    name: string;
+    description: string | null;
+  }[];
   /** Disable all interactions */
   disabled?: boolean;
   /** Additional class names */

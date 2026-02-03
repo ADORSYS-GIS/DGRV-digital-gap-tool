@@ -59,9 +59,7 @@ export function DimensionAssessmentDetail({
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-gray-700">
-              {currentStateDescription}
-            </p>
+            <p className="text-sm text-gray-700">{currentStateDescription}</p>
           </CardContent>
         </Card>
         <Card className="bg-green-50 border-green-200">
@@ -72,20 +70,13 @@ export function DimensionAssessmentDetail({
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-gray-700">
-              {desiredStateDescription}
-            </p>
+            <p className="text-sm text-gray-700">{desiredStateDescription}</p>
           </CardContent>
         </Card>
       </div>
       <div className="px-4 pb-4">
         <h4 className="font-semibold mb-2">Risk Level</h4>
-        <Badge
-          className={cn(
-            "text-sm px-3 py-1 rounded-md",
-            risk.className,
-          )}
-        >
+        <Badge className={cn("text-sm px-3 py-1 rounded-md", risk.className)}>
           {risk.level}
         </Badge>
         <p className="text-sm text-gray-600 mt-2">
