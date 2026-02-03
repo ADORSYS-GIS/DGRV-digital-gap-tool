@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useDimensions } from "@/hooks/dimensions/useDimensions";
 import { AssessmentSummary } from "@/types/assessment";
 import { Calendar, CheckCircle, FileText, Shield } from "lucide-react";
+import { AssessmentDimensionItem } from "./AssessmentDimensionItem";
 import { DimensionAssessmentDetail } from "./DimensionAssessmentDetail";
 
 interface SubmissionDetailProps {
@@ -75,8 +76,8 @@ export const SubmissionDetail = ({ summary }: SubmissionDetailProps) => {
                 <p className="text-sm font-medium text-foreground">
                   {submission.assessment.created_at
                     ? new Date(
-                        submission.assessment.created_at,
-                      ).toLocaleString()
+                      submission.assessment.created_at,
+                    ).toLocaleString()
                     : "—"}
                 </p>
               </div>
@@ -109,31 +110,11 @@ export const SubmissionDetail = ({ summary }: SubmissionDetailProps) => {
           ) : (
             <Accordion type="single" collapsible className="w-full">
               {(submission.dimension_assessments || []).map((da) => (
-                <AccordionItem
+                <AssessmentDimensionItem
                   key={da.dimension_assessment_id}
-                  value={da.dimension_assessment_id}
-                  className="border-b border-border/60 last:border-b-0"
-                >
-                  <AccordionTrigger className="px-6 py-4 hover:bg-muted/40">
-                    <div className="flex flex-col items-start text-left">
-                      <span className="font-semibold text-foreground">
-                        {getDimensionName(da.dimension_id)}
-                      </span>
-                      <span className="text-xs font-medium text-muted-foreground">
-                        Gap score: {da.gap_score ?? "—"}
-                      </span>
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionContent className="px-6 pb-6">
-                    <DimensionAssessmentDetail
-                      dimensionId={da.dimension_id}
-                      currentStateId={da.current_state_id}
-                      desiredStateId={da.desired_state_id}
-                      gapScore={da.gap_score}
-                      gapId={da.gap_id}
-                    />
-                  </AccordionContent>
-                </AccordionItem>
+                  dimensionAssessment={da}
+                  dimensionName={getDimensionName(da.dimension_id)}
+                />
               ))}
             </Accordion>
           )}

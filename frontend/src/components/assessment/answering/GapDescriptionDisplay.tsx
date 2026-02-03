@@ -12,6 +12,8 @@ interface GapDescriptionDisplayProps {
   desiredLevel: number;
   currentLevelDescription?: string;
   desiredLevelDescription?: string;
+  currentLevelTitle?: string;
+  desiredLevelTitle?: string;
 }
 
 export const GapDescriptionDisplay: React.FC<GapDescriptionDisplayProps> = ({
@@ -20,6 +22,8 @@ export const GapDescriptionDisplay: React.FC<GapDescriptionDisplayProps> = ({
   desiredLevel,
   currentLevelDescription,
   desiredLevelDescription,
+  currentLevelTitle,
+  desiredLevelTitle,
 }) => {
   const { data: gap, isLoading, error } = useDigitalisationGap(gapId);
 
@@ -88,26 +92,28 @@ export const GapDescriptionDisplay: React.FC<GapDescriptionDisplayProps> = ({
       <CardContent className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Card
-            className={`flex flex-col ${
-              currentLevel < desiredLevel ? "bg-red-50" : "bg-green-50"
-            }`}
+            className={`flex flex-col ${currentLevel < desiredLevel ? "bg-red-50" : "bg-green-50"
+              }`}
           >
             <CardHeader className="text-center pb-3">
               <CardTitle
-                className={`text-lg font-semibold mb-2 ${
-                  currentLevel < desiredLevel
-                    ? "text-red-800"
-                    : "text-green-800"
-                }`}
+                className={`text-lg font-semibold mb-2 ${currentLevel < desiredLevel
+                  ? "text-red-800"
+                  : "text-green-800"
+                  }`}
               >
                 Your Current Level
               </CardTitle>
+              {currentLevelTitle && (
+                <p className="text-sm font-medium mb-2 text-muted-foreground">
+                  {currentLevelTitle}
+                </p>
+              )}
               <p
-                className={`text-5xl font-bold ${
-                  currentLevel < desiredLevel
-                    ? "text-red-600"
-                    : "text-green-600"
-                }`}
+                className={`text-5xl font-bold ${currentLevel < desiredLevel
+                  ? "text-red-600"
+                  : "text-green-600"
+                  }`}
               >
                 {currentLevel}
               </p>
@@ -119,26 +125,28 @@ export const GapDescriptionDisplay: React.FC<GapDescriptionDisplayProps> = ({
             </CardContent>
           </Card>
           <Card
-            className={`flex flex-col ${
-              desiredLevel > currentLevel ? "bg-green-50" : "bg-red-50"
-            }`}
+            className={`flex flex-col ${desiredLevel > currentLevel ? "bg-green-50" : "bg-red-50"
+              }`}
           >
             <CardHeader className="text-center pb-3">
               <CardTitle
-                className={`text-lg font-semibold mb-2 ${
-                  desiredLevel > currentLevel
-                    ? "text-green-800"
-                    : "text-red-800"
-                }`}
+                className={`text-lg font-semibold mb-2 ${desiredLevel > currentLevel
+                  ? "text-green-800"
+                  : "text-red-800"
+                  }`}
               >
                 Your Desired Level
               </CardTitle>
+              {desiredLevelTitle && (
+                <p className="text-sm font-medium mb-2 text-muted-foreground">
+                  {desiredLevelTitle}
+                </p>
+              )}
               <p
-                className={`text-5xl font-bold ${
-                  desiredLevel > currentLevel
-                    ? "text-green-600"
-                    : "text-red-600"
-                }`}
+                className={`text-5xl font-bold ${desiredLevel > currentLevel
+                  ? "text-green-600"
+                  : "text-red-600"
+                  }`}
               >
                 {desiredLevel}
               </p>

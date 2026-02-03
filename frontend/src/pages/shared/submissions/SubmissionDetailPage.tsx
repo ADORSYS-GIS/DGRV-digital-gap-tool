@@ -9,6 +9,9 @@ import { useSubmissionSummaryByOrganization } from "@/hooks/submissions/useSubmi
 import { useSubmissionSummaryByCooperation } from "@/hooks/submissions/useSubmissionSummaryByCooperation";
 import { SubmissionDetail } from "@/components/shared/submissions/SubmissionDetail";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
+import { useDownloadReportByAssessment } from "@/hooks/reports/useDownloadReportByAssessment";
+import { Button } from "@/components/ui/button";
+import { Download, Loader2 } from "lucide-react";
 
 export default function SubmissionDetailPage() {
   const { submissionId } = useParams<{ submissionId: string }>();
@@ -50,16 +53,42 @@ export default function SubmissionDetailPage() {
     error,
   } = isOrgAdmin ? orgHook : isCoopAdminOrUser ? coopHook : baseHook;
 
+  // Report download logic
+  const downloadReportMutation = useDownloadReportByAssessment();
+
+  const handleDownload = () => {
+    if (submissionId) {
+      downloadReportMutation.mutate(submissionId);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8 space-y-6">
-        <header className="space-y-1">
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-            Submission details
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            Review the assessment submission, its dimensions, and gap analysis.
-          </p>
+        <header className="flex items-center justify-between">
+          <div className="space-y-1">
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+              Submission details
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              Review the assessment submission, its dimensions, and gap analysis.
+            </p>
+          </div>
+          {summary && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleDownload}
+              disabled={downloadReportMutation.isPending}
+            >
+              {downloadReportMutation.isPending ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Download className="mr-2 h-4 w-4" />
+              )}
+              Download Report
+            </Button>
+          )}
         </header>
 
         {(isLoading || isLoadingCoopFromPath) && (
