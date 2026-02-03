@@ -4,3 +4,4 @@ import { OfflineEntity } from "@/types/sync/index";
 export interface KeycloakUser extends ApiKeycloakUser, OfflineEntity {
   orgId: string;
 }
+
