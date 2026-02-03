@@ -556,15 +556,17 @@ export const dimensionAssessmentRepository = {
 
         if (response.data?.dimension_assessments) {
           // Map the API response to our domain model and store in IndexedDB
-          const assessments: IDimensionAssessment[] =
-            response.data.dimension_assessments.map((da) => ({
+          const assessments: IDimensionAssessment[] = [];
+
+          for (const da of response.data.dimension_assessments) {
+            const assessment: IDimensionAssessment = {
               id: da.dimension_assessment_id,
               dimensionId: da.dimension_id,
               assessmentId: da.assessment_id,
               currentState: {
                 id: da.current_state_id,
                 dimensionId: da.dimension_id,
-                level: 0, // Will be populated from states
+                level: 0,
                 name: "",
                 description: "",
                 createdAt: da.created_at,
@@ -573,7 +575,7 @@ export const dimensionAssessmentRepository = {
               desiredState: {
                 id: da.desired_state_id,
                 dimensionId: da.dimension_id,
-                level: 0, // Will be populated from states
+                level: 0,
                 name: "",
                 description: "",
                 createdAt: da.created_at,
@@ -584,10 +586,24 @@ export const dimensionAssessmentRepository = {
               updatedAt: da.updated_at,
               syncStatus: SyncStatus.SYNCED,
               lastError: "",
-            }));
+            };
 
-          // Store in IndexedDB for offline access
-          for (const assessment of assessments) {
+            // Try to populate levels from local DB if available
+            const currentLevel = await db.digitalisationLevels.get(da.current_state_id);
+            if (currentLevel) {
+              assessment.currentState.level = currentLevel.state;
+              assessment.currentState.name = currentLevel.title;
+              assessment.currentState.description = currentLevel.description || "";
+            }
+
+            const desiredLevel = await db.digitalisationLevels.get(da.desired_state_id);
+            if (desiredLevel) {
+              assessment.desiredState.level = desiredLevel.state;
+              assessment.desiredState.name = desiredLevel.title;
+              assessment.desiredState.description = desiredLevel.description || "";
+            }
+
+            assessments.push(assessment);
             await db.dimensionAssessments.put(assessment);
           }
 

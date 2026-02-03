@@ -96,8 +96,8 @@ export function SubmissionChart({
       return {
         dimensionId: da.dimensionId,
         dimensionName: dimension.name,
-        "Current State": da.currentState.level,
-        "Desired State": da.desiredState.level,
+        "Current State": currentState?.level ?? da.currentState.level,
+        "Desired State": desiredState?.level ?? da.desiredState.level,
         currentStateName,
         desiredStateName,
       };
