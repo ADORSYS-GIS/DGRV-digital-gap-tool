@@ -198,7 +198,7 @@ export default function ActionPlansListPage() {
               </div>
               <div className="ml-3">
                 <p className="text-sm text-red-700">
-                  No cooperation determined for your account. Please contact
+                  No cooperative determined for your account. Please contact
                   your administrator.
                 </p>
               </div>

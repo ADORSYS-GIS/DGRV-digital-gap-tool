@@ -44,7 +44,7 @@ const ManageCooperations: React.FC = () => {
               Manage Cooperatives
             </h1>
             <p className="mt-2 text-muted-foreground">
-              Add and manage cooperative profiles and data
+              Add and manage cooperatives profiles and data
             </p>
           </div>
           <AddCooperationForm />

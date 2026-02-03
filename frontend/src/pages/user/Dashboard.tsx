@@ -23,9 +23,13 @@ import {
 import React from "react";
 import { Link } from "react-router-dom";
 import { ReportActions } from "@/components/shared/reports/ReportActions";
-import SubmissionChart from "@/components/shared/submissions/SubmissionChart";
+import { SubmissionChart } from "@/components/shared/submissions/SubmissionChart";
 import { AssessmentSummary } from "@/types/assessment";
 import { SyncStatus } from "@/types/sync";
+import { useDimensions } from "@/hooks/dimensions/useDimensions";
+import { useAllDimensionStates } from "@/hooks/dimensions/useAllDimensionStates";
+import { dimensionAssessmentRepository } from "@/services/assessments/dimensionAssessmentRepository";
+import { IDimensionAssessment } from "@/types/dimension";
 
 const UserDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -44,6 +48,9 @@ const UserDashboard: React.FC = () => {
   } = useSubmissionsByCooperation(cooperationId || "", {
     enabled: !!cooperationId,
   });
+
+  const { data: dimensions } = useDimensions();
+  const { data: allDimensionStates } = useAllDimensionStates();
 
   const normalizedSubmissions = Array.isArray(submissionsData)
     ? submissionsData
@@ -64,7 +71,25 @@ const UserDashboard: React.FC = () => {
     overall_score: s.overall_score ?? null,
   }));
 
-  const latestSubmission = normalizedSubmissions?.[0];
+  const [latestAssessments, setLatestAssessments] = React.useState<
+    IDimensionAssessment[]
+  >([]);
+
+  React.useEffect(() => {
+    const fetchLatestAssessments = async () => {
+      if (submissions && submissions.length > 0) {
+        const latestSubmissionId = submissions[0]?.id;
+        if (latestSubmissionId) {
+          const assessments =
+            await dimensionAssessmentRepository.getByAssessment(
+              latestSubmissionId,
+            );
+          setLatestAssessments(assessments);
+        }
+      }
+    };
+    fetchLatestAssessments();
+  }, [submissions]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -85,7 +110,7 @@ const UserDashboard: React.FC = () => {
               {user?.name || user?.preferred_username || "User"}
             </span>
             . Use these tools to create assessments, monitor action plans, and
-            review submissions for your cooperative.
+            review submissions for your cooperatives.
           </p>
         </header>
 
@@ -132,7 +157,7 @@ const UserDashboard: React.FC = () => {
                 <span>Export reports</span>
               </CardTitle>
               <CardDescription>
-                Generate and download assessment reports for your organization.
+                Generate and download assessment reports for your cooperatives.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -149,7 +174,7 @@ const UserDashboard: React.FC = () => {
                   <span>Recent submissions</span>
                 </CardTitle>
                 <CardDescription>
-                  Latest assessments completed for your cooperative.
+                  Latest assessments completed for your cooperatives.
                 </CardDescription>
               </div>
               <Link to="/user/submissions">
@@ -195,7 +220,7 @@ const UserDashboard: React.FC = () => {
         </section>
 
         {/* Latest Submission Chart */}
-        {latestSubmission && (
+        {latestAssessments.length > 0 && dimensions && allDimensionStates && (
           <section aria-label="Latest assessment results">
             <Card>
               <CardHeader>
@@ -206,7 +231,11 @@ const UserDashboard: React.FC = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <SubmissionChart submission={latestSubmission} />
+                <SubmissionChart
+                  assessments={latestAssessments}
+                  dimensions={dimensions}
+                  allDimensionStates={allDimensionStates}
+                />
               </CardContent>
             </Card>
           </section>

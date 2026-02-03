@@ -6,6 +6,11 @@
  * - Action plan overview
  */
 import { DashboardCard } from "@/components/shared/DashboardCard";
+import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
+import { ReportActions } from "@/components/shared/reports/ReportActions";
+import { SubmissionChart } from "@/components/shared/submissions/SubmissionChart";
+import { SubmissionList } from "@/components/shared/submissions/SubmissionList";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -14,27 +19,28 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useAuth } from "@/context/AuthContext";
+import { useDimensions } from "@/hooks/dimensions/useDimensions";
+import { useAllDimensionStates } from "@/hooks/dimensions/useAllDimensionStates";
+import { useOrganizationId } from "@/hooks/organizations/useOrganizationId";
+import { useSubmissionsByOrganization } from "@/hooks/submissions/useSubmissionsByOrganization";
+import {
+  AssessmentSummary,
+  DimensionAssessmentSummary,
+} from "@/types/assessment";
+import { IDimensionAssessment } from "@/types/dimension";
+import { SyncStatus } from "@/types/sync";
 import {
   Building2,
-  Users,
-  FilePlus2,
-  ClipboardList,
   ClipboardCheck,
-  History,
+  ClipboardList,
   Download,
+  FilePlus2,
   FileText,
+  History,
+  Users,
 } from "lucide-react";
 import React from "react";
 import { Link } from "react-router-dom";
-import { useSubmissionsByOrganization } from "@/hooks/submissions/useSubmissionsByOrganization";
-import { SubmissionList } from "@/components/shared/submissions/SubmissionList";
-import SubmissionChart from "@/components/shared/submissions/SubmissionChart";
-import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
-import { Button } from "@/components/ui/button";
-import { useOrganizationId } from "@/hooks/organizations/useOrganizationId";
-import { ReportActions } from "@/components/shared/reports/ReportActions";
-import { AssessmentSummary } from "@/types/assessment";
-import { SyncStatus } from "@/types/sync";
 
 const SecondAdminDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -48,6 +54,17 @@ const SecondAdminDashboard: React.FC = () => {
     refetchOnMount: true,
     refetchOnWindowFocus: false,
   });
+
+  const {
+    data: allDimensions,
+    isLoading: isLoadingDimensions,
+    error: dimensionsError,
+  } = useDimensions();
+  const {
+    data: allDimensionStates,
+    isLoading: isLoadingStates,
+    error: statesError,
+  } = useAllDimensionStates();
 
   const submissions: AssessmentSummary[] = submissionsData.map((s) => ({
     ...s,
@@ -64,13 +81,44 @@ const SecondAdminDashboard: React.FC = () => {
 
   const latestSubmission = submissionsData?.[0];
 
+  const chartAssessments: IDimensionAssessment[] | undefined =
+    latestSubmission?.dimension_assessments.map(
+      (da: DimensionAssessmentSummary) => ({
+        ...da,
+        id: da.dimension_id,
+        dimensionId: da.dimension_id,
+        assessmentId: da.assessment_id,
+        currentState: {
+          id: da.current_state_id,
+          dimensionId: da.dimension_id,
+          level: 0,
+          name: "",
+          description: "",
+          createdAt: "",
+          updatedAt: "",
+        },
+        desiredState: {
+          id: da.desired_state_id,
+          dimensionId: da.dimension_id,
+          level: 0,
+          name: "",
+          description: "",
+          createdAt: "",
+          updatedAt: "",
+        },
+        createdAt: da.created_at,
+        updatedAt: da.updated_at,
+        syncStatus: SyncStatus.SYNCED,
+      }),
+    );
+
   return (
     <div className="min-h-screen bg-background">
       <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-8 sm:px-6 lg:px-8">
         {/* Welcome Header */}
         <header className="space-y-2">
           <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-            Cooperative management dashboard
+            Cooperatives management dashboard
           </h1>
           <p className="max-w-2xl text-sm text-muted-foreground">
             Welcome back{" "}
@@ -226,7 +274,25 @@ const SecondAdminDashboard: React.FC = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <SubmissionChart submission={latestSubmission} />
+                {isLoadingDimensions || isLoadingStates ? (
+                  <div className="flex min-h-[160px] items-center justify-center">
+                    <LoadingSpinner />
+                  </div>
+                ) : dimensionsError || statesError ? (
+                  <div className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                    <p className="font-medium">Unable to load chart data.</p>
+                  </div>
+                ) : allDimensions && allDimensionStates && chartAssessments ? (
+                  <SubmissionChart
+                    assessments={chartAssessments}
+                    dimensions={allDimensions}
+                    allDimensionStates={allDimensionStates}
+                  />
+                ) : (
+                  <div className="flex min-h-[120px] items-center justify-center text-sm text-muted-foreground">
+                    No data available to display chart.
+                  </div>
+                )}
               </CardContent>
             </Card>
           </section>

@@ -14,18 +14,18 @@ import { Cooperation } from "@/types/cooperation";
 
 interface EditCooperationFormProps {
   /**
-   * Existing cooperation to edit.
+   * Existing cooperative to edit.
    */
   cooperation: Cooperation;
   /**
-   * Called with the updated cooperation payload when the form is submitted.
+   * Called with the updated cooperative payload when the form is submitted.
    */
   onUpdate: (cooperation: Cooperation) => void;
 }
 
 /**
- * Inline edit dialog for updating an existing cooperation.
- * Keeps the layout and copy consistent with the add-cooperation flow.
+ * Inline edit dialog for updating an existing cooperative.
+ * Keeps the layout and copy consistent with the add-cooperative flow.
  */
 export const EditCooperationForm: React.FC<EditCooperationFormProps> = ({
   cooperation,

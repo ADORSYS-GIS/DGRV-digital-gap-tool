@@ -13,7 +13,7 @@ import { PlusCircle } from "lucide-react";
 import { useAddCooperation } from "@/hooks/cooperations/useAddCooperation";
 
 /**
- * Entry point for creating a new cooperation profile.
+ * Entry point for creating a new cooperative profile.
  * Uses a dialog-based form with clear labels, helper copy and loading states.
  */
 export const AddCooperationForm: React.FC = () => {
@@ -69,13 +69,13 @@ export const AddCooperationForm: React.FC = () => {
         >
           <div className="space-y-2">
             <label
-              htmlFor="cooperation-name"
+              htmlFor="cooperative-name"
               className="text-sm font-medium leading-none text-foreground"
             >
               Name <span className="text-destructive">*</span>
             </label>
             <Input
-              id="cooperation-name"
+              id="cooperative-name"
               placeholder="e.g. Green Valley Cooperative"
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -88,13 +88,13 @@ export const AddCooperationForm: React.FC = () => {
           </div>
           <div className="space-y-2">
             <label
-              htmlFor="cooperation-description"
+              htmlFor="cooperative-description"
               className="text-sm font-medium leading-none text-foreground"
             >
               Description <span className="text-destructive">*</span>
             </label>
             <Textarea
-              id="cooperation-description"
+              id="cooperative-description"
               placeholder="Briefly describe the cooperative, its focus and members."
               value={description}
               onChange={(e) => setDescription(e.target.value)}

@@ -14,20 +14,11 @@ import {
 import { ApiError } from "@/openapi-client/core/ApiError";
 import { db } from "../db";
 import { syncService } from "../sync/syncService";
-
-interface DimensionStateResponse {
-  current_state_id?: string;
-  desired_state_id?: string;
-  dimension_id: string;
-  score: number;
-  description: string;
-  created_at: string;
-  updated_at: string;
-}
+import { IApiResponseDimensionState } from "@/types/api";
 
 interface DimensionWithStatesResponse {
-  current_states: DimensionStateResponse[];
-  desired_states: DimensionStateResponse[];
+  current_states: IApiResponseDimensionState[];
+  desired_states: IApiResponseDimensionState[];
   dimension: {
     dimension_id: string;
     name: string;
@@ -38,24 +29,15 @@ interface DimensionWithStatesResponse {
 const mapToDimensionWithStates = (
   data: DimensionWithStatesResponse,
 ): IDimensionWithStates => {
-  const currentStateData = data.current_states[0];
-  const desiredStateData = data.desired_states[0];
-
-  const allStates = [...data.current_states, ...data.desired_states]
-    .reduce((acc: IDimensionState[], state) => {
-      if (!acc.some((s) => s.level === state.score)) {
-        acc.push({
-          id: state.current_state_id || state.desired_state_id || "",
-          dimensionId: state.dimension_id,
-          level: state.score,
-          description: state.description,
-          createdAt: state.created_at,
-          updatedAt: state.updated_at,
-        });
-      }
-      return acc;
-    }, [])
-    .sort((a, b) => a.level - b.level);
+  const mapState = (state: IApiResponseDimensionState): IDimensionState => ({
+    id: state.current_state_id || state.desired_state_id || uuidv4(),
+    dimensionId: state.dimension_id,
+    level: state.score,
+    name: state.title,
+    description: state.description,
+    createdAt: state.created_at,
+    updatedAt: state.updated_at,
+  });
 
   const result: IDimensionWithStates = {
     id: data.dimension.dimension_id,
@@ -63,46 +45,9 @@ const mapToDimensionWithStates = (
     description: data.dimension.description || null,
     syncStatus: SyncStatus.SYNCED,
     lastError: "",
-    states: allStates,
-    current_states: data.current_states.map((s) => ({
-      id: s.current_state_id || "",
-      dimensionId: s.dimension_id,
-      level: s.score,
-      description: s.description,
-      createdAt: s.created_at,
-      updatedAt: s.updated_at,
-    })),
-    desired_states: data.desired_states.map((s) => ({
-      id: s.desired_state_id || "",
-      dimensionId: s.dimension_id,
-      level: s.score,
-      description: s.description,
-      createdAt: s.created_at,
-      updatedAt: s.updated_at,
-    })),
+    current_states: data.current_states.map(mapState),
+    desired_states: data.desired_states.map(mapState),
   };
-
-  if (currentStateData) {
-    result.currentState = {
-      id: currentStateData.current_state_id || "",
-      dimensionId: currentStateData.dimension_id,
-      level: currentStateData.score,
-      description: currentStateData.description,
-      createdAt: currentStateData.created_at,
-      updatedAt: currentStateData.updated_at,
-    };
-  }
-
-  if (desiredStateData) {
-    result.desiredState = {
-      id: desiredStateData.desired_state_id || "",
-      dimensionId: desiredStateData.dimension_id,
-      level: desiredStateData.score,
-      description: desiredStateData.description,
-      createdAt: desiredStateData.created_at,
-      updatedAt: desiredStateData.updated_at,
-    };
-  }
 
   return result;
 };
@@ -163,39 +108,43 @@ const mapToDimensionAssessment = (
 
   const currentState: IDimensionState = data.current_state
     ? {
-        id: data.current_state.id,
-        dimensionId: data.current_state.dimension_id,
-        level: data.current_state.level,
-        description: data.current_state.description,
-        createdAt: data.current_state.created_at,
-        updatedAt: data.current_state.updated_at,
-      }
+      id: data.current_state.id,
+      dimensionId: data.current_state.dimension_id,
+      level: data.current_state.level,
+      name: "",
+      description: data.current_state.description,
+      createdAt: data.current_state.created_at,
+      updatedAt: data.current_state.updated_at,
+    }
     : {
-        id: data.currentState?.id || `temp-${uuidv4()}`,
-        dimensionId: dimensionId,
-        level: currentLevel,
-        description: `Level ${currentLevel}`,
-        createdAt: data.currentState?.createdAt || new Date().toISOString(),
-        updatedAt: data.currentState?.updatedAt || new Date().toISOString(),
-      };
+      id: data.currentState?.id || `temp-${uuidv4()}`,
+      dimensionId: dimensionId,
+      level: currentLevel,
+      name: "",
+      description: `Level ${currentLevel}`,
+      createdAt: data.currentState?.createdAt || new Date().toISOString(),
+      updatedAt: data.currentState?.updatedAt || new Date().toISOString(),
+    };
 
   const desiredState: IDimensionState = data.desired_state
     ? {
-        id: data.desired_state.id,
-        dimensionId: data.desired_state.dimension_id,
-        level: data.desired_state.level,
-        description: data.desired_state.description,
-        createdAt: data.desired_state.created_at,
-        updatedAt: data.desired_state.updated_at,
-      }
+      id: data.desired_state.id,
+      dimensionId: data.desired_state.dimension_id,
+      level: data.desired_state.level,
+      name: "",
+      description: data.desired_state.description,
+      createdAt: data.desired_state.created_at,
+      updatedAt: data.desired_state.updated_at,
+    }
     : {
-        id: data.desiredState?.id || `temp-${uuidv4()}`,
-        dimensionId: dimensionId,
-        level: desiredLevel,
-        description: `Level ${desiredLevel}`,
-        createdAt: data.desiredState?.createdAt || new Date().toISOString(),
-        updatedAt: data.desiredState?.updatedAt || new Date().toISOString(),
-      };
+      id: data.desiredState?.id || `temp-${uuidv4()}`,
+      dimensionId: dimensionId,
+      level: desiredLevel,
+      name: "",
+      description: `Level ${desiredLevel}`,
+      createdAt: data.desiredState?.createdAt || new Date().toISOString(),
+      updatedAt: data.desiredState?.updatedAt || new Date().toISOString(),
+    };
 
   const assessment: IDimensionAssessment = {
     id,
@@ -279,6 +228,12 @@ export const dimensionAssessmentRepository = {
     if (!payload.organizationId) {
       throw new Error("Organization ID is required");
     }
+    if (!payload.currentStateId) {
+      throw new Error("Current state ID is required");
+    }
+    if (!payload.desiredStateId) {
+      throw new Error("Desired state ID is required");
+    }
 
     // Check if an assessment already exists for this dimension and assessment
     const existingAssessment =
@@ -336,17 +291,19 @@ export const dimensionAssessmentRepository = {
       dimensionId: payload.dimensionId,
       assessmentId: payload.assessmentId,
       currentState: {
-        id: `temp-${uuidv4()}`,
+        id: payload.currentStateId,
         dimensionId: payload.dimensionId,
         level: payload.currentLevel,
+        name: "",
         description: `Level ${payload.currentLevel}`,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       },
       desiredState: {
-        id: `temp-${uuidv4()}`,
+        id: payload.desiredStateId,
         dimensionId: payload.dimensionId,
         level: payload.desiredLevel,
+        name: "",
         description: `Level ${payload.desiredLevel}`,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
@@ -465,12 +422,14 @@ export const dimensionAssessmentRepository = {
       ...existingAssessment,
       currentState: {
         ...existingAssessment.currentState,
+        id: payload.currentStateId,
         level: payload.currentLevel,
         description: `Level ${payload.currentLevel}`,
         updatedAt: new Date().toISOString(),
       },
       desiredState: {
         ...existingAssessment.desiredState,
+        id: payload.desiredStateId,
         level: payload.desiredLevel,
         description: `Level ${payload.desiredLevel}`,
         updatedAt: new Date().toISOString(),
@@ -511,6 +470,8 @@ export const dimensionAssessmentRepository = {
             dimensionAssessmentId: assessmentId,
             requestBody: {
               dimension_id: payload.dimensionId,
+              current_state_id: payload.currentStateId,
+              desired_state_id: payload.desiredStateId,
               gap_score: payload.gapScore,
             },
           });
@@ -604,6 +565,7 @@ export const dimensionAssessmentRepository = {
                 id: da.current_state_id,
                 dimensionId: da.dimension_id,
                 level: 0, // Will be populated from states
+                name: "",
                 description: "",
                 createdAt: da.created_at,
                 updatedAt: da.updated_at,
@@ -612,6 +574,7 @@ export const dimensionAssessmentRepository = {
                 id: da.desired_state_id,
                 dimensionId: da.dimension_id,
                 level: 0, // Will be populated from states
+                name: "",
                 description: "",
                 createdAt: da.created_at,
                 updatedAt: da.updated_at,

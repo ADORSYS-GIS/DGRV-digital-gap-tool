@@ -197,7 +197,7 @@ export default function ManageSubmissionsPage() {
       {!isLoading && !error && isCoopUser && !effectiveCooperationId && (
         <div className="text-center py-12 border-2 border-dashed rounded-lg">
           <p className="text-gray-500">
-            No cooperation determined for your account. Please contact your
+            No cooperative determined for your account. Please contact your
             administrator.
           </p>
         </div>
@@ -221,7 +221,7 @@ export default function ManageSubmissionsPage() {
               : isOrgAdmin
                 ? "No submission found for this assessment in your organization."
                 : isCoopUser
-                  ? "No submission found for this assessment in your cooperation."
+                  ? "No submission found for this assessment in your cooperative."
                   : "No submission found."}
           </p>
         </div>

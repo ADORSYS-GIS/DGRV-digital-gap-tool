@@ -20,7 +20,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 
 /**
- * Dialog form for inviting a new user into a cooperation.
+ * Dialog form for inviting a new user into a cooperative.
  * Automatically assigns the correct role based on the current user's role.
  */
 export const AddCooperationUserForm = () => {
@@ -104,14 +104,14 @@ export const AddCooperationUserForm = () => {
             Add a new user
           </DialogTitle>
           <p className="text-sm text-muted-foreground">
-            Invite a new admin or member to this cooperation. They will receive
+            Invite a new admin or member to this cooperative. They will receive
             an email with access details once their account is created.
           </p>
         </DialogHeader>
         <form
           onSubmit={handleSubmit}
           className="space-y-5 py-4"
-          aria-label="Add cooperation user form"
+          aria-label="Add cooperative user form"
         >
           <div className="space-y-2">
             <Label htmlFor="coop-user-email">

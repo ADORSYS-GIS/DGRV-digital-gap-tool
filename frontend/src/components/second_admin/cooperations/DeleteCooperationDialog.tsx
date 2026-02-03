@@ -40,7 +40,7 @@ export const DeleteCooperationDialog: React.FC<
           <AlertDialogTitle>Are you sure?</AlertDialogTitle>
           <AlertDialogDescription>
             This action cannot be undone. This will permanently delete the
-            cooperation and remove its data from our servers.
+            cooperative and remove its data from our servers.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

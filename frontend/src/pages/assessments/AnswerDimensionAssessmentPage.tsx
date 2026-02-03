@@ -196,17 +196,22 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
   };
 
   const handleSubmit = useCallback(
-    async (currentLevel: number, desiredLevel: number) => {
+    async (
+      currentLevel: number,
+      desiredLevel: number,
+      currentStateId: string,
+      desiredStateId: string,
+    ) => {
       if (!assessmentId || !dimensionId || !dimension) {
         setError("Missing assessment or dimension ID");
         return;
       }
 
       const currentState = dimension.current_states?.find(
-        (state) => state.level === currentLevel,
+        (state) => state.id === currentStateId,
       );
       const desiredState = dimension.desired_states?.find(
-        (state) => state.level === desiredLevel,
+        (state) => state.id === desiredStateId,
       );
 
       if (!currentState || !desiredState) {
@@ -297,7 +302,7 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
         );
       } else if (isLastDimension) {
         // Before finishing, sync to ensure we have the latest data
-        await syncManager.syncAll();
+        await syncManager.syncAll(organizationId);
         // Last allowed dimension, submit the full assessment
         if (assessmentId) {
           await submitFullAssessment(assessmentId);
@@ -315,6 +320,7 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
     allowedDimensionIds,
     dimensionId,
     isLastDimension,
+    organizationId,
   ]);
 
   const handlePrevious = useCallback(() => {

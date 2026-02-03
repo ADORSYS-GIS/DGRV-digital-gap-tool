@@ -40,7 +40,7 @@ export const CooperationCard: React.FC<CooperationCardProps> = ({
       <CardContent className="flex flex-1 flex-col justify-between gap-6 p-6 pt-8">
         <div className="flex items-start gap-4">
           <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 text-primary ring-1 ring-primary/10 shadow-sm transition-all duration-300 group-hover/card:from-primary/20 group-hover/card:to-primary/10 group-hover/card:ring-primary/20">
-            <span className="sr-only">Cooperation</span>
+            <span className="sr-only">Cooperative</span>
             <Handshake className="hidden h-5 w-5 sm:block" aria-hidden="true" />
             <span
               className="text-base font-semibold sm:hidden"

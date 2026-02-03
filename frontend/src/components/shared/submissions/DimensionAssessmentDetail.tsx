@@ -1,130 +1,124 @@
-import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
-import { useDimensionWithStates } from "@/hooks/assessments/useDimensionWithStates";
-import { useDigitalisationGap } from "@/hooks/digitalisationGaps/useDigitalisationGap";
-import { IDimensionState } from "@/types/dimension";
-import { Lightbulb } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { IDimensionAssessment, IDimensionState } from "@/types/dimension";
+import { cn } from "@/lib/utils";
 
 interface DimensionAssessmentDetailProps {
-  dimensionId: string;
-  currentStateId: string;
-  desiredStateId: string;
-  gapScore: number;
-  gapId: string | null;
+  assessment: IDimensionAssessment;
+  dimensionName: string;
+  allDimensionStates: IDimensionState[];
 }
 
-export const DimensionAssessmentDetail = ({
-  dimensionId,
-  currentStateId,
-  desiredStateId,
-  gapScore,
-  gapId,
-}: DimensionAssessmentDetailProps) => {
-  const {
-    data: dimensionWithStates,
-    isLoading: isLoadingDimension,
-    error: dimensionError,
-  } = useDimensionWithStates(dimensionId);
-
-  const {
-    data: gap,
-    isLoading: isLoadingGap,
-    error: gapError,
-  } = useDigitalisationGap(gapId!);
-
-  const isLoading = isLoadingDimension || isLoadingGap;
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center p-4">
-        <LoadingSpinner />
-      </div>
-    );
+function getRiskLevel(gapScore: number): {
+  level: "LOW" | "MEDIUM" | "HIGH";
+  className: string;
+} {
+  if (gapScore <= 1) {
+    return { level: "LOW", className: "bg-green-100 text-green-800" };
   }
-
-  if (dimensionError || gapError) {
-    return (
-      <p className="p-4 text-red-500">
-        Could not load details for dimension {dimensionId}.
-      </p>
-    );
+  if (gapScore <= 3) {
+    return { level: "MEDIUM", className: "bg-yellow-100 text-yellow-800" };
   }
+  return { level: "HIGH", className: "bg-red-100 text-red-800" };
+}
 
-  if (!dimensionWithStates) {
-    return null;
-  }
+export function DimensionAssessmentDetail({
+  assessment,
+  dimensionName,
+  allDimensionStates,
+}: DimensionAssessmentDetailProps) {
+  const { currentState, desiredState } = assessment;
+  const gapScore = desiredState.level - currentState.level;
+  const risk = getRiskLevel(gapScore);
 
   const allStates: IDimensionState[] = [
-    ...(dimensionWithStates.current_states || []),
-    ...(dimensionWithStates.desired_states || []),
+    ...allDimensionStates,
+    assessment.currentState,
+    assessment.desiredState,
   ];
 
-  const currentState = allStates.find((s) => s.id === currentStateId);
-  const desiredState = allStates.find((s) => s.id === desiredStateId);
+  const currentStateDescription =
+    allStates.find((s) => s.id === currentState.id)?.description ??
+    "Description not found";
+  const desiredStateDescription =
+    allStates.find((s) => s.id === desiredState.id)?.description ??
+    "Description not found";
 
   return (
-    <div className="space-y-6 p-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div
-          className={`p-4 rounded-lg ${
-            currentState &&
-            desiredState &&
-            currentState.level < desiredState.level
-              ? "bg-red-100"
-              : "bg-green-100"
-          }`}
-        >
-          <p className="font-semibold text-gray-600 mb-1">Your Current Level</p>
-          <p className="text-2xl font-bold">
-            {currentState?.level}: {currentState?.name}
-          </p>
-          <p className="text-gray-800">{currentState?.description || "N/A"}</p>
-        </div>
-        <div
-          className={`p-4 rounded-lg ${
-            currentState &&
-            desiredState &&
-            currentState.level > desiredState.level
-              ? "bg-red-100"
-              : "bg-green-100"
-          }`}
-        >
-          <p className="font-semibold text-gray-600 mb-1">Your Desired Level</p>
-          <p className="text-2xl font-bold">
-            {desiredState?.level}: {desiredState?.name}
-          </p>
-          <p className="text-gray-800">{desiredState?.description || "N/A"}</p>
-        </div>
-      </div>
-      <div className="mt-6 space-y-4">
-        {gap && (
-          <div>
-            <p className="font-semibold text-gray-600 mb-1">Risk Level</p>
+    <Accordion type="single" collapsible className="w-full">
+      <AccordionItem value={`item-${assessment.id}`}>
+        <AccordionTrigger>
+          <div className="flex justify-between items-center w-full pr-4">
+            <span className="font-semibold text-lg">{dimensionName}</span>
             <Badge
-              className={`text-sm font-semibold ${
-                gap.gap_severity === "HIGH"
-                  ? "bg-red-500 text-white"
-                  : gap.gap_severity === "MEDIUM"
-                    ? "bg-yellow-500 text-black"
-                    : "bg-green-500 text-white"
-              }`}
+              className={cn(
+                "text-xs px-2 py-1 rounded-full",
+                risk.className,
+              )}
             >
-              {gap.gap_severity}
+              Gap Score: {gapScore}
             </Badge>
           </div>
-        )}
-        {gap && (
-          <div className="p-4 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg">
-            <div className="flex items-start">
-              <Lightbulb className="h-6 w-6 text-blue-600 mr-3 flex-shrink-0 mt-1" />
-              <div>
-                <p className="font-semibold text-blue-800">Gap Description</p>
-                <p className="text-gray-700 mt-1">{gap.description}</p>
-              </div>
-            </div>
+        </AccordionTrigger>
+        <AccordionContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4">
+            <Card className="bg-red-50 border-red-200">
+              <CardHeader>
+                <CardTitle>Your Current Level</CardTitle>
+                <CardDescription className="text-red-800 font-bold text-2xl">
+                  {currentState.level}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-gray-700">
+                  {currentStateDescription}
+                </p>
+              </CardContent>
+            </Card>
+            <Card className="bg-green-50 border-green-200">
+              <CardHeader>
+                <CardTitle>Your Desired Level</CardTitle>
+                <CardDescription className="text-green-800 font-bold text-2xl">
+                  {desiredState.level}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-gray-700">
+                  {desiredStateDescription}
+                </p>
+              </CardContent>
+            </Card>
           </div>
-        )}
-      </div>
-    </div>
+          <div className="px-4 pb-4">
+            <h4 className="font-semibold mb-2">Risk Level</h4>
+            <Badge
+              className={cn(
+                "text-sm px-3 py-1 rounded-md",
+                risk.className,
+              )}
+            >
+              {risk.level}
+            </Badge>
+            <p className="text-sm text-gray-600 mt-2">
+              The gap between your current and desired levels is analyzed to
+              determine a risk level, indicating the urgency and importance of
+              addressing this area.
+            </p>
+          </div>
+        </AccordionContent>
+      </AccordionItem>
+    </Accordion>
   );
-};
+}

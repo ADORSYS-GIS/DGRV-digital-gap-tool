@@ -81,7 +81,7 @@ export const AddOrganizationForm: React.FC = () => {
               </DialogTitle>
             </div>
             <p className="text-sm text-muted-foreground pl-12">
-              Enter the details to create a new cooperative organization.
+              Enter the details to create a new cooperative.
             </p>
           </DialogHeader>
         </div>

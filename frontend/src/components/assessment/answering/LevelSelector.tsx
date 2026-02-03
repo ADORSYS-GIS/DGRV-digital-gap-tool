@@ -9,19 +9,17 @@ interface LevelSelectorProps {
   /** Description text shown below the title */
   description: string;
   /** Current selected level (1-based) */
-  level: number;
+  level: number | null;
   /** Callback when the level changes */
   onChange: (value: number) => void;
   /** The available levels to select from */
-  availableLevels: { value: number; name: string }[];
+  availableLevels: { value: number; name: string; description: string | null }[];
   /** Disable all interactions */
   disabled?: boolean;
   /** Additional class names */
   className?: string;
   /** ID for testing */
   testId?: string;
-  levelDescription?: string | undefined;
-  levelName?: string | undefined;
 }
 
 /**
@@ -37,7 +35,6 @@ export function LevelSelector({
   disabled = false,
   className,
   testId = "level-selector",
-  levelDescription,
 }: LevelSelectorProps) {
   const levels = useMemo(
     () => availableLevels.sort((a, b) => a.value - b.value),
@@ -48,7 +45,11 @@ export function LevelSelector({
 
   // Ensure level is within bounds
   useEffect(() => {
-    if (levels.length > 0 && !levels.some((l) => l.value === level)) {
+    if (
+      level !== null &&
+      levels.length > 0 &&
+      !levels.some((l) => l.value === level)
+    ) {
       console.warn(
         `Level ${level} is not in the available levels. Clamping to the first available level.`,
       );
@@ -122,9 +123,10 @@ export function LevelSelector({
   );
 
   // Ensure level is within bounds for rendering
-  const safeLevel = levels.some((l) => l.value === level) ? level : minLevel;
-  const levelName = useMemo(() => {
-    return levels.find((l) => l.value === safeLevel)?.name;
+  const safeLevel =
+    level !== null && levels.some((l) => l.value === level) ? level : minLevel;
+  const selectedLevelData = useMemo(() => {
+    return levels.find((l) => l.value === safeLevel);
   }, [safeLevel, levels]);
 
   // Generate level indicators with visual representation
@@ -183,7 +185,7 @@ export function LevelSelector({
         </button>
 
         <span className="text-sm text-muted-foreground">
-          Level {safeLevel} of {maxLevel}: {levelName}
+          Level {safeLevel} of {maxLevel}: {selectedLevelData?.name}
         </span>
 
         <button
@@ -229,9 +231,12 @@ export function LevelSelector({
           {renderLevelIndicators()}
         </div>
         {renderNavigationButtons()}
-        {levelDescription && (
+        {selectedLevelData && (
           <div className="pt-2">
-            <p className="text-sm text-muted-foreground">{levelDescription}</p>
+            <p className="text-sm text-muted-foreground">
+              <span className="font-semibold">{selectedLevelData.name}:</span>{" "}
+              {selectedLevelData.description}
+            </p>
           </div>
         )}
       </CardContent>

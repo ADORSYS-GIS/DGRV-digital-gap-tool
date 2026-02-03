@@ -33,7 +33,7 @@ const ManageOrganizationsPage: React.FC = () => {
             Manage Organizations
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl">
-            Add and manage cooperative organizations in the system.
+            Add and manage cooperatives in the system.
           </p>
         </div>
         <div className="flex-shrink-0">
@@ -58,7 +58,7 @@ const ManageOrganizationsPage: React.FC = () => {
             <EmptyState
               icon={Building2}
               title="No organizations found"
-              description="Get started by adding your first cooperative organization to the system."
+              description="Get started by adding your first cooperative to the system."
             />
           )}
         </>

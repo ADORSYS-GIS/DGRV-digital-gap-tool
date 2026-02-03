@@ -8,9 +8,9 @@ import { useOrganizationId } from "@/hooks/organizations/useOrganizationId";
 import { useCooperationIdFromPath } from "@/hooks/cooperations/useCooperationIdFromPath";
 
 /**
- * Entry screen for selecting which cooperation's users to manage.
- * Org admins see a grid of cooperations, while coop admins are redirected
- * directly to their own cooperation user list.
+ * Entry screen for selecting which cooperative's users to manage.
+ * Org admins see a grid of cooperatives, while coop admins are redirected
+ * directly to their own cooperative user list.
  */
 export default function ManageCooperationUsers() {
   const { user } = useAuth();
@@ -69,10 +69,10 @@ export default function ManageCooperationUsers() {
         <div className="min-h-screen bg-background">
           <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-8 sm:px-6 lg:px-8">
             <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-              Unable to resolve cooperation
+              Unable to resolve cooperative
             </h1>
             <p className="max-w-2xl text-sm text-muted-foreground">
-              We could not resolve your cooperation from the token path. Please
+              We could not resolve your cooperative from the token path. Please
               contact your organization administrator to verify your access.
             </p>
           </div>
@@ -84,10 +84,10 @@ export default function ManageCooperationUsers() {
       <div className="min-h-screen bg-background">
         <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-8 sm:px-6 lg:px-8">
           <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-            No cooperation found
+            No cooperative found
           </h1>
           <p className="max-w-2xl text-sm text-muted-foreground">
-            We couldn&apos;t determine which cooperation you manage. Please
+            We couldn't determine which cooperative you manage. Please
             contact your organization administrator to verify your access.
           </p>
         </div>
@@ -130,13 +130,13 @@ export default function ManageCooperationUsers() {
             </h2>
             <p className="mt-2 max-w-md text-sm text-muted-foreground">
               Once cooperatives have been created for this organization,
-              you&apos;ll be able to select one here and manage its users.
+              you'll be able to select one here and manage its users.
             </p>
           </div>
         )}
 
         {!isLoading && !error && cooperations && cooperations.length > 0 && (
-          <section aria-label="Cooperation selection">
+          <section aria-label="Cooperative selection">
             <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
               {cooperations.map((coop) => (
                 <Link

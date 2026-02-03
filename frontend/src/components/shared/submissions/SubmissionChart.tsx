@@ -1,4 +1,3 @@
-import React, { useEffect, useState } from "react";
 import {
   BarChart,
   Bar,
@@ -9,53 +8,62 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import type { AssessmentSummary } from "@/types/assessment";
-import { useDimensions } from "@/hooks/dimensions/useDimensions";
-import { dimensionAssessmentRepository } from "@/services/assessments/dimensionAssessmentRepository";
-import { LoadingSpinner } from "../LoadingSpinner";
+import { IDimensionAssessment, IDimensionState } from "@/types/dimension";
+import { IDimension } from "@/types/dimension";
 
 interface SubmissionChartProps {
-  submission: AssessmentSummary;
+  assessments: IDimensionAssessment[];
+  dimensions: IDimension[];
+  allDimensionStates: IDimensionState[];
 }
 
-interface ChartDataItem {
+interface Payload {
   name: string;
-  "Current State": number;
-  "Desired State": number;
-  currentStateName: string;
-  desiredStateName: string;
-}
-
-interface PayloadItem {
-  payload: ChartDataItem;
+  value: number;
+  color: string;
+  payload: {
+    dimensionName: string;
+    currentStateName: string;
+    desiredStateName: string;
+  };
 }
 
 interface CustomTooltipProps {
   active?: boolean;
-  payload?: PayloadItem[];
+  payload?: Payload[];
   label?: string;
 }
 
-const CustomTooltip: React.FC<CustomTooltipProps> = ({
-  active,
-  payload,
-  label,
-}) => {
-  if (active && payload && payload.length && payload[0]) {
-    const data = payload[0].payload;
+const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
+  if (active && payload && payload.length) {
+    const { dimensionName, currentStateName, desiredStateName } =
+      payload[0].payload;
     return (
-      <div
-        style={{
-          background: "#ffffff",
-          border: "1px solid #e5e7eb",
-          borderRadius: "0.5rem",
-          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-          padding: "10px",
-        }}
-      >
-        <p className="label">{`${label}`}</p>
-        <p className="intro">{`Current State: ${data["Current State"]} - ${data.currentStateName}`}</p>
-        <p className="intro">{`Desired State: ${data["Desired State"]} - ${data.desiredStateName}`}</p>
+      <div className="bg-white p-4 border border-gray-200 rounded-lg shadow-lg">
+        <p className="font-bold text-lg mb-2">{dimensionName}</p>
+        {payload.map(
+          (
+            entry: Payload,
+            index: number,
+          ) => {
+            const stateName =
+              entry.name === "Current State"
+                ? currentStateName
+                : desiredStateName;
+            return (
+              <p
+                key={`item-${index}`}
+                style={{ color: entry.color }}
+                className="text-sm"
+              >
+                {`${entry.name}: ${entry.value}`}
+                {stateName && (
+                  <span className="text-gray-500 ml-2">({stateName})</span>
+                )}
+              </p>
+            );
+          },
+        )}
       </div>
     );
   }
@@ -63,146 +71,77 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({
   return null;
 };
 
-const SubmissionChart: React.FC<SubmissionChartProps> = ({ submission }) => {
-  const { data: dimensions } = useDimensions();
-  const [chartData, setChartData] = useState<ChartDataItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+export function SubmissionChart({
+  assessments,
+  dimensions,
+  allDimensionStates,
+}: SubmissionChartProps) {
+  const chartData = assessments
+    .map((da) => {
+      const dimension = dimensions.find((d) => d.id === da.dimensionId);
+      if (!dimension) return null;
 
-  useEffect(() => {
-    const fetchStateScores = async () => {
-      if (!submission?.dimension_assessments || !dimensions) return;
+      const allStates: IDimensionState[] = [
+        ...allDimensionStates,
+        da.currentState,
+        da.desiredState,
+      ];
 
-      setIsLoading(true);
-      try {
-        const data = await Promise.all(
-          submission.dimension_assessments.map(async (da) => {
-            const dimension = dimensions.find((d) => d.id === da.dimension_id);
-            const dimensionName = dimension?.name || "Unknown";
+      const currentState = allStates.find((s) => s.id === da.currentState.id);
+      const desiredState = allStates.find((s) => s.id === da.desiredState.id);
 
-            try {
-              // Fetch dimension with states to get scores
-              const dimWithStates =
-                await dimensionAssessmentRepository.getDimensionWithStates(
-                  da.dimension_id,
-                );
+      const currentStateName = currentState?.name ?? "N/A";
+      const desiredStateName = desiredState?.name ?? "N/A";
 
-              const currentState = dimWithStates.current_states?.find(
-                (s) => s.id === da.current_state_id,
-              );
-              const desiredState = dimWithStates.desired_states?.find(
-                (s) => s.id === da.desired_state_id,
-              );
-
-              const currentLevel =
-                currentState?.score ?? currentState?.level ?? 0;
-              const desiredLevel =
-                desiredState?.score ?? desiredState?.level ?? 0;
-              const currentStateName = currentState?.name ?? "N/A";
-              const desiredStateName = desiredState?.name ?? "N/A";
-
-              return {
-                name: dimensionName,
-                "Current State": currentLevel,
-                "Desired State": desiredLevel,
-                currentStateName,
-                desiredStateName,
-              };
-            } catch (error) {
-              console.error(
-                `Error fetching states for dimension ${da.dimension_id}:`,
-                error,
-              );
-              return {
-                name: dimensionName,
-                "Current State": 0,
-                "Desired State": 0,
-                currentStateName: "Error",
-                desiredStateName: "Error",
-              };
-            }
-          }),
-        );
-        setChartData(data);
-      } catch (error) {
-        console.error("Error building chart data:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchStateScores();
-  }, [submission, dimensions]);
-
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-[400px]">
-        <LoadingSpinner />
-      </div>
+      return {
+        dimensionId: da.dimensionId,
+        dimensionName: dimension.name,
+        "Current State": da.currentState.level,
+        "Desired State": da.desiredState.level,
+        currentStateName,
+        desiredStateName,
+      };
+    })
+    .filter(
+      (
+        item,
+      ): item is {
+        dimensionId: string;
+        dimensionName: string;
+        "Current State": number;
+        "Desired State": number;
+        currentStateName: string;
+        desiredStateName: string;
+      } => item !== null,
     );
-  }
 
   if (chartData.length === 0) {
     return (
-      <div className="flex justify-center items-center h-[400px] text-gray-500">
-        No data available for chart
+      <div className="text-center py-10 text-gray-500">
+        No assessment data to display.
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
-      <h3 className="text-lg font-semibold text-center">
-        Assessment: {submission.assessment.document_title}
-      </h3>
-      <ResponsiveContainer width="100%" height={400}>
-        <BarChart
-          data={chartData}
-          margin={{
-            top: 20,
-            right: 30,
-            left: 20,
-            bottom: 5,
-          }}
-          barGap={10}
-          barCategoryGap="20%"
-        >
-          <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
-          <XAxis
-            dataKey="name"
-            tick={{ fill: "#6b7280", fontSize: 12 }}
-            axisLine={{ stroke: "#d1d5db" }}
-            tickLine={{ stroke: "#d1d5db" }}
-          />
-          <YAxis
-            tick={{ fill: "#6b7280", fontSize: 12 }}
-            axisLine={{ stroke: "#d1d5db" }}
-            tickLine={{ stroke: "#d1d5db" }}
-          />
-          <Tooltip
-            cursor={{ fill: "rgba(243, 244, 246, 0.5)" }}
-            content={<CustomTooltip />}
-          />
-          <Legend
-            wrapperStyle={{
-              paddingTop: "20px",
-            }}
-          />
-          <Bar
-            dataKey="Current State"
-            fill="#3b82f6"
-            radius={[4, 4, 0, 0]}
-            background={{ fill: "#f3f4f6", radius: 4 }}
-          />
-          <Bar
-            dataKey="Desired State"
-            fill="#f97316"
-            radius={[4, 4, 0, 0]}
-            background={{ fill: "#f3f4f6", radius: 4 }}
-          />
-        </BarChart>
-      </ResponsiveContainer>
-    </div>
+    <ResponsiveContainer width="100%" height={400}>
+      <BarChart
+        data={chartData}
+        margin={{
+          top: 20,
+          right: 30,
+          left: 20,
+          bottom: 5,
+        }}
+      >
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="dimensionName" />
+        <YAxis />
+        <Tooltip content={<CustomTooltip />} />
+        <Legend />
+        <Bar dataKey="Current State" fill="#8884d8" />
+        <Bar dataKey="Desired State" fill="#82ca9d" />
+      </BarChart>
+    </ResponsiveContainer>
   );
-};
-
-export default SubmissionChart;
+}

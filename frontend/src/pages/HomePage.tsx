@@ -254,7 +254,7 @@ export const HomePage: React.FC = () => {
               <HeartHandshake className="h-16 w-16 text-gray-500 mb-4" />
               <h3 className="text-xl font-semibold text-gray-800">BMZ</h3>
               <p className="text-gray-600">
-                Federal Ministry for Economic Cooperation and Development
+                Federal Ministry for Economic Cooperatives and Development
               </p>
             </div>
           </div>
@@ -266,7 +266,7 @@ export const HomePage: React.FC = () => {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-gradient-to-r from-blue-600 to-blue-800 rounded-2xl p-10 md:p-16 text-center text-white shadow-xl">
             <h2 className="text-3xl md:text-4xl font-bold mb-6">
-              Ready to Transform Your Cooperative?
+              Ready to Transform Your Cooperatives?
             </h2>
             <p className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">
               Start your digital transformation journey today and unlock new

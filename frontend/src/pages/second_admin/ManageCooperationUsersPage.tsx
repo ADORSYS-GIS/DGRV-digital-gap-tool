@@ -69,7 +69,7 @@ export default function ManageCooperationUsersPage() {
 
         {!isLoading && !error && filteredUsers.length > 0 && (
           <section
-            aria-label="Cooperation users table"
+            aria-label="Cooperative users table"
             className="rounded-xl border border-border bg-card p-4 shadow-sm sm:p-6"
           >
             <CooperationUserList users={filteredUsers} />

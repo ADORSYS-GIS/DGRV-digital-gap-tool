@@ -9,7 +9,7 @@
 import { DashboardCard } from "@/components/shared/DashboardCard";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { ReportActions } from "@/components/shared/reports/ReportActions";
-import SubmissionChart from "@/components/shared/submissions/SubmissionChart";
+import { SubmissionChart } from "@/components/shared/submissions/SubmissionChart";
 import { SubmissionList } from "@/components/shared/submissions/SubmissionList";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,8 +22,14 @@ import {
 import { useAuth } from "@/context/AuthContext";
 import { useCooperationId } from "@/hooks/cooperations/useCooperationId";
 import { useCooperationIdFromPath } from "@/hooks/cooperations/useCooperationIdFromPath";
+import { useDimensions } from "@/hooks/dimensions/useDimensions";
+import { useAllDimensionStates } from "@/hooks/dimensions/useAllDimensionStates";
 import { useSubmissionsByCooperation } from "@/hooks/submissions/useSubmissionsByCooperation";
-import { AssessmentSummary } from "@/types/assessment";
+import {
+  AssessmentSummary,
+  DimensionAssessmentSummary,
+} from "@/types/assessment";
+import { IDimensionAssessment } from "@/types/dimension";
 import { SyncStatus } from "@/types/sync";
 import {
   ClipboardList,
@@ -53,6 +59,17 @@ const ThirdAdminDashboard: React.FC = () => {
     enabled: !!cooperationId,
   });
 
+  const {
+    data: allDimensions,
+    isLoading: isLoadingDimensions,
+    error: dimensionsError,
+  } = useDimensions();
+  const {
+    data: allDimensionStates,
+    isLoading: isLoadingStates,
+    error: statesError,
+  } = useAllDimensionStates();
+
   const normalizedSubmissions = Array.isArray(submissionsData)
     ? submissionsData
     : submissionsData
@@ -74,6 +91,36 @@ const ThirdAdminDashboard: React.FC = () => {
 
   const latestSubmission = normalizedSubmissions?.[0];
 
+  const chartAssessments: IDimensionAssessment[] | undefined =
+    latestSubmission?.dimension_assessments
+      .map((da: DimensionAssessmentSummary): IDimensionAssessment | null => {
+        if (!allDimensionStates) return null;
+
+        const currentState = allDimensionStates.find(
+          (s) => s.id === da.current_state_id,
+        );
+        const desiredState = allDimensionStates.find(
+          (s) => s.id === da.desired_state_id,
+        );
+
+        if (!currentState || !desiredState) {
+          return null;
+        }
+
+        return {
+          id: da.dimension_assessment_id,
+          assessmentId: da.assessment_id,
+          dimensionId: da.dimension_id,
+          currentState,
+          desiredState,
+          gap_id: da.gap_id,
+          createdAt: da.created_at,
+          updatedAt: da.updated_at,
+          syncStatus: SyncStatus.SYNCED,
+        };
+      })
+      .filter((item): item is IDimensionAssessment => item !== null);
+
   return (
     <div className="min-h-screen bg-background">
       <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-8 sm:px-6 lg:px-8">
@@ -92,7 +139,7 @@ const ThirdAdminDashboard: React.FC = () => {
             <span className="font-medium text-foreground">
               {user?.name || user?.preferred_username || "Administrator"}
             </span>
-            . Use these tools to keep your cooperative&apos;s assessments,
+            . Use these tools to keep your cooperative's assessments,
             users, and action plans on track.
           </p>
         </header>
@@ -219,7 +266,25 @@ const ThirdAdminDashboard: React.FC = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <SubmissionChart submission={latestSubmission} />
+                {isLoadingDimensions || isLoadingStates ? (
+                  <div className="flex min-h-[160px] items-center justify-center">
+                    <LoadingSpinner />
+                  </div>
+                ) : dimensionsError || statesError ? (
+                  <div className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                    <p className="font-medium">Unable to load chart data.</p>
+                  </div>
+                ) : allDimensions && allDimensionStates && chartAssessments ? (
+                  <SubmissionChart
+                    assessments={chartAssessments}
+                    dimensions={allDimensions}
+                    allDimensionStates={allDimensionStates}
+                  />
+                ) : (
+                  <div className="flex min-h-[120px] items-center justify-center text-sm text-muted-foreground">
+                    No data available to display chart.
+                  </div>
+                )}
               </CardContent>
             </Card>
           </section>

@@ -152,7 +152,7 @@ export default function ManageAssessments() {
               Manage assessments
             </h1>
             <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-              Create and track draft assessments across your cooperations before
+              Create and track draft assessments across your cooperatives before
               they are sent out for completion.
             </p>
           </div>
@@ -183,9 +183,9 @@ export default function ManageAssessments() {
 
         {!isLoading && !error && isCoopUser && !effectiveCooperationId && (
           <div className="rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-            <p className="font-medium">No cooperation determined.</p>
+            <p className="font-medium">No cooperative determined.</p>
             <p className="mt-1 opacity-90">
-              We could not resolve your cooperation from the route or token.
+              We could not resolve your cooperative from the route or token.
               Please contact your administrator.
             </p>
           </div>
@@ -198,7 +198,7 @@ export default function ManageAssessments() {
             </h2>
             <p className="mt-2 max-w-md text-sm text-muted-foreground">
               Draft assessments will appear here once you start planning new
-              evaluations for your cooperations.
+              evaluations for your cooperatives.
             </p>
             {isOrgAdmin && (
               <div className="mt-4">

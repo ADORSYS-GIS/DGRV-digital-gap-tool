@@ -1,27 +1,26 @@
-use crate::AppState;
+use crate::{
+    api::dto::{
+        assessment::*,
+        common::{ApiResponse, PaginatedResponse, PaginationParams},
+    },
+    api::handlers::common::{
+        extract_pagination, success_response, success_response_with_message,
+    },
+    error::AppError,
+    repositories::{
+        action_items::ActionItemsRepository, action_plans::ActionPlansRepository,
+        assessments::AssessmentsRepository,
+        dimension_assessments::DimensionAssessmentsRepository, gaps::GapsRepository,
+        recommendations::RecommendationsRepository,
+    },
+    AppState,
+};
 use axum::{
     extract::{Path, Query, State},
     http::StatusCode,
     response::Json,
 };
 use uuid::Uuid;
-
-use crate::api::dto::{
-    assessment::*,
-    common::{ApiResponse, PaginatedResponse, PaginationParams},
-};
-use crate::api::handlers::common::{
-    extract_pagination, success_response, success_response_with_message,
-};
-use crate::error::AppError;
-use crate::repositories::{
-    action_items::ActionItemsRepository, action_plans::ActionPlansRepository,
-    recommendations::RecommendationsRepository,
-};
-use crate::repositories::{
-    assessments::AssessmentsRepository, dimension_assessments::DimensionAssessmentsRepository,
-    gaps::GapsRepository,
-};
 
 // Conversion functions between entity and DTO types
 fn convert_entity_assessment_status_to_dto(
@@ -377,6 +376,28 @@ pub async fn create_dimension_assessment(
     Json(request): Json<CreateDimensionAssessmentRequest>,
 ) -> Result<Json<ApiResponse<DimensionAssessmentResponse>>, (StatusCode, Json<serde_json::Value>)> {
     let db = &state.db;
+
+    // Validate that the current and desired states exist
+    let current_state_exists = crate::repositories::current_states::CurrentStatesRepository::find_by_id(db.as_ref(), request.current_state_id)
+        .await
+        .map_err(crate::api::handlers::common::handle_error)?
+        .is_some();
+    if !current_state_exists {
+        return Err(crate::api::handlers::common::handle_error(AppError::NotFound(
+            "Current state not found".to_string(),
+        )));
+    }
+
+    let desired_state_exists = crate::repositories::desired_states::DesiredStatesRepository::find_by_id(db.as_ref(), request.desired_state_id)
+        .await
+        .map_err(crate::api::handlers::common::handle_error)?
+        .is_some();
+    if !desired_state_exists {
+        return Err(crate::api::handlers::common::handle_error(AppError::NotFound(
+            "Desired state not found".to_string(),
+        )));
+    }
+
     // 1. Create the Dimension Assessment
     let gap = GapsRepository::find_by_dimension_and_severity(
         db.as_ref(),
@@ -562,6 +583,14 @@ pub async fn update_dimension_assessment(
 
     let mut active_model: crate::entities::dimension_assessments::ActiveModel =
         dimension_assessment.clone().into();
+
+    if let Some(current_state_id) = request.current_state_id {
+        active_model.current_state_id = sea_orm::Set(current_state_id);
+    }
+
+    if let Some(desired_state_id) = request.desired_state_id {
+        active_model.desired_state_id = sea_orm::Set(desired_state_id);
+    }
 
     // If gap_score is being updated, also update the gap_id
     if let Some(gap_score) = request.gap_score {
