@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { authService } from "@/services/shared/authService";
 import { cooperationRepository } from "@/services/cooperations/cooperationRepository";
+import { useAuth } from "@/hooks/useAuth";
 
 /**
  * Resolve a cooperation ID from the cooperation path stored in the ID token.
@@ -12,7 +13,11 @@ import { cooperationRepository } from "@/services/cooperations/cooperationReposi
  * Use this for coop-admin flows where the URL does not yet include :cooperationId.
  */
 export const useCooperationIdFromPath = () => {
-  const cooperationPath = useMemo(() => authService.getCooperationPath(), []);
+  const { user } = useAuth();
+  const cooperationPath = useMemo(
+    () => authService.getCooperationPath(),
+    [user],
+  );
 
   const query = useQuery({
     queryKey: ["cooperationIdFromPath", cooperationPath],

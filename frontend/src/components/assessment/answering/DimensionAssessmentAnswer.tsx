@@ -146,20 +146,20 @@ export function DimensionAssessmentAnswer({
 
           {(dimension.current_states?.length === 0 ||
             dimension.desired_states?.length === 0) && (
-            <div className="mb-4 p-4 bg-yellow-50 text-yellow-700 rounded-md flex items-start space-x-2">
-              <AlertCircle className="h-5 w-5 mt-0.5 flex-shrink-0" />
-              <div>
-                This dimension has not been fully configured with level
-                descriptions. Please contact your administrator.
+              <div className="mb-4 p-4 bg-yellow-50 text-yellow-700 rounded-md flex items-start space-x-2">
+                <AlertCircle className="h-5 w-5 mt-0.5 flex-shrink-0" />
+                <div>
+                  This dimension has not been fully configured with level
+                  descriptions. Please contact your administrator.
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
           <LevelSelector
             title="Current Level"
             description={
               currentAvailableLevels.find((l) => l.value === currentLevel)
-                ?.description ?? "Select your current level for this dimension"
+                ?.name ?? "Select your current level for this dimension"
             }
             level={currentLevel}
             onChange={setCurrentLevel}
@@ -171,7 +171,7 @@ export function DimensionAssessmentAnswer({
             title="Desired Level"
             description={
               desiredAvailableLevels.find((l) => l.value === desiredLevel)
-                ?.description ?? "Select your desired level for this dimension"
+                ?.name ?? "Select your desired level for this dimension"
             }
             level={desiredLevel}
             onChange={setDesiredLevel}
