@@ -16,7 +16,7 @@ pub struct PrivateClaims {
     #[serde(rename = "email")]
     pub email: String,
     #[serde(rename = "name")]
-    pub name: String,
+    pub name: Option<String>,
     pub organization_id: Option<String>,
 }
 
@@ -29,7 +29,7 @@ pub struct Claims {
     pub resource_access: Option<HashMap<String, RealmAccess>>,
     pub preferred_username: String,
     pub email: String,
-    pub name: String,
+    pub name: Option<String>,
     pub organization_id: Option<String>,
 }
 
