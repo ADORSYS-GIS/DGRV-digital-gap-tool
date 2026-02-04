@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { PlusCircle } from "lucide-react";
 import { useAddCooperation } from "@/hooks/cooperations/useAddCooperation";
+import { useOrganizationId } from "@/hooks/organizations/useOrganizationId";
 
 /**
  * Entry point for creating a new cooperative profile.
@@ -20,7 +21,10 @@ export const AddCooperationForm: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const { mutate: addCooperation, isPending: isLoading } = useAddCooperation();
+  const organizationId = useOrganizationId();
+  const { mutate: addCooperation, isPending: isLoading } = useAddCooperation(
+    organizationId || undefined,
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
