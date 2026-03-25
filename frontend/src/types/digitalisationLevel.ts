@@ -5,7 +5,7 @@ import {
 } from "@/openapi-client/types.gen";
 
 export type LevelType = "current" | "desired";
-export type LevelState = 1 | 2 | 3 | 4 | 5;
+export type LevelState = number;
 
 export interface IDigitalisationLevel extends OfflineEntity {
   dimensionId: string;

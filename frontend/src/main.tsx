@@ -1,5 +1,5 @@
 import { createRoot } from "react-dom/client";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 import App from "./App";
 import "./index.css";
 import {
@@ -33,7 +33,8 @@ OpenAPI.interceptors.request.use(async (request) => {
   return request;
 });
 
-export const queryClient = new QueryClient();
+import { queryClient } from "./lib/queryClient";
+
 const root = createRoot(document.getElementById("root")!);
 
 const renderApp = () => {

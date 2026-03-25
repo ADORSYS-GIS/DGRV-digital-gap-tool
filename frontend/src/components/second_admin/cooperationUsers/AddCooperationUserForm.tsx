@@ -18,6 +18,8 @@ import { useDimensions } from "@/hooks/dimensions/useDimensions";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
+import { useOrganizationId } from "@/hooks/organizations/useOrganizationId";
+import { useOrganizationDimensions } from "@/hooks/organization_dimensions/useOrganizationDimensions";
 
 /**
  * Dialog form for inviting a new user into a cooperative.
@@ -34,7 +36,13 @@ export const AddCooperationUserForm = () => {
   const { mutate: addUser, isPending } = useAddCooperationUser();
   const { user: currentUser } = useAuth();
   const { cooperationId } = useParams<{ cooperationId: string }>();
+  const organizationIdFromHook = useOrganizationId();
+  const organizationId = currentUser?.organization || organizationIdFromHook || "";
+
   const { data: dimensions = [] } = useDimensions();
+  const { data: assignedDimensionIds = [] } = useOrganizationDimensions(organizationId);
+
+  const filteredDimensions = dimensions.filter(d => assignedDimensionIds.includes(d.id));
 
   const getNewUserRole = () => {
     if (currentUser?.roles?.includes(ROLES.COOP_ADMIN)) {
@@ -155,13 +163,12 @@ export const AddCooperationUserForm = () => {
                 dimensions in assigned assessments.
               </p>
               <div className="mt-2 grid gap-2 max-h-56 overflow-y-auto rounded-md border bg-muted/40 p-3">
-                {dimensions.length === 0 && (
+                {filteredDimensions.length === 0 && (
                   <p className="text-xs text-muted-foreground">
-                    No dimensions available yet. Create dimensions first in the
-                    admin panel.
+                    No dimensions available for this organization.
                   </p>
                 )}
-                {dimensions.map((dimension) => (
+                {filteredDimensions.map((dimension) => (
                   <label
                     key={dimension.id}
                     className="flex items-center gap-2 text-sm"

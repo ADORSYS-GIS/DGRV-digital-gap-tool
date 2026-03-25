@@ -9,7 +9,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useUpdateDigitalisationLevel } from "@/hooks/digitalisationLevels/useUpdateDigitalisationLevel";
-import { useDimension } from "@/hooks/dimensions/useDimension";
 import { IDigitalisationLevel, LevelState } from "@/types/digitalisationLevel";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
@@ -22,7 +21,6 @@ const formSchema = z.object({
   state: z
     .number()
     .min(1, "Please select a state")
-    .max(5)
     .refine((state) => state !== 0, "Level ID is required"),
 });
 
@@ -41,7 +39,6 @@ export const EditLevelForm = ({
   level,
   existingLevels,
 }: EditLevelFormProps) => {
-  const { data: dimension } = useDimension(level.dimensionId);
   const queryClient = useQueryClient();
   const {
     register,
@@ -108,10 +105,8 @@ export const EditLevelForm = ({
     );
   };
 
-  const availableStates = [1, 2, 3, 4, 5].filter(
-    (state) =>
-      !existingLevels.some((l) => l.state === state && l.id !== level.id),
-  );
+  const isStateAvailable = (value: number) =>
+    !existingLevels.some((l) => l.state === value && l.id !== level.id);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -132,8 +127,8 @@ export const EditLevelForm = ({
                     return "State must be a number";
                   }
                   return (
-                    availableStates.includes(value) ||
-                    "Level ID already exists or is invalid"
+                    isStateAvailable(value) ||
+                    "Level ID already exists"
                   );
                 },
               }}
@@ -142,9 +137,8 @@ export const EditLevelForm = ({
                   <Input
                     {...field}
                     type="number"
-                    placeholder="Level ID (1-5)"
+                    placeholder="Level ID"
                     min={1}
-                    max={5}
                     onChange={(e) => {
                       const value = parseInt(e.target.value, 10);
                       field.onChange(isNaN(value) ? undefined : value);

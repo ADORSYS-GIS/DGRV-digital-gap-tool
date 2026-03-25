@@ -9,7 +9,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useAddDigitalisationLevel } from "@/hooks/digitalisationLevels/useAddDigitalisationLevel";
-import { useDimension } from "@/hooks/dimensions/useDimension";
 import {
   IDigitalisationLevel,
   LevelState,
@@ -26,7 +25,6 @@ const formSchema = z.object({
   state: z
     .number()
     .min(1, "Please select a state")
-    .max(5)
     .refine((state) => state !== 0, "Level ID is required"),
 });
 
@@ -47,7 +45,6 @@ export const AddLevelForm = ({
   levelType,
   existingLevels,
 }: AddLevelFormProps) => {
-  const { data: dimension } = useDimension(dimensionId);
   const queryClient = useQueryClient();
   const {
     register,
@@ -55,12 +52,11 @@ export const AddLevelForm = ({
     formState: { errors },
     reset,
     control,
-    setValue,
     setError,
   } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      state: 0,
+      state: existingLevels.length > 0 ? Math.max(...existingLevels.map(l => l.state)) + 1 : 1,
       title: "",
       description: "",
     },
@@ -114,9 +110,7 @@ export const AddLevelForm = ({
     );
   };
 
-  const availableStates = [1, 2, 3, 4, 5].filter(
-    (state) => !existingLevels.some((level) => level.state === state),
-  );
+  const isStateAvailable = (value: number) => !existingLevels.some((level) => level.state === value);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -137,8 +131,8 @@ export const AddLevelForm = ({
                     return "State must be a number";
                   }
                   return (
-                    availableStates.includes(value) ||
-                    "Level ID already exists or is invalid"
+                    isStateAvailable(value) ||
+                    "Level ID already exists"
                   );
                 },
               }}
@@ -147,9 +141,8 @@ export const AddLevelForm = ({
                   <Input
                     {...field}
                     type="number"
-                    placeholder="Level ID (1-5)"
+                    placeholder="Level ID"
                     min={1}
-                    max={5}
                     onChange={(e) => {
                       const value = parseInt(e.target.value, 10);
                       field.onChange(isNaN(value) ? undefined : value); // Pass undefined if not a valid number

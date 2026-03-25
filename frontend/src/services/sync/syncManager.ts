@@ -7,7 +7,7 @@ import { dimensionSyncService } from "./dimensionSyncService";
 import { digitalisationGapSyncService } from "./digitalisationGapSyncService";
 import { recommendationSyncService } from "./recommendationSyncService";
 import { userSyncService } from "./userSyncService";
-import { queryClient } from "@/main";
+import { queryClient } from "@/lib/queryClient";
 
 export const syncManager = {
   initialize() {
