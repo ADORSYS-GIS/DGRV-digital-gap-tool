@@ -30,18 +30,17 @@ use uuid::Uuid;
 )]
 pub async fn create_organization(
     State(state): State<AppState>,
-    axum::Extension(token): axum::Extension<String>,
+    axum::Extension(_token): axum::Extension<String>,
     Json(request): Json<OrganizationCreateRequest>,
 ) -> AppResult<impl IntoResponse> {
     let keycloak_service = state.keycloak_service;
     tracing::info!(?request, "Received organization create request");
 
-    // For simplicity, this example assumes a fixed admin token.
-    // In a real application, you would obtain this token securely.
+    let admin_token = keycloak_service.get_admin_token().await?;
 
     match keycloak_service
         .create_organization(
-            &token,
+            &admin_token,
             &request.name,
             request.domains,
             request.redirect_url,
@@ -68,12 +67,14 @@ pub async fn create_organization(
 )]
 pub async fn get_organizations(
     State(state): State<AppState>,
-    axum::Extension(token): axum::Extension<String>,
+    axum::Extension(_token): axum::Extension<String>,
 ) -> AppResult<impl IntoResponse> {
     let keycloak_service = state.keycloak_service;
     tracing::info!("Received get organizations request");
 
-    match keycloak_service.get_organizations(&token).await {
+    let admin_token = keycloak_service.get_admin_token().await?;
+
+    match keycloak_service.get_organizations(&admin_token).await {
         Ok(organizations) => Ok((StatusCode::OK, Json(organizations))),
         Err(e) => {
             tracing::error!("Failed to get organizations: {}", e);
@@ -95,13 +96,15 @@ pub async fn get_organizations(
 )]
 pub async fn get_organization(
     State(state): State<AppState>,
-    axum::Extension(token): axum::Extension<String>,
+    axum::Extension(_token): axum::Extension<String>,
     Path(org_id): Path<String>,
 ) -> AppResult<impl IntoResponse> {
     let keycloak_service = state.keycloak_service;
     tracing::info!("Received get organization request for id {}", org_id);
 
-    match keycloak_service.get_organization(&token, &org_id).await {
+    let admin_token = keycloak_service.get_admin_token().await?;
+
+    match keycloak_service.get_organization(&admin_token, &org_id).await {
         Ok(organization) => Ok((StatusCode::OK, Json(organization))),
         Err(e) => {
             tracing::error!("Failed to get organization: {}", e);
@@ -124,7 +127,7 @@ pub async fn get_organization(
 )]
 pub async fn update_organization(
     State(state): State<AppState>,
-    axum::Extension(token): axum::Extension<String>,
+    axum::Extension(_token): axum::Extension<String>,
     Path(org_id): Path<String>,
     Json(request): Json<OrganizationUpdateRequest>,
 ) -> AppResult<impl IntoResponse> {
@@ -135,9 +138,11 @@ pub async fn update_organization(
         org_id
     );
 
+    let admin_token = keycloak_service.get_admin_token().await?;
+
     match keycloak_service
         .update_organization(
-            &token,
+            &admin_token,
             &org_id,
             &request.name,
             request.domains,
@@ -166,13 +171,15 @@ pub async fn update_organization(
 )]
 pub async fn delete_organization(
     State(state): State<AppState>,
-    axum::Extension(token): axum::Extension<String>,
+    axum::Extension(_token): axum::Extension<String>,
     Path(org_id): Path<String>,
 ) -> AppResult<impl IntoResponse> {
     let keycloak_service = state.keycloak_service;
     tracing::info!("Received delete organization request for id {}", org_id);
 
-    match keycloak_service.delete_organization(&token, &org_id).await {
+    let admin_token = keycloak_service.get_admin_token().await?;
+
+    match keycloak_service.delete_organization(&admin_token, &org_id).await {
         Ok(_) => Ok(StatusCode::NO_CONTENT),
         Err(e) => {
             tracing::error!("Failed to delete organization: {}", e);
@@ -192,13 +199,14 @@ pub async fn delete_organization(
     responses((status = 200, description = "OK", body = Vec<KeycloakUser>))
 )]
 pub async fn get_organization_members(
-    Extension(token): Extension<String>,
+    Extension(_token): Extension<String>,
     State(app_state): State<AppState>,
     Path(org_id): Path<String>,
 ) -> AppResult<impl IntoResponse> {
+    let admin_token = app_state.keycloak_service.get_admin_token().await?;
     let members = app_state
         .keycloak_service
-        .get_organization_members(&token, &org_id)
+        .get_organization_members(&admin_token, &org_id)
         .await?;
 
     Ok((StatusCode::OK, Json(members)))

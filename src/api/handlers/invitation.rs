@@ -43,10 +43,12 @@ pub async fn invite_user_to_organization(
         return Err(AppError::BadRequest("Insufficient permissions".to_string()));
     }
 
+    let admin_token = app_state.keycloak_service.get_admin_token().await?;
+
     // Check if user already exists
     let existing_user = app_state
         .keycloak_service
-        .find_user_by_username_or_email(&token, &request.email)
+        .find_user_by_username_or_email(&admin_token, &request.email)
         .await
         .map_err(|e| {
             tracing::error!("Failed to find user: {}", e);
@@ -71,7 +73,7 @@ pub async fn invite_user_to_organization(
 
         app_state
             .keycloak_service
-            .create_user_with_email_verification(&token, &create_user_request)
+            .create_user_with_email_verification(&admin_token, &create_user_request)
             .await
             .map_err(|e| {
                 tracing::error!("Failed to create user: {}", e);
@@ -82,7 +84,7 @@ pub async fn invite_user_to_organization(
     // Assign roles
     app_state
         .keycloak_service
-        .assign_realm_role_to_user(&token, &user.id, "org_admin")
+        .assign_realm_role_to_user(&admin_token, &user.id, "org_admin")
         .await?;
 
     let realm_management_roles = vec![
@@ -97,14 +99,14 @@ pub async fn invite_user_to_organization(
     for role in realm_management_roles {
         app_state
             .keycloak_service
-            .assign_client_role_to_user(&token, &user.id, "realm-management", role)
+            .assign_client_role_to_user(&admin_token, &user.id, "realm-management", role)
             .await?;
     }
 
     // Create invitation
     match app_state
         .keycloak_service
-        .create_invitation(&token, &org_id, &request.email, request.roles.clone(), None)
+        .create_invitation(&admin_token, &org_id, &request.email, request.roles.clone(), None)
         .await
     {
         Ok(_invitation) => {

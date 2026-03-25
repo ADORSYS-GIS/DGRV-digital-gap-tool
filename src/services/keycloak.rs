@@ -41,6 +41,39 @@ impl KeycloakService {
         Self { client, config }
     }
 
+    /// Obtain an admin access token using client credentials flow
+    pub async fn get_admin_token(&self) -> Result<String> {
+        let url = format!(
+            "{}/realms/{}/protocol/openid-connect/token",
+            self.config.keycloak.url, self.config.keycloak.realm
+        );
+
+        let params = [
+            ("grant_type", "client_credentials"),
+            ("client_id", &self.config.keycloak.client_id),
+            ("client_secret", &self.config.keycloak.client_secret),
+        ];
+
+        let response = self.client.post(&url).form(&params).send().await?;
+
+        if !response.status().is_success() {
+            let status = response.status();
+            let error_text = response.text().await?;
+            error!(
+                status = %status,
+                "Failed to obtain admin token: {}", error_text
+            );
+            return Err(anyhow!(
+                "Failed to obtain admin token (status: {}): {}",
+                status,
+                error_text
+            ));
+        }
+
+        let token_response: TokenResponse = response.json().await?;
+        Ok(token_response.access_token)
+    }
+
     /// Create a new organization
     pub async fn create_organization(
         &self,

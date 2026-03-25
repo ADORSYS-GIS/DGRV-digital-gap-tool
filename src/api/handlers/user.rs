@@ -33,9 +33,11 @@ pub async fn add_member(
         payload.dimension_ids
     );
 
+    let admin_token = state.keycloak_service.get_admin_token().await?;
+
     let existing_user = state
         .keycloak_service
-        .find_user_by_username_or_email(&token, &payload.email)
+        .find_user_by_username_or_email(&admin_token, &payload.email)
         .await?;
 
     // Build attributes payload if any dimensions were provided
@@ -54,7 +56,7 @@ pub async fn add_member(
             );
             state
                 .keycloak_service
-                .update_user_attributes(&token, &user.id, attrs.clone(), Some(&payload.email))
+                .update_user_attributes(&admin_token, &user.id, attrs.clone(), Some(&payload.email))
                 .await?;
         }
         user.id
@@ -76,7 +78,7 @@ pub async fn add_member(
 
         let new_user = state
             .keycloak_service
-            .create_user_with_email_verification(&token, &user_request)
+            .create_user_with_email_verification(&admin_token, &user_request)
             .await?;
         // Ensure attributes are persisted by explicitly updating after creation
         if let Some(attrs) = &dimension_attrs {
@@ -87,7 +89,7 @@ pub async fn add_member(
             );
             state
                 .keycloak_service
-                .update_user_attributes(&token, &new_user.id, attrs.clone(), Some(&payload.email))
+                .update_user_attributes(&admin_token, &new_user.id, attrs.clone(), Some(&payload.email))
                 .await?;
         }
         new_user.id
@@ -97,7 +99,7 @@ pub async fn add_member(
     for role in payload.roles {
         state
             .keycloak_service
-            .assign_realm_role_to_user(&token, &user_id, &role)
+            .assign_realm_role_to_user(&admin_token, &user_id, &role)
             .await?;
 
         if role == "coop_admin" {
@@ -116,14 +118,14 @@ pub async fn add_member(
             for role in realm_management_roles {
                 state
                     .keycloak_service
-                    .assign_client_role_to_user(&token, &user_id, "realm-management", role)
+                    .assign_client_role_to_user(&admin_token, &user_id, "realm-management", role)
                     .await?;
             }
 
             for role in account_roles {
                 state
                     .keycloak_service
-                    .assign_client_role_to_user(&token, &user_id, "account", role)
+                    .assign_client_role_to_user(&admin_token, &user_id, "account", role)
                     .await?;
             }
         } else if role == "coop_user" {
@@ -134,14 +136,14 @@ pub async fn add_member(
             for role in realm_management_roles {
                 state
                     .keycloak_service
-                    .assign_client_role_to_user(&token, &user_id, "realm-management", role)
+                    .assign_client_role_to_user(&admin_token, &user_id, "realm-management", role)
                     .await?;
             }
 
             for role in account_roles {
                 state
                     .keycloak_service
-                    .assign_client_role_to_user(&token, &user_id, "account", role)
+                    .assign_client_role_to_user(&admin_token, &user_id, "account", role)
                     .await?;
             }
         }
@@ -150,7 +152,7 @@ pub async fn add_member(
     // Add user to the cooperation group
     state
         .keycloak_service
-        .add_user_to_group(&token, &user_id, &group_id)
+        .add_user_to_group(&admin_token, &user_id, &group_id)
         .await?;
 
     Ok(StatusCode::CREATED)
@@ -166,12 +168,13 @@ pub async fn add_member(
 )]
 pub async fn get_group_members(
     State(state): State<AppState>,
-    Extension(token): Extension<String>,
+    Extension(_token): Extension<String>,
     Path(group_id): Path<String>,
 ) -> AppResult<impl IntoResponse> {
+    let admin_token = state.keycloak_service.get_admin_token().await?;
     let members = state
         .keycloak_service
-        .get_group_members(&token, &group_id)
+        .get_group_members(&admin_token, &group_id)
         .await?;
     Ok(Json(members))
 }
@@ -186,9 +189,10 @@ pub async fn get_group_members(
 )]
 pub async fn delete_user(
     State(state): State<AppState>,
-    Extension(token): Extension<String>,
+    Extension(_token): Extension<String>,
     Path(user_id): Path<String>,
 ) -> AppResult<impl IntoResponse> {
-    state.keycloak_service.delete_user(&token, &user_id).await?;
+    let admin_token = state.keycloak_service.get_admin_token().await?;
+    state.keycloak_service.delete_user(&admin_token, &user_id).await?;
     Ok(StatusCode::NO_CONTENT)
 }
