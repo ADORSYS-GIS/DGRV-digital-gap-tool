@@ -90,11 +90,32 @@ fi
 
 # --- 4.1 ASSIGN ROLES TO THE BACKEND SERVICE ACCOUNT ---
 echo "[a.sh] Assigning realm-admin roles to dgat-admin-client service account..."
-./kcadm.sh add-roles -r "${REALM}" \
-  --service-account --client dgat-admin-client \
+# Use the internal service account username format
+if ! ./kcadm.sh add-roles -r "${REALM}" \
+  --uusername "service-account-dgat-admin-client" \
   --cclientid realm-management \
   --rolename realm-admin \
-  --server "${KEYCLOAK_SERVER}" || echo "Warning: Failed to assign service account roles (may already exist)"
+  --server "${KEYCLOAK_SERVER}"; then
+  
+  echo "[a.sh] Failed by username, trying to assign by Service Account User ID..."
+  
+  # Get the internal ID of the client first
+  CLIENT_INTERNAL_ID=$(./kcadm.sh get clients -r "${REALM}" -q clientId=dgat-admin-client --fields id --format csv --no-header)
+  
+  if [ -n "$CLIENT_INTERNAL_ID" ]; then
+    # Get the service account user ID for that client
+    SA_ID=$(./kcadm.sh get clients/$CLIENT_INTERNAL_ID/service-account-user -r "${REALM}" --fields id --format csv --no-header)
+    
+    if [ -n "$SA_ID" ]; then
+      ./kcadm.sh add-roles -r "${REALM}" --uid "$SA_ID" --cclientid realm-management --rolename realm-admin --server "${KEYCLOAK_SERVER}"
+      echo "[a.sh] Successfully assigned roles to service account ID: $SA_ID"
+    else
+      echo "[a.sh] Error: Could not find service account user for client $CLIENT_INTERNAL_ID"
+    fi
+  else
+    echo "[a.sh] Error: Could not find client dgat-admin-client"
+  fi
+fi
 
 # --- 5. ASSIGN application_admin and drgv_admin realm roles ---
 ./kcadm.sh add-roles -r "${REALM}" --uusername "${NEW_USER_EMAIL}" --rolename application_admin --rolename dgrv_admin \
