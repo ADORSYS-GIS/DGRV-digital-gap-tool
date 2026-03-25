@@ -19,11 +19,7 @@ cd "${KEYCLOAK_BIN_DIR}"
 echo "[a.sh] Now in: $(pwd)"
 
 # Run-once guard to avoid re-provisioning
-RUN_ONCE_MARKER="${KEYCLOAK_BIN_DIR}/.provisioning_done"
-if [ -f "${RUN_ONCE_MARKER}" ]; then
-  echo "[a.sh] Provisioning already completed previously; exiting."
-  exit 0
-fi
+# Run-once guard is now handled more granularly below.
 
 # Certificate and truststore logic is no longer needed for internal HTTP communication.
 
@@ -44,22 +40,25 @@ if [ "$login_ok" != true ]; then
 fi
 
 # --- 2. CREATE THE USER ---
-./kcadm.sh create users \
-    -r "${REALM}" \
-    -s username="${NEW_USER_EMAIL}" \
-    -s email="${NEW_USER_EMAIL}" \
-    -s enabled=true \
-    -s firstName="${NEW_USER_FIRSTNAME}" \
-    -s lastName="${NEW_USER_LASTNAME}" \
-    --server "${KEYCLOAK_SERVER}"
+RUN_ONCE_MARKER="${KEYCLOAK_BIN_DIR}/.user_provisioned"
+if [ ! -f "${RUN_ONCE_MARKER}" ]; then
+    ./kcadm.sh create users \
+        -r "${REALM}" \
+        -s username="${NEW_USER_EMAIL}" \
+        -s email="${NEW_USER_EMAIL}" \
+        -s enabled=true \
+        -s firstName="${NEW_USER_FIRSTNAME}" \
+        -s lastName="${NEW_USER_LASTNAME}" \
+        --server "${KEYCLOAK_SERVER}" && touch "${RUN_ONCE_MARKER}"
 
-# --- 3. SET TEMPORARY PASSWORD ---
-./kcadm.sh set-password \
-    -r "${REALM}" \
-    --username "${NEW_USER_EMAIL}" \
-    --new-password "${TEMP_PASSWORD}" \
-    --temporary \
-    --server "${KEYCLOAK_SERVER}"
+    # --- 3. SET TEMPORARY PASSWORD ---
+    ./kcadm.sh set-password \
+        -r "${REALM}" \
+        --username "${NEW_USER_EMAIL}" \
+        --new-password "${TEMP_PASSWORD}" \
+        --temporary \
+        --server "${KEYCLOAK_SERVER}"
+fi
 
 
 # --- 4. ASSIGN REALM-MANAGEMENT ROLES (replace or add/remove as needed) ---
@@ -88,6 +87,14 @@ fi
   --rolename view-realm \
   --rolename view-users \
   --server "${KEYCLOAK_SERVER}"
+
+# --- 4.1 ASSIGN ROLES TO THE BACKEND SERVICE ACCOUNT ---
+echo "[a.sh] Assigning realm-admin roles to dgat-admin-client service account..."
+./kcadm.sh add-roles -r "${REALM}" \
+  --service-account --client dgat-admin-client \
+  --cclientid realm-management \
+  --rolename realm-admin \
+  --server "${KEYCLOAK_SERVER}" || echo "Warning: Failed to assign service account roles (may already exist)"
 
 # --- 5. ASSIGN application_admin and drgv_admin realm roles ---
 ./kcadm.sh add-roles -r "${REALM}" --uusername "${NEW_USER_EMAIL}" --rolename application_admin --rolename dgrv_admin \
