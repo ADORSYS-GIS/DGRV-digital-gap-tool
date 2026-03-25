@@ -56,7 +56,10 @@ export const AddLevelForm = ({
   } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      state: existingLevels.length > 0 ? Math.max(...existingLevels.map(l => l.state)) + 1 : 1,
+      state:
+        existingLevels.length > 0
+          ? Math.max(...existingLevels.map((l) => l.state)) + 1
+          : 1,
       title: "",
       description: "",
     },
@@ -110,7 +113,8 @@ export const AddLevelForm = ({
     );
   };
 
-  const isStateAvailable = (value: number) => !existingLevels.some((level) => level.state === value);
+  const isStateAvailable = (value: number) =>
+    !existingLevels.some((level) => level.state === value);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -130,10 +134,7 @@ export const AddLevelForm = ({
                   if (typeof value !== "number" || isNaN(value)) {
                     return "State must be a number";
                   }
-                  return (
-                    isStateAvailable(value) ||
-                    "Level ID already exists"
-                  );
+                  return isStateAvailable(value) || "Level ID already exists";
                 },
               }}
               render={({ field }) => (

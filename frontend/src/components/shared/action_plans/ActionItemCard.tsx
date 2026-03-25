@@ -243,10 +243,11 @@ export function ActionItemCard({ item, onUpdate }: ActionItemCardProps) {
           <DialogFooter className="sm:justify-start pt-4 border-t border-gray-100">
             <div className="flex items-center gap-2 text-xs text-gray-400">
               <Calendar className="h-3.5 w-3.5" />
-              Created on {new Date().toLocaleDateString(undefined, {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
+              Created on{" "}
+              {new Date().toLocaleDateString(undefined, {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
               })}
             </div>
           </DialogFooter>
@@ -288,7 +289,8 @@ export function ActionItemCard({ item, onUpdate }: ActionItemCardProps) {
                 Delete Action Item
               </DialogTitle>
               <DialogDescription className="text-gray-500">
-                Are you sure you want to delete this action item? This action cannot be undone.
+                Are you sure you want to delete this action item? This action
+                cannot be undone.
               </DialogDescription>
             </div>
             <div className="flex w-full gap-3 pt-2">

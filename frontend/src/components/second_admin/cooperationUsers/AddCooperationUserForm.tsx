@@ -37,12 +37,16 @@ export const AddCooperationUserForm = () => {
   const { user: currentUser } = useAuth();
   const { cooperationId } = useParams<{ cooperationId: string }>();
   const organizationIdFromHook = useOrganizationId();
-  const organizationId = currentUser?.organization || organizationIdFromHook || "";
+  const organizationId =
+    currentUser?.organization || organizationIdFromHook || "";
 
   const { data: dimensions = [] } = useDimensions();
-  const { data: assignedDimensionIds = [] } = useOrganizationDimensions(organizationId);
+  const { data: assignedDimensionIds = [] } =
+    useOrganizationDimensions(organizationId);
 
-  const filteredDimensions = dimensions.filter(d => assignedDimensionIds.includes(d.id));
+  const filteredDimensions = dimensions.filter((d) =>
+    assignedDimensionIds.includes(d.id),
+  );
 
   const getNewUserRole = () => {
     if (currentUser?.roles?.includes(ROLES.COOP_ADMIN)) {

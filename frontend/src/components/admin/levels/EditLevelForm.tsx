@@ -126,10 +126,7 @@ export const EditLevelForm = ({
                   if (typeof value !== "number" || isNaN(value)) {
                     return "State must be a number";
                   }
-                  return (
-                    isStateAvailable(value) ||
-                    "Level ID already exists"
-                  );
+                  return isStateAvailable(value) || "Level ID already exists";
                 },
               }}
               render={({ field }) => (
