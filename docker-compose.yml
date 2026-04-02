@@ -114,8 +114,8 @@ services:
       KC_HOSTNAME_URL: "${KC_HOSTNAME_URL:-https://158.220.84.249/keycloak}"
       KC_HOSTNAME_ADMIN_URL: "${KC_HOSTNAME_ADMIN_URL:-https://158.220.84.249/keycloak}"
       KC_HOSTNAME_PATH: "/keycloak"
-      KC_HOSTNAME_STRICT: "false"
-      KC_HOSTNAME_STRICT_HTTPS: "false"
+      KC_HOSTNAME_STRICT: "true"
+      KC_HOSTNAME_STRICT_HTTPS: "true"
       KC_HTTP_ENABLED: "true"
       KC_HTTPS_PORT: 8443
       KC_URL: "${KC_URL:-localhost}"
