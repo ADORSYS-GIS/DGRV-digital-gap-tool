@@ -28,6 +28,8 @@ dist-ssr
 *.sln
 *.sw?
 *.env
+*.env.prod
+.env.prod
 /src/openapi-client/
 /CODE_IMPROVEMENTS.md
 .cursorrules.md

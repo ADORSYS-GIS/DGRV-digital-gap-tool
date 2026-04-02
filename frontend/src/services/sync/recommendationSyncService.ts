@@ -43,11 +43,12 @@ export const recommendationSyncService = {
           description: payload.description,
         };
         const response = await createRecommendation({ requestBody });
-        if (response.data) {
-          await recommendationRepository.markAsSynced(
-            op.entityId,
-            response.data.recommendation_id,
-          );
+        const responseData: any = response.data as any;
+        const serverId: string | undefined =
+          responseData?.recommendation_id ?? responseData?.data?.recommendation_id;
+
+        if (serverId) {
+          await recommendationRepository.markAsSynced(op.entityId, serverId);
         }
         break;
       }

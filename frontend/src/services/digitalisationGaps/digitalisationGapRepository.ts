@@ -17,14 +17,16 @@ export const digitalisationGapRepository = {
       if (navigator.onLine) {
         const backendGapsResponse = await listGaps({});
         if (backendGapsResponse.data) {
-          const backendGaps = backendGapsResponse.data.items;
+          const responseData: any = backendGapsResponse.data as any;
+          const backendGaps: any[] =
+            responseData?.items ?? responseData?.data?.items ?? [];
           const backendGapIds = new Set(backendGaps.map((d) => d.gap_id));
 
           const localGaps = await db.digitalisationGaps.toArray();
           const localGapsMap = new Map(localGaps.map((g) => [g.id, g]));
 
           const gapsToUpsert = backendGaps
-            .map((d) => {
+            .map((d: any) => {
               const localGap = localGapsMap.get(d.gap_id);
               if (localGap && localGap.syncStatus === SyncStatus.PENDING) {
                 return null; // Keep local pending changes

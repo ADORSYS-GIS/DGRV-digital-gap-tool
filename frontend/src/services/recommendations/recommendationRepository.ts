@@ -20,21 +20,22 @@ export const recommendationRepository = {
       if (navigator.onLine) {
         const response = await listRecommendations({});
         if (response.data) {
-          const items = Array.isArray(response.data)
-            ? response.data
-            : response.data.items || [];
+          const responseData: any = response.data as any;
+          const items: any[] = Array.isArray(responseData)
+            ? (responseData as any[])
+            : (responseData.items || responseData.data?.items || []);
 
           if (items.length > 0) {
             const localRecommendations = await db.recommendations.toArray();
             const localRecommendationsMap = new Map(
-              localRecommendations.map((r) => [r.id, r]),
+              localRecommendations.map((r: IRecommendation) => [r.id, r]),
             );
             const backendRecommendationIds = new Set(
-              items.map((item) => item.recommendation_id || item.id),
+              items.map((item: any) => item.recommendation_id || item.id),
             );
 
             const recommendationsToPut: IRecommendation[] = items
-              .map((item) => {
+              .map((item: any) => {
                 const recommendationId =
                   item.recommendation_id || item.id || `temp-${Date.now()}`;
                 const localRecommendation =
@@ -220,8 +221,18 @@ export const recommendationRepository = {
   },
 
   markAsSynced: async (offlineId: string, serverId: string): Promise<void> => {
-    await db.recommendations.update(offlineId, {
+    const existing = await db.recommendations.get(offlineId);
+    if (!existing) {
+      return;
+    }
+
+    // Dexie cannot update the primary key via `update()`. If we keep the old
+    // key, subsequent backend sync will treat it as missing and delete it.
+    await db.recommendations.delete(offlineId);
+    await db.recommendations.put({
+      ...existing,
       id: serverId,
+      recommendation_id: serverId,
       syncStatus: SyncStatus.SYNCED,
       lastError: "",
     });

@@ -43,11 +43,12 @@ export const digitalisationGapSyncService = {
           gap_severity: payload.gap_severity,
         };
         const response = await adminCreateGap({ requestBody });
-        if (response.data) {
-          await digitalisationGapRepository.markAsSynced(
-            op.entityId,
-            response.data.gap_id,
-          );
+        const responseData: any = response.data as any;
+        const serverId: string | undefined =
+          responseData?.gap_id ?? responseData?.data?.gap_id;
+
+        if (serverId) {
+          await digitalisationGapRepository.markAsSynced(op.entityId, serverId);
         }
         break;
       }
