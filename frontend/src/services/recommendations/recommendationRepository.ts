@@ -69,6 +69,7 @@ export const recommendationRepository = {
               .filter(
                 (r) =>
                   r.syncStatus !== SyncStatus.PENDING &&
+                  r.syncStatus !== SyncStatus.FAILED &&
                   !backendRecommendationIds.has(r.id),
               )
               .map((r) => r.id);

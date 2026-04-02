@@ -47,7 +47,9 @@ export const digitalisationGapRepository = {
           const idsToDelete = localGaps
             .filter(
               (g) =>
-                g.syncStatus !== SyncStatus.PENDING && !backendGapIds.has(g.id),
+                g.syncStatus !== SyncStatus.PENDING &&
+                g.syncStatus !== SyncStatus.FAILED &&
+                !backendGapIds.has(g.id),
             )
             .map((g) => g.id);
 
