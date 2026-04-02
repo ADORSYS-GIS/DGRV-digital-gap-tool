@@ -15,17 +15,38 @@ export const digitalisationGapRepository = {
   getAll: async (): Promise<IDigitalisationGapWithDimension[]> => {
     try {
       if (navigator.onLine) {
-        const backendGapsResponse = await listGaps({});
-        if (backendGapsResponse.data) {
-          const responseData: any = backendGapsResponse.data as any;
-          const backendGaps: any[] =
-            responseData?.items ?? responseData?.data?.items ?? [];
-          const backendGapIds = new Set(backendGaps.map((d) => d.gap_id));
+        // Fetch ALL pages from backend to avoid losing items beyond page 1
+        const allBackendGaps: any[] = [];
+        let currentPage = 1;
+        let totalPages = 1;
+
+        do {
+          const backendGapsResponse = await listGaps({
+            page: currentPage,
+            limit: 100,
+          });
+          if (backendGapsResponse.data) {
+            const responseData: any = backendGapsResponse.data as any;
+            const paginatedData =
+              responseData?.data ?? responseData ?? {};
+            const gaps: any[] = Array.isArray(paginatedData)
+              ? paginatedData
+              : (paginatedData.items ?? responseData?.items ?? []);
+            allBackendGaps.push(...gaps);
+            totalPages = paginatedData.total_pages ?? 1;
+          }
+          currentPage++;
+        } while (currentPage <= totalPages);
+
+        if (allBackendGaps.length > 0) {
+          const backendGapIds = new Set(
+            allBackendGaps.map((d) => d.gap_id),
+          );
 
           const localGaps = await db.digitalisationGaps.toArray();
           const localGapsMap = new Map(localGaps.map((g) => [g.id, g]));
 
-          const gapsToUpsert = backendGaps
+          const gapsToUpsert = allBackendGaps
             .map((d: any) => {
               const localGap = localGapsMap.get(d.gap_id);
               if (localGap && localGap.syncStatus === SyncStatus.PENDING) {
@@ -61,6 +82,10 @@ export const digitalisationGapRepository = {
               await db.digitalisationGaps.bulkDelete(idsToDelete);
             }
           });
+
+          console.log(
+            `Digitalisation gaps fetched from backend (${allBackendGaps.length} total) and synced to IndexedDB.`,
+          );
         }
       }
     } catch (error) {

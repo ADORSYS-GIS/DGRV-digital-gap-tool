@@ -48,6 +48,8 @@ export const syncManager = {
       console.error("An error occurred during sync:", error);
     } finally {
       queryClient.invalidateQueries({ queryKey: ["digitalisationLevels"] });
+      queryClient.invalidateQueries({ queryKey: ["recommendations"] });
+      queryClient.invalidateQueries({ queryKey: ["digitalisationGaps"] });
     }
   },
 };

@@ -18,69 +18,86 @@ export const recommendationRepository = {
     // Always try to fetch from backend first if online, then update local DB
     try {
       if (navigator.onLine) {
-        const response = await listRecommendations({});
-        if (response.data) {
-          const responseData: any = response.data as any;
-          const items: any[] = Array.isArray(responseData)
-            ? (responseData as any[])
-            : (responseData.items || responseData.data?.items || []);
+        // Fetch ALL pages from backend to avoid losing items beyond page 1
+        const allItems: any[] = [];
+        let currentPage = 1;
+        let totalPages = 1;
 
-          if (items.length > 0) {
-            const localRecommendations = await db.recommendations.toArray();
-            const localRecommendationsMap = new Map(
-              localRecommendations.map((r: IRecommendation) => [r.id, r]),
-            );
-            const backendRecommendationIds = new Set(
-              items.map((item: any) => item.recommendation_id || item.id),
-            );
-
-            const recommendationsToPut: IRecommendation[] = items
-              .map((item: any) => {
-                const recommendationId =
-                  item.recommendation_id || item.id || `temp-${Date.now()}`;
-                const localRecommendation =
-                  localRecommendationsMap.get(recommendationId);
-                if (
-                  localRecommendation &&
-                  localRecommendation.syncStatus === SyncStatus.PENDING
-                ) {
-                  return null; // Keep local pending changes
-                }
-                return {
-                  id: recommendationId,
-                  recommendation_id: recommendationId,
-                  dimension_id: item.dimension_id,
-                  priority: item.priority ?? "MEDIUM",
-                  description: item.description,
-                  syncStatus: SyncStatus.SYNCED,
-                  lastError: "",
-                  created_at: item.created_at || new Date().toISOString(),
-                  updated_at: item.updated_at || new Date().toISOString(),
-                };
-              })
-              .filter((r) => r !== null)
-              .map((r) => r as IRecommendation);
-
-            if (recommendationsToPut.length > 0) {
-              await db.recommendations.bulkPut(recommendationsToPut);
-            }
-
-            const idsToDelete = localRecommendations
-              .filter(
-                (r) =>
-                  r.syncStatus !== SyncStatus.PENDING &&
-                  r.syncStatus !== SyncStatus.FAILED &&
-                  !backendRecommendationIds.has(r.id),
-              )
-              .map((r) => r.id);
-
-            if (idsToDelete.length > 0) {
-              await db.recommendations.bulkDelete(idsToDelete);
-            }
-            console.log(
-              "Recommendations fetched from backend and synced to IndexedDB.",
-            );
+        do {
+          const response = await listRecommendations({
+            page: currentPage,
+            pageSize: 100,
+          });
+          if (response.data) {
+            const responseData: any = response.data as any;
+            const paginatedData =
+              responseData?.data ?? responseData ?? {};
+            const items: any[] = Array.isArray(paginatedData)
+              ? paginatedData
+              : (paginatedData.items || []);
+            allItems.push(...items);
+            totalPages = paginatedData.total_pages ?? 1;
           }
+          currentPage++;
+        } while (currentPage <= totalPages);
+
+        if (allItems.length > 0) {
+          const localRecommendations = await db.recommendations.toArray();
+          const localRecommendationsMap = new Map(
+            localRecommendations.map((r: IRecommendation) => [r.id, r]),
+          );
+          const backendRecommendationIds = new Set(
+            allItems.map(
+              (item: any) => item.recommendation_id || item.id,
+            ),
+          );
+
+          const recommendationsToPut: IRecommendation[] = allItems
+            .map((item: any) => {
+              const recommendationId =
+                item.recommendation_id || item.id || `temp-${Date.now()}`;
+              const localRecommendation =
+                localRecommendationsMap.get(recommendationId);
+              if (
+                localRecommendation &&
+                localRecommendation.syncStatus === SyncStatus.PENDING
+              ) {
+                return null; // Keep local pending changes
+              }
+              return {
+                id: recommendationId,
+                recommendation_id: recommendationId,
+                dimension_id: item.dimension_id,
+                priority: item.priority ?? "MEDIUM",
+                description: item.description,
+                syncStatus: SyncStatus.SYNCED,
+                lastError: "",
+                created_at: item.created_at || new Date().toISOString(),
+                updated_at: item.updated_at || new Date().toISOString(),
+              };
+            })
+            .filter((r) => r !== null)
+            .map((r) => r as IRecommendation);
+
+          if (recommendationsToPut.length > 0) {
+            await db.recommendations.bulkPut(recommendationsToPut);
+          }
+
+          const idsToDelete = localRecommendations
+            .filter(
+              (r) =>
+                r.syncStatus !== SyncStatus.PENDING &&
+                r.syncStatus !== SyncStatus.FAILED &&
+                !backendRecommendationIds.has(r.id),
+            )
+            .map((r) => r.id);
+
+          if (idsToDelete.length > 0) {
+            await db.recommendations.bulkDelete(idsToDelete);
+          }
+          console.log(
+            `Recommendations fetched from backend (${allItems.length} total) and synced to IndexedDB.`,
+          );
         }
       }
     } catch (error) {
