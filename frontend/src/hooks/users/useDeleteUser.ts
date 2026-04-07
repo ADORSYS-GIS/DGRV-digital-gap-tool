@@ -37,6 +37,9 @@ export const useDeleteUser = (orgId: string) => {
       queryClient.invalidateQueries({
         queryKey: ["organizationMembers", orgId],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["organizationInvitations", orgId],
+      });
     },
   });
 };

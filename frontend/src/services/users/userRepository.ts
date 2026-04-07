@@ -32,38 +32,20 @@ class UserRepository {
     if (navigator.onLine) {
       try {
         const members = await getOrganizationMembers({ orgId });
-        const localUsers = await this.getMembersOffline(orgId);
-        const localUsersMap = new Map(localUsers.map((u) => [u.id, u]));
-        const backendUserIds = new Set(members.map((m) => m.id));
-
-        const usersToPut = members
-          .map((member) => {
-            const localUser = localUsersMap.get(member.id);
-            if (localUser && localUser.syncStatus === SyncStatus.PENDING) {
-              return null;
-            }
-            return {
-              ...member,
-              orgId,
-              syncStatus: SyncStatus.SYNCED,
-            };
-          })
-          .filter((u) => u !== null) as UserWithSync[];
-
-        const idsToDelete = localUsers
-          .filter(
-            (u) =>
-              u.syncStatus !== SyncStatus.PENDING && !backendUserIds.has(u.id),
-          )
-          .map((u) => u.id);
-
-        if (usersToPut.length > 0) {
-          await db.users.bulkPut(usersToPut);
+        // Always return fresh data from backend directly, mapped with required fields
+        const freshUsers: UserWithSync[] = members.map((member) => ({
+          ...member,
+          orgId,
+          syncStatus: SyncStatus.SYNCED,
+        }));
+        // Sync to IndexedDB in background
+        await db.users.where("orgId").equals(orgId)
+          .filter((u) => u.syncStatus !== SyncStatus.PENDING)
+          .delete();
+        if (freshUsers.length > 0) {
+          await db.users.bulkPut(freshUsers);
         }
-
-        if (idsToDelete.length > 0) {
-          await db.users.bulkDelete(idsToDelete);
-        }
+        return freshUsers;
       } catch (error) {
         console.error("Failed to fetch organization members:", error);
       }
@@ -91,8 +73,11 @@ class UserRepository {
   }
 
   async deleteUser(userId: string, orgId: string): Promise<void> {
+    if (!userId || userId === "undefined") {
+      throw new Error("Invalid user ID");
+    }
     try {
-      await deleteUser(userId);
+      await deleteUser({ userId });
       await db.users.delete(userId);
     } catch (error) {
       console.error("Failed to delete user:", error);
