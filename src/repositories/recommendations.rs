@@ -135,13 +135,26 @@ impl RecommendationsRepository {
         active_model.update(db).await.map_err(AppError::from)
     }
 
-    /// Find all recommendations with pagination
+    /// Find all recommendations with pagination (excludes auto-generated ones from action items)
     pub async fn find_all_paginated(
         db: &DbConn,
         page: u64,
         page_size: u64,
     ) -> Result<(Vec<recommendations::Model>, u64), AppError> {
+        use crate::entities::action_items;
+        use sea_orm::QuerySelect;
+
+        // Exclude recommendations that were auto-created by action items
+        // (those have a corresponding action_item linking back to them)
+        let subquery = action_items::Entity::find()
+            .select_only()
+            .column(action_items::Column::RecommendationId)
+            .into_query();
+
         let paginator = Recommendations::find()
+            .filter(
+                recommendations::Column::RecommendationId.not_in_subquery(subquery)
+            )
             .order_by_asc(recommendations::Column::CreatedAt)
             .paginate(db, page_size);
 
@@ -151,15 +164,26 @@ impl RecommendationsRepository {
         Ok((recommendations, total))
     }
 
-    /// Find recommendations by dimension with pagination
+    /// Find recommendations by dimension with pagination (excludes auto-generated ones from action items)
     pub async fn find_by_dimension_paginated(
         db: &DbConn,
         dimension_id: Uuid,
         page: u64,
         page_size: u64,
     ) -> Result<(Vec<recommendations::Model>, u64), AppError> {
+        use crate::entities::action_items;
+        use sea_orm::QuerySelect;
+
+        let subquery = action_items::Entity::find()
+            .select_only()
+            .column(action_items::Column::RecommendationId)
+            .into_query();
+
         let paginator = Recommendations::find()
             .filter(recommendations::Column::DimensionId.eq(dimension_id))
+            .filter(
+                recommendations::Column::RecommendationId.not_in_subquery(subquery)
+            )
             .order_by_asc(recommendations::Column::CreatedAt)
             .paginate(db, page_size);
 

@@ -605,11 +605,21 @@ pub async fn update_desired_state(
 
     desired_state.updated_at = chrono::Utc::now();
 
-    let active_model: crate::entities::desired_states::ActiveModel = desired_state.into();
-    let updated_desired_state =
-        DesiredStatesRepository::update(db.as_ref(), desired_state_id, active_model)
-            .await
-            .map_err(crate::api::handlers::common::handle_error)?;
+    // Build active model with all fields explicitly Set so they get persisted
+    let active_model = crate::entities::desired_states::ActiveModel {
+        desired_state_id: sea_orm::Set(desired_state.desired_state_id),
+        dimension_id: sea_orm::Set(desired_state.dimension_id),
+        title: sea_orm::Set(desired_state.title.clone()),
+        description: sea_orm::Set(desired_state.description.clone()),
+        score: sea_orm::Set(desired_state.score),
+        created_at: sea_orm::Set(desired_state.created_at),
+        updated_at: sea_orm::Set(chrono::Utc::now()),
+    };
+
+    let updated_desired_state = active_model
+        .update(db.as_ref())
+        .await
+        .map_err(crate::api::handlers::common::handle_error)?;
 
     let response = DesiredStateResponse {
         desired_state_id: updated_desired_state.desired_state_id,

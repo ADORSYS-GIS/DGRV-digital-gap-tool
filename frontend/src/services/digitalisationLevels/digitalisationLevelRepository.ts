@@ -165,20 +165,60 @@ export const digitalisationLevelRepository = {
       return;
     }
 
+    if (navigator.onLine) {
+      const { request } = await import("@/openapi-client/core/request");
+      const { OpenAPI } = await import("@/openapi-client/core/OpenAPI");
+      try {
+        if (existingLevel.levelType === "current") {
+          await request(OpenAPI, {
+            method: "DELETE",
+            url: "/dimensions/{dimension_id}/current-states/{current_state_id}",
+            path: {
+              dimension_id: existingLevel.dimensionId,
+              current_state_id: levelId,
+            },
+          });
+        } else {
+          await request(OpenAPI, {
+            method: "DELETE",
+            url: "/dimensions/{dimension_id}/desired-states/{desired_state_id}",
+            path: {
+              dimension_id: existingLevel.dimensionId,
+              desired_state_id: levelId,
+            },
+          });
+        }
+        await db.digitalisationLevels.delete(levelId);
+        // Clean up any stale sync queue entries
+        await db.sync_queue
+          .where({ entityId: levelId })
+          .delete();
+        return;
+      } catch (error) {
+        console.error(`Failed to delete level ${levelId} from backend:`, error);
+        throw error;
+      }
+    }
+
+    // Offline: queue for later sync
     const entityType =
-      existingLevel.levelType === "current" ? "CurrentState" : "DesiredState";
+      existingLevel.syncStatus === SyncStatus.PENDING
+        ? null
+        : existingLevel.levelType === "current" ? "CurrentState" : "DesiredState";
 
     if (existingLevel.syncStatus === SyncStatus.PENDING) {
       await db.digitalisationLevels.delete(levelId);
       await db.sync_queue
-        .where({ entityType: entityType, entityId: levelId })
+        .where({ entityId: levelId })
         .delete();
     } else {
       await db.digitalisationLevels.delete(levelId);
-      syncService.addToSyncQueue(entityType, levelId, "DELETE", {
-        id: levelId,
-        dimensionId: existingLevel.dimensionId,
-      });
+      if (entityType) {
+        syncService.addToSyncQueue(entityType, levelId, "DELETE", {
+          id: levelId,
+          dimensionId: existingLevel.dimensionId,
+        });
+      }
     }
   },
 
