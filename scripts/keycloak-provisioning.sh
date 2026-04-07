@@ -150,14 +150,21 @@ echo "[a.sh] Setting realm frontendUrl to ${KEYCLOAK_PUBLIC_URL}..."
   --server "${KEYCLOAK_SERVER}"
 echo "[a.sh] Realm frontendUrl set successfully"
 
-# --- Set realm frontend URL so action token links use the public HTTPS URL ---
-# This runs every time (not guarded) to ensure it's always correct
-KEYCLOAK_PUBLIC_URL="${KC_HOSTNAME_URL:-https://158.220.84.249/keycloak}"
-echo "[a.sh] Setting realm frontendUrl to ${KEYCLOAK_PUBLIC_URL}..."
-./kcadm.sh update realms/"${REALM}" \
-  -s "attributes.frontendUrl=${KEYCLOAK_PUBLIC_URL}" \
-  --server "${KEYCLOAK_SERVER}"
-echo "[a.sh] Realm frontendUrl set successfully"
+# --- Add organization scope to dgat-client default scopes ---
+echo "[a.sh] Adding organization scope to dgat-client default scopes..."
+DGAT_CLIENT_ID=$(./kcadm.sh get clients -r "${REALM}" -q clientId=dgat-client --fields id 2>/dev/null | grep -o '"id" : "[^"]*"' | head -1 | sed 's/"id" : "\(.*\)"/\1/')
+if [ -n "$DGAT_CLIENT_ID" ]; then
+  ./kcadm.sh update clients/"${DGAT_CLIENT_ID}" -r "${REALM}" \
+    -s 'defaultClientScopes=["web-origins","acr","profile","roles","basic","email","organization"]' \
+    --server "${KEYCLOAK_SERVER}"
+  echo "[a.sh] Organization scope added to dgat-client ID: ${DGAT_CLIENT_ID}"
+else
+  echo "[a.sh] Warning: Could not find dgat-client ID, trying hardcoded ID..."
+  ./kcadm.sh update clients/644ba92b-94a9-4341-b1e7-69dad77dc594 -r "${REALM}" \
+    -s 'defaultClientScopes=["web-origins","acr","profile","roles","basic","email","organization"]' \
+    --server "${KEYCLOAK_SERVER}"
+  echo "[a.sh] Organization scope applied via hardcoded client ID"
+fi
 
 # Mark provisioning as done to avoid re-running on subsequent starts
 touch "${RUN_ONCE_MARKER}"

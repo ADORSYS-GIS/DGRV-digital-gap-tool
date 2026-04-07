@@ -67,7 +67,7 @@ services:
       retries: 5
 
   #
-  # ────────────────────────────── POSTGRES ──────────────────────────────
+  # ────────────────────────────── POSTGRES (App) ──────────────────────────────
   #
   db:
     image: postgres:16-alpine
@@ -77,7 +77,7 @@ services:
       POSTGRES_USER:     "${POSTGRES_USER:-postgres}"
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-postgres}"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -88,6 +88,25 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/data
 
+  #
+  # ────────────────────────────── POSTGRES (Keycloak) ──────────────────────────────
+  #
+  keycloak-db:
+    image: postgres:16-alpine
+    container_name: dgrv-keycloak-db
+    environment:
+      POSTGRES_DB:       "keycloak"
+      POSTGRES_USER:     "${POSTGRES_USER:-postgres}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-postgres}"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d keycloak"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+    networks: [dgrv-net]
+    volumes:
+      - keycloak-db-data:/var/lib/postgresql/data
 
   #
   # ────────────────────────────── KEYCLOAK ──────────────────────────────
@@ -97,9 +116,9 @@ services:
     container_name: dgrv-keycloak
     environment:
       KC_DB: "postgres"
-      KC_DB_URL_HOST: db
+      KC_DB_URL_HOST: keycloak-db
       KC_DB_URL_PORT: 5432
-      KC_DB_URL_DATABASE: "${POSTGRES_DB:-dgat}"
+      KC_DB_URL_DATABASE: "keycloak"
       KC_DB_USERNAME: "${POSTGRES_USER:-postgres}"
       KC_DB_PASSWORD: "${POSTGRES_PASSWORD:-postgres}"
       KEYCLOAK_ADMIN: "${KEYCLOAK_ADMIN:-admin}"
@@ -141,7 +160,7 @@ services:
       - ./keycloak-startup.sh:/keycloak-startup.sh:ro
       - ./scripts:/scripts:ro
     depends_on:
-      db:
+      keycloak-db:
         condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8080/ || exit 0"]
@@ -166,7 +185,6 @@ services:
         VITE_KEYCLOAK_CLIENT_ID: "${VITE_KEYCLOAK_CLIENT_ID:-dgat-client}"
         VITE_API_BASE_URL: "${VITE_API_BASE_URL:-https://158.220.84.249/keycloak/backend}"
         VITE_APP_PUBLIC_URL: "${VITE_APP_PUBLIC_URL:-https://158.220.84.249}"
-
     image: ${FRONTEND_IMAGE:-dgrv-digital-gap-tool-frontend:latest}
     container_name: dgrv-digital-gap-tool-frontend
     depends_on:
@@ -188,6 +206,7 @@ services:
 # ────────────────────────────── VOLUMES / NETS ───────────────────────────
 volumes:
   postgres-data:
+  keycloak-db-data:
   minio-data:
 
 networks:

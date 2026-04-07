@@ -23,14 +23,24 @@ export const useOrganizationId = (): string | null => {
       }
 
       // Fallback: if org_admin but no org claim in token yet,
-      // fetch organizations from backend and use the first one
+      // use the user's sub (Keycloak user ID) to find their organization
       const roles = user?.roles || [];
-      if (roles.includes("org_admin")) {
+      if (roles.includes("org_admin") && user?.sub) {
         getOrganizations()
           .then((orgs) => {
-            if (orgs && orgs.length > 0 && orgs[0]?.id) {
+            if (!orgs || orgs.length === 0) return;
+            // If only one org exists, use it
+            if (orgs.length === 1 && orgs[0]?.id) {
               setOrganizationId(orgs[0].id);
+              return;
             }
+            // If multiple orgs, we can't safely guess — token claim is required
+            // Log a warning so it's visible during debugging
+            console.warn(
+              "Multiple organizations found but no org claim in token. " +
+              "Ensure the 'organization' scope is in dgat-client default scopes " +
+              "and the user has accepted their invitation."
+            );
           })
           .catch((err) => {
             console.error("Failed to fetch organization for org_admin:", err);

@@ -499,14 +499,14 @@
           "containerId": "65c936b8-a251-4a6d-a59c-77b5f9c9eab2",
           "attributes": {}
         }
-      ],
-      "dgat-admin-client": []
+      ]
     }
   },
   "groups": [
     {
       "id": "3b8d4721-7ebb-4dc1-a4a5-ec776e222357",
       "name": "316930e0-c5db-4b76-ae16-e432bcf6a060-wwwwwww",
+      "description": "wwwwwwwwwwwwwwww",
       "path": "/316930e0-c5db-4b76-ae16-e432bcf6a060-wwwwwww",
       "subGroups": [],
       "attributes": {},
@@ -516,6 +516,7 @@
     {
       "id": "14770277-8b2f-41f7-a198-c0a67b4b50f8",
       "name": "8ab0b5a9-ef7b-4287-b254-7b8672b5e980-frfrffrff",
+      "description": "frfrfrfrfrfrfrfr",
       "path": "/8ab0b5a9-ef7b-4287-b254-7b8672b5e980-frfrffrff",
       "subGroups": [],
       "attributes": {},
@@ -575,24 +576,6 @@
   "webAuthnPolicyPasswordlessAvoidSameAuthenticatorRegister": false,
   "webAuthnPolicyPasswordlessAcceptableAaguids": [],
   "webAuthnPolicyPasswordlessExtraOrigins": [],
-  "users": [
-    {
-      "id": "09964fe0-0763-433a-aca0-b5bd871350f8",
-      "username": "service-account-dgat-admin-client",
-      "emailVerified": false,
-      "enabled": true,
-      "createdTimestamp": 1775573875291,
-      "totp": false,
-      "serviceAccountClientId": "dgat-admin-client",
-      "disableableCredentialTypes": [],
-      "requiredActions": [],
-      "realmRoles": [
-        "default-roles-sustainability-realm"
-      ],
-      "notBefore": 0,
-      "groups": []
-    }
-  ],
   "scopeMappings": [
     {
       "clientScope": "offline_access",
@@ -671,8 +654,8 @@
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
       "redirectUris": [
-        "/realms/digital-gap/portal/*",
-        "/realms/digital-gap/account/*"
+        "/realms/digital-gap/account/*",
+        "/realms/digital-gap/portal/*"
       ],
       "webOrigins": [],
       "notBefore": 0,
@@ -888,52 +871,6 @@
       ]
     },
     {
-      "id": "e2e2e2e2-e2e2-4e2e-b2e2-e2e2e2e2e2e2",
-      "clientId": "dgat-admin-client",
-      "name": "DGAT Backend Admin Client",
-      "description": "Private client for backend administrative tasks",
-      "surrogateAuthRequired": false,
-      "enabled": true,
-      "alwaysDisplayInConsole": false,
-      "clientAuthenticatorType": "client-secret",
-      "secret": "**********",
-      "redirectUris": [],
-      "webOrigins": [],
-      "notBefore": 0,
-      "bearerOnly": false,
-      "consentRequired": false,
-      "standardFlowEnabled": false,
-      "implicitFlowEnabled": false,
-      "directAccessGrantsEnabled": true,
-      "serviceAccountsEnabled": true,
-      "publicClient": false,
-      "frontchannelLogout": false,
-      "protocol": "openid-connect",
-      "attributes": {
-        "realm_client": "false",
-        "post.logout.redirect.uris": "+"
-      },
-      "authenticationFlowBindingOverrides": {},
-      "fullScopeAllowed": true,
-      "nodeReRegistrationTimeout": -1,
-      "defaultClientScopes": [
-        "service_account",
-        "web-origins",
-        "acr",
-        "profile",
-        "roles",
-        "basic",
-        "email"
-      ],
-      "optionalClientScopes": [
-        "address",
-        "phone",
-        "organization",
-        "offline_access",
-        "microprofile-jwt"
-      ]
-    },
-    {
       "id": "644ba92b-94a9-4341-b1e7-69dad77dc594",
       "clientId": "dgat-client",
       "name": "",
@@ -979,16 +916,54 @@
       "defaultClientScopes": [
         "web-origins",
         "acr",
-        "organization",
         "profile",
         "roles",
         "basic",
         "email",
-        "cooperation"
+        "organization"
       ],
       "optionalClientScopes": [
         "address",
         "phone",
+        "offline_access",
+        "microprofile-jwt"
+      ]
+    },
+    {
+      "id": "e2e2e2e2-e2e2-4e2e-b2e2-e2e2e2e2e2e2",
+      "clientId": "dgat-admin-client",
+      "name": "DGAT Backend Admin Client",
+      "description": "Private client for backend administrative tasks",
+      "surrogateAuthRequired": false,
+      "enabled": true,
+      "alwaysDisplayInConsole": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "dev-secret",
+      "redirectUris": [],
+      "webOrigins": [],
+      "notBefore": 0,
+      "bearerOnly": false,
+      "consentRequired": false,
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": true,
+      "publicClient": false,
+      "frontchannelLogout": false,
+      "protocol": "openid-connect",
+      "fullScopeAllowed": true,
+      "defaultClientScopes": [
+        "web-origins",
+        "acr",
+        "profile",
+        "roles",
+        "basic",
+        "email"
+      ],
+      "optionalClientScopes": [
+        "address",
+        "phone",
+        "organization",
         "offline_access",
         "microprofile-jwt"
       ]
@@ -1234,13 +1209,10 @@
             "introspection.token.claim": "true",
             "multivalued": "true",
             "userinfo.token.claim": "true",
-            "addOrganizationAttributes": "true",
             "id.token.claim": "true",
-            "lightweight.claim": "false",
             "access.token.claim": "true",
             "claim.name": "organization",
-            "jsonType.label": "JSON",
-            "addOrganizationId": "true"
+            "jsonType.label": "String"
           }
         }
       ]
@@ -2127,14 +2099,14 @@
         "subComponents": {},
         "config": {
           "allowed-protocol-mapper-types": [
-            "oidc-sha256-pairwise-sub-mapper",
-            "oidc-address-mapper",
-            "saml-user-attribute-mapper",
-            "oidc-usermodel-attribute-mapper",
-            "oidc-usermodel-property-mapper",
             "saml-user-property-mapper",
             "oidc-full-name-mapper",
-            "saml-role-list-mapper"
+            "oidc-sha256-pairwise-sub-mapper",
+            "oidc-address-mapper",
+            "oidc-usermodel-property-mapper",
+            "saml-role-list-mapper",
+            "saml-user-attribute-mapper",
+            "oidc-usermodel-attribute-mapper"
           ]
         }
       },
@@ -2158,14 +2130,14 @@
         "subComponents": {},
         "config": {
           "allowed-protocol-mapper-types": [
-            "oidc-full-name-mapper",
-            "saml-user-attribute-mapper",
-            "saml-user-property-mapper",
-            "saml-role-list-mapper",
+            "oidc-usermodel-attribute-mapper",
             "oidc-sha256-pairwise-sub-mapper",
-            "oidc-address-mapper",
+            "saml-user-property-mapper",
             "oidc-usermodel-property-mapper",
-            "oidc-usermodel-attribute-mapper"
+            "oidc-address-mapper",
+            "saml-user-attribute-mapper",
+            "oidc-full-name-mapper",
+            "saml-role-list-mapper"
           ]
         }
       }
