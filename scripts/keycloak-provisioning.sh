@@ -142,6 +142,23 @@ echo "[a.sh] Configuring realm email settings..."
 
 echo "[a.sh] Email configuration completed successfully"
 
+# --- Set realm frontend URL so action token links use the public HTTPS URL ---
+KEYCLOAK_PUBLIC_URL="${KC_HOSTNAME_URL:-https://158.220.84.249/keycloak}"
+echo "[a.sh] Setting realm frontendUrl to ${KEYCLOAK_PUBLIC_URL}..."
+./kcadm.sh update realms/"${REALM}" \
+  -s "attributes.frontendUrl=${KEYCLOAK_PUBLIC_URL}" \
+  --server "${KEYCLOAK_SERVER}"
+echo "[a.sh] Realm frontendUrl set successfully"
+
+# --- Set realm frontend URL so action token links use the public HTTPS URL ---
+# This runs every time (not guarded) to ensure it's always correct
+KEYCLOAK_PUBLIC_URL="${KC_HOSTNAME_URL:-https://158.220.84.249/keycloak}"
+echo "[a.sh] Setting realm frontendUrl to ${KEYCLOAK_PUBLIC_URL}..."
+./kcadm.sh update realms/"${REALM}" \
+  -s "attributes.frontendUrl=${KEYCLOAK_PUBLIC_URL}" \
+  --server "${KEYCLOAK_SERVER}"
+echo "[a.sh] Realm frontendUrl set successfully"
+
 # Mark provisioning as done to avoid re-running on subsequent starts
 touch "${RUN_ONCE_MARKER}"
 echo "[a.sh] Provisioning completed; marker created at ${RUN_ONCE_MARKER}"

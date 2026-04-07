@@ -83,7 +83,7 @@ services:
       retries: 10
       start_period: 5s
     ports:
-      - "5430:5432"
+      - "127.0.0.1:5430:5432"
     networks: [dgrv-net]
     volumes:
       - postgres-data:/var/lib/postgresql/data
@@ -108,17 +108,12 @@ services:
       KEYCLOAK_FRONTEND_URL: "${VITE_KEYCLOAK_URL:-https://158.220.84.249/keycloak}"
       KEYCLOAK_SERVER: "${KEYCLOAK_SERVER:-https://158.220.84.249/keycloak}"
       KC_PROXY_HEADERS: "xforwarded"
-      KC_PROXY: "edge"
       KC_FEATURES: "preview,organization"
-      KC_HOSTNAME: "${KC_HOSTNAME:-158.220.84.249}"
-      KC_HOSTNAME_URL: "${KC_HOSTNAME_URL:-https://158.220.84.249/keycloak}"
-      KC_HOSTNAME_ADMIN_URL: "${KC_HOSTNAME_ADMIN_URL:-https://158.220.84.249/keycloak}"
-      KC_HOSTNAME_PATH: "/keycloak"
-      KC_HOSTNAME_STRICT: "true"
-      KC_HOSTNAME_STRICT_HTTPS: "true"
+      KC_HOSTNAME: "https://158.220.84.249/keycloak"
+      KC_HOSTNAME_ADMIN: "https://158.220.84.249/keycloak"
+      KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "false"
       KC_HTTP_ENABLED: "true"
-      KC_HTTPS_PORT: 8443
-      KC_URL: "${KC_URL:-localhost}"
+      KC_HOSTNAME_STRICT: "false"
       SSL_CERT_PATH: "/etc/x509/https/nginx.crt"
       SSL_KEY_PATH: "/etc/x509/https/nginx.key"
       KC_SSL_TRUSTSTORE_FILE: "/opt/keycloak/conf/nginx-truststore.jks"
