@@ -100,11 +100,11 @@ if ! ./kcadm.sh add-roles -r "${REALM}" \
   echo "[a.sh] Failed by username, trying to assign by Service Account User ID..."
   
   # Get the internal ID of the client first
-  CLIENT_INTERNAL_ID=$(./kcadm.sh get clients -r "${REALM}" -q clientId=dgat-admin-client --fields id --format csv --no-header)
+  CLIENT_INTERNAL_ID=$(./kcadm.sh get clients -r "${REALM}" -q clientId=dgat-admin-client --fields id 2>/dev/null | grep -o '"id" : "[^"]*"' | head -1 | sed 's/"id" : "\(.*\)"/\1/')
   
   if [ -n "$CLIENT_INTERNAL_ID" ]; then
     # Get the service account user ID for that client
-    SA_ID=$(./kcadm.sh get clients/$CLIENT_INTERNAL_ID/service-account-user -r "${REALM}" --fields id --format csv --no-header)
+    SA_ID=$(./kcadm.sh get clients/$CLIENT_INTERNAL_ID/service-account-user -r "${REALM}" --fields id 2>/dev/null | grep -o '"id" : "[^"]*"' | head -1 | sed 's/"id" : "\(.*\)"/\1/')
     
     if [ -n "$SA_ID" ]; then
       ./kcadm.sh add-roles -r "${REALM}" --uid "$SA_ID" --cclientid realm-management --rolename realm-admin --server "${KEYCLOAK_SERVER}"
@@ -149,6 +149,13 @@ echo "[a.sh] Setting realm frontendUrl to ${KEYCLOAK_PUBLIC_URL}..."
   -s "attributes.frontendUrl=${KEYCLOAK_PUBLIC_URL}" \
   --server "${KEYCLOAK_SERVER}"
 echo "[a.sh] Realm frontendUrl set successfully"
+
+# --- Reset dgat-admin-client secret (realm export masks it with ***) ---
+echo "[a.sh] Resetting dgat-admin-client secret..."
+./kcadm.sh update clients/e2e2e2e2-e2e2-4e2e-b2e2-e2e2e2e2e2e2 -r "${REALM}" \
+  -s secret="${DGAT_KEYCLOAK_CLIENT_SECRET:-dev-secret}" \
+  --server "${KEYCLOAK_SERVER}"
+echo "[a.sh] dgat-admin-client secret reset done."
 
 # --- Add organization scope to dgat-client default scopes ---
 echo "[a.sh] Adding organization scope to dgat-client default scopes..."

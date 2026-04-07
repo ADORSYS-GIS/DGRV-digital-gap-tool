@@ -151,6 +151,7 @@ services:
 
       KC_HTTP_RELATIVE_PATH: "/keycloak"
       KEYCLOAK_START_CMD: "/opt/keycloak/bin/kc.sh start --import-realm --spi-import-ignore-unknown=true --proxy-headers xforwarded --http-enabled true"
+      DGAT_KEYCLOAK_CLIENT_SECRET: "${DGAT_KEYCLOAK_CLIENT_SECRET:-dev-secret}"
     entrypoint: ["/bin/bash", "/keycloak-startup.sh"]
     volumes:
       - ./infrastructure/keycloak:/opt/keycloak/data/import:rw

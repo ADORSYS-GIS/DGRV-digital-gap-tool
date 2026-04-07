@@ -40,16 +40,28 @@ log "App database backup done."
 
 # ── 2. Keycloak Database ────────────────────────────────────
 log "Backing up Keycloak database..."
-docker exec dgrv-keycloak-db pg_dump \
-  -U postgres \
-  -d keycloak \
-  --no-password \
-  -F c \
-  -f /tmp/keycloak_backup.dump
-
-docker cp dgrv-keycloak-db:/tmp/keycloak_backup.dump "${BACKUP_PATH}/keycloak.dump"
-docker exec dgrv-keycloak-db rm -f /tmp/keycloak_backup.dump
-log "Keycloak database backup done."
+if docker ps --format '{{.Names}}' | grep -q "dgrv-keycloak-db"; then
+  docker exec dgrv-keycloak-db pg_dump \
+    -U postgres \
+    -d keycloak \
+    --no-password \
+    -F c \
+    -f /tmp/keycloak_backup.dump
+  docker cp dgrv-keycloak-db:/tmp/keycloak_backup.dump "${BACKUP_PATH}/keycloak.dump"
+  docker exec dgrv-keycloak-db rm -f /tmp/keycloak_backup.dump
+  log "Keycloak database backup done."
+else
+  log "WARNING: dgrv-keycloak-db not found, trying legacy dgrv-db for keycloak schema..."
+  docker exec dgrv-db pg_dump \
+    -U postgres \
+    -d dgat \
+    --no-password \
+    -F c \
+    -f /tmp/keycloak_backup.dump 2>/dev/null || true
+  docker cp dgrv-db:/tmp/keycloak_backup.dump "${BACKUP_PATH}/keycloak.dump" 2>/dev/null || true
+  docker exec dgrv-db rm -f /tmp/keycloak_backup.dump 2>/dev/null || true
+  log "Keycloak database backup done (legacy mode)."
+fi
 
 # ── 3. MinIO data ───────────────────────────────────────────
 log "Backing up MinIO data..."

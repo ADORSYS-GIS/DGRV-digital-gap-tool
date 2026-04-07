@@ -896,7 +896,7 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "secret": "**********",
+      "secret": "dev-secret",
       "redirectUris": [],
       "webOrigins": [],
       "notBefore": 0,
@@ -983,8 +983,7 @@
         "profile",
         "roles",
         "basic",
-        "email",
-        "cooperation"
+        "email"
       ],
       "optionalClientScopes": [
         "address",
