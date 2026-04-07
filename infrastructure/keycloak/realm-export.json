@@ -601,13 +601,13 @@
       "clientId": "account",
       "name": "${client_account}",
       "rootUrl": "${authBaseUrl}",
-      "baseUrl": "/realms/sustainability-realm/account/",
+      "baseUrl": "/realms/digital-gap/account/",
       "surrogateAuthRequired": false,
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
       "redirectUris": [
-        "/realms/sustainability-realm/account/*"
+        "/realms/digital-gap/account/*"
       ],
       "webOrigins": [],
       "notBefore": 0,
@@ -648,14 +648,14 @@
       "clientId": "account-console",
       "name": "${client_account-console}",
       "rootUrl": "${authBaseUrl}",
-      "baseUrl": "/realms/sustainability-realm/account/",
+      "baseUrl": "/realms/digital-gap/account/",
       "surrogateAuthRequired": false,
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
       "redirectUris": [
-        "/realms/sustainability-realm/account/*",
-        "/realms/sustainability-realm/portal/*"
+        "/realms/digital-gap/account/*",
+        "/realms/digital-gap/portal/*"
       ],
       "webOrigins": [],
       "notBefore": 0,
@@ -752,13 +752,13 @@
       "name": "Admin portal",
       "description": "Portal for self-administration of profile and organizations.",
       "rootUrl": "${authBaseUrl}",
-      "baseUrl": "/realms/sustainability-realm/portal/",
+      "baseUrl": "/realms/digital-gap/portal/",
       "surrogateAuthRequired": false,
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
       "redirectUris": [
-        "/realms/sustainability-realm/portal/*"
+        "/realms/digital-gap/portal/*"
       ],
       "webOrigins": [
         "/*"
@@ -974,13 +974,13 @@
       "name": "IdP Config Wizard",
       "description": "Wizards for configuring various vendor IdPs.",
       "rootUrl": "${authBaseUrl}",
-      "baseUrl": "/realms/sustainability-realm/wizard/",
+      "baseUrl": "/realms/digital-gap/wizard/",
       "surrogateAuthRequired": false,
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
       "redirectUris": [
-        "/realms/sustainability-realm/wizard/*"
+        "/realms/digital-gap/wizard/*"
       ],
       "webOrigins": [
         "/*"
@@ -1097,13 +1097,13 @@
       "clientId": "security-admin-console",
       "name": "${client_security-admin-console}",
       "rootUrl": "${authAdminUrl}",
-      "baseUrl": "/admin/sustainability-realm/console/",
+      "baseUrl": "/admin/digital-gap/console/",
       "surrogateAuthRequired": false,
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
       "redirectUris": [
-        "/admin/sustainability-realm/console/*"
+        "/admin/digital-gap/console/*"
       ],
       "webOrigins": [
         "+"

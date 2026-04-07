@@ -301,7 +301,7 @@ export const Navbar = () => {
             <div className="mt-auto pt-6 border-t border-blue-100">
               <div className="text-center">
                 <p className="text-xs text-gray-500 mb-2">
-                  DGRV Sustainability Platform
+                  DGRV Digital Gap Analysis Tool
                 </p>
                 <div className="flex justify-center space-x-2">
                   <div className="w-2 h-2 bg-blue-400 rounded-full"></div>

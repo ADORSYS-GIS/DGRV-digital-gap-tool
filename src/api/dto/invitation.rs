@@ -16,3 +16,13 @@ pub struct UserInvitationResponse {
     pub status: String,
     pub message: String,
 }
+
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
+pub struct PendingInvitation {
+    pub id: String,
+    pub email: String,
+    #[serde(rename = "firstName")]
+    pub first_name: Option<String>,
+    #[serde(rename = "lastName")]
+    pub last_name: Option<String>,
+}

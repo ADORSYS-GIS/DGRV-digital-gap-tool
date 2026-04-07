@@ -3,14 +3,41 @@ import { useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
 import { useOrganizationMembers } from "@/hooks/users/useOrganizationMembers";
+import { useQuery } from "@tanstack/react-query";
+import { getOrganizationInvitations } from "@/openapi-client/services.gen";
 import { InviteUserForm } from "@/components/shared/users/InviteUserForm";
 import { UserList } from "@/components/shared/users/UserList";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
+import { KeycloakUser } from "@/types/user";
+import { SyncStatus } from "@/types/sync/index";
 
 export default function OrganizationUsers() {
   const { orgId } = useParams<{ orgId: string }>();
   const [isInviteDialogOpen, setInviteDialogOpen] = useState(false);
   const { data: members, isLoading, error } = useOrganizationMembers(orgId!);
+
+  const { data: invitations } = useQuery({
+    queryKey: ["organizationInvitations", orgId],
+    queryFn: () => getOrganizationInvitations({ orgId: orgId! }),
+    enabled: !!orgId,
+  });
+
+  const memberIds = new Set((members || []).map((m) => m.id));
+  const pendingUsers: KeycloakUser[] = (invitations || [])
+    .filter((inv) => !memberIds.has(inv.id))
+    .map((inv) => ({
+      id: inv.id,
+      email: inv.email,
+      firstName: inv.firstName ?? "",
+      lastName: inv.lastName ?? "",
+      username: inv.email,
+      enabled: false,
+      emailVerified: false,
+      orgId: orgId!,
+      syncStatus: SyncStatus.PENDING,
+    }));
+
+  const allUsers = [...(members || []), ...pendingUsers];
 
   return (
     <div className="space-y-8 max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -36,7 +63,7 @@ export default function OrganizationUsers() {
       {error && (
         <p className="text-red-500">An error occurred: {error.message}</p>
       )}
-      {members && <UserList users={members} />}
+      {!isLoading && <UserList users={allUsers} />}
 
       <InviteUserForm
         isOpen={isInviteDialogOpen}

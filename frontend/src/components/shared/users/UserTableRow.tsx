@@ -27,10 +27,16 @@ export const UserTableRow: React.FC<UserTableRowProps> = ({ user }) => {
   const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const deleteUserMutation = useDeleteUser(orgId!);
 
-  const getStatusVariant = (status: boolean | undefined) => {
-    if (status === undefined) return "secondary";
-    return status ? "success" : "destructive";
+  const getStatusInfo = () => {
+    if (user.syncStatus === "pending" || user.emailVerified === false) {
+      return { label: "Pending", variant: "secondary" as const };
+    }
+    return user.enabled
+      ? { label: "Active", variant: "success" as const }
+      : { label: "Inactive", variant: "destructive" as const };
   };
+
+  const status = getStatusInfo();
 
   const handleDelete = () => {
     if (user.id) {
@@ -49,8 +55,8 @@ export const UserTableRow: React.FC<UserTableRowProps> = ({ user }) => {
       <TableCell>{user.lastName}</TableCell>
       <TableCell>Org Admin</TableCell>
       <TableCell>
-        <Badge variant={getStatusVariant(user.enabled)}>
-          {user.enabled ? "Active" : "Inactive"}
+        <Badge variant={status.variant}>
+          {status.label}
         </Badge>
       </TableCell>
       <TableCell>

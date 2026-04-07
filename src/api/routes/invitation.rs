@@ -1,14 +1,15 @@
-use axum::{routing::post, Router};
+use axum::{routing::{post, get}, Router};
 
 use crate::{
-    api::handlers::invitation::invite_user_to_organization, auth::middleware::auth_middleware as auth, AppState,
+    api::handlers::invitation::{invite_user_to_organization, get_organization_invitations},
+    auth::middleware::auth_middleware as auth, AppState,
 };
 
 pub fn create_router(app_state: AppState) -> Router<AppState> {
     Router::new()
         .route(
             "/organizations/:org_id/invitations",
-            post(invite_user_to_organization),
+            post(invite_user_to_organization).get(get_organization_invitations),
         )
         .route_layer(axum::middleware::from_fn_with_state(
             app_state.clone(),

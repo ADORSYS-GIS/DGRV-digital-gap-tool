@@ -5,7 +5,7 @@ use axum::{
     Json,
 };
 
-use crate::api::dto::invitation::{UserInvitationRequest, UserInvitationResponse};
+use crate::api::dto::invitation::{UserInvitationRequest, UserInvitationResponse, PendingInvitation};
 use crate::auth::claims::Claims;
 use crate::error::AppError;
 use crate::models::keycloak::CreateUserRequest;
@@ -14,6 +14,28 @@ use crate::AppState;
 // Helper function to extract token from request extensions
 fn get_token_from_extensions(token: &str) -> Result<String, AppError> {
     Ok(token.to_string())
+}
+
+/// Get pending invitations for an organization
+#[utoipa::path(
+    get,
+    path = "/admin/organizations/{org_id}/invitations",
+    tag = "Organization",
+    params(("org_id" = String, Path, description = "Organization ID")),
+    responses((status = 200, description = "OK", body = Vec<PendingInvitation>))
+)]
+pub async fn get_organization_invitations(
+    Extension(_claims): Extension<Claims>,
+    State(app_state): State<AppState>,
+    Path(org_id): Path<String>,
+) -> Result<impl IntoResponse, AppError> {
+    let admin_token = app_state.keycloak_service.get_admin_token().await?;
+    let invitations = app_state
+        .keycloak_service
+        .get_organization_invitations(&admin_token, &org_id)
+        .await
+        .unwrap_or_default();
+    Ok((StatusCode::OK, Json(invitations)))
 }
 
 /// Invite a user to an organization

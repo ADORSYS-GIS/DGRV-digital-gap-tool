@@ -5,7 +5,7 @@ import Keycloak from "keycloak-js";
  */
 export const keycloakConfig = {
   url: import.meta.env.VITE_KEYCLOAK_URL || "http://localhost:8080/keycloak",
-  realm: import.meta.env.VITE_KEYCLOAK_REALM || "sustainability-realm",
+  realm: import.meta.env.VITE_KEYCLOAK_REALM || "digital-gap",
   clientId: import.meta.env.VITE_KEYCLOAK_CLIENT_ID || "dgat-client",
 };
 

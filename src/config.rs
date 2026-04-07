@@ -51,7 +51,7 @@ struct ConfigEnv {
     #[envconfig(from = "DGAT_KEYCLOAK_PUBLIC_URL", default = "http://localhost:8080")]
     keycloak_public_url: String,
 
-    #[envconfig(from = "DGAT_KEYCLOAK_REALM", default = "sustainability-realm")]
+    #[envconfig(from = "DGAT_KEYCLOAK_REALM", default = "digital-gap")]
     keycloak_realm: String,
 
     #[envconfig(from = "DGAT_KEYCLOAK_CLIENT_ID", default = "dgat-client")]

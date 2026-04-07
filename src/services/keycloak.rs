@@ -538,6 +538,46 @@ impl KeycloakService {
         }
     }
 
+    /// Get pending invitations for an organization
+    /// Since Keycloak doesn't have a direct "list invitations" API, we find users
+    /// who are in the realm but NOT yet org members (emailVerified=false, requiredActions contains VERIFY_EMAIL)
+    pub async fn get_organization_invitations(
+        &self,
+        token: &str,
+        org_id: &str,
+    ) -> Result<Vec<crate::api::dto::invitation::PendingInvitation>> {
+        // Get current org members to exclude them
+        let members = self.get_organization_members(token, org_id).await.unwrap_or_default();
+        let member_ids: std::collections::HashSet<String> = members.iter().map(|m| m.id.clone()).collect();
+
+        // Get all realm users with emailVerified=false (pending verification = pending invitation)
+        let url = format!(
+            "{}/admin/realms/{}/users?emailVerified=false&max=100",
+            self.config.keycloak.url, self.config.keycloak.realm
+        );
+
+        let response = self.client.get(&url).bearer_auth(token).send().await?;
+
+        if !response.status().is_success() {
+            return Ok(vec![]);
+        }
+
+        let users: Vec<KeycloakUser> = response.json().await.unwrap_or_default();
+
+        let pending: Vec<crate::api::dto::invitation::PendingInvitation> = users
+            .into_iter()
+            .filter(|u| !member_ids.contains(&u.id))
+            .map(|u| crate::api::dto::invitation::PendingInvitation {
+                id: u.id,
+                email: u.email,
+                first_name: u.first_name,
+                last_name: u.last_name,
+            })
+            .collect();
+
+        Ok(pending)
+    }
+
     /// Create a new user with email verification required
     pub async fn create_user_with_email_verification(
         &self,
