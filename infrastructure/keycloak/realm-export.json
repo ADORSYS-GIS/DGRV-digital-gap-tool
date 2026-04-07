@@ -919,12 +919,12 @@
         "profile",
         "roles",
         "basic",
-        "email"
+        "email",
+        "organization"
       ],
       "optionalClientScopes": [
         "address",
         "phone",
-        "organization",
         "offline_access",
         "microprofile-jwt"
       ]
