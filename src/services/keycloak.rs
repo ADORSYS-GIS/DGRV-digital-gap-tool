@@ -714,20 +714,22 @@ impl KeycloakService {
         user_id: &str,
         redirect_uri: Option<&str>,
     ) -> Result<()> {
-        // Use the provided redirect_uri or fall back to the public Keycloak URL
-        let public_redirect = redirect_uri
-            .map(|s| s.to_string())
-            .unwrap_or_else(|| self.config.keycloak.public_url.clone());
-
         // Method 1: Try the send-verify-email endpoint
-        let url = format!(
-            "{}/admin/realms/{}/users/{}/send-verify-email?redirect_uri={}&client_id={}",
-            self.config.keycloak.url,
-            self.config.keycloak.realm,
-            user_id,
-            public_redirect,
-            self.config.keycloak.client_id
-        );
+        let url = if let Some(uri) = redirect_uri {
+            format!(
+                "{}/admin/realms/{}/users/{}/send-verify-email?redirect_uri={}&client_id={}",
+                self.config.keycloak.url,
+                self.config.keycloak.realm,
+                user_id,
+                uri,
+                self.config.keycloak.client_id
+            )
+        } else {
+            format!(
+                "{}/admin/realms/{}/users/{}/send-verify-email",
+                self.config.keycloak.url, self.config.keycloak.realm, user_id
+            )
+        };
 
         let response = self.client.post(&url).bearer_auth(token).send().await;
 
@@ -742,14 +744,21 @@ impl KeycloakService {
         }
 
         // Method 2: Try executing the VERIFY_EMAIL action
-        let url = format!(
-            "{}/admin/realms/{}/users/{}/execute-actions-email?redirect_uri={}&client_id={}",
-            self.config.keycloak.url,
-            self.config.keycloak.realm,
-            user_id,
-            public_redirect,
-            self.config.keycloak.client_id
-        );
+        let url = if let Some(uri) = redirect_uri {
+            format!(
+                "{}/admin/realms/{}/users/{}/execute-actions-email?redirect_uri={}&client_id={}",
+                self.config.keycloak.url,
+                self.config.keycloak.realm,
+                user_id,
+                uri,
+                self.config.keycloak.client_id
+            )
+        } else {
+            format!(
+                "{}/admin/realms/{}/users/{}/execute-actions-email",
+                self.config.keycloak.url, self.config.keycloak.realm, user_id
+            )
+        };
 
         let payload = json!(["VERIFY_EMAIL"]);
 
