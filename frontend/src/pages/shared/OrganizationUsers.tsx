@@ -4,12 +4,22 @@ import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
 import { useOrganizationMembers } from "@/hooks/users/useOrganizationMembers";
 import { useQuery } from "@tanstack/react-query";
-import { getOrganizationInvitations } from "@/openapi-client/services.gen";
+import { OpenAPI } from "@/openapi-client/core/OpenAPI";
+import { request as __request } from "@/openapi-client/core/request";
 import { InviteUserForm } from "@/components/shared/users/InviteUserForm";
 import { UserList } from "@/components/shared/users/UserList";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { KeycloakUser } from "@/types/user";
 import { SyncStatus } from "@/types/sync/index";
+
+type PendingInvitation = { id: string; email: string; firstName?: string | null; lastName?: string | null };
+
+const fetchOrganizationInvitations = (orgId: string): Promise<PendingInvitation[]> =>
+  __request(OpenAPI, {
+    method: "GET",
+    url: "/admin/organizations/{org_id}/invitations",
+    path: { org_id: orgId },
+  });
 
 export default function OrganizationUsers() {
   const { orgId } = useParams<{ orgId: string }>();
@@ -18,7 +28,7 @@ export default function OrganizationUsers() {
 
   const { data: invitations } = useQuery({
     queryKey: ["organizationInvitations", orgId],
-    queryFn: () => getOrganizationInvitations({ orgId: orgId! }),
+    queryFn: () => fetchOrganizationInvitations(orgId!),
     enabled: !!orgId,
   });
 
