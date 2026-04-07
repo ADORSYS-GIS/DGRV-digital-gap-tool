@@ -22,10 +22,13 @@ export const useOrganizationId = (): string | null => {
         return;
       }
 
-      // Fallback: if org_admin but no org claim in token yet,
+      // Fallback: if org_admin/coop_admin/coop_user but no org claim in token yet,
       // use the user's sub (Keycloak user ID) to find their organization
       const roles = user?.roles || [];
-      if (roles.includes("org_admin") && user?.sub) {
+      const needsOrgFallback = roles.some(r =>
+        ["org_admin", "coop_admin", "coop_user"].includes(r.toLowerCase())
+      );
+      if (needsOrgFallback && user?.sub) {
         getOrganizations()
           .then((orgs) => {
             if (!orgs || orgs.length === 0) return;
@@ -35,7 +38,6 @@ export const useOrganizationId = (): string | null => {
               return;
             }
             // If multiple orgs, we can't safely guess — token claim is required
-            // Log a warning so it's visible during debugging
             console.warn(
               "Multiple organizations found but no org claim in token. " +
               "Ensure the 'organization' scope is in dgat-client default scopes " +
@@ -43,7 +45,7 @@ export const useOrganizationId = (): string | null => {
             );
           })
           .catch((err) => {
-            console.error("Failed to fetch organization for org_admin:", err);
+            console.error("Failed to fetch organization for user:", err);
           });
       }
     }

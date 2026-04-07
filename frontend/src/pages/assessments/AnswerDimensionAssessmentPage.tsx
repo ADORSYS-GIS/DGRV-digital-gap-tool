@@ -45,10 +45,12 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
   // Get user info and IDs
   const { user } = useAuth();
   const organizationId = useOrganizationId();
-  const cooperationId = useCooperationId() || null; // Ensure null instead of undefined
-  const { cooperationId: cooperationIdFromPath, cooperationPath } =
-    useCooperationIdFromPath();
+  const cooperationId = useCooperationId() || null;
+  const { cooperationId: cooperationIdFromPath } = useCooperationIdFromPath();
   const effectiveCooperationId = cooperationId || cooperationIdFromPath || null;
+  // Use assessment's org ID as the most reliable source for coop users
+  const { data: assessment } = useAssessment(assessmentId || "");
+  const effectiveOrganizationId = organizationId || assessment?.organization_id || null;
   const userRoles = useMemo(() => user?.roles || [], [user?.roles]);
   const assignedDimensionIds = useMemo(
     () => user?.assigned_dimensions || [],
@@ -92,7 +94,6 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
     error: Error | null;
   };
 
-  const { data: assessment } = useAssessment(assessmentId || "");
   const { data: dimensionAssessments } = useDimensionAssessments(
     assessmentId || "",
   );
@@ -236,10 +237,10 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
           desiredLevelTitle: desiredState.name,
         });
 
-        const effectiveOrganizationId =
-          organizationId || assessment?.organization_id || null;
+        const submitOrgId =
+          effectiveOrganizationId || assessment?.organization_id || null;
 
-        if (!effectiveOrganizationId) {
+        if (!submitOrgId) {
           throw new Error("Organization ID is required");
         }
 
@@ -251,7 +252,7 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
           gapScore: calculateGapScore(currentLevel, desiredLevel),
           currentLevel,
           desiredLevel,
-          organizationId: effectiveOrganizationId,
+          organizationId: submitOrgId,
           cooperationId: effectiveCooperationId,
           userRoles,
         };
