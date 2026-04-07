@@ -41,15 +41,16 @@ export const recommendationRepository = {
           currentPage++;
         } while (currentPage <= totalPages);
 
+        // Always sync — move local items cleanup outside the length check
+        // so stale data is cleared even when backend returns empty
+        const localRecommendations = await db.recommendations.toArray();
+        const backendRecommendationIds = new Set(
+          allItems.map((item: any) => item.recommendation_id || item.id),
+        );
+
         if (allItems.length > 0) {
-          const localRecommendations = await db.recommendations.toArray();
           const localRecommendationsMap = new Map(
             localRecommendations.map((r: IRecommendation) => [r.id, r]),
-          );
-          const backendRecommendationIds = new Set(
-            allItems.map(
-              (item: any) => item.recommendation_id || item.id,
-            ),
           );
 
           const recommendationsToPut: IRecommendation[] = allItems
@@ -82,23 +83,24 @@ export const recommendationRepository = {
           if (recommendationsToPut.length > 0) {
             await db.recommendations.bulkPut(recommendationsToPut);
           }
-
-          const idsToDelete = localRecommendations
-            .filter(
-              (r) =>
-                r.syncStatus !== SyncStatus.PENDING &&
-                r.syncStatus !== SyncStatus.FAILED &&
-                !backendRecommendationIds.has(r.id),
-            )
-            .map((r) => r.id);
-
-          if (idsToDelete.length > 0) {
-            await db.recommendations.bulkDelete(idsToDelete);
-          }
-          console.log(
-            `Recommendations fetched from backend (${allItems.length} total) and synced to IndexedDB.`,
-          );
         }
+
+        // Always delete stale local items (runs even when backend returns empty)
+        const idsToDelete = localRecommendations
+          .filter(
+            (r) =>
+              r.syncStatus !== SyncStatus.PENDING &&
+              r.syncStatus !== SyncStatus.FAILED &&
+              !backendRecommendationIds.has(r.id),
+          )
+          .map((r) => r.id);
+
+        if (idsToDelete.length > 0) {
+          await db.recommendations.bulkDelete(idsToDelete);
+        }
+        console.log(
+          `Recommendations fetched from backend (${allItems.length} total) and synced to IndexedDB.`,
+        );
       }
     } catch (error) {
       console.error("Failed to sync recommendations from backend:", error);

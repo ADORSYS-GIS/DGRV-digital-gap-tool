@@ -93,17 +93,22 @@ export const cooperationSyncService = {
     );
     const remoteIds = new Set(localCooperations.map((c) => c.id));
 
-    const cooperationsToDelete = await db.cooperations
+    // Delete all local synced cooperations not present in remote (handles DB wipe)
+    const allLocalSynced = await db.cooperations
       .where("syncStatus")
       .equals(SyncStatus.SYNCED)
-      .filter((c) => !remoteIds.has(c.id))
       .toArray();
 
-    if (cooperationsToDelete.length > 0) {
-      const idsToDelete = cooperationsToDelete.map((c) => c.id);
+    const idsToDelete = allLocalSynced
+      .filter((c) => !remoteIds.has(c.id))
+      .map((c) => c.id);
+
+    if (idsToDelete.length > 0) {
       await db.cooperations.bulkDelete(idsToDelete);
     }
 
-    await db.cooperations.bulkPut(localCooperations);
+    if (localCooperations.length > 0) {
+      await db.cooperations.bulkPut(localCooperations);
+    }
   },
 };

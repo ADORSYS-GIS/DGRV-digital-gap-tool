@@ -38,12 +38,12 @@ export const digitalisationGapRepository = {
           currentPage++;
         } while (currentPage <= totalPages);
 
-        if (allBackendGaps.length > 0) {
-          const backendGapIds = new Set(
-            allBackendGaps.map((d) => d.gap_id),
-          );
+        // Always sync — move cleanup outside length check so stale data
+        // is cleared even when backend returns empty (e.g. after DB wipe)
+        const localGaps = await db.digitalisationGaps.toArray();
+        const backendGapIds = new Set(allBackendGaps.map((d) => d.gap_id));
 
-          const localGaps = await db.digitalisationGaps.toArray();
+        if (allBackendGaps.length > 0) {
           const localGapsMap = new Map(localGaps.map((g) => [g.id, g]));
 
           const gapsToUpsert = allBackendGaps
@@ -65,28 +65,30 @@ export const digitalisationGapRepository = {
             })
             .filter((g): g is IDigitalisationGap => g !== null);
 
-          const idsToDelete = localGaps
-            .filter(
-              (g) =>
-                g.syncStatus !== SyncStatus.PENDING &&
-                g.syncStatus !== SyncStatus.FAILED &&
-                !backendGapIds.has(g.id),
-            )
-            .map((g) => g.id);
-
-          await db.transaction("rw", db.digitalisationGaps, async () => {
-            if (gapsToUpsert.length > 0) {
-              await db.digitalisationGaps.bulkPut(gapsToUpsert);
-            }
-            if (idsToDelete.length > 0) {
-              await db.digitalisationGaps.bulkDelete(idsToDelete);
-            }
-          });
-
-          console.log(
-            `Digitalisation gaps fetched from backend (${allBackendGaps.length} total) and synced to IndexedDB.`,
-          );
+          if (gapsToUpsert.length > 0) {
+            await db.digitalisationGaps.bulkPut(gapsToUpsert);
+          }
         }
+
+        // Always delete stale local items (runs even when backend returns empty)
+        const idsToDelete = localGaps
+          .filter(
+            (g) =>
+              g.syncStatus !== SyncStatus.PENDING &&
+              g.syncStatus !== SyncStatus.FAILED &&
+              !backendGapIds.has(g.id),
+          )
+          .map((g) => g.id);
+
+        await db.transaction("rw", db.digitalisationGaps, async () => {
+          if (idsToDelete.length > 0) {
+            await db.digitalisationGaps.bulkDelete(idsToDelete);
+          }
+        });
+
+        console.log(
+          `Digitalisation gaps fetched from backend (${allBackendGaps.length} total) and synced to IndexedDB.`,
+        );
       }
     } catch (error) {
       console.error(

@@ -2,6 +2,7 @@ import { db } from "@/services/db";
 import { OrganizationDimension } from "@/types/organizationDimension";
 import { SyncStatus } from "@/types/sync";
 import { v4 as uuidv4 } from "uuid";
+import { updateOrganizationDimensions } from "@/openapi-client/services.gen";
 
 export const organizationDimensionRepository = {
   async getDimensionsByOrganizationId(
@@ -20,16 +21,20 @@ export const organizationDimensionRepository = {
     dimensionIds: string[],
   ): Promise<void> {
     const now = new Date();
+
+    // Call the backend API directly when online
+    if (navigator.onLine) {
+      await updateOrganizationDimensions({
+        orgId: organizationId,
+        requestBody: { dimension_ids: dimensionIds },
+      });
+    }
+
     const existingAssignments = await db.organizationDimensions
       .where("organizationId")
       .equals(organizationId)
       .toArray();
 
-    const existingDimensionIds = new Set(
-      existingAssignments
-        .filter((a) => a.syncStatus !== SyncStatus.DELETED)
-        .map((a) => a.dimensionId),
-    );
     const newDimensionIds = new Set(dimensionIds);
 
     const dimensionsToProcess = new Set([
@@ -43,30 +48,31 @@ export const organizationDimensionRepository = {
           (a) => a.dimensionId === dimensionId,
         );
         const isAssigned = newDimensionIds.has(dimensionId);
+        const syncStatus = navigator.onLine ? SyncStatus.SYNCED : SyncStatus.NEW;
 
         if (assignment) {
-          // It exists, check if it should be deleted or undeleted
           if (!isAssigned && assignment.syncStatus !== SyncStatus.DELETED) {
             await db.organizationDimensions.update(assignment.id, {
-              syncStatus: SyncStatus.DELETED,
+              syncStatus: navigator.onLine ? SyncStatus.DELETED : SyncStatus.DELETED,
               updatedAt: now,
             });
-          } else if (
-            isAssigned &&
-            assignment.syncStatus === SyncStatus.DELETED
-          ) {
+          } else if (isAssigned && assignment.syncStatus === SyncStatus.DELETED) {
             await db.organizationDimensions.update(assignment.id, {
-              syncStatus: SyncStatus.UPDATED,
+              syncStatus: navigator.onLine ? SyncStatus.SYNCED : SyncStatus.UPDATED,
+              updatedAt: now,
+            });
+          } else if (isAssigned) {
+            await db.organizationDimensions.update(assignment.id, {
+              syncStatus: navigator.onLine ? SyncStatus.SYNCED : assignment.syncStatus,
               updatedAt: now,
             });
           }
         } else if (isAssigned) {
-          // It's a new assignment
           const newAssignment: OrganizationDimension = {
             id: uuidv4(),
             organizationId,
             dimensionId,
-            syncStatus: SyncStatus.NEW,
+            syncStatus: navigator.onLine ? SyncStatus.SYNCED : SyncStatus.NEW,
             createdAt: now,
             updatedAt: now,
           };

@@ -48,6 +48,13 @@ export const organizationDimensionSyncService = {
   },
   async syncOrganizationDimensions(organizationId: string): Promise<void> {
     try {
+      // Skip remote sync if there are pending local changes not yet pushed
+      const dirty = await organizationDimensionRepository.getDirtyAssignments();
+      const hasPending = dirty.some((a) => a.organizationId === organizationId);
+      if (hasPending) {
+        return;
+      }
+
       const remoteDimensions = await getOrganizationDimensions({
         orgId: organizationId,
       });
