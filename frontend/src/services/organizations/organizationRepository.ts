@@ -53,7 +53,7 @@ export const organizationRepository = {
           requestBody: {
             name: organization.name,
             domains: [{ name: organization.domain }],
-            redirectUrl: "http://localhost:8000/",
+            redirectUrl: `${import.meta.env.VITE_APP_PUBLIC_URL ?? "https://158.220.84.249"}/`,
             enabled: "true",
             attributes: {
               description: [organization.description],
