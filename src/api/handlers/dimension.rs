@@ -5,6 +5,7 @@ use axum::{
     response::Json,
 };
 use chrono::{DateTime, Utc};
+use sea_orm::ActiveModelTrait;
 use uuid::Uuid;
 
 use crate::api::dto::{

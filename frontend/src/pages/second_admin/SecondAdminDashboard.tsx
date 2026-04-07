@@ -173,14 +173,6 @@ const SecondAdminDashboard: React.FC = () => {
                 variant="default"
               />
             </Link>
-            <Link to="/second-admin/reports">
-              <DashboardCard
-                title="View Reports"
-                description="View reports by cooperative and submission"
-                icon={FileText}
-                variant="default"
-              />
-            </Link>
             <Link to={`/second-admin/consolidated-report/${organizationId}`}>
               <DashboardCard
                 title="Consolidated Report"

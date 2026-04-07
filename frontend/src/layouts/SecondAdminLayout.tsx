@@ -44,11 +44,6 @@ const SecondAdminLayout: React.FC = () => {
       text: "Submissions",
     },
     {
-      to: "/second-admin/reports",
-      icon: BarChart3,
-      text: "View Reports",
-    },
-    {
       to: `/second-admin/consolidated-report/${organizationId}`,
       icon: FileText,
       text: "Consolidated Report",

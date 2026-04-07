@@ -92,6 +92,9 @@ const ManageCooperationUsers = React.lazy(
 const ManageCooperationUsersPage = React.lazy(
   () => import("../pages/second_admin/ManageCooperationUsersPage"),
 );
+const SubmissionsByCooperativePage = React.lazy(
+  () => import("../pages/second_admin/SubmissionsByCooperativePage"),
+);
 
 import { RouteConfig } from "@/types/router";
 
@@ -207,7 +210,7 @@ const routes: RouteConfig[] = [
       },
       {
         path: "submissions",
-        element: React.createElement(ManageSubmissionsPage),
+        element: React.createElement(SubmissionsByCooperativePage),
       },
       {
         path: "submissions/:submissionId",
