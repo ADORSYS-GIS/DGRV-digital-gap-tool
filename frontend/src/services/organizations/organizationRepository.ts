@@ -1,5 +1,6 @@
 import {
   createOrganization,
+  deleteOrganization,
   getOrganizations,
 } from "@/openapi-client/services.gen";
 import { Organization } from "@/types/organization";
@@ -115,11 +116,21 @@ export const organizationRepository = {
   },
 
   async delete(id: string) {
-    await db.organizations.update(id, {
-      syncStatus: "deleted",
-      updatedAt: new Date().toISOString(),
-    });
-    await syncService.addToSyncQueue("Organization", id, "DELETE", { id });
+    if (navigator.onLine) {
+      try {
+        await deleteOrganization({ orgId: id });
+        await db.organizations.delete(id);
+      } catch (error) {
+        console.error("Failed to delete organization on server:", error);
+        throw error;
+      }
+    } else {
+      await db.organizations.update(id, {
+        syncStatus: "deleted",
+        updatedAt: new Date().toISOString(),
+      });
+      await syncService.addToSyncQueue("Organization", id, "DELETE", { id });
+    }
   },
 
   async markAsSynced(localId: string, serverId: string) {
