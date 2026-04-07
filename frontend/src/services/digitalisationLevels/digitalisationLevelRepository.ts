@@ -191,7 +191,7 @@ export const digitalisationLevelRepository = {
         await db.digitalisationLevels.delete(levelId);
         // Clean up any stale sync queue entries
         await db.sync_queue
-          .where({ entityId: levelId })
+          .filter((item) => item.entityId === levelId)
           .delete();
         return;
       } catch (error) {
@@ -209,7 +209,7 @@ export const digitalisationLevelRepository = {
     if (existingLevel.syncStatus === SyncStatus.PENDING) {
       await db.digitalisationLevels.delete(levelId);
       await db.sync_queue
-        .where({ entityId: levelId })
+        .filter((item) => item.entityId === levelId)
         .delete();
     } else {
       await db.digitalisationLevels.delete(levelId);

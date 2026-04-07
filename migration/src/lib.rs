@@ -35,6 +35,7 @@ mod m20251121_112500_add_coop_and_org_ids_to_assessments;
 mod m20251122_000001_create_report_enums;
 mod m20251203_133800_alter_reports_timestamp_columns;
 mod m20260109_082600_add_title_to_states;
+mod m20260408_000001_add_source_to_recommendations;
 
 pub struct Migrator;
 
@@ -79,6 +80,7 @@ impl MigratorTrait for Migrator {
             Box::new(m20251122_000001_create_report_enums::Migration),
             Box::new(m20251203_133800_alter_reports_timestamp_columns::Migration),
             Box::new(m20260109_082600_add_title_to_states::Migration),
+            Box::new(m20260408_000001_add_source_to_recommendations::Migration),
         ]
     }
 }

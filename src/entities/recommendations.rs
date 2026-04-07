@@ -9,6 +9,8 @@ pub struct Model {
     pub dimension_id: Uuid,
     pub priority: RecommendationPriority,
     pub description: String,
+    /// "admin" = created by admin, "action_plan" = auto-created by action plan
+    pub source: String,
     pub created_at: DateTimeUtc,
     pub updated_at: DateTimeUtc,
 }

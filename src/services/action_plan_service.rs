@@ -46,8 +46,9 @@ impl ActionPlanService {
             let new_recommendation = recommendations::ActiveModel {
                 recommendation_id: Set(Uuid::new_v4()),
                 dimension_id: Set(dimension_assessment.dimension_id),
-                priority: Set(recommendations::RecommendationPriority::Medium), // Default priority for custom items
-                description: Set(format!("{}: {}", title, description)), // Combine title and description
+                priority: Set(recommendations::RecommendationPriority::Medium),
+                description: Set(format!("{}: {}", title, description)),
+                source: Set("action_plan".to_string()),
                 created_at: Set(chrono::Utc::now()),
                 updated_at: Set(chrono::Utc::now()),
             };

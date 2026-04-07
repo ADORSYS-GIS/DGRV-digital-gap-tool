@@ -52,6 +52,7 @@ pub async fn create_recommendation(
         dimension_id: Set(payload.dimension_id),
         priority: Set(payload.priority.into()),
         description: Set(payload.description),
+        source: Set("admin".to_string()),
         created_at: Set(chrono::Utc::now()),
         updated_at: Set(chrono::Utc::now()),
     };

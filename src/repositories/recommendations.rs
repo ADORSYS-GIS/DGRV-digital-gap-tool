@@ -135,26 +135,14 @@ impl RecommendationsRepository {
         active_model.update(db).await.map_err(AppError::from)
     }
 
-    /// Find all recommendations with pagination (excludes auto-generated ones from action items)
+    /// Find all recommendations with pagination (admin-created only)
     pub async fn find_all_paginated(
         db: &DbConn,
         page: u64,
         page_size: u64,
     ) -> Result<(Vec<recommendations::Model>, u64), AppError> {
-        use crate::entities::action_items;
-        use sea_orm::QuerySelect;
-
-        // Exclude recommendations that were auto-created by action items
-        // (those have a corresponding action_item linking back to them)
-        let subquery = action_items::Entity::find()
-            .select_only()
-            .column(action_items::Column::RecommendationId)
-            .into_query();
-
         let paginator = Recommendations::find()
-            .filter(
-                recommendations::Column::RecommendationId.not_in_subquery(subquery)
-            )
+            .filter(recommendations::Column::Source.eq("admin"))
             .order_by_asc(recommendations::Column::CreatedAt)
             .paginate(db, page_size);
 
@@ -164,26 +152,16 @@ impl RecommendationsRepository {
         Ok((recommendations, total))
     }
 
-    /// Find recommendations by dimension with pagination (excludes auto-generated ones from action items)
+    /// Find recommendations by dimension with pagination (admin-created only)
     pub async fn find_by_dimension_paginated(
         db: &DbConn,
         dimension_id: Uuid,
         page: u64,
         page_size: u64,
     ) -> Result<(Vec<recommendations::Model>, u64), AppError> {
-        use crate::entities::action_items;
-        use sea_orm::QuerySelect;
-
-        let subquery = action_items::Entity::find()
-            .select_only()
-            .column(action_items::Column::RecommendationId)
-            .into_query();
-
         let paginator = Recommendations::find()
             .filter(recommendations::Column::DimensionId.eq(dimension_id))
-            .filter(
-                recommendations::Column::RecommendationId.not_in_subquery(subquery)
-            )
+            .filter(recommendations::Column::Source.eq("admin"))
             .order_by_asc(recommendations::Column::CreatedAt)
             .paginate(db, page_size);
 
