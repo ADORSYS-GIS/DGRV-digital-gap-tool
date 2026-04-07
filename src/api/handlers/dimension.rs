@@ -620,7 +620,7 @@ pub async fn update_desired_state(
     let updated_desired_state = active_model
         .update(db.as_ref())
         .await
-        .map_err(crate::api::handlers::common::handle_error)?;
+        .map_err(|e| crate::api::handlers::common::handle_error(AppError::from(e)))?;
 
     let response = DesiredStateResponse {
         desired_state_id: updated_desired_state.desired_state_id,
