@@ -67,6 +67,18 @@ impl OrganisationDimensionRepository {
         organisation_id: &str,
         dimension_ids: Vec<Uuid>,
     ) -> Result<(), AppError> {
+        use crate::entities::dimensions::Entity as Dimensions;
+
+        // Filter out dimension IDs that don't exist in the dimensions table
+        let valid_dimensions = Dimensions::find()
+            .filter(crate::entities::dimensions::Column::DimensionId.is_in(dimension_ids.clone()))
+            .all(db)
+            .await?;
+        let valid_ids: Vec<Uuid> = valid_dimensions
+            .into_iter()
+            .map(|d| d.dimension_id)
+            .collect();
+
         let txn = db.begin().await?;
 
         // Delete existing assignments
@@ -75,9 +87,9 @@ impl OrganisationDimensionRepository {
             .exec(&txn)
             .await?;
 
-        // Create new assignments
-        let new_assignments =
-            dimension_ids
+        // Create new assignments with only valid dimension IDs
+        if !valid_ids.is_empty() {
+            let new_assignments = valid_ids
                 .into_iter()
                 .map(|dimension_id| organisation_dimension::ActiveModel {
                     organisation_dimension: Set(Uuid::new_v4()),
@@ -87,7 +99,6 @@ impl OrganisationDimensionRepository {
                     updated_at: Set(chrono::Utc::now()),
                 });
 
-        if !new_assignments.clone().collect::<Vec<_>>().is_empty() {
             OrganisationDimension::insert_many(new_assignments)
                 .exec(&txn)
                 .await?;
