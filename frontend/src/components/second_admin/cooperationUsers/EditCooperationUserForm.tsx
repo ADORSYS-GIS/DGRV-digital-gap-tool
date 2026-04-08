@@ -39,13 +39,15 @@ export const EditCooperationUserForm = ({ user }: EditCooperationUserFormProps) 
     assignedDimensionIds.includes(d.id),
   );
 
+  const userId = user.id;
+
   const { mutate: saveUser, isPending } = useMutation({
     mutationFn: () =>
       updateUserDimensions({
-        path: { user_id: user.id },
-        body: {
+        userId,
+        requestBody: {
           dimension_ids: selectedDimensionIds,
-          email: user.email,
+          email: user.email ?? null,
         },
       }),
     onSuccess: () => {
@@ -114,7 +116,7 @@ export const EditCooperationUserForm = ({ user }: EditCooperationUserFormProps) 
             <Button variant="outline" onClick={() => setIsOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={() => saveUser()} disabled={isPending}>
+            <Button onClick={() => saveUser()} disabled={isPending || !userId}>
               {isPending ? "Saving…" : "Save changes"}
             </Button>
           </div>

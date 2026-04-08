@@ -57,7 +57,7 @@ export const CooperationUserList = ({ users }: CooperationUserListProps) => {
             </TableCell>
             <TableCell className="text-right">
               <div className="flex justify-end gap-2">
-                {user.roles.includes("coop_user") && (
+                {user.roles.includes("coop_user") && user.syncStatus === "synced" && (
                   <EditCooperationUserForm user={user} />
                 )}
                 <Button
