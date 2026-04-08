@@ -5,6 +5,15 @@ import { keycloak } from "./keycloakConfig";
 
 interface CustomKeycloakTokenParsed extends KeycloakTokenParsed {
   roles?: string[];
+  // Keycloak organization scope uses "organization" (singular)
+  organization?: {
+    [key: string]: {
+      id: string;
+      displayName?: string[];
+      description?: string[];
+    };
+  };
+  // Keep organizations (plural) for backward compatibility
   organizations?: {
     [key: string]: {
       id: string;
@@ -12,7 +21,6 @@ interface CustomKeycloakTokenParsed extends KeycloakTokenParsed {
     };
   };
   cooperation?: string[];
-  // Custom attribute carrying allowed dimensions for coop_user
   assigned_dimensions?: string[];
   is_member_of?: boolean;
 }
@@ -122,7 +130,7 @@ export const authService = {
       if (token.assigned_dimensions) {
         userProfile.assigned_dimensions = token.assigned_dimensions;
       }
-      const orgs = token.organizations;
+      const orgs = token.organization || token.organizations;
       if (orgs) {
         const orgNames = Object.keys(orgs);
         const orgName = orgNames[0];
@@ -154,7 +162,8 @@ export const authService = {
       if (!keycloak.tokenParsed) return null;
 
       const token = keycloak.tokenParsed as CustomKeycloakTokenParsed;
-      const orgs = token.organizations;
+      // Try singular "organization" claim first (Keycloak 26 organization scope)
+      const orgs = token.organization || token.organizations;
       if (orgs) {
         const orgNames = Object.keys(orgs);
         const orgName = orgNames[0];
