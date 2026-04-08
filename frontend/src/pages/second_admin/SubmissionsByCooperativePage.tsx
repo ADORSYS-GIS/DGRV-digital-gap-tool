@@ -1,16 +1,13 @@
-import React from "react";
-import { Link, useParams } from "react-router-dom";
-import { useOrganizationId } from "@/hooks/organizations/useOrganizationId";
-import { useCooperations } from "@/hooks/cooperations/useCooperations";
-import { useSubmissionsByCooperation } from "@/hooks/submissions/useSubmissionsByCooperation";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { SubmissionList } from "@/components/shared/submissions/SubmissionList";
-import { Building2, ChevronRight } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useCooperations } from "@/hooks/cooperations/useCooperations";
+import { useOrganizationId } from "@/hooks/organizations/useOrganizationId";
+import { useSubmissionsByCooperation } from "@/hooks/submissions/useSubmissionsByCooperation";
 import { Cooperation } from "@/types/cooperation";
-import { AssessmentSummary } from "@/types/assessment";
 import { SyncStatus } from "@/types/sync";
+import { Building2 } from "lucide-react";
 
 // Shows submissions for a single cooperative
 function CooperativeSubmissions({ cooperation }: { cooperation: Cooperation }) {

@@ -143,6 +143,20 @@ export const authService = {
         }
       }
 
+      // Fallback: extract org ID from cooperation path for coop_admin/coop_user
+      if (!userProfile.organization && token.cooperation?.length) {
+        const path = token.cooperation[0];
+        if (path) {
+          const withoutSlash = path.startsWith("/") ? path.slice(1) : path;
+          const uuidMatch = withoutSlash.match(
+            /^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i,
+          );
+          if (uuidMatch) {
+            userProfile.organization = uuidMatch[1] ?? "";
+          }
+        }
+      }
+
       if (token.is_member_of) {
         userProfile.is_member_of = token.is_member_of;
       }
@@ -172,6 +186,22 @@ export const authService = {
           return organizationDetails?.id || null;
         }
       }
+
+      // Fallback: extract org ID from cooperation path
+      // Format: "/{org_id}-{cooperation_name}"
+      if (token.cooperation && token.cooperation.length > 0) {
+        const path = token.cooperation[0];
+        if (path) {
+          // Strip leading slash, take the part before the first hyphen that follows a UUID
+          const withoutSlash = path.startsWith("/") ? path.slice(1) : path;
+          // UUID is 36 chars: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+          const uuidMatch = withoutSlash.match(
+            /^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i,
+          );
+          if (uuidMatch) return uuidMatch[1] ?? null;
+        }
+      }
+
       return null;
     } catch (error) {
       console.error("Failed to get organization ID:", error);
