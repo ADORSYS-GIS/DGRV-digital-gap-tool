@@ -21,9 +21,15 @@ export const cooperationUserSyncService = {
         user.roles && Array.isArray(user.roles)
           ? user.roles.map((role: Role) => role.name)
           : [];
+
+      // Extract assigned_dimensions from Keycloak user attributes
+      const attrs = user.attributes as Record<string, string[]> | undefined;
+      const dimensionIds = attrs?.assigned_dimensions ?? [];
+
       return {
         ...user,
         roles,
+        dimensionIds,
         cooperationId,
         syncStatus: SyncStatus.SYNCED,
       } as CooperationUser;

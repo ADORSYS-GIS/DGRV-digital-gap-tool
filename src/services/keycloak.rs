@@ -678,17 +678,38 @@ impl KeycloakService {
             self.config.keycloak.url, self.config.keycloak.realm, user_id
         );
 
-        let mut payload = json!({
-            "attributes": attributes,
-        });
+        // Fetch existing user to merge attributes (Keycloak PUT replaces all attributes)
+        let existing_user: serde_json::Value = self
+            .client
+            .get(&url)
+            .bearer_auth(token)
+            .send()
+            .await?
+            .error_for_status()?
+            .json()
+            .await?;
+
+        // Merge new attributes into existing ones
+        let mut merged_attributes = existing_user
+            .get("attributes")
+            .and_then(|a| a.as_object())
+            .cloned()
+            .unwrap_or_default();
+
+        if let Some(new_attrs) = attributes.as_object() {
+            for (k, v) in new_attrs {
+                merged_attributes.insert(k.clone(), v.clone());
+            }
+        }
+
+        let mut payload = existing_user.clone();
+        payload["attributes"] = serde_json::Value::Object(merged_attributes);
 
         if let Some(email) = email {
-            // Some realms enforce email as required on update
             payload["email"] = json!(email);
         }
 
         info!(url = %url, user_id = %user_id, "Updating user attributes");
-        info!("update_user_attributes payload: {}", attributes);
 
         let response = self
             .client
@@ -1350,6 +1371,7 @@ impl KeycloakService {
             StatusCode::OK => {
                 let mut users: Vec<KeycloakUser> = response.json().await?;
                 for user in &mut users {
+                    // Fetch roles
                     let roles_url = format!(
                         "{}/admin/realms/{}/users/{}/role-mappings",
                         self.config.keycloak.url, self.config.keycloak.realm, user.id
@@ -1365,6 +1387,11 @@ impl KeycloakService {
                         if let Some(real_mappings) = roles.get("realmMappings") {
                             user.roles = Some(real_mappings.clone());
                         }
+                    }
+
+                    // Fetch full user details to get attributes (group members endpoint omits them)
+                    if let Ok(full_user) = self.get_user_by_id(token, &user.id).await {
+                        user.attributes = full_user.attributes;
                     }
                 }
                 info!(group_id = %group_id, count = users.len(), "Successfully retrieved group members");
