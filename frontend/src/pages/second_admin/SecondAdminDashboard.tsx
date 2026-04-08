@@ -23,9 +23,9 @@ import { useDimensions } from "@/hooks/dimensions/useDimensions";
 import { useAllDimensionStates } from "@/hooks/dimensions/useAllDimensionStates";
 import { useOrganizationId } from "@/hooks/organizations/useOrganizationId";
 import { useSubmissionsByOrganization } from "@/hooks/submissions/useSubmissionsByOrganization";
+import { dimensionAssessmentRepository } from "@/services/assessments/dimensionAssessmentRepository";
 import {
   AssessmentSummary,
-  DimensionAssessmentSummary,
 } from "@/types/assessment";
 import { IDimensionAssessment } from "@/types/dimension";
 import { SyncStatus } from "@/types/sync";
@@ -55,16 +55,8 @@ const SecondAdminDashboard: React.FC = () => {
     refetchOnWindowFocus: false,
   });
 
-  const {
-    data: allDimensions,
-    isLoading: isLoadingDimensions,
-    error: dimensionsError,
-  } = useDimensions();
-  const {
-    data: allDimensionStates,
-    isLoading: isLoadingStates,
-    error: statesError,
-  } = useAllDimensionStates();
+  const { data: allDimensions } = useDimensions();
+  const { data: allDimensionStates } = useAllDimensionStates();
 
   const submissions: AssessmentSummary[] = submissionsData.map((s) => ({
     ...s,
@@ -79,38 +71,19 @@ const SecondAdminDashboard: React.FC = () => {
     overall_score: s.overall_score ?? null,
   }));
 
-  const latestSubmission = submissionsData?.[0];
+  const latestSubmissionId = submissions[0]?.id ?? null;
 
-  const chartAssessments: IDimensionAssessment[] | undefined =
-    latestSubmission?.dimension_assessments.map(
-      (da: DimensionAssessmentSummary) => ({
-        ...da,
-        id: da.dimension_id,
-        dimensionId: da.dimension_id,
-        assessmentId: da.assessment_id,
-        currentState: {
-          id: da.current_state_id,
-          dimensionId: da.dimension_id,
-          level: 0,
-          name: "",
-          description: "",
-          createdAt: "",
-          updatedAt: "",
-        },
-        desiredState: {
-          id: da.desired_state_id,
-          dimensionId: da.dimension_id,
-          level: 0,
-          name: "",
-          description: "",
-          createdAt: "",
-          updatedAt: "",
-        },
-        createdAt: da.created_at,
-        updatedAt: da.updated_at,
-        syncStatus: SyncStatus.SYNCED,
-      }),
-    );
+  const [latestAssessments, setLatestAssessments] = React.useState<
+    IDimensionAssessment[]
+  >([]);
+
+  React.useEffect(() => {
+    if (!latestSubmissionId) return;
+    dimensionAssessmentRepository
+      .getByAssessment(latestSubmissionId)
+      .then(setLatestAssessments)
+      .catch(console.error);
+  }, [latestSubmissionId]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -255,7 +228,7 @@ const SecondAdminDashboard: React.FC = () => {
         </section>
 
         {/* Latest Submission Chart */}
-        {latestSubmission && (
+        {latestAssessments.length > 0 && allDimensions && (
           <section aria-label="Latest assessment results">
             <Card>
               <CardHeader>
@@ -266,25 +239,11 @@ const SecondAdminDashboard: React.FC = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {isLoadingDimensions || isLoadingStates ? (
-                  <div className="flex min-h-[160px] items-center justify-center">
-                    <LoadingSpinner />
-                  </div>
-                ) : dimensionsError || statesError ? (
-                  <div className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-                    <p className="font-medium">Unable to load chart data.</p>
-                  </div>
-                ) : allDimensions && allDimensionStates && chartAssessments ? (
-                  <SubmissionChart
-                    assessments={chartAssessments}
-                    dimensions={allDimensions}
-                    allDimensionStates={allDimensionStates}
-                  />
-                ) : (
-                  <div className="flex min-h-[120px] items-center justify-center text-sm text-muted-foreground">
-                    No data available to display chart.
-                  </div>
-                )}
+                <SubmissionChart
+                  assessments={latestAssessments}
+                  dimensions={allDimensions}
+                  allDimensionStates={allDimensionStates ?? []}
+                />
               </CardContent>
             </Card>
           </section>
