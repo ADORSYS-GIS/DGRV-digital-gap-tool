@@ -196,3 +196,33 @@ pub async fn delete_user(
     state.keycloak_service.delete_user(&admin_token, &user_id).await?;
     Ok(StatusCode::NO_CONTENT)
 }
+
+#[derive(serde::Deserialize, utoipa::ToSchema)]
+pub struct UpdateUserDimensionsRequest {
+    pub dimension_ids: Vec<String>,
+    pub email: Option<String>,
+}
+
+/// Update assigned dimensions for a user
+#[utoipa::path(
+    put,
+    path = "/admin/users/{user_id}/dimensions",
+    tag = "User",
+    params(("user_id" = String, Path, description = "User ID")),
+    request_body = UpdateUserDimensionsRequest,
+    responses((status = 204, description = "No Content"))
+)]
+pub async fn update_user_dimensions(
+    State(state): State<AppState>,
+    Extension(_token): Extension<String>,
+    Path(user_id): Path<String>,
+    Json(request): Json<UpdateUserDimensionsRequest>,
+) -> AppResult<impl IntoResponse> {
+    let admin_token = state.keycloak_service.get_admin_token().await?;
+    let attrs = serde_json::json!({ "assigned_dimensions": request.dimension_ids });
+    state
+        .keycloak_service
+        .update_user_attributes(&admin_token, &user_id, attrs, request.email.as_deref())
+        .await?;
+    Ok(StatusCode::NO_CONTENT)
+}

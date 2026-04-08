@@ -1,0 +1,125 @@
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { updateUserDimensions } from "@/openapi-client/services.gen";
+import { useDimensions } from "@/hooks/dimensions/useDimensions";
+import { useOrganizationDimensions } from "@/hooks/organization_dimensions/useOrganizationDimensions";
+import { useOrganizationId } from "@/hooks/organizations/useOrganizationId";
+import { CooperationUser } from "@/types/cooperationUser";
+import { useCooperationId } from "@/hooks/cooperations/useCooperationId";
+import { Pencil } from "lucide-react";
+
+interface EditCooperationUserFormProps {
+  user: CooperationUser;
+}
+
+export const EditCooperationUserForm = ({ user }: EditCooperationUserFormProps) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedDimensionIds, setSelectedDimensionIds] = useState<string[]>(
+    user.dimensionIds || [],
+  );
+
+  const organizationId = useOrganizationId();
+  const cooperationId = useCooperationId();
+  const queryClient = useQueryClient();
+
+  const { data: allDimensions = [] } = useDimensions();
+  const { data: assignedDimensionIds = [] } = useOrganizationDimensions(organizationId || "");
+
+  const filteredDimensions = allDimensions.filter((d) =>
+    assignedDimensionIds.includes(d.id),
+  );
+
+  const { mutate: saveUser, isPending } = useMutation({
+    mutationFn: () =>
+      updateUserDimensions({
+        path: { user_id: user.id },
+        body: {
+          dimension_ids: selectedDimensionIds,
+          email: user.email,
+        },
+      }),
+    onSuccess: () => {
+      toast.success("User dimensions updated successfully.");
+      queryClient.invalidateQueries({ queryKey: ["cooperationUsers", cooperationId] });
+      setIsOpen(false);
+    },
+    onError: () => {
+      toast.error("Failed to update user dimensions.");
+    },
+  });
+
+  const handleOpen = () => {
+    setSelectedDimensionIds(user.dimensionIds || []);
+    setIsOpen(true);
+  };
+
+  return (
+    <>
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={handleOpen}
+        className="border-blue-200 text-blue-700 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-800"
+      >
+        <Pencil className="mr-2 h-4 w-4" />
+        Edit
+      </Button>
+
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogContent className="sm:max-w-[480px]">
+          <DialogHeader>
+            <DialogTitle>Edit user dimensions</DialogTitle>
+            <p className="text-sm text-muted-foreground">
+              Update the dimensions this user is allowed to answer.
+            </p>
+          </DialogHeader>
+
+          <div className="space-y-2 py-4">
+            <Label>Dimensions this user can answer</Label>
+            <div className="mt-2 grid gap-2 max-h-56 overflow-y-auto rounded-md border bg-muted/40 p-3">
+              {filteredDimensions.length === 0 && (
+                <p className="text-xs text-muted-foreground">
+                  No dimensions available for this organization.
+                </p>
+              )}
+              {filteredDimensions.map((dimension) => (
+                <label key={dimension.id} className="flex items-center gap-2 text-sm">
+                  <Checkbox
+                    checked={selectedDimensionIds.includes(dimension.id)}
+                    onCheckedChange={(checked) => {
+                      setSelectedDimensionIds((prev) =>
+                        checked
+                          ? [...prev, dimension.id]
+                          : prev.filter((id) => id !== dimension.id),
+                      );
+                    }}
+                  />
+                  <span>{dimension.name}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-3">
+            <Button variant="outline" onClick={() => setIsOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={() => saveUser()} disabled={isPending}>
+              {isPending ? "Saving…" : "Save changes"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+};

@@ -934,6 +934,41 @@
                 }
             }
         },
+        "/admin/users/{user_id}/dimensions": {
+            "put": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Update assigned dimensions for a user",
+                "operationId": "update_user_dimensions",
+                "parameters": [
+                    {
+                        "name": "user_id",
+                        "in": "path",
+                        "description": "User ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateUserDimensionsRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
         "/api/submissions/submit": {
             "post": {
                 "tags": [
@@ -3060,6 +3095,24 @@
                         "items": {
                             "type": "string"
                         }
+                    }
+                }
+            },
+            "UpdateUserDimensionsRequest": {
+                "type": "object",
+                "required": [
+                    "dimension_ids"
+                ],
+                "properties": {
+                    "dimension_ids": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "email": {
+                        "type": "string",
+                        "nullable": true
                     }
                 }
             },

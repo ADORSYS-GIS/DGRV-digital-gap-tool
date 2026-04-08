@@ -2,6 +2,7 @@ import { CooperationUser } from "@/types/cooperationUser";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 import { useDeleteCooperationUser } from "@/hooks/cooperationUsers/useDeleteCooperationUser";
+import { EditCooperationUserForm } from "./EditCooperationUserForm";
 import {
   Table,
   TableBody,
@@ -55,16 +56,21 @@ export const CooperationUserList = ({ users }: CooperationUserListProps) => {
               </span>
             </TableCell>
             <TableCell className="text-right">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => deleteUser(user.id)}
-                disabled={isPending}
-                className="border-red-200 text-red-700 hover:border-red-300 hover:bg-red-50 hover:text-red-800"
-              >
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete
-              </Button>
+              <div className="flex justify-end gap-2">
+                {user.roles.includes("coop_user") && (
+                  <EditCooperationUserForm user={user} />
+                )}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => deleteUser(user.id)}
+                  disabled={isPending}
+                  className="border-red-200 text-red-700 hover:border-red-300 hover:bg-red-50 hover:text-red-800"
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete
+                </Button>
+              </div>
             </TableCell>
           </TableRow>
         ))}

@@ -114,7 +114,11 @@ export const SelectSubmissionModal: React.FC<SelectSubmissionModalProps> = ({
                       ? new Date(
                           submission.assessment.completed_at,
                         ).toLocaleDateString()
-                      : "N/A"}
+                      : submission.assessment.created_at
+                        ? new Date(
+                            submission.assessment.created_at,
+                          ).toLocaleDateString()
+                        : "Unknown date"}
                   </p>
                 </button>
               ))}

@@ -38,6 +38,7 @@ impl SubmissionService {
             .into();
 
         assessment.status = Set(AssessmentStatus::Completed);
+        assessment.completed_at = Set(Some(chrono::Utc::now()));
         assessment.updated_at = Set(chrono::Utc::now());
         assessment.update(self.db.as_ref()).await?;
 
