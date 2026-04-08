@@ -162,13 +162,13 @@ echo "[a.sh] Adding organization scope to dgat-client default scopes..."
 DGAT_CLIENT_ID=$(./kcadm.sh get clients -r "${REALM}" -q clientId=dgat-client --fields id 2>/dev/null | grep -o '"id" : "[^"]*"' | head -1 | sed 's/"id" : "\(.*\)"/\1/')
 if [ -n "$DGAT_CLIENT_ID" ]; then
   ./kcadm.sh update clients/"${DGAT_CLIENT_ID}" -r "${REALM}" \
-    -s 'defaultClientScopes=["web-origins","acr","profile","roles","basic","email","organization"]' \
+    -s 'defaultClientScopes=["web-origins","acr","profile","roles","basic","email","organization","user_attributes"]' \
     --server "${KEYCLOAK_SERVER}"
   echo "[a.sh] Organization scope added to dgat-client ID: ${DGAT_CLIENT_ID}"
 else
   echo "[a.sh] Warning: Could not find dgat-client ID, trying hardcoded ID..."
   ./kcadm.sh update clients/644ba92b-94a9-4341-b1e7-69dad77dc594 -r "${REALM}" \
-    -s 'defaultClientScopes=["web-origins","acr","profile","roles","basic","email","organization"]' \
+    -s 'defaultClientScopes=["web-origins","acr","profile","roles","basic","email","organization","user_attributes"]' \
     --server "${KEYCLOAK_SERVER}"
   echo "[a.sh] Organization scope applied via hardcoded client ID"
 fi

@@ -1,7 +1,7 @@
 import React from "react";
 import { Outlet } from "react-router-dom";
 import {
-  FilePlus2,
+  FilePenLine,
   ClipboardList,
   ClipboardCheck,
   BarChart3,
@@ -10,7 +10,7 @@ import { Sidebar } from "@/components/shared/Sidebar";
 
 const navLinks = [
   { to: "/user/dashboard", icon: BarChart3, text: "Dashboard" },
-  { to: "/user/assessments", icon: FilePlus2, text: "Create Assessment" },
+  { to: "/user/assessments", icon: FilePenLine, text: "Answer Assessment" },
   { to: "/user/action-plans", icon: ClipboardList, text: "Action Plan" },
   { to: "/user/submissions", icon: ClipboardCheck, text: "Submissions" },
 ];

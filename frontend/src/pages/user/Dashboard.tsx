@@ -16,7 +16,7 @@ import { useCooperationIdFromPath } from "@/hooks/cooperations/useCooperationIdF
 import {
   ClipboardCheck,
   ClipboardList,
-  FilePlus2,
+  FilePenLine,
   History,
   Download,
 } from "lucide-react";
@@ -113,9 +113,9 @@ const UserDashboard: React.FC = () => {
           <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-3">
             <Link to="/user/assessments">
               <DashboardCard
-                title="Start assessment"
-                description="Begin a new organizational assessment."
-                icon={FilePlus2}
+                title="Answer assessment"
+                description="Fill out and manage cooperative assessments."
+                icon={FilePenLine}
                 variant="default"
               />
             </Link>

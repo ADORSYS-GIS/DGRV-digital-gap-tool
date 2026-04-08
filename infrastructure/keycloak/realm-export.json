@@ -1013,7 +1013,8 @@
         "profile",
         "roles",
         "basic",
-        "email"
+        "email",
+        "user_attributes"
       ],
       "optionalClientScopes": [
         "address",
