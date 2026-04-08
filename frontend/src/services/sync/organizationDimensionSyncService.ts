@@ -58,7 +58,8 @@ export const organizationDimensionSyncService = {
       const remoteDimensions = await getOrganizationDimensions({
         orgId: organizationId,
       });
-      await organizationDimensionRepository.setAssignedDimensions(
+      // Use syncFromRemote to only update IndexedDB without calling the API again
+      await organizationDimensionRepository.syncFromRemote(
         organizationId,
         remoteDimensions,
       );

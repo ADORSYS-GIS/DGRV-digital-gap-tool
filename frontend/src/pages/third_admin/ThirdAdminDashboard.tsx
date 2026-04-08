@@ -93,19 +93,29 @@ const ThirdAdminDashboard: React.FC = () => {
 
   const chartAssessments: IDimensionAssessment[] | undefined =
     latestSubmission?.dimension_assessments
-      .map((da: DimensionAssessmentSummary): IDimensionAssessment | null => {
-        if (!allDimensionStates) return null;
-
-        const currentState = allDimensionStates.find(
+      .map((da: DimensionAssessmentSummary): IDimensionAssessment => {
+        const currentState = allDimensionStates?.find(
           (s) => s.id === da.current_state_id,
-        );
-        const desiredState = allDimensionStates.find(
+        ) ?? {
+          id: da.current_state_id,
+          dimensionId: da.dimension_id,
+          level: 0,
+          name: "",
+          description: "",
+          createdAt: da.created_at,
+          updatedAt: da.updated_at,
+        };
+        const desiredState = allDimensionStates?.find(
           (s) => s.id === da.desired_state_id,
-        );
-
-        if (!currentState || !desiredState) {
-          return null;
-        }
+        ) ?? {
+          id: da.desired_state_id,
+          dimensionId: da.dimension_id,
+          level: 0,
+          name: "",
+          description: "",
+          createdAt: da.created_at,
+          updatedAt: da.updated_at,
+        };
 
         return {
           id: da.dimension_assessment_id,
@@ -118,8 +128,7 @@ const ThirdAdminDashboard: React.FC = () => {
           updatedAt: da.updated_at,
           syncStatus: SyncStatus.SYNCED,
         };
-      })
-      .filter((item): item is IDimensionAssessment => item !== null);
+      });
 
   return (
     <div className="min-h-screen bg-background">
@@ -274,11 +283,11 @@ const ThirdAdminDashboard: React.FC = () => {
                   <div className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
                     <p className="font-medium">Unable to load chart data.</p>
                   </div>
-                ) : allDimensions && allDimensionStates && chartAssessments ? (
+                ) : allDimensions && chartAssessments && chartAssessments.length > 0 ? (
                   <SubmissionChart
                     assessments={chartAssessments}
                     dimensions={allDimensions}
-                    allDimensionStates={allDimensionStates}
+                    allDimensionStates={allDimensionStates ?? []}
                   />
                 ) : (
                   <div className="flex min-h-[120px] items-center justify-center text-sm text-muted-foreground">

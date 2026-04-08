@@ -14,17 +14,20 @@ import { useAuth } from "@/hooks/useAuth";
  */
 export const useCooperationIdFromPath = () => {
   const { user } = useAuth();
+  // Stable key: use user.sub (string) not the whole user object
+  const userSub = user?.sub ?? null;
   const cooperationPath = useMemo(
     () => authService.getCooperationPath(),
-    [user],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [userSub],
   );
 
   const query = useQuery({
     queryKey: ["cooperationIdFromPath", cooperationPath],
     enabled: Boolean(cooperationPath),
+    staleTime: 5 * 60 * 1000, // 5 minutes — don't refetch on every render
     queryFn: async () => {
       if (!cooperationPath) return null;
-      // The path may come with a leading '/', keep as-is because the API expects the path string
       const cooperation =
         await cooperationRepository.getByPath(cooperationPath);
       return cooperation?.id ?? null;
