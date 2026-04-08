@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateUserDimensions } from "@/openapi-client/services.gen";
+import { db } from "@/services/db";
 import { useDimensions } from "@/hooks/dimensions/useDimensions";
 import { useOrganizationDimensions } from "@/hooks/organization_dimensions/useOrganizationDimensions";
 import { useOrganizationId } from "@/hooks/organizations/useOrganizationId";
@@ -50,7 +51,11 @@ export const EditCooperationUserForm = ({ user }: EditCooperationUserFormProps) 
           email: user.email ?? null,
         },
       }),
-    onSuccess: () => {
+    onSuccess: async () => {
+      // Update the user in IndexedDB with the new dimension IDs
+      await db.cooperationUsers.update(user.id, {
+        dimensionIds: selectedDimensionIds,
+      });
       toast.success("User dimensions updated successfully.");
       queryClient.invalidateQueries({ queryKey: ["cooperationUsers", cooperationId] });
       setIsOpen(false);
