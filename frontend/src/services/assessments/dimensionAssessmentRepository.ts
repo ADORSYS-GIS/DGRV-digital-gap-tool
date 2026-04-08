@@ -593,7 +593,7 @@ export const dimensionAssessmentRepository = {
               da.current_state_id,
             );
             if (currentLevel) {
-              assessment.currentState.level = currentLevel.state;
+              assessment.currentState.level = currentLevel.level ?? currentLevel.state;
               assessment.currentState.name = currentLevel.title;
               assessment.currentState.description =
                 currentLevel.description || "";
@@ -603,10 +603,40 @@ export const dimensionAssessmentRepository = {
               da.desired_state_id,
             );
             if (desiredLevel) {
-              assessment.desiredState.level = desiredLevel.state;
+              assessment.desiredState.level = desiredLevel.level ?? desiredLevel.state;
               assessment.desiredState.name = desiredLevel.title;
               assessment.desiredState.description =
                 desiredLevel.description || "";
+            }
+
+            // If levels still missing, fetch from backend via dimension with-states
+            if (assessment.currentState.level === 0 || assessment.desiredState.level === 0) {
+              try {
+                const { getDimensionWithStates } = await import(
+                  "../../openapi-client/services.gen"
+                );
+                const dimData = await getDimensionWithStates({ id: da.dimension_id });
+                if (dimData.data) {
+                  const cs = dimData.data.current_states?.find(
+                    (s) => s.current_state_id === da.current_state_id,
+                  );
+                  const ds = dimData.data.desired_states?.find(
+                    (s) => s.desired_state_id === da.desired_state_id,
+                  );
+                  if (cs) {
+                    assessment.currentState.level = cs.level ?? cs.score ?? 0;
+                    assessment.currentState.name = cs.title;
+                    assessment.currentState.description = cs.description ?? "";
+                  }
+                  if (ds) {
+                    assessment.desiredState.level = ds.level ?? ds.score ?? 0;
+                    assessment.desiredState.name = ds.title;
+                    assessment.desiredState.description = ds.description ?? "";
+                  }
+                }
+              } catch {
+                // ignore, use score as fallback
+              }
             }
 
             assessments.push(assessment);
