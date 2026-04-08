@@ -42,8 +42,8 @@ export const dimensionStateRepository = {
                   id: ds.desired_state_id,
                   dimensionId: dim.dimension_id,
                   levelType: "desired",
-                  state: ds.score as number,
-                  level: ds.level ?? ds.score ?? 0,
+                  state: typeof ds.score === 'number' ? ds.score : 0,
+                  level: null,
                   title: ds.title,
                   description: ds.description ?? null,
                   syncStatus: SyncStatus.SYNCED,
@@ -68,7 +68,8 @@ export const dimensionStateRepository = {
     return levels.map((level: IDigitalisationLevel) => ({
       id: level.id,
       dimensionId: level.dimensionId,
-      level: Number(level.level ?? level.state ?? 0),
+      // Use state (numeric score) as the level value for the chart
+      level: typeof level.state === 'number' && !isNaN(level.state) ? level.state : 0,
       name: level.title,
       description: level.description || "",
       createdAt: new Date().toISOString(),
