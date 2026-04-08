@@ -71,25 +71,19 @@ const UserDashboard: React.FC = () => {
     overall_score: s.overall_score ?? null,
   }));
 
+  const latestSubmissionId = submissions[0]?.id ?? null;
+
   const [latestAssessments, setLatestAssessments] = React.useState<
     IDimensionAssessment[]
   >([]);
 
   React.useEffect(() => {
-    const fetchLatestAssessments = async () => {
-      if (submissions && submissions.length > 0) {
-        const latestSubmissionId = submissions[0]?.id;
-        if (latestSubmissionId) {
-          const assessments =
-            await dimensionAssessmentRepository.getByAssessment(
-              latestSubmissionId,
-            );
-          setLatestAssessments(assessments);
-        }
-      }
-    };
-    fetchLatestAssessments();
-  }, [submissions]);
+    if (!latestSubmissionId) return;
+    dimensionAssessmentRepository
+      .getByAssessment(latestSubmissionId)
+      .then(setLatestAssessments)
+      .catch(console.error);
+  }, [latestSubmissionId]);
 
   return (
     <div className="min-h-screen bg-background">
