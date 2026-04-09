@@ -29,6 +29,8 @@ interface DimensionAssessmentAnswerProps {
   error?: string | null;
   /** Optional existing assessment data */
   existingAssessment?: IDimensionAssessment | null;
+  /** When true, the form is view-only — inputs disabled, submit hidden */
+  readOnly?: boolean;
 }
 
 export function DimensionAssessmentAnswer({
@@ -37,6 +39,7 @@ export function DimensionAssessmentAnswer({
   onSubmit,
   className,
   existingAssessment,
+  readOnly = false,
 }: DimensionAssessmentAnswerProps) {
   const currentAvailableLevels =
     dimension.current_states
@@ -164,7 +167,7 @@ export function DimensionAssessmentAnswer({
             level={currentLevel}
             onChange={setCurrentLevel}
             availableLevels={currentAvailableLevels}
-            disabled={isSubmitting || currentAvailableLevels.length === 0}
+            disabled={readOnly || isSubmitting || currentAvailableLevels.length === 0}
           />
 
           <LevelSelector
@@ -176,9 +179,10 @@ export function DimensionAssessmentAnswer({
             level={desiredLevel}
             onChange={setDesiredLevel}
             availableLevels={desiredAvailableLevels}
-            disabled={isSubmitting || desiredAvailableLevels.length === 0}
+            disabled={readOnly || isSubmitting || desiredAvailableLevels.length === 0}
           />
 
+          {!readOnly && (
           <div className="flex justify-end space-x-3">
             <Button
               type="submit"
@@ -195,6 +199,7 @@ export function DimensionAssessmentAnswer({
               )}
             </Button>
           </div>
+          )}
         </form>
       </CardContent>
     </Card>

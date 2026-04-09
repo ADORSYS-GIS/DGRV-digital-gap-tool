@@ -9,16 +9,18 @@ import { useDimensionWithStates } from "@/hooks/assessments/useDimensionWithStat
 import { useSubmitDimensionAssessment } from "@/hooks/assessments/useSubmitDimensionAssessment";
 import { useCooperationId } from "@/hooks/cooperations/useCooperationId";
 import { useCooperationIdFromPath } from "@/hooks/cooperations/useCooperationIdFromPath";
+import { useCooperationUsers } from "@/hooks/cooperationUsers/useCooperationUsers";
 import { useOrganizationId } from "@/hooks/organizations/useOrganizationId";
 import { useSubmitAssessment } from "@/hooks/submissions/useSubmitAssessment";
 import { syncManager } from "@/services/sync/syncManager";
+import { ROLES } from "@/constants/roles";
 import {
   IDimensionAssessment,
   IDimensionState,
   IDimensionWithStates,
 } from "@/types/dimension";
 import { calculateGapScore } from "@/utils/gapCalculation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Lock } from "lucide-react";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
@@ -56,15 +58,35 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
     () => user?.assigned_dimensions || [],
     [user?.assigned_dimensions],
   );
+  const isCoopAdmin = useMemo(
+    () => userRoles.map((r) => r.toLowerCase()).includes(ROLES.COOP_ADMIN),
+    [userRoles],
+  );
   const isCoopUserRestricted = useMemo(
     () =>
       userRoles
         .map((r) => r.toLowerCase())
         .includes("coop_user".toLowerCase()) &&
-      !userRoles
-        .map((r) => r.toLowerCase())
-        .includes("coop_admin".toLowerCase()),
-    [userRoles],
+      !isCoopAdmin,
+    [userRoles, isCoopAdmin],
+  );
+
+  // For coop_admin: dimensions assigned to any coop_user are locked (view-only)
+  const { data: cooperationUsers = [] } = useCooperationUsers();
+  const dimensionsAssignedToUsers = useMemo(() => {
+    if (!isCoopAdmin) return new Set<string>();
+    const ids = new Set<string>();
+    cooperationUsers.forEach((u) => {
+      if (u.roles.includes(ROLES.COOP_USER)) {
+        (u.dimensionIds || []).forEach((id) => ids.add(id));
+      }
+    });
+    return ids;
+  }, [isCoopAdmin, cooperationUsers]);
+
+  const isLockedForCoopAdmin = useMemo(
+    () => isCoopAdmin && !!dimensionId && dimensionsAssignedToUsers.has(dimensionId),
+    [isCoopAdmin, dimensionId, dimensionsAssignedToUsers],
   );
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -413,6 +435,10 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
     );
   }
 
+  // Access control: coop_admin cannot submit dimensions assigned to coop_users (view-only)
+  // They can still navigate here to see existing answers, but the form is read-only
+  // and submission is blocked.
+
   return (
     <div className="min-h-screen bg-background">
       <div className="mx-auto flex max-w-4xl flex-col gap-6 px-4 py-8 sm:px-6 lg:px-8">
@@ -431,10 +457,10 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
 
         {/* Header */}
         <header className="flex flex-col items-center gap-3 text-center">
-          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary">
+          <div className={`flex h-14 w-14 items-center justify-center rounded-full ${isLockedForCoopAdmin ? "bg-muted text-muted-foreground" : "bg-primary/10 text-primary"}`}>
             <DimensionIcon
               name={dimension.name}
-              className="h-8 w-8 text-primary"
+              className={`h-8 w-8 ${isLockedForCoopAdmin ? "text-muted-foreground" : "text-primary"}`}
             />
           </div>
           <div>
@@ -448,6 +474,16 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
             )}
           </div>
         </header>
+
+        {/* Locked banner for coop_admin when dimension is assigned to a user */}
+        {isLockedForCoopAdmin && (
+          <div className="flex items-center gap-3 rounded-lg border border-muted bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
+            <Lock className="h-4 w-4 shrink-0" aria-hidden="true" />
+            <span>
+              This dimension is assigned to a cooperative user. You can view the answers but cannot edit them.
+            </span>
+          </div>
+        )}
 
         {/* Inline error banner */}
         {error && (
@@ -465,7 +501,7 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
           </div>
         )}
 
-        {/* Main answer form */}
+        {/* Main answer form — read-only when locked for coop_admin */}
         <DimensionAssessmentAnswer
           dimension={{
             ...dimension,
@@ -473,12 +509,11 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
             desiredState: dimension.desiredState || null,
           }}
           isSubmitting={isSubmitting}
-          onSubmit={handleSubmit}
+          onSubmit={isLockedForCoopAdmin ? async () => {} : handleSubmit}
           error={error || null}
           existingAssessment={existingAssessment || null}
+          readOnly={isLockedForCoopAdmin}
         />
-
-        {/* Show analysis for both new submissions and existing assessments */}
         {((showResult && gapId && submittedData) ||
           (existingAssessment?.gap_id &&
             existingAssessment.currentState.level > 0 &&

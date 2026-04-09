@@ -11,6 +11,8 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
 import { useSubmitAssessment } from "@/hooks/submissions/useSubmitAssessment";
+import { useCooperationUsers } from "@/hooks/cooperationUsers/useCooperationUsers";
+import { ROLES } from "@/constants/roles";
 
 const AssessmentDetailPage: React.FC = () => {
   const { assessmentId } = useParams<{ assessmentId: string }>();
@@ -61,16 +63,33 @@ const AssessmentDetailPage: React.FC = () => {
   const { data: dimensionAssessments } = useDimensionAssessments(assessmentId);
 
   const userRoles = useMemo(() => user?.roles || [], [user?.roles]);
+  const isCoopAdmin = useMemo(
+    () => userRoles.map((r) => r.toLowerCase()).includes(ROLES.COOP_ADMIN),
+    [userRoles],
+  );
   const isCoopUserRestricted = useMemo(
     () =>
       userRoles.map((r) => r.toLowerCase()).includes("coop_user") &&
-      !userRoles.map((r) => r.toLowerCase()).includes("coop_admin"),
-    [userRoles],
+      !isCoopAdmin,
+    [userRoles, isCoopAdmin],
   );
   const assignedDimensionIds = useMemo(
     () => user?.assigned_dimensions || [],
     [user?.assigned_dimensions],
   );
+
+  // For coop_admin: collect all dimension IDs assigned to any coop_user in this cooperative
+  const { data: cooperationUsers = [] } = useCooperationUsers();
+  const dimensionsAssignedToUsers = useMemo(() => {
+    if (!isCoopAdmin) return new Set<string>();
+    const ids = new Set<string>();
+    cooperationUsers.forEach((u) => {
+      if (u.roles.includes(ROLES.COOP_USER)) {
+        (u.dimensionIds || []).forEach((id) => ids.add(id));
+      }
+    });
+    return ids;
+  }, [isCoopAdmin, cooperationUsers]);
 
   const filteredDimensions = useMemo(() => {
     if (!isCoopUserRestricted) return dimensions;
@@ -208,6 +227,7 @@ const AssessmentDetailPage: React.FC = () => {
                   dimension={dimension}
                   onClick={handleStartDimensionAssessment}
                   isSubmitted={submittedDimensionIds.has(dimension.id)}
+                  isLocked={isCoopAdmin && dimensionsAssignedToUsers.has(dimension.id)}
                 />
               ))}
             </div>

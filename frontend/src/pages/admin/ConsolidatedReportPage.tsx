@@ -47,6 +47,8 @@ import {
   BarChart3,
   Download,
   Info,
+  CheckCircle2,
+  TrendingUp,
 } from "lucide-react";
 import { cn } from "@/utils/utils";
 
@@ -476,65 +478,111 @@ export function ConsolidatedReportPage() {
           </CardContent>
         </Card>
 
-        {/* Highest Risk Dimension & Recommendations */}
-        {highestRiskDimension && (
-          <Card className="border-l-4 border-l-destructive transition-all duration-200 hover:shadow-md">
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <AlertTriangle className="h-5 w-5 text-destructive" />
-                <CardTitle>Highest Risk Dimension & Recommendations</CardTitle>
-                <InfoPopover title="About Highest Risk Dimension">
-                  <p>
-                    This section automatically identifies the dimension with the
-                    highest average risk level across all submissions. It
-                    represents the most critical area of vulnerability that
-                    requires immediate focus.
-                  </p>
-                  <p className="mt-2">
-                    The provided recommendations are tailored to address the
-                    specific challenges of this dimension and should be
-                    prioritized in your action plan.
-                  </p>
-                </InfoPopover>
-              </div>
-              <CardDescription>
-                Priority focus area requiring immediate attention
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div>
-                  <h3 className="text-xl font-semibold mb-2">
-                    {highestRiskDimension.dimension_name}
-                  </h3>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-muted-foreground">
-                      Average Risk Level:
-                    </span>
-                    <Badge variant="destructive" className="text-sm">
-                      {highestRiskDimension.average_risk_level.toFixed(2)}
-                    </Badge>
+        {/* Dimension Focus Section */}
+        {highestRiskDimension && (() => {
+          const level = highestRiskDimension.average_risk_level;
+          const isLow = level < 1.5;
+          const isMedium = level >= 1.5 && level <= 2.5;
+          const isHigh = level > 2.5;
+
+          const accent = isHigh
+            ? "border-l-destructive"
+            : isMedium
+              ? "border-l-amber-500"
+              : "border-l-emerald-500";
+
+          const Icon = isHigh ? AlertTriangle : isMedium ? TrendingUp : CheckCircle2;
+          const iconColor = isHigh
+            ? "text-destructive"
+            : isMedium
+              ? "text-amber-500"
+              : "text-emerald-500";
+
+          const title = isHigh
+            ? "Highest Risk Dimension & Recommendations"
+            : isMedium
+              ? "Dimension Needing Attention & Recommendations"
+              : "Dimension with Most Room to Improve";
+
+          const subtitle = isHigh
+            ? "Priority focus area requiring immediate attention"
+            : isMedium
+              ? "This dimension has a moderate gap — worth monitoring and improving"
+              : "All dimensions are performing well. This one has the most potential for further growth";
+
+          const popoverBody = isHigh
+            ? "This dimension has the highest average risk score across all submissions. It represents the most critical area requiring immediate action."
+            : isMedium
+              ? "This dimension has a moderate average risk score. It is not critical but should be monitored and improved over time."
+              : "All dimensions are at low risk. This dimension has the highest score among them, meaning it has the most room for further improvement — not that it is at risk.";
+
+          const badgeClass = isHigh
+            ? "bg-destructive text-destructive-foreground"
+            : isMedium
+              ? "bg-amber-100 text-amber-800 border border-amber-300"
+              : "bg-emerald-100 text-emerald-800 border border-emerald-300";
+
+          const bulletColor = isHigh
+            ? "bg-destructive"
+            : isMedium
+              ? "bg-amber-500"
+              : "bg-emerald-500";
+
+          const recTitle = isHigh
+            ? "Top High-Priority Recommendations"
+            : isMedium
+              ? "Recommendations to Improve This Dimension"
+              : "Suggestions to Further Strengthen This Dimension";
+
+          return (
+            <Card className={`border-l-4 ${accent} transition-all duration-200 hover:shadow-md`}>
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <Icon className={`h-5 w-5 ${iconColor}`} />
+                  <CardTitle>{title}</CardTitle>
+                  <InfoPopover title="About This Section">
+                    <p>{popoverBody}</p>
+                    <p className="mt-2">
+                      The recommendations below are tailored to this dimension
+                      and can be incorporated into your action plan.
+                    </p>
+                  </InfoPopover>
+                </div>
+                <CardDescription>{subtitle}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="text-xl font-semibold mb-2">
+                      {highestRiskDimension.dimension_name}
+                    </h3>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-muted-foreground">
+                        Average Risk Score:
+                      </span>
+                      <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${badgeClass}`}>
+                        {isLow ? "Low" : isMedium ? "Medium" : "High"} — {level.toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold mb-3 text-base">{recTitle}</h4>
+                    <ul className="space-y-2">
+                      {highestRiskDimension.top_recommendations.map(
+                        (rec, index) => (
+                          <li key={index} className="flex items-start gap-3">
+                            <span className={`mt-1.5 h-1.5 w-1.5 rounded-full ${bulletColor} shrink-0`} />
+                            <span className="text-sm leading-relaxed">{rec}</span>
+                          </li>
+                        ),
+                      )}
+                    </ul>
                   </div>
                 </div>
-                <div>
-                  <h4 className="font-semibold mb-3 text-base">
-                    Top High-Priority Recommendations
-                  </h4>
-                  <ul className="space-y-2">
-                    {highestRiskDimension.top_recommendations.map(
-                      (rec, index) => (
-                        <li key={index} className="flex items-start gap-3">
-                          <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-destructive shrink-0" />
-                          <span className="text-sm leading-relaxed">{rec}</span>
-                        </li>
-                      ),
-                    )}
-                  </ul>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+              </CardContent>
+            </Card>
+          );
+        })()}
 
         {/* Data Visualization */}
         <div className="grid gap-6 lg:grid-cols-1">
