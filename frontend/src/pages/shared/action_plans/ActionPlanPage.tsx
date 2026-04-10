@@ -15,15 +15,14 @@ export default function ActionPlanPage() {
   }
 
   return (
-    <div className="space-y-8 max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl bg-gradient-to-r from-primary/5 via-primary/10 to-transparent p-6 sm:p-10 border border-primary/10">
-        <div className="space-y-2">
-          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-gray-900">
-            Action Plan for {assessmentName || "Assessment"}
+    <div className="w-full px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl bg-gradient-to-r from-primary/5 via-primary/10 to-transparent p-5 sm:p-7 border border-primary/10">
+        <div className="space-y-1">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900">
+            Action plan
           </h1>
-          <p className="text-lg text-muted-foreground max-w-2xl">
-            Track your action items from to-do to approved. Drag and drop items
-            to update their status.
+          <p className="text-sm text-muted-foreground">
+            Managing actions for <span className="font-medium">{assessmentName || "Assessment"}</span>
           </p>
         </div>
       </div>

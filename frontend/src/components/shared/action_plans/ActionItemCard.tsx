@@ -75,8 +75,8 @@ export function ActionItemCard({ item, onUpdate }: ActionItemCardProps) {
   const { label, className, borderColor } = currentStatusStyle;
 
   const truncateDescription = (description: string) => {
-    if (description.length > 100) {
-      return `${description.substring(0, 100)}...`;
+    if (description.length > 80) {
+      return `${description.substring(0, 80)}...`;
     }
     return description;
   };
@@ -173,7 +173,7 @@ export function ActionItemCard({ item, onUpdate }: ActionItemCardProps) {
               {item.title || item.dimension}
             </h3>
 
-            <p className="text-xs text-gray-500 mb-3 line-clamp-3 leading-relaxed">
+            <p className="text-xs text-gray-500 mb-3 line-clamp-2 leading-relaxed">
               {truncateDescription(item.description)}
             </p>
 

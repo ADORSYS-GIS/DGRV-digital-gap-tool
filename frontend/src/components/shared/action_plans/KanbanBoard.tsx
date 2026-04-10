@@ -61,9 +61,9 @@ export function KanbanBoard({ submissionId }: KanbanBoardProps) {
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 h-full items-start">
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 items-start">
       {/* To Do Column */}
-      <div className="bg-gray-50/80 rounded-xl border border-gray-200 flex flex-col h-full max-h-[calc(100vh-250px)]">
+      <div className="bg-gray-50/80 rounded-xl border border-gray-200 flex flex-col" style={{ minHeight: "calc(100vh - 220px)" }}>
         <div className="p-4 border-b border-gray-200 bg-white/50 rounded-t-xl backdrop-blur-sm sticky top-0 z-10">
           <div className="flex items-center justify-between mb-1">
             <h2 className="text-base font-bold text-gray-700 flex items-center gap-2">
@@ -81,16 +81,16 @@ export function KanbanBoard({ submissionId }: KanbanBoardProps) {
           </div>
         </div>
 
-        <div className="p-4 space-y-3 overflow-y-auto flex-1 custom-scrollbar">
+        <div className="p-3 space-y-3 overflow-y-auto flex-1">
           {canEdit && (
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
                 <Button
                   variant="outline"
-                  className="w-full flex items-center justify-center gap-2 h-12 border-dashed border-2 border-gray-300 text-gray-500 hover:border-primary hover:text-primary hover:bg-primary/5 transition-all duration-200 rounded-xl mb-2"
+                  className="w-full flex items-center justify-center gap-2 h-10 border-dashed border-2 border-gray-300 text-gray-500 hover:border-primary hover:text-primary hover:bg-primary/5 transition-all duration-200 rounded-xl mb-2"
                 >
                   <Plus className="h-4 w-4" />
-                  <span className="font-medium">Add Action Item</span>
+                  <span className="font-medium text-sm">Add Action Item</span>
                 </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-[600px] p-0 overflow-hidden rounded-2xl border-0 shadow-2xl">
@@ -121,7 +121,7 @@ export function KanbanBoard({ submissionId }: KanbanBoardProps) {
           ))}
 
           {columns.todo.length === 0 && !canEdit && (
-            <div className="text-center py-8 text-gray-400 text-sm italic">
+            <div className="text-center py-12 text-gray-400 text-sm italic">
               No items in To Do
             </div>
           )}
@@ -129,7 +129,7 @@ export function KanbanBoard({ submissionId }: KanbanBoardProps) {
       </div>
 
       {/* In Progress Column */}
-      <div className="bg-blue-50/50 rounded-xl border border-blue-100 flex flex-col h-full max-h-[calc(100vh-250px)]">
+      <div className="bg-blue-50/50 rounded-xl border border-blue-100 flex flex-col" style={{ minHeight: "calc(100vh - 220px)" }}>
         <div className="p-4 border-b border-blue-100 bg-white/50 rounded-t-xl backdrop-blur-sm sticky top-0 z-10">
           <div className="flex items-center justify-between mb-1">
             <h2 className="text-base font-bold text-blue-700 flex items-center gap-2">
@@ -147,7 +147,7 @@ export function KanbanBoard({ submissionId }: KanbanBoardProps) {
           </div>
         </div>
 
-        <div className="p-4 space-y-3 overflow-y-auto flex-1 custom-scrollbar">
+        <div className="p-3 space-y-3 overflow-y-auto flex-1">
           {columns.in_progress.map((item) => (
             <ActionItemCard
               key={item.action_item_id}
@@ -156,7 +156,7 @@ export function KanbanBoard({ submissionId }: KanbanBoardProps) {
             />
           ))}
           {columns.in_progress.length === 0 && (
-            <div className="text-center py-8 text-blue-300 text-sm italic">
+            <div className="text-center py-12 text-blue-300 text-sm italic">
               No items in progress
             </div>
           )}
@@ -164,7 +164,7 @@ export function KanbanBoard({ submissionId }: KanbanBoardProps) {
       </div>
 
       {/* Done Column */}
-      <div className="bg-green-50/50 rounded-xl border border-green-100 flex flex-col h-full max-h-[calc(100vh-250px)]">
+      <div className="bg-green-50/50 rounded-xl border border-green-100 flex flex-col" style={{ minHeight: "calc(100vh - 220px)" }}>
         <div className="p-4 border-b border-green-100 bg-white/50 rounded-t-xl backdrop-blur-sm sticky top-0 z-10">
           <div className="flex items-center justify-between mb-1">
             <h2 className="text-base font-bold text-green-700 flex items-center gap-2">
@@ -182,7 +182,7 @@ export function KanbanBoard({ submissionId }: KanbanBoardProps) {
           </div>
         </div>
 
-        <div className="p-4 space-y-3 overflow-y-auto flex-1 custom-scrollbar">
+        <div className="p-3 space-y-3 overflow-y-auto flex-1">
           {columns.done.map((item) => (
             <ActionItemCard
               key={item.action_item_id}
@@ -191,7 +191,7 @@ export function KanbanBoard({ submissionId }: KanbanBoardProps) {
             />
           ))}
           {columns.done.length === 0 && (
-            <div className="text-center py-8 text-green-300 text-sm italic">
+            <div className="text-center py-12 text-green-300 text-sm italic">
               No items completed
             </div>
           )}
@@ -199,7 +199,7 @@ export function KanbanBoard({ submissionId }: KanbanBoardProps) {
       </div>
 
       {/* Approved Column */}
-      <div className="bg-purple-50/50 rounded-xl border border-purple-100 flex flex-col h-full max-h-[calc(100vh-250px)]">
+      <div className="bg-purple-50/50 rounded-xl border border-purple-100 flex flex-col" style={{ minHeight: "calc(100vh - 220px)" }}>
         <div className="p-4 border-b border-purple-100 bg-white/50 rounded-t-xl backdrop-blur-sm sticky top-0 z-10">
           <div className="flex items-center justify-between mb-1">
             <h2 className="text-base font-bold text-purple-700 flex items-center gap-2">
@@ -217,7 +217,7 @@ export function KanbanBoard({ submissionId }: KanbanBoardProps) {
           </div>
         </div>
 
-        <div className="p-4 space-y-3 overflow-y-auto flex-1 custom-scrollbar">
+        <div className="p-3 space-y-3 overflow-y-auto flex-1">
           {columns.approved.map((item) => (
             <ActionItemCard
               key={item.action_item_id}
@@ -226,7 +226,7 @@ export function KanbanBoard({ submissionId }: KanbanBoardProps) {
             />
           ))}
           {columns.approved.length === 0 && (
-            <div className="text-center py-8 text-purple-300 text-sm italic">
+            <div className="text-center py-12 text-purple-300 text-sm italic">
               No items approved
             </div>
           )}

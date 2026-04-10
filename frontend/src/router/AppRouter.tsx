@@ -1,7 +1,5 @@
 /**
  * Application router component that handles all client-side routing.
- * This component sets up the React Router with the application's route configuration,
- * wraps all routes in the main layout, and provides recursive route rendering.
  */
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import MainLayout from "@/layouts/MainLayout";
@@ -22,16 +20,18 @@ const renderRoutes = (routes: RouteConfig[]) => {
 const AppRouter = () => {
   const { loading } = useAuth();
 
-  if (loading) {
-    return <LoadingSpinner />;
-  }
-
   return (
     <Router>
       <MainLayout>
-        <React.Suspense fallback={<LoadingSpinner />}>
-          <Routes>{renderRoutes(routes)}</Routes>
-        </React.Suspense>
+        {loading ? (
+          <div className="flex min-h-screen items-center justify-center">
+            <LoadingSpinner />
+          </div>
+        ) : (
+          <React.Suspense fallback={<LoadingSpinner />}>
+            <Routes>{renderRoutes(routes)}</Routes>
+          </React.Suspense>
+        )}
       </MainLayout>
     </Router>
   );

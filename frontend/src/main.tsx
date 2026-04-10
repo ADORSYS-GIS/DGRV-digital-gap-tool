@@ -9,6 +9,7 @@ import {
 import { authService } from "./services/shared/authService";
 import { OpenAPI } from "./openapi-client/core/OpenAPI";
 import { syncManager } from "./services/sync/syncManager";
+import { queryClient } from "./lib/queryClient";
 
 // Register OpenAPI request middleware to add Bearer token
 OpenAPI.interceptors.request.use(async (request) => {
@@ -16,11 +17,7 @@ OpenAPI.interceptors.request.use(async (request) => {
     const token = await authService.getAccessToken();
     if (token) {
       if (!request.headers) request.headers = {};
-      // If headers is a Headers object, convert to plain object
-      if (
-        typeof Headers !== "undefined" &&
-        request.headers instanceof Headers
-      ) {
+      if (typeof Headers !== "undefined" && request.headers instanceof Headers) {
         request.headers.set("Authorization", `Bearer ${token}`);
       } else {
         (request.headers as Record<string, string>)["Authorization"] =
@@ -33,35 +30,33 @@ OpenAPI.interceptors.request.use(async (request) => {
   return request;
 });
 
-import { queryClient } from "./lib/queryClient";
-
 const root = createRoot(document.getElementById("root")!);
 
-const renderApp = () => {
-  root.render(
-    <QueryClientProvider client={queryClient}>
-      <App />
-    </QueryClientProvider>,
-  );
-};
+// Render immediately — AuthContext starts with loading=true so the router
+// shows a spinner until Keycloak resolves below.
+root.render(
+  <QueryClientProvider client={queryClient}>
+    <App />
+  </QueryClientProvider>,
+);
 
-renderApp();
-
+// Single Keycloak init — AuthContext does NOT call init again.
 keycloak
   .init(keycloakInitOptions)
-  .then((authenticated) => {
+  .then(async (authenticated) => {
     if (authenticated) {
-      authService.storeTokens();
-      console.log("Keycloak initialized successfully - User authenticated");
+      await authService.storeTokens();
+      console.log("Keycloak initialized — user authenticated");
     } else {
-      console.log(
-        "Keycloak initialized - User not authenticated (check-sso mode)",
-      );
+      console.log("Keycloak initialized — user not authenticated");
     }
+    // Notify AuthContext that Keycloak is ready by firing onAuthSuccess/onReady.
+    // keycloak.onReady fires after init regardless of auth state.
+    if (keycloak.onReady) keycloak.onReady(authenticated);
     syncManager.initialize();
   })
   .catch((error) => {
     console.error("Failed to initialize Keycloak:", error);
-    // App is already rendered, just log the error.
-    // The user will be in a "logged out" state.
+    // Fire onReady with false so AuthContext stops loading even on error.
+    if (keycloak.onReady) keycloak.onReady(false);
   });

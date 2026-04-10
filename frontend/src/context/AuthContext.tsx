@@ -29,6 +29,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     isAuthenticated: false,
     user: null,
     roles: [],
+    // Start as loading=true; main.tsx resolves Keycloak and calls updateAuthState
     loading: true,
   });
   const [isInvitationPending, setIsInvitationPending] = useState(false);
@@ -44,12 +45,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setIsInvitationPending(false);
     }
 
-    setAuthState({
-      isAuthenticated,
-      user,
-      roles,
-      loading: false,
-    });
+    setAuthState({ isAuthenticated, user, roles, loading: false });
   }, []);
 
   const login = useCallback(async () => {
@@ -61,24 +57,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   useEffect(() => {
-    const initKeycloak = async () => {
-      try {
-        const authenticated = await keycloak.init({
-          onLoad: "check-sso",
-          silentCheckSsoRedirectUri: `${window.location.origin}/silent-check-sso.html`,
-        });
-
-        if (authenticated) {
-          await authService.storeTokens();
-        }
-      } catch (error) {
-        console.error("Keycloak initialization failed:", error);
-      } finally {
-        updateAuthState();
-      }
+    // main.tsx already called keycloak.init() before rendering the app.
+    // Here we just wire up the event handlers and read the current state.
+    // onReady fires once init completes (authenticated or not).
+    keycloak.onReady = () => {
+      updateAuthState();
     };
-
-    initKeycloak();
 
     keycloak.onAuthSuccess = () => {
       authService.storeTokens();
@@ -102,6 +86,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     return () => {
+      keycloak.onReady = () => {};
       keycloak.onAuthSuccess = () => {};
       keycloak.onAuthError = () => {};
       keycloak.onAuthRefreshSuccess = () => {};
@@ -109,14 +94,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       keycloak.onTokenExpired = () => {};
     };
   }, [updateAuthState]);
-
-  if (authState.loading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="w-16 h-16 border-4 border-t-transparent border-blue-500 rounded-full animate-spin"></div>
-      </div>
-    );
-  }
 
   return (
     <AuthContext.Provider value={{ ...authState, login, logout }}>

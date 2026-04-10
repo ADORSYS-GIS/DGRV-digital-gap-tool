@@ -1,6 +1,5 @@
 import { db } from "@/services/db";
 import {
-  listActionPlans,
   getActionPlanByAssessmentId,
   createActionItem,
   updateActionItem,
@@ -27,23 +26,6 @@ const mapToActionPlan = (data: ActionPlanResponse): ActionPlan => {
 };
 
 class ActionPlanRepository {
-  async syncActionPlans() {
-    try {
-      const response = await listActionPlans();
-      if (response.success && response.data) {
-        const actionPlans = response.data.items.map(mapToActionPlan);
-        await db.action_plans.bulkPut(actionPlans);
-      }
-    } catch (error) {
-      console.error("Failed to sync action plans:", error);
-    }
-  }
-
-  async getActionPlans(): Promise<ActionPlan[]> {
-    await this.syncActionPlans();
-    return await db.action_plans.toArray();
-  }
-
   async getActionPlanByAssessmentId(
     assessmentId: string,
   ): Promise<ActionPlan | undefined> {
@@ -51,6 +33,7 @@ class ActionPlanRepository {
       const response = await getActionPlanByAssessmentId({ assessmentId });
       if (response.success && response.data) {
         const actionPlan = mapToActionPlan(response.data);
+        // Cache only this specific plan — never bulk-store all plans globally
         await db.action_plans.put(actionPlan);
         return actionPlan;
       }
@@ -58,7 +41,7 @@ class ActionPlanRepository {
       console.error("Failed to fetch action plan from API:", error);
     }
 
-    // Fallback to local data if API fails or offline
+    // Offline fallback: only return data cached for this specific assessment
     return await db.action_plans
       .where("assessment_id")
       .equals(assessmentId)
