@@ -15,8 +15,8 @@ export default function ActionPlanPage() {
   }
 
   return (
-    <div className="w-full px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl bg-gradient-to-r from-primary/5 via-primary/10 to-transparent p-5 sm:p-7 border border-primary/10">
+    <div className="w-full px-4 sm:px-6 lg:px-8 py-6 flex flex-col gap-6" style={{ height: "100vh", overflow: "hidden" }}>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl bg-gradient-to-r from-primary/5 via-primary/10 to-transparent p-5 sm:p-7 border border-primary/10 shrink-0">
         <div className="space-y-1">
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900">
             Action plan
@@ -27,7 +27,9 @@ export default function ActionPlanPage() {
         </div>
       </div>
 
-      <KanbanBoard submissionId={assessmentId} />
+      <div className="flex-1 min-h-0">
+        <KanbanBoard submissionId={assessmentId} />
+      </div>
     </div>
   );
 }

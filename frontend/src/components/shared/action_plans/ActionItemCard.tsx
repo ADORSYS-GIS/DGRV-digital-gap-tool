@@ -222,7 +222,7 @@ export function ActionItemCard({ item, onUpdate }: ActionItemCardProps) {
         <DialogContent className="sm:max-w-[500px] rounded-2xl">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold text-gray-900">
-              {item.title || item.dimension}
+              {item.dimension || "Action Item"}
             </DialogTitle>
           </DialogHeader>
           <div className="py-4">

@@ -10,6 +10,17 @@ import { authService } from "./services/shared/authService";
 import { OpenAPI } from "./openapi-client/core/OpenAPI";
 import { syncManager } from "./services/sync/syncManager";
 import { queryClient } from "./lib/queryClient";
+import { db } from "./services/db";
+
+// One-time migration: clear the action_plans IndexedDB table that may contain
+// cross-cooperation data from the old global sync. Safe to run on every boot —
+// the data is always re-fetched per-assessment from the API.
+const ACTION_PLANS_CACHE_CLEARED = "action_plans_cache_v2_cleared";
+if (!localStorage.getItem(ACTION_PLANS_CACHE_CLEARED)) {
+  db.action_plans.clear().then(() => {
+    localStorage.setItem(ACTION_PLANS_CACHE_CLEARED, "1");
+  });
+}
 
 // Register OpenAPI request middleware to add Bearer token
 OpenAPI.interceptors.request.use(async (request) => {
