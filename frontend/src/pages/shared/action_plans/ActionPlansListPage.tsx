@@ -1,231 +1,281 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { ROLES } from "@/constants/roles";
 import { useOrganizationId } from "@/hooks/organizations/useOrganizationId";
 import { useCooperationId } from "@/hooks/cooperations/useCooperationId";
 import { useCooperationIdFromPath } from "@/hooks/cooperations/useCooperationIdFromPath";
+import { useCooperations } from "@/hooks/cooperations/useCooperations";
 import { useSubmissionsByOrganization } from "@/hooks/submissions/useSubmissionsByOrganization";
 import { useSubmissionsByCooperation } from "@/hooks/submissions/useSubmissionsByCooperation";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
-import { SubmissionList } from "@/components/shared/submissions/SubmissionList";
 import { KanbanBoard } from "@/components/shared/action_plans/KanbanBoard";
+import { Badge } from "@/components/ui/badge";
 import { AssessmentSummary } from "@/types/assessment";
+import { Cooperation } from "@/types/cooperation";
 import { SyncStatus } from "@/types/sync";
+import { Building2, ChevronDown, ChevronRight, ClipboardList } from "lucide-react";
 
-export default function ActionPlansListPage() {
-  const { user } = useAuth();
-  const organizationId = useOrganizationId();
-  const cooperationIdFromRoute = useCooperationId();
-  const {
-    cooperationId: cooperationIdFromPath,
-    isLoading: isLoadingCoopFromPath,
-    error: coopFromPathError,
-  } = useCooperationIdFromPath();
-  const cooperationId = cooperationIdFromRoute || cooperationIdFromPath || null;
+// ── Coop section (org admin view) ──────────────────────────────────────────
+function CoopActionPlanSection({
+  cooperation,
+  basePath,
+}: {
+  cooperation: Cooperation;
+  basePath: string;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  const [selectedSubmission, setSelectedSubmission] =
-    useState<AssessmentSummary | null>(null);
+  const { data: submissions = [], isLoading } = useSubmissionsByCooperation(
+    cooperation.id,
+    { enabled: isOpen },
+  );
 
-  const userRoles = (user?.roles || []).map((role) => role.toLowerCase());
-  const isOrgAdmin = userRoles.includes(ROLES.ORG_ADMIN.toLowerCase());
-  const isCoopUser =
-    userRoles.includes(ROLES.COOP_USER.toLowerCase()) ||
-    userRoles.includes(ROLES.COOP_ADMIN.toLowerCase());
+  const mapped: AssessmentSummary[] = submissions.map((s) => ({
+    ...s,
+    id: s.assessment.assessment_id,
+    syncStatus: SyncStatus.SYNCED,
+    assessment: {
+      ...s.assessment,
+      started_at: s.assessment.started_at || null,
+      completed_at: s.assessment.completed_at || null,
+      dimensions_id: s.assessment.dimensions_id as string[],
+    },
+    overall_score: s.overall_score ?? null,
+  }));
 
-  const {
-    data: orgSubmissions = [],
-    isLoading: isLoadingOrg,
-    error: orgError,
-  } = useSubmissionsByOrganization(organizationId || "", {
-    enabled: isOrgAdmin && !!organizationId,
-  });
+  const completed = mapped.filter((s) => s.assessment.status === "Completed" || s.assessment.status === "completed");
 
-  const {
-    data: coopSubmissions = [],
-    isLoading: isLoadingCoop,
-    error: coopError,
-  } = useSubmissionsByCooperation(cooperationId || "", {
-    enabled: isCoopUser && !!cooperationId,
-  });
-
-  const submissions: AssessmentSummary[] = useMemo(() => {
-    const raw =
-      isOrgAdmin && orgSubmissions
-        ? orgSubmissions
-        : isCoopUser && coopSubmissions
-          ? coopSubmissions
-          : [];
-
-    return (raw || []).map((s) => ({
-      ...s,
-      id: s.assessment.assessment_id,
-      syncStatus: SyncStatus.SYNCED,
-      assessment: {
-        ...s.assessment,
-        started_at: s.assessment.started_at || null,
-        completed_at: s.assessment.completed_at || null,
-        dimensions_id: s.assessment.dimensions_id as string[],
-      },
-      overall_score: s.overall_score ?? null,
-    }));
-  }, [coopSubmissions, isCoopUser, isOrgAdmin, orgSubmissions]);
-
-  const isLoading =
-    (isOrgAdmin ? isLoadingOrg : isCoopUser ? isLoadingCoop : false) ||
-    isLoadingCoopFromPath;
-  const error = isOrgAdmin
-    ? orgError
-    : isCoopUser
-      ? coopError || coopFromPathError
-      : null;
-
-  const handleSubmissionSelect = (submissionId: string) => {
-    const submission = submissions.find((s) => s.id === submissionId);
-    if (submission) {
-      setSelectedSubmission(submission);
-    } else {
-      console.error(`Submission with ID ${submissionId} not found.`);
-    }
-  };
-
-  if (!isOrgAdmin && !isCoopUser) {
-    return (
-      <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="rounded-xl border-l-4 border-destructive bg-destructive/10 px-4 py-3">
-          <p className="text-sm font-medium text-destructive">
-            You don&apos;t have permission to view action plans. Please contact
-            your administrator.
-          </p>
+  return (
+    <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
+      <button
+        type="button"
+        onClick={() => { setIsOpen((v) => !v); setSelectedId(null); }}
+        className="w-full flex items-center gap-3 px-5 py-4 text-left hover:bg-muted/40 transition-colors"
+      >
+        <div className="p-2 rounded-lg bg-primary/10 text-primary shrink-0">
+          <Building2 className="h-4 w-4" />
         </div>
+        <div className="flex-1 min-w-0">
+          <p className="font-semibold text-foreground truncate">{cooperation.name}</p>
+          {cooperation.description && (
+            <p className="text-xs text-muted-foreground truncate">{cooperation.description}</p>
+          )}
+        </div>
+        {isOpen && !isLoading && (
+          <Badge variant="secondary" className="shrink-0">
+            {completed.length} plan{completed.length !== 1 ? "s" : ""}
+          </Badge>
+        )}
+        {isOpen
+          ? <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />
+          : <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
+        }
+      </button>
+
+      {isOpen && (
+        <div className="border-t border-border">
+          {isLoading ? (
+            <div className="flex justify-center py-6"><LoadingSpinner /></div>
+          ) : completed.length === 0 ? (
+            <p className="text-sm text-muted-foreground px-5 py-4">
+              No completed submissions for this cooperative yet.
+            </p>
+          ) : selectedId ? (
+            <div className="p-4 space-y-4">
+              <button
+                type="button"
+                onClick={() => setSelectedId(null)}
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                ← Back to submissions
+              </button>
+              <KanbanBoard submissionId={selectedId} />
+            </div>
+          ) : (
+            <ul className="divide-y divide-border">
+              {completed.map((s) => (
+                <li key={s.id}>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedId(s.id)}
+                    className="w-full flex items-center gap-3 px-5 py-3 text-left hover:bg-muted/30 transition-colors"
+                  >
+                    <ClipboardList className="h-4 w-4 text-muted-foreground shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-foreground truncate">
+                        {s.assessment.document_title}
+                      </p>
+                      {s.assessment.completed_at && (
+                        <p className="text-xs text-muted-foreground">
+                          Submitted {new Date(s.assessment.completed_at).toLocaleDateString()}
+                        </p>
+                      )}
+                    </div>
+                    <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Coop/user flat list (coop admin / coop user view) ──────────────────────
+function CoopUserActionPlans({
+  cooperationId,
+  basePath,
+}: {
+  cooperationId: string;
+  basePath: string;
+}) {
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const { data: submissions = [], isLoading } = useSubmissionsByCooperation(cooperationId);
+
+  const mapped: AssessmentSummary[] = submissions.map((s) => ({
+    ...s,
+    id: s.assessment.assessment_id,
+    syncStatus: SyncStatus.SYNCED,
+    assessment: {
+      ...s.assessment,
+      started_at: s.assessment.started_at || null,
+      completed_at: s.assessment.completed_at || null,
+      dimensions_id: s.assessment.dimensions_id as string[],
+    },
+    overall_score: s.overall_score ?? null,
+  }));
+
+  const completed = mapped.filter((s) => s.assessment.status === "Completed" || s.assessment.status === "completed");
+
+  if (isLoading) return <div className="flex justify-center py-12"><LoadingSpinner /></div>;
+
+  if (selectedId) {
+    return (
+      <div className="space-y-4">
+        <button
+          type="button"
+          onClick={() => setSelectedId(null)}
+          className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+        >
+          ← Back to submissions
+        </button>
+        <KanbanBoard submissionId={selectedId} />
       </div>
     );
   }
 
-  if (selectedSubmission) {
+  if (completed.length === 0) {
     return (
-      <div className="min-h-screen bg-background">
-        <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8 space-y-6">
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-                Action plan
-              </h1>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Managing actions for{" "}
-                <span className="font-medium text-foreground">
-                  {selectedSubmission.assessment.document_title}
-                </span>
-                .
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => setSelectedSubmission(null)}
-              className="text-sm font-medium text-muted-foreground hover:text-foreground"
-            >
-              ← Back to submissions
-            </button>
-          </div>
-
-          <KanbanBoard submissionId={selectedSubmission.id} />
-        </div>
+      <div className="flex min-h-[180px] items-center justify-center rounded-xl border border-dashed border-muted-foreground/30 bg-muted/40 text-sm text-muted-foreground">
+        No completed submissions yet.
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="space-y-8 max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl bg-gradient-to-r from-primary/5 via-primary/10 to-transparent p-6 sm:p-10 border border-primary/10">
-          <div className="space-y-2">
-            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-gray-900">
-              Action plans
-            </h1>
-            <p className="text-lg text-muted-foreground max-w-2xl">
-              Choose a completed assessment submission to view and manage its
-              action plan.
-            </p>
-          </div>
-        </div>
-
-        {isLoading && (
-          <div className="flex justify-center py-12">
-            <LoadingSpinner size="lg" />
-          </div>
-        )}
-
-        {error && (
-          <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-md">
-            <div className="flex">
-              <div className="flex-shrink-0">
-                <svg
-                  className="h-5 w-5 text-red-400"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </div>
-              <div className="ml-3">
-                <p className="text-sm text-red-700">
-                  Error loading submissions:{" "}
-                  {error instanceof Error ? error.message : "Unknown error"}
+    <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
+      <ul className="divide-y divide-border">
+        {completed.map((s) => (
+          <li key={s.id}>
+            <button
+              type="button"
+              onClick={() => setSelectedId(s.id)}
+              className="w-full flex items-center gap-3 px-5 py-3 text-left hover:bg-muted/30 transition-colors"
+            >
+              <ClipboardList className="h-4 w-4 text-muted-foreground shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-foreground truncate">
+                  {s.assessment.document_title}
                 </p>
+                {s.assessment.completed_at && (
+                  <p className="text-xs text-muted-foreground">
+                    Submitted {new Date(s.assessment.completed_at).toLocaleDateString()}
+                  </p>
+                )}
               </div>
-            </div>
-          </div>
-        )}
+              <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
 
-        {!isLoading && !error && isCoopUser && !cooperationId && (
-          <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-md">
-            <div className="flex">
-              <div className="flex-shrink-0">
-                <svg
-                  className="h-5 w-5 text-red-400"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </div>
-              <div className="ml-3">
-                <p className="text-sm text-red-700">
-                  No cooperative determined for your account. Please contact
-                  your administrator.
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
+// ── Main page ──────────────────────────────────────────────────────────────
+export default function ActionPlansListPage() {
+  const { user } = useAuth();
+  const organizationId = useOrganizationId();
+  const cooperationIdFromRoute = useCooperationId();
+  const { cooperationId: cooperationIdFromPath, isLoading: isLoadingCoopFromPath } =
+    useCooperationIdFromPath();
+  const cooperationId = cooperationIdFromRoute || cooperationIdFromPath || null;
 
-        {!isLoading && !error && submissions.length > 0 && (
-          <section className="space-y-4">
-            <h2 className="text-lg font-semibold text-gray-900">
-              Select a submission
-            </h2>
-            <SubmissionList
-              submissions={submissions}
-              onSubmissionSelect={handleSubmissionSelect}
-              basePath={location.pathname.split("/").slice(0, 2).join("/")}
-            />
-          </section>
-        )}
+  const userRoles = (user?.roles || []).map((r) => r.toLowerCase());
+  const isOrgAdmin = userRoles.includes(ROLES.ORG_ADMIN.toLowerCase());
+  const isCoopUser =
+    userRoles.includes(ROLES.COOP_USER.toLowerCase()) ||
+    userRoles.includes(ROLES.COOP_ADMIN.toLowerCase());
 
-        {!isLoading && !error && submissions.length === 0 && (
-          <div className="flex min-h-[180px] items-center justify-center rounded-xl border border-dashed border-muted-foreground/30 bg-muted/40 px-6 py-10 text-center text-sm text-muted-foreground">
-            No submissions found yet. Once assessments are completed, their
-            action plans will be available here.
-          </div>
-        )}
+  const { data: cooperations = [], isLoading: isLoadingCoops } = useCooperations(
+    isOrgAdmin ? organizationId || undefined : undefined,
+  );
+
+  const basePath = isOrgAdmin ? "/second-admin" : "/third-admin";
+
+  if (!isOrgAdmin && !isCoopUser) {
+    return (
+      <div className="rounded-xl border-l-4 border-destructive bg-destructive/10 px-4 py-3 text-sm font-medium text-destructive">
+        You don't have permission to view action plans.
       </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="rounded-xl bg-gradient-to-r from-primary/5 via-primary/10 to-transparent px-6 py-5 border border-primary/10">
+        <h1 className="text-2xl font-bold tracking-tight text-gray-900">Action plans</h1>
+        <p className="text-sm text-muted-foreground mt-1">
+          {isOrgAdmin
+            ? "Expand a cooperative to view and manage its action plans."
+            : "Select a completed submission to view its action plan."}
+        </p>
+      </div>
+
+      {/* Org admin: collapsible cooperatives */}
+      {isOrgAdmin && (
+        <>
+          {isLoadingCoops && <LoadingSpinner />}
+          {!isLoadingCoops && cooperations.length === 0 && (
+            <p className="text-sm text-muted-foreground text-center py-8">
+              No cooperatives found.
+            </p>
+          )}
+          <div className="space-y-3">
+            {cooperations.map((coop) => (
+              <CoopActionPlanSection key={coop.id} cooperation={coop} basePath={basePath} />
+            ))}
+          </div>
+        </>
+      )}
+
+      {/* Coop admin / coop user: flat list */}
+      {isCoopUser && (
+        <>
+          {isLoadingCoopFromPath && <LoadingSpinner />}
+          {!isLoadingCoopFromPath && !cooperationId && (
+            <p className="text-sm text-destructive">
+              No cooperative found for your account. Contact your administrator.
+            </p>
+          )}
+          {cooperationId && (
+            <CoopUserActionPlans cooperationId={cooperationId} basePath={basePath} />
+          )}
+        </>
+      )}
     </div>
   );
 }

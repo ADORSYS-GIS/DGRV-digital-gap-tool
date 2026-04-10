@@ -89,9 +89,13 @@ impl RecommendationsRepository {
             _ => return Err(AppError::ValidationError("Invalid priority".to_string())),
         };
 
+        // Only return admin-created recommendations as defaults.
+        // User-created recommendations (source = "action_plan") must never
+        // leak into other submissions as default action items.
         Recommendations::find()
             .filter(recommendations::Column::DimensionId.eq(dimension_id))
             .filter(recommendations::Column::Priority.eq(priority_enum))
+            .filter(recommendations::Column::Source.eq("admin"))
             .one(db)
             .await
             .map_err(AppError::from)

@@ -31,7 +31,7 @@ const navLinks = [
 
 const ThirdAdminLayout: React.FC = () => {
   return (
-    <div className="flex h-screen overflow-hidden bg-muted/30">
+    <div className="flex h-full overflow-hidden bg-muted/30">
       <Sidebar
         navLinks={navLinks}
         panelName="Cooperative Admin"
@@ -39,7 +39,7 @@ const ThirdAdminLayout: React.FC = () => {
         infoText="This panel is for cooperative administrators to manage users and answer assessments for their cooperative."
       />
       <main className="flex-1 overflow-hidden flex flex-col">
-        <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8 flex-1 overflow-y-auto">
+        <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8 h-full overflow-y-auto">
           <Outlet />
         </div>
       </main>
