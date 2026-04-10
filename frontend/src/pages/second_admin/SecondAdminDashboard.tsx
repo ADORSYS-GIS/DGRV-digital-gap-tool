@@ -241,6 +241,7 @@ const SecondAdminDashboard: React.FC = () => {
               <CardContent>
                 <SubmissionChart
                   assessments={latestAssessments}
+                  assessmentName={submissions[0]?.assessment?.document_title}
                   dimensions={allDimensions}
                   allDimensionStates={allDimensionStates ?? []}
                 />

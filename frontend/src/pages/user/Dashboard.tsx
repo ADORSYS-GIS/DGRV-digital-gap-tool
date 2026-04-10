@@ -227,6 +227,7 @@ const UserDashboard: React.FC = () => {
               <CardContent>
                 <SubmissionChart
                   assessments={latestAssessments}
+                  assessmentName={submissions[0]?.assessment?.document_title}
                   dimensions={dimensions}
                   allDimensionStates={allDimensionStates}
                 />

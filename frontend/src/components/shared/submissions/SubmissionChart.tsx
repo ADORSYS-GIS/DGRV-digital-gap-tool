@@ -15,6 +15,7 @@ interface SubmissionChartProps {
   assessments: IDimensionAssessment[];
   dimensions: IDimension[];
   allDimensionStates: IDimensionState[];
+  assessmentName?: string;
 }
 
 interface Payload {
@@ -70,6 +71,7 @@ export function SubmissionChart({
   assessments,
   dimensions,
   allDimensionStates,
+  assessmentName,
 }: SubmissionChartProps) {
   const chartData = assessments
     .map((da) => {
@@ -119,7 +121,13 @@ export function SubmissionChart({
   }
 
   return (
-    <ResponsiveContainer width="100%" height={400}>
+    <>
+      {assessmentName && (
+        <p className="text-xs font-medium text-muted-foreground mb-3">
+          Assessment: <span className="text-foreground font-semibold">{assessmentName}</span>
+        </p>
+      )}
+      <ResponsiveContainer width="100%" height={400}>
       <BarChart
         data={chartData}
         margin={{
@@ -137,6 +145,7 @@ export function SubmissionChart({
         <Bar dataKey="Current State" fill="#8884d8" />
         <Bar dataKey="Desired State" fill="#82ca9d" />
       </BarChart>
-    </ResponsiveContainer>
+      </ResponsiveContainer>
+    </>
   );
 }
