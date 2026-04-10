@@ -111,10 +111,20 @@
             font-size: 12px;
         }
 
-        @media print {
-            body {
-                padding: 20px;
-            }
+        .status-todo { background: #f1f5f9; color: #475569; font-weight: 600; padding: 2px 8px; border-radius: 4px; }
+        .status-in_progress { background: #dbeafe; color: #1d4ed8; font-weight: 600; padding: 2px 8px; border-radius: 4px; }
+        .status-done { background: #dcfce7; color: #15803d; font-weight: 600; padding: 2px 8px; border-radius: 4px; }
+        .status-approved { background: #f3e8ff; color: #7e22ce; font-weight: 600; padding: 2px 8px; border-radius: 4px; }
+        .priority-low { color: #15803d; font-weight: 600; }
+        .priority-medium { color: #854d0e; font-weight: 600; }
+        .priority-high { color: #991b1b; font-weight: 700; }
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1e40af;
+            margin: 40px 0 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #bfdbfe;
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -222,6 +232,32 @@
             canvas.style.display = 'none';
         }
     </script>
+    {% endif %}
+
+    {% if action_plan_items | length > 0 %}
+    <div class="table-container">
+        <h2 class="section-title">Action Plan</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Dimension</th>
+                    <th>Description</th>
+                    <th>Priority</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in action_plan_items %}
+                <tr>
+                    <td><strong>{{ item.dimension }}</strong></td>
+                    <td>{{ item.description }}</td>
+                    <td class="priority-{{ item.priority | lower }}">{{ item.priority | upper }}</td>
+                    <td><span class="status-{{ item.status }}">{{ item.status | replace(from="_", to=" ") | title }}</span></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
     {% endif %}
 
     <div class="footer">

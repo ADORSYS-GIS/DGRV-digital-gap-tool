@@ -1,6 +1,7 @@
 use crate::error::AppError;
 use crate::repositories::{
-    action_items::ActionItemsRepository, assessments::AssessmentsRepository,
+    action_items::ActionItemsRepository, action_plans::ActionPlansRepository,
+    assessments::AssessmentsRepository,
     current_states::CurrentStatesRepository, desired_states::DesiredStatesRepository,
     dimension_assessments::DimensionAssessmentsRepository, dimensions::DimensionsRepository,
     gaps::GapsRepository, recommendations::RecommendationsRepository,
@@ -25,6 +26,15 @@ pub struct PdfReportRow {
     pub recommendations: Vec<String>,
 }
 
+/// A single action plan item row for the PDF report
+#[derive(Debug, Clone, Serialize)]
+pub struct ActionPlanItem {
+    pub dimension: String,
+    pub description: String,
+    pub priority: String,
+    pub status: String,
+}
+
 /// Chart data structure
 #[derive(Debug, Clone, Serialize)]
 pub struct ChartData {
@@ -38,6 +48,7 @@ pub struct ChartData {
 pub struct PdfReportData {
     pub assessment_title: String,
     pub rows: Vec<PdfReportRow>,
+    pub action_plan_items: Vec<ActionPlanItem>,
     pub chart_data: Option<String>, // JSON string for Chart.js
     pub generation_date: String,
 }
@@ -187,9 +198,26 @@ impl PdfGeneratorService {
             None
         };
 
+        // Fetch action plan items for this assessment
+        let mut action_plan_items: Vec<ActionPlanItem> = Vec::new();
+        if let Some(action_plan) =
+            ActionPlansRepository::find_action_plan_with_items_by_assessment_id(db, assessment_id)
+                .await?
+        {
+            for item in action_plan.action_items {
+                action_plan_items.push(ActionPlanItem {
+                    dimension: item.dimension,
+                    description: item.description,
+                    priority: item.priority,
+                    status: item.status,
+                });
+            }
+        }
+
         Ok(PdfReportData {
             assessment_title: assessment.document_title,
             rows,
+            action_plan_items,
             chart_data,
             generation_date: chrono::Utc::now().format("%Y-%m-%d %H:%M UTC").to_string(),
         })
@@ -212,6 +240,7 @@ impl PdfGeneratorService {
         let mut context = Context::new();
         context.insert("assessment_title", &data.assessment_title);
         context.insert("rows", &data.rows);
+        context.insert("action_plan_items", &data.action_plan_items);
         context.insert("chart_data", &data.chart_data);
         context.insert("generation_date", &data.generation_date);
 
