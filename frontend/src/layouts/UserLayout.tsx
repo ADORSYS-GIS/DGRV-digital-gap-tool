@@ -24,8 +24,8 @@ const UserLayout: React.FC = () => {
         panelAbbreviation="U"
         infoText="This panel is for cooperative users to create assessments and view action plans."
       />
-      <main className="flex-1 overflow-y-auto">
-        <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
+      <main className="flex-1 overflow-hidden flex flex-col">
+        <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8 flex-1 overflow-y-auto">
           <Outlet />
         </div>
       </main>

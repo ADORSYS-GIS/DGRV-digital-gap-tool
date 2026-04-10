@@ -22,7 +22,7 @@ impl ActionPlanService {
         action_plan_id: Uuid,
         recommendation_id: Option<Uuid>,
         dimension_assessment_id: Uuid,
-        title: String,
+        _title: String,
         description: String,
         priority: String,
     ) -> Result<action_items::Model, AppError> {
@@ -47,7 +47,7 @@ impl ActionPlanService {
                 recommendation_id: Set(Uuid::new_v4()),
                 dimension_id: Set(dimension_assessment.dimension_id),
                 priority: Set(recommendations::RecommendationPriority::Medium),
-                description: Set(format!("{}: {}", title, description)),
+                description: Set(description),
                 source: Set("action_plan".to_string()),
                 created_at: Set(chrono::Utc::now()),
                 updated_at: Set(chrono::Utc::now()),
@@ -105,16 +105,10 @@ impl ActionPlanService {
                     .ok_or_else(|| AppError::NotFound("Recommendation not found".to_string()))?
                     .into();
 
-            let new_desc = if let Some(t) = &params.title {
-                format!("{}: {}", t, d)
-            } else {
-                d
-            };
-            rec.description = Set(new_desc);
+            rec.description = Set(d);
             rec.updated_at = Set(chrono::Utc::now());
             rec.update(self.db.as_ref()).await?;
         } else if let Some(t) = params.title {
-            // Only title provided
             let current_rec_id = action_item.recommendation_id.clone().unwrap();
             let mut rec: recommendations::ActiveModel =
                 recommendations::Entity::find_by_id(current_rec_id)
