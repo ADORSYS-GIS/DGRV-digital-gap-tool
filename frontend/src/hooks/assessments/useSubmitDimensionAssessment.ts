@@ -16,14 +16,19 @@ export const useSubmitDimensionAssessment = () => {
     mutationFn: (payload: ISubmitDimensionAssessmentRequest) =>
       dimensionAssessmentRepository.submitAssessment(payload),
     onSuccess: (data, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: ["dimensionWithStates", variables.dimensionId],
-      });
+      // Invalidate the dimension assessments list so AssessmentDetailPage
+      // immediately reflects the completed state on the dimension cards
       if (variables.assessmentId) {
+        queryClient.invalidateQueries({
+          queryKey: ["dimensionAssessments", variables.assessmentId],
+        });
         queryClient.invalidateQueries({
           queryKey: ["assessmentDetails", variables.assessmentId],
         });
       }
+      queryClient.invalidateQueries({
+        queryKey: ["dimensionWithStates", variables.dimensionId],
+      });
     },
   });
 };

@@ -144,7 +144,7 @@ export default function ManageAssessments() {
   const error = orgError || coopError || coopIdFromPathError;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="overflow-y-auto h-full bg-background">
       <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-8 sm:px-6 lg:px-8">
         <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>

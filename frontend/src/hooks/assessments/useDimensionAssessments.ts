@@ -12,5 +12,7 @@ export const useDimensionAssessments = (assessmentId?: string) => {
       return dimensionAssessmentRepository.getByAssessment(assessmentId);
     },
     enabled: !!assessmentId,
+    staleTime: 0, // always re-fetch — drives "Completed" badges on dimension cards
+    refetchOnMount: true,
   });
 };

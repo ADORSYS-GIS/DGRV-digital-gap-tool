@@ -1,14 +1,13 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { ROLES } from "@/constants/roles";
 import { useOrganizationId } from "@/hooks/organizations/useOrganizationId";
 import { useCooperationId } from "@/hooks/cooperations/useCooperationId";
 import { useCooperationIdFromPath } from "@/hooks/cooperations/useCooperationIdFromPath";
 import { useCooperations } from "@/hooks/cooperations/useCooperations";
-import { useSubmissionsByOrganization } from "@/hooks/submissions/useSubmissionsByOrganization";
 import { useSubmissionsByCooperation } from "@/hooks/submissions/useSubmissionsByCooperation";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
-import { KanbanBoard } from "@/components/shared/action_plans/KanbanBoard";
 import { Badge } from "@/components/ui/badge";
 import { AssessmentSummary } from "@/types/assessment";
 import { Cooperation } from "@/types/cooperation";
@@ -24,7 +23,7 @@ function CoopActionPlanSection({
   basePath: string;
 }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const { data: submissions = [], isLoading } = useSubmissionsByCooperation(
     cooperation.id,
@@ -44,13 +43,15 @@ function CoopActionPlanSection({
     overall_score: s.overall_score ?? null,
   }));
 
-  const completed = mapped.filter((s) => s.assessment.status === "Completed" || s.assessment.status === "completed");
+  const completed = mapped.filter(
+    (s) => s.assessment.status === "Completed" || s.assessment.status === "completed",
+  );
 
   return (
     <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
       <button
         type="button"
-        onClick={() => { setIsOpen((v) => !v); setSelectedId(null); }}
+        onClick={() => setIsOpen((v) => !v)}
         className="w-full flex items-center gap-3 px-5 py-4 text-left hover:bg-muted/40 transition-colors"
       >
         <div className="p-2 rounded-lg bg-primary/10 text-primary shrink-0">
@@ -81,24 +82,13 @@ function CoopActionPlanSection({
             <p className="text-sm text-muted-foreground px-5 py-4">
               No completed submissions for this cooperative yet.
             </p>
-          ) : selectedId ? (
-            <div className="p-4 space-y-4">
-              <button
-                type="button"
-                onClick={() => setSelectedId(null)}
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-              >
-                ← Back to submissions
-              </button>
-              <KanbanBoard submissionId={selectedId} />
-            </div>
           ) : (
             <ul className="divide-y divide-border">
               {completed.map((s) => (
                 <li key={s.id}>
                   <button
                     type="button"
-                    onClick={() => setSelectedId(s.id)}
+                    onClick={() => navigate(`${basePath}/action-plans/${s.id}`)}
                     className="w-full flex items-center gap-3 px-5 py-3 text-left hover:bg-muted/30 transition-colors"
                   >
                     <ClipboardList className="h-4 w-4 text-muted-foreground shrink-0" />
@@ -132,7 +122,7 @@ function CoopUserActionPlans({
   cooperationId: string;
   basePath: string;
 }) {
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const navigate = useNavigate();
   const { data: submissions = [], isLoading } = useSubmissionsByCooperation(cooperationId);
 
   const mapped: AssessmentSummary[] = submissions.map((s) => ({
@@ -148,24 +138,11 @@ function CoopUserActionPlans({
     overall_score: s.overall_score ?? null,
   }));
 
-  const completed = mapped.filter((s) => s.assessment.status === "Completed" || s.assessment.status === "completed");
+  const completed = mapped.filter(
+    (s) => s.assessment.status === "Completed" || s.assessment.status === "completed",
+  );
 
   if (isLoading) return <div className="flex justify-center py-12"><LoadingSpinner /></div>;
-
-  if (selectedId) {
-    return (
-      <div className="space-y-4">
-        <button
-          type="button"
-          onClick={() => setSelectedId(null)}
-          className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-        >
-          ← Back to submissions
-        </button>
-        <KanbanBoard submissionId={selectedId} />
-      </div>
-    );
-  }
 
   if (completed.length === 0) {
     return (
@@ -182,7 +159,7 @@ function CoopUserActionPlans({
           <li key={s.id}>
             <button
               type="button"
-              onClick={() => setSelectedId(s.id)}
+              onClick={() => navigate(`${basePath}/action-plans/${s.id}`)}
               className="w-full flex items-center gap-3 px-5 py-3 text-left hover:bg-muted/30 transition-colors"
             >
               <ClipboardList className="h-4 w-4 text-muted-foreground shrink-0" />
@@ -235,7 +212,7 @@ export default function ActionPlansListPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 overflow-y-auto h-full">
       <div className="rounded-xl bg-gradient-to-r from-primary/5 via-primary/10 to-transparent px-6 py-5 border border-primary/10">
         <h1 className="text-2xl font-bold tracking-tight text-gray-900">Action plans</h1>
         <p className="text-sm text-muted-foreground mt-1">

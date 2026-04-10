@@ -66,7 +66,7 @@ export default function ManageCooperationUsers() {
 
     if (coopFromPathError) {
       return (
-        <div className="min-h-screen bg-background">
+        <div className="overflow-y-auto h-full bg-background">
           <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-8 sm:px-6 lg:px-8">
             <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
               Unable to resolve cooperative
@@ -81,7 +81,7 @@ export default function ManageCooperationUsers() {
     }
 
     return (
-      <div className="min-h-screen bg-background">
+      <div className="overflow-y-auto h-full bg-background">
         <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-8 sm:px-6 lg:px-8">
           <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
             No cooperative found
@@ -96,7 +96,7 @@ export default function ManageCooperationUsers() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="overflow-y-auto h-full bg-background">
       <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-8 sm:px-6 lg:px-8">
         <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>

@@ -63,7 +63,7 @@ export default function SubmissionDetailPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="overflow-y-auto h-full bg-background">
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8 space-y-6">
         <header className="flex items-center justify-between">
           <div className="space-y-1">

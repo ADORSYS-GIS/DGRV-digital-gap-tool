@@ -170,7 +170,7 @@ const AssessmentDetailPage: React.FC = () => {
       : 0;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="overflow-y-auto h-full bg-background">
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Progress header */}
         <section className="mb-8 rounded-xl border border-border bg-card px-5 py-4 shadow-sm sm:px-6 sm:py-5">

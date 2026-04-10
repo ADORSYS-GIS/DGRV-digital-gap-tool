@@ -440,7 +440,7 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
   // and submission is blocked.
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="overflow-y-auto h-full bg-background">
       <div className="mx-auto flex max-w-4xl flex-col gap-6 px-4 py-8 sm:px-6 lg:px-8">
         {/* Back link */}
         <div>

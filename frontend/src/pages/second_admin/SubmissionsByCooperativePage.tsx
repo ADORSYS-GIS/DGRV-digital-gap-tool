@@ -79,7 +79,7 @@ export default function SubmissionsByCooperativePage() {
   const { data: cooperations = [], isLoading } = useCooperations(organizationId || undefined);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 overflow-y-auto h-full">
       <div className="rounded-xl bg-gradient-to-r from-primary/5 via-primary/10 to-transparent px-6 py-5 border border-primary/10">
         <h1 className="text-2xl font-bold tracking-tight text-gray-900">Submissions</h1>
         <p className="text-sm text-muted-foreground mt-1">
