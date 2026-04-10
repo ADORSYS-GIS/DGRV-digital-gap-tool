@@ -15,7 +15,7 @@ export default function ActionPlanPage() {
   }
 
   return (
-    <div className="w-full px-4 sm:px-6 lg:px-8 py-6 flex flex-col gap-6" style={{ height: "100vh", overflow: "hidden" }}>
+    <div className="w-full flex flex-col gap-6" style={{ height: "calc(100vh - 120px)", overflow: "hidden" }}>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl bg-gradient-to-r from-primary/5 via-primary/10 to-transparent p-5 sm:p-7 border border-primary/10 shrink-0">
         <div className="space-y-1">
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900">

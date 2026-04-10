@@ -170,7 +170,7 @@ export function ActionItemCard({ item, onUpdate }: ActionItemCardProps) {
             </div>
 
             <h3 className="font-bold text-sm text-gray-800 mb-2 leading-tight pr-2">
-              {item.title || item.dimension}
+              {item.dimension || "Action Item"}
             </h3>
 
             <p className="text-xs text-gray-500 mb-3 line-clamp-2 leading-relaxed">
@@ -227,9 +227,7 @@ export function ActionItemCard({ item, onUpdate }: ActionItemCardProps) {
           </DialogHeader>
           <div className="py-4">
             <div className="flex items-center gap-3 mb-4">
-              <span
-                className={`px-3 py-1 text-xs font-bold rounded-full uppercase tracking-wide ${className}`}
-              >
+              <span className={`px-3 py-1 text-xs font-bold rounded-full uppercase tracking-wide ${className}`}>
                 {label}
               </span>
               <span className="text-xs font-bold uppercase tracking-wider text-gray-400 bg-gray-100 px-3 py-1 rounded-full">
