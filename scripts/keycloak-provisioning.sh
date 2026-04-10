@@ -8,8 +8,8 @@ export REALM=digital-gap
 export ADMIN_USER=admin
 export ADMIN_PASS=admin123
 export TRUSTSTORE_PASS=changeit
-export NEW_USER_EMAIL=fespinosatest@dgrv.coop
-export TEMP_PASSWORD=changeme123
+export NEW_USER_EMAIL=360@dgrv.coop
+export TEMP_PASSWORD=dgrv@coop360
 export NEW_USER_FIRSTNAME=fernando
 export NEW_USER_LASTNAME=espinosa
 

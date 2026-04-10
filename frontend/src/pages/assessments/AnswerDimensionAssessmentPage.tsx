@@ -9,7 +9,7 @@ import { useDimensionWithStates } from "@/hooks/assessments/useDimensionWithStat
 import { useSubmitDimensionAssessment } from "@/hooks/assessments/useSubmitDimensionAssessment";
 import { useCooperationId } from "@/hooks/cooperations/useCooperationId";
 import { useCooperationIdFromPath } from "@/hooks/cooperations/useCooperationIdFromPath";
-import { useCooperationUsers } from "@/hooks/cooperationUsers/useCooperationUsers";
+import { useCooperationUsersForAdmin } from "@/hooks/cooperationUsers/useCooperationUsersForAdmin";
 import { useOrganizationId } from "@/hooks/organizations/useOrganizationId";
 import { useSubmitAssessment } from "@/hooks/submissions/useSubmitAssessment";
 import { syncManager } from "@/services/sync/syncManager";
@@ -72,7 +72,7 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
   );
 
   // For coop_admin: dimensions assigned to any coop_user are locked (view-only)
-  const { data: cooperationUsers = [] } = useCooperationUsers();
+  const { data: cooperationUsers = [] } = useCooperationUsersForAdmin();
   const dimensionsAssignedToUsers = useMemo(() => {
     if (!isCoopAdmin) return new Set<string>();
     const ids = new Set<string>();

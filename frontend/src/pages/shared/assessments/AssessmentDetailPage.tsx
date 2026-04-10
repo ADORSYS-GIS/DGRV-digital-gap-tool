@@ -11,7 +11,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
 import { useSubmitAssessment } from "@/hooks/submissions/useSubmitAssessment";
-import { useCooperationUsers } from "@/hooks/cooperationUsers/useCooperationUsers";
+import { useCooperationUsersForAdmin } from "@/hooks/cooperationUsers/useCooperationUsersForAdmin";
 import { ROLES } from "@/constants/roles";
 
 const AssessmentDetailPage: React.FC = () => {
@@ -79,7 +79,7 @@ const AssessmentDetailPage: React.FC = () => {
   );
 
   // For coop_admin: collect all dimension IDs assigned to any coop_user in this cooperative
-  const { data: cooperationUsers = [] } = useCooperationUsers();
+  const { data: cooperationUsers = [] } = useCooperationUsersForAdmin();
   const dimensionsAssignedToUsers = useMemo(() => {
     if (!isCoopAdmin) return new Set<string>();
     const ids = new Set<string>();
