@@ -28,9 +28,10 @@ import { useDeleteActionItem } from "@/hooks/action_plans/useDeleteActionItem";
 interface ActionItemCardProps {
   item: ActionItem;
   onUpdate?: () => void;
+  assessmentId: string;
 }
 
-export function ActionItemCard({ item, onUpdate }: ActionItemCardProps) {
+export function ActionItemCard({ item, onUpdate, assessmentId }: ActionItemCardProps) {
   const [isUpdating, setIsUpdating] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteItemOpen, setIsDeleteItemOpen] = useState(false);
@@ -265,7 +266,7 @@ export function ActionItemCard({ item, onUpdate }: ActionItemCardProps) {
           <div className="p-6">
             <EditActionItemForm
               item={item}
-              assessmentId={item.dimension_assessment_id}
+              assessmentId={assessmentId}
               onSuccess={() => {
                 setIsEditDialogOpen(false);
                 if (onUpdate) onUpdate();

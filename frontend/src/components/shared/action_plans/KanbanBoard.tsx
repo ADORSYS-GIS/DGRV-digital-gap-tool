@@ -76,7 +76,7 @@ export function KanbanBoard({ submissionId }: KanbanBoardProps) {
               </DialogContent>
             </Dialog>
           )}
-          {columns.todo.map((item) => <ActionItemCard key={item.action_item_id} item={item} onUpdate={refetch} />)}
+          {columns.todo.map((item) => <ActionItemCard key={item.action_item_id} item={item} onUpdate={refetch} assessmentId={submissionId} />)}
           {columns.todo.length === 0 && !canEdit && <div className="text-center py-12 text-gray-400 text-sm italic">No items in To Do</div>}
         </div>
       </div>
@@ -94,7 +94,7 @@ export function KanbanBoard({ submissionId }: KanbanBoardProps) {
           <div className="h-1 w-full bg-blue-100 rounded-full mt-3"><div className="h-full bg-blue-500 w-full rounded-full opacity-50" /></div>
         </div>
         <div className="p-3 space-y-3 overflow-y-auto flex-1 min-h-0">
-          {columns.in_progress.map((item) => <ActionItemCard key={item.action_item_id} item={item} onUpdate={refetch} />)}
+          {columns.in_progress.map((item) => <ActionItemCard key={item.action_item_id} item={item} onUpdate={refetch} assessmentId={submissionId} />)}
           {columns.in_progress.length === 0 && <div className="text-center py-12 text-blue-300 text-sm italic">No items in progress</div>}
         </div>
       </div>
@@ -112,7 +112,7 @@ export function KanbanBoard({ submissionId }: KanbanBoardProps) {
           <div className="h-1 w-full bg-green-100 rounded-full mt-3"><div className="h-full bg-green-500 w-full rounded-full opacity-50" /></div>
         </div>
         <div className="p-3 space-y-3 overflow-y-auto flex-1 min-h-0">
-          {columns.done.map((item) => <ActionItemCard key={item.action_item_id} item={item} onUpdate={refetch} />)}
+          {columns.done.map((item) => <ActionItemCard key={item.action_item_id} item={item} onUpdate={refetch} assessmentId={submissionId} />)}
           {columns.done.length === 0 && <div className="text-center py-12 text-green-300 text-sm italic">No items completed</div>}
         </div>
       </div>
@@ -130,7 +130,7 @@ export function KanbanBoard({ submissionId }: KanbanBoardProps) {
           <div className="h-1 w-full bg-purple-100 rounded-full mt-3"><div className="h-full bg-purple-500 w-full rounded-full opacity-50" /></div>
         </div>
         <div className="p-3 space-y-3 overflow-y-auto flex-1 min-h-0">
-          {columns.approved.map((item) => <ActionItemCard key={item.action_item_id} item={item} onUpdate={refetch} />)}
+          {columns.approved.map((item) => <ActionItemCard key={item.action_item_id} item={item} onUpdate={refetch} assessmentId={submissionId} />)}
           {columns.approved.length === 0 && <div className="text-center py-12 text-purple-300 text-sm italic">No items approved</div>}
         </div>
       </div>
