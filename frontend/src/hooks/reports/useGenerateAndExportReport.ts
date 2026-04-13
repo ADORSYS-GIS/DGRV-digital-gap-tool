@@ -16,7 +16,7 @@ export const useGenerateAndExportReport = () => {
       const baseUrl = OpenAPI.BASE || "";
 
       const response = await fetch(
-        `${baseUrl}/api/v1/reports/assessment/${assessmentId}/generate-and-export`,
+        `${baseUrl}/v1/reports/assessment/${assessmentId}/generate-and-export`,
         {
           method: "POST",
           headers: {
