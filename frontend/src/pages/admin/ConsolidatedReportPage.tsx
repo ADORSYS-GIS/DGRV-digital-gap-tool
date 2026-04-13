@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ConsolidatedReport } from "@/openapi-client";
 import { consolidatedReportRepository } from "@/services/consolidated_reports/consolidatedReportRepository";
 import { exportConsolidatedReportAsPDF } from "@/utils/exportConsolidatedReport";
@@ -172,7 +172,6 @@ export function ConsolidatedReportPage() {
   const [report, setReport] = useState<ConsolidatedReport | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const reportRef = useRef<HTMLDivElement>(null);
 
   const handleExportPDF = () => {
     if (!report) return;
@@ -369,7 +368,7 @@ export function ConsolidatedReportPage() {
         </Button>
       </div>
 
-      <div ref={reportRef} className="p-4" id="consolidated-report-content">
+      <div className="p-4" id="consolidated-report-content">
         {/* High-Level Summary Metrics */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           <MetricCard

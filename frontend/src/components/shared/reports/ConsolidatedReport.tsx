@@ -317,7 +317,7 @@ export const ConsolidatedReport: React.FC<ConsolidatedReportProps> = ({
         </Button>
       </div>
 
-      <div ref={reportRef} className="p-4">
+      <div className="p-4">
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           <MetricCard
             title="Total Submissions"
