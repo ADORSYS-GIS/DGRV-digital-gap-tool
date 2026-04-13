@@ -7,11 +7,11 @@ const C = {
   blue:      [30,  64,  175] as RGB,
   blueMid:   [59,  130, 246] as RGB,
   blueLight: [219, 234, 254] as RGB,
-  high:      [220, 38,  38]  as RGB,
+  high:      [239, 68,  68]  as RGB,  // #ef4444 — matches on-screen chart
   highBg:    [254, 226, 226] as RGB,
-  medium:    [217, 119, 6]   as RGB,
+  medium:    [245, 158, 11]  as RGB,  // #f59e0b — matches on-screen chart
   mediumBg:  [254, 243, 199] as RGB,
-  low:       [22,  163, 74]  as RGB,
+  low:       [22,  163, 74]  as RGB,  // #16a34a — matches on-screen chart
   lowBg:     [220, 252, 231] as RGB,
   black:     [15,  23,  42]  as RGB,
   gray:      [100, 116, 139] as RGB,
@@ -283,9 +283,11 @@ export async function exportConsolidatedReportAsPDF(
   report.dimension_summaries.forEach((s, i) => {
     const { high_risk_percentage: h, medium_risk_percentage: m, low_risk_percentage: l } =
       s.risk_level_distribution;
+
+    // Match the on-screen chart logic exactly: >= comparison, medium beats low when equal
     let pct = l; let color = C.low;
-    if (m > pct) { pct = m; color = C.medium; }
-    if (h > pct) { pct = h; color = C.high; }
+    if (m >= pct) { pct = m; color = C.medium; }
+    if (h >= pct) { pct = h; color = C.high; }
 
     const bx = M + gap + i * (barW + gap);
     const bh = (pct / 100) * chartH;
