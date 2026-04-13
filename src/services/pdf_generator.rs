@@ -42,6 +42,7 @@ pub struct ChartData {
 #[derive(Debug, Clone, Serialize)]
 pub struct PdfReportData {
     pub assessment_title: String,
+    pub organization_id: String,
     pub rows: Vec<PdfReportRow>,
     pub chart_data: Option<String>,
     pub generation_date: String,
@@ -54,9 +55,10 @@ impl PdfGeneratorService {
     pub async fn generate_assessment_pdf(
         db: &DatabaseConnection,
         assessment_id: Uuid,
+        organization_name: Option<String>,
     ) -> Result<Bytes, AppError> {
         info!("Starting PDF generation.");
-        let report_data = Self::fetch_report_data(db, assessment_id).await?;
+        let report_data = Self::fetch_report_data(db, assessment_id, organization_name).await?;
         let html = Self::render_html_template(&report_data)?;
         let pdf_bytes = Self::html_to_pdf(&html).await?;
         Ok(pdf_bytes)
@@ -66,6 +68,7 @@ impl PdfGeneratorService {
     async fn fetch_report_data(
         db: &DatabaseConnection,
         assessment_id: Uuid,
+        organization_name: Option<String>,
     ) -> Result<PdfReportData, AppError> {
         let assessment = AssessmentsRepository::find_by_id(db, assessment_id)
             .await?
@@ -152,9 +155,10 @@ impl PdfGeneratorService {
 
         Ok(PdfReportData {
             assessment_title: assessment.document_title,
+            organization_id: organization_name.unwrap_or_else(|| assessment.organization_id.clone()),
             rows,
             chart_data,
-            generation_date: chrono::Utc::now().format("%Y-%m-%d %H:%M UTC").to_string(),
+            generation_date: chrono::Utc::now().format("%B %d, %Y at %H:%M UTC").to_string(),
         })
     }
 
@@ -167,6 +171,7 @@ impl PdfGeneratorService {
 
         let mut context = Context::new();
         context.insert("assessment_title", &data.assessment_title);
+        context.insert("organization_id", &data.organization_id);
         context.insert("rows", &data.rows);
         context.insert("chart_data", &data.chart_data);
         context.insert("generation_date", &data.generation_date);

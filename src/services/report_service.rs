@@ -110,11 +110,13 @@ impl ReportService {
     pub async fn generate_and_export(
         &self,
         assessment_id: Uuid,
+        organization_name: Option<String>,
     ) -> Result<(Bytes, String), AppError> {
         // 1. Generate PDF
         let pdf_bytes = PdfGeneratorService::generate_assessment_pdf(
             self.db.as_ref(),
             assessment_id,
+            organization_name,
         )
         .await?;
 
@@ -193,6 +195,7 @@ impl ReportService {
             let pdf_bytes = PdfGeneratorService::generate_assessment_pdf(
                 self.db.as_ref(),
                 report.assessment_id,
+                None,
             )
             .await?;
 

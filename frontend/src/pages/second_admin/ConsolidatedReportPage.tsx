@@ -8,7 +8,11 @@ const ConsolidatedReportPage = () => {
     return <div>Organization ID not found.</div>;
   }
 
-  return <ConsolidatedReport organizationId={organizationId} />;
+  return (
+    <div className="overflow-y-auto h-full">
+      <ConsolidatedReport organizationId={organizationId} />
+    </div>
+  );
 };
 
 export default ConsolidatedReportPage;

@@ -312,7 +312,7 @@ export const ConsolidatedReport: React.FC<ConsolidatedReportProps> = ({
   }
 
   return (
-    <div className="container mx-auto max-w-7xl p-6 space-y-8">
+    <div className="container mx-auto max-w-7xl p-6 space-y-8 overflow-y-auto h-full">
       <div className="flex justify-between items-center">
         <div className="space-y-2">
           <h1 className="text-3xl font-bold tracking-tight">

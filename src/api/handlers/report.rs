@@ -92,6 +92,7 @@ pub async fn generate_report(
         crate::services::pdf_generator::PdfGeneratorService::generate_assessment_pdf(
             &state.db,
             request.assessment_id,
+            None,
         )
         .await;
 
@@ -557,9 +558,28 @@ pub async fn generate_and_export_report(
 ) -> Result<impl axum::response::IntoResponse, (StatusCode, Json<serde_json::Value>)> {
     tracing::info!(assessment_id = %assessment_id, "Generating fresh PDF for export");
 
+    // Fetch org name from Keycloak to include in the report header
+    let organization_name = async {
+        let admin_token = state.keycloak_service.get_admin_token().await.ok()?;
+        // Get the assessment to find the org ID
+        let assessment = crate::repositories::assessments::AssessmentsRepository::find_by_id(
+            &state.db,
+            assessment_id,
+        )
+        .await
+        .ok()??;
+        let org = state
+            .keycloak_service
+            .get_organization(&admin_token, &assessment.organization_id)
+            .await
+            .ok()?;
+        Some(org.name)
+    }
+    .await;
+
     let (pdf_bytes, _) = state
         .report_service
-        .generate_and_export(assessment_id)
+        .generate_and_export(assessment_id, organization_name)
         .await
         .map_err(crate::api::handlers::common::handle_error)?;
 
