@@ -102,32 +102,50 @@
 
 /* ── Print styles for consolidated report export ── */
 @media print {
-  /* Hide everything except the report content */
-  body > * { display: none !important; }
-  #root > * { display: none !important; }
+  /* Hide everything by default */
+  body * {
+    visibility: hidden;
+  }
 
-  /* Show only the report ref div */
-  [data-print-report] {
-    display: block !important;
-    position: fixed;
+  /* Show only the report content */
+  #consolidated-report-content,
+  #consolidated-report-content * {
+    visibility: visible;
+  }
+
+  #consolidated-report-content {
+    position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     background: white;
   }
 
-  /* Ensure badges render with full text */
-  [class*="rounded-full"] {
+  /* Strip ALL badge/pill styling — plain black text */
+  #consolidated-report-content [class*="rounded-full"],
+  #consolidated-report-content [class*="badge"],
+  #consolidated-report-content [class*="Badge"] {
+    background: none !important;
+    background-color: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+    padding: 0 2px !important;
+    color: #000 !important;
+    font-weight: 600 !important;
+    font-size: 12px !important;
+    box-shadow: none !important;
     overflow: visible !important;
     white-space: nowrap !important;
+    display: inline !important;
   }
 
-  /* Hide sidebar, navbar, buttons */
-  nav, header, aside, button, [role="navigation"] {
+  /* Hide interactive elements inside report */
+  #consolidated-report-content button,
+  #consolidated-report-content [role="button"],
+  #consolidated-report-content [data-radix-popper-content-wrapper] {
     display: none !important;
   }
 
-  /* Page margins */
   @page {
     margin: 15mm;
     size: A4;

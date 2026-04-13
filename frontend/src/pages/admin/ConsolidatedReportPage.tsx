@@ -175,58 +175,7 @@ export function ConsolidatedReportPage() {
 
   const handleExportPDF = () => {
     if (!reportRef.current) return;
-
-    const printWindow = window.open("", "_blank");
-    if (!printWindow) return;
-
-    // Clone the report HTML and strip badge boxes — replace with plain colored text
-    const clone = reportRef.current.cloneNode(true) as HTMLElement;
-
-    // Replace all badge elements (rounded-full pill buttons) with plain spans
-    clone.querySelectorAll<HTMLElement>('[class*="rounded-full"]').forEach((el) => {
-      const text = el.textContent || "";
-      const cls = el.className || "";
-      let color = "#374151"; // default gray
-      if (cls.includes("destructive") || cls.includes("red") || el.style.backgroundColor?.includes("red")) color = "#dc2626";
-      else if (cls.includes("warning") || cls.includes("amber") || cls.includes("yellow") || el.style.backgroundColor?.includes("amber")) color = "#d97706";
-      else if (cls.includes("success") || cls.includes("green") || el.style.backgroundColor?.includes("green")) color = "#16a34a";
-      else if (cls.includes("blue")) color = "#2563eb";
-
-      const span = document.createElement("span");
-      span.textContent = text.trim();
-      span.style.cssText = `color:${color};font-weight:700;font-size:13px;white-space:nowrap;`;
-      el.replaceWith(span);
-    });
-
-    // Hide buttons and interactive elements
-    clone.querySelectorAll("button, [role='button'], svg").forEach((el) => el.remove());
-
-    printWindow.document.write(`
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <meta charset="UTF-8" />
-          <title>Consolidated Report</title>
-          <style>
-            * { box-sizing: border-box; margin: 0; padding: 0; }
-            body { background: white; padding: 24px; font-family: Arial, sans-serif; font-size: 13px; color: #111; }
-            table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
-            th { background: #f1f5f9; padding: 8px 12px; text-align: left; font-size: 12px; font-weight: 600; color: #475569; border-bottom: 2px solid #e2e8f0; }
-            td { padding: 8px 12px; border-bottom: 1px solid #e2e8f0; vertical-align: middle; }
-            h1, h2, h3 { margin-bottom: 6px; }
-            .card, [class*="rounded"] { border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-bottom: 16px; }
-            @page { margin: 15mm; size: A4; }
-          </style>
-        </head>
-        <body>${clone.innerHTML}</body>
-      </html>
-    `);
-    printWindow.document.close();
-    printWindow.focus();
-    setTimeout(() => {
-      printWindow.print();
-      printWindow.close();
-    }, 600);
+    window.print();
   };
 
   const fetchReport = async () => {
@@ -419,7 +368,7 @@ export function ConsolidatedReportPage() {
         </Button>
       </div>
 
-      <div ref={reportRef} className="p-4">
+      <div ref={reportRef} className="p-4" id="consolidated-report-content">
         {/* High-Level Summary Metrics */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           <MetricCard
