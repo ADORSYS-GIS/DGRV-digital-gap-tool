@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useMemo, useRef } from "react";
-import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
+import { useMemo } from "react";
+import { exportConsolidatedReportAsPDF } from "@/utils/exportConsolidatedReport";
 import {
   Card,
   CardContent,
@@ -176,20 +175,10 @@ export const ConsolidatedReport: React.FC<ConsolidatedReportProps> = ({
   const report = organizationId ? orgData : dgrvData;
   const loading = organizationId ? orgLoading : dgrvLoading;
   const error = organizationId ? orgError : dgrvError;
-  const reportRef = useRef<HTMLDivElement>(null);
 
   const handleExportPDF = () => {
-    if (reportRef.current) {
-      html2canvas(reportRef.current, { scale: 2 }).then(
-        (canvas: HTMLCanvasElement) => {
-          const imgData = canvas.toDataURL("image/png");
-          const pdf = new jsPDF("p", "mm", "a4");
-          const pdfWidth = pdf.internal.pageSize.getWidth();
-          const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-          pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-          pdf.save("consolidated-report.pdf");
-        },
-      );
+    if (report) {
+      exportConsolidatedReportAsPDF(report);
     }
   };
 

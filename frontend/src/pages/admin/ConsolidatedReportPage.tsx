@@ -176,7 +176,6 @@ export function ConsolidatedReportPage() {
 
   const handleExportPDF = () => {
     if (!report) return;
-    console.log("[export] using exportConsolidatedReportAsPDF utility");
     exportConsolidatedReportAsPDF(report);
   };
 
