@@ -26,21 +26,32 @@ function riskLabel(level: number) {
 function riskColor(level: number): RGB {
   return level < 1.5 ? C.low : level <= 2.5 ? C.medium : C.high;
 }
+function setColor(doc: jsPDF, color: RGB) { doc.setTextColor(color[0], color[1], color[2]); }
+function setFill(doc: jsPDF, color: RGB)  { doc.setFillColor(color[0], color[1], color[2]); }
+function setDraw(doc: jsPDF, color: RGB)  { doc.setDrawColor(color[0], color[1], color[2]); }
 
-function setColor(doc: jsPDF, color: RGB) {
-  doc.setTextColor(color[0], color[1], color[2]);
-}
-function setFill(doc: jsPDF, color: RGB) {
-  doc.setFillColor(color[0], color[1], color[2]);
-}
-function setDraw(doc: jsPDF, color: RGB) {
-  doc.setDrawColor(color[0], color[1], color[2]);
+async function loadImageAsDataUrl(src: string): Promise<string | null> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      canvas.getContext("2d")!.drawImage(img, 0, 0);
+      resolve(canvas.toDataURL("image/png"));
+    };
+    img.onerror = () => resolve(null);
+    img.src = src;
+  });
 }
 
-export function exportConsolidatedReportAsPDF(
+export async function exportConsolidatedReportAsPDF(
   report: ConsolidatedReport,
   organizationName?: string,
-): void {
+): Promise<void> {
+  const logoDataUrl = await loadImageAsDataUrl("/dgrv-logo.png");
+
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
   const W = doc.internal.pageSize.getWidth();
   const H = doc.internal.pageSize.getHeight();
@@ -55,66 +66,56 @@ export function exportConsolidatedReportAsPDF(
   function newPage() {
     doc.addPage();
     y = M;
-    // subtle top border on new pages
     setFill(doc, C.blue);
     doc.rect(0, 0, W, 1.5, "F");
   }
-
   function checkPage(needed: number) {
     if (y + needed > H - 16) newPage();
   }
 
-  // ── Cover header band ────────────────────────────────────────────────────
+  // ── Header band ──────────────────────────────────────────────────────────
   setFill(doc, C.blue);
   doc.rect(0, 0, W, 38, "F");
 
-  // Logo area placeholder
-  setFill(doc, C.blueMid);
-  doc.roundedRect(M, 8, 22, 22, 2, 2, "F");
-  setColor(doc, C.white);
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(11);
-  doc.text("DGRV", M + 11, 21, { align: "center" });
+  // DGRV logo (real image or fallback text)
+  if (logoDataUrl) {
+    doc.addImage(logoDataUrl, "PNG", M, 7, 28, 24);
+  } else {
+    setFill(doc, C.blueMid);
+    doc.roundedRect(M, 8, 22, 22, 2, 2, "F");
+    setColor(doc, C.white);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(11);
+    doc.text("DGRV", M + 11, 21, { align: "center" });
+  }
 
-  // Title
   setColor(doc, C.white);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(20);
-  doc.text("Consolidated Report", M + 28, 17);
+  doc.text("Consolidated Report", M + 32, 17);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(9);
   setColor(doc, C.blueLight);
   doc.text(
-    organizationName
-      ? `${organizationName}  ·  ${date}`
-      : `Digital Gap Analysis  ·  ${date}`,
-    M + 28,
-    25,
+    organizationName ? `${organizationName}  ·  ${date}` : `Digital Gap Analysis  ·  ${date}`,
+    M + 32, 25,
   );
 
   y = 46;
 
-  // ── Summary cards ────────────────────────────────────────────────────────
-  const cardW = (CW - 6) / 3;
-  const cards = [
-    { label: "Total Submissions", value: String(report.total_submissions), color: C.blue },
-    { label: "Avg Gap Score", value: report.overall_average_gap_score.toFixed(2), color: riskColor(report.overall_average_risk_level) },
-    { label: "Risk Level", value: riskLabel(report.overall_average_risk_level), color: riskColor(report.overall_average_risk_level) },
-  ];
-  cards.forEach((card, i) => {
-    const cx = M + i * (cardW + 3);
-    setFill(doc, C.bgRow);
-    setDraw(doc, C.grayLight);
-    doc.roundedRect(cx, y, cardW, 18, 2, 2, "FD");
-    setColor(doc, C.gray);
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(8);
-    doc.text(card.label, cx + 4, y + 6);
-    setColor(doc, card.color);
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(14);
-    doc.text(card.value, cx + 4, y + 14);
-  });
+  // ── Single summary card: Total Submissions ───────────────────────────────
+  const cardW = 55;
+  setFill(doc, C.bgRow);
+  setDraw(doc, C.grayLight);
+  doc.roundedRect(M, y, cardW, 18, 2, 2, "FD");
+  setColor(doc, C.gray);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(8);
+  doc.text("Total Submissions", M + 4, y + 6);
+  setColor(doc, C.blue);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(16);
+  doc.text(String(report.total_submissions), M + 4, y + 14);
   y += 24;
 
   // ── Dimension Analysis table ─────────────────────────────────────────────
@@ -131,10 +132,9 @@ export function exportConsolidatedReportAsPDF(
   y += 5;
 
   const cols = [CW * 0.38, CW * 0.205, CW * 0.205, CW * 0.21];
-  const xs = [M, M + cols[0], M + cols[0] + cols[1], M + cols[0] + cols[1] + cols[2]];
-  const rh = 7.5;
+  const xs   = [M, M + cols[0], M + cols[0] + cols[1], M + cols[0] + cols[1] + cols[2]];
+  const rh   = 7.5;
 
-  // Header
   setFill(doc, C.blue);
   doc.rect(M, y, CW, rh, "F");
   setColor(doc, C.white);
@@ -147,10 +147,7 @@ export function exportConsolidatedReportAsPDF(
 
   report.dimension_summaries.forEach((s, idx) => {
     checkPage(rh + 2);
-    if (idx % 2 === 0) {
-      setFill(doc, C.bgRow);
-      doc.rect(M, y, CW, rh, "F");
-    }
+    if (idx % 2 === 0) { setFill(doc, C.bgRow); doc.rect(M, y, CW, rh, "F"); }
     setDraw(doc, C.grayLight);
     doc.setLineWidth(0.2);
     doc.line(M, y + rh, M + CW, y + rh);
@@ -163,115 +160,35 @@ export function exportConsolidatedReportAsPDF(
     const { high_risk_percentage: h, medium_risk_percentage: m, low_risk_percentage: l } =
       s.risk_level_distribution;
 
-    setColor(doc, C.high);
     doc.setFont("helvetica", "bold");
-    doc.text(`${h.toFixed(2)}%`, xs[1] + 2.5, y + 5);
-    setColor(doc, C.medium);
-    doc.text(`${m.toFixed(2)}%`, xs[2] + 2.5, y + 5);
-    setColor(doc, C.low);
-    doc.text(`${l.toFixed(2)}%`, xs[3] + 2.5, y + 5);
+    setColor(doc, C.high);   doc.text(`${h.toFixed(2)}%`, xs[1] + 2.5, y + 5);
+    setColor(doc, C.medium); doc.text(`${m.toFixed(2)}%`, xs[2] + 2.5, y + 5);
+    setColor(doc, C.low);    doc.text(`${l.toFixed(2)}%`, xs[3] + 2.5, y + 5);
     doc.setFont("helvetica", "normal");
     y += rh;
   });
   y += 10;
 
-  // ── Bar chart: Dominant risk per dimension ───────────────────────────────
-  checkPage(70);
-  setColor(doc, C.black);
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(12);
-  doc.text("Dominant Risk Level by Dimension", M, y);
-  y += 4;
-  setColor(doc, C.gray);
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(8);
-  doc.text("Percentage of dominant risk level per dimension", M, y);
-  y += 6;
-
-  const chartH = 45;
-  const barAreaW = CW;
-  const n = report.dimension_summaries.length;
-  const barW = Math.min(18, (barAreaW - 4) / n - 3);
-  const gap = (barAreaW - n * barW) / (n + 1);
-  const chartTop = y;
-  const chartBottom = y + chartH;
-
-  // Y-axis lines
-  setDraw(doc, C.grayLight);
-  doc.setLineWidth(0.2);
-  [0, 25, 50, 75, 100].forEach((pct) => {
-    const lineY = chartBottom - (pct / 100) * chartH;
-    doc.line(M, lineY, M + barAreaW, lineY);
-    setColor(doc, C.gray);
-    doc.setFontSize(6.5);
-    doc.text(`${pct}%`, M - 1, lineY + 1, { align: "right" });
-  });
-
-  report.dimension_summaries.forEach((s, i) => {
-    const { high_risk_percentage: h, medium_risk_percentage: m, low_risk_percentage: l } =
-      s.risk_level_distribution;
-
-    // Pick dominant
-    let pct = l; let color = C.low;
-    if (m > pct) { pct = m; color = C.medium; }
-    if (h > pct) { pct = h; color = C.high; }
-
-    const bx = M + gap + i * (barW + gap);
-    const bh = (pct / 100) * chartH;
-    const by = chartBottom - bh;
-
-    setFill(doc, color);
-    doc.roundedRect(bx, by, barW, bh, 1, 1, "F");
-
-    // Dimension label (rotated via short name)
-    setColor(doc, C.gray);
-    doc.setFontSize(6);
-    const label = s.dimension_name.length > 10
-      ? s.dimension_name.slice(0, 9) + "…"
-      : s.dimension_name;
-    doc.text(label, bx + barW / 2, chartBottom + 4, { align: "center" });
-  });
-
-  // Legend
-  y = chartBottom + 10;
-  const legendItems = [
-    { label: "High Risk", color: C.high },
-    { label: "Medium Risk", color: C.medium },
-    { label: "Low Risk", color: C.low },
-  ];
-  let lx = M;
-  legendItems.forEach(({ label, color }) => {
-    setFill(doc, color);
-    doc.rect(lx, y - 3, 4, 4, "F");
-    setColor(doc, C.gray);
-    doc.setFontSize(8);
-    doc.text(label, lx + 6, y);
-    lx += 32;
-  });
-  y += 10;
-
-  // ── Highest risk dimension ───────────────────────────────────────────────
+  // ── Dimension Needing Attention ──────────────────────────────────────────
   if (report.dimension_summaries.length > 0) {
     const highest = report.dimension_summaries.reduce((a, b) =>
       a.average_risk_level > b.average_risk_level ? a : b,
     );
     const isHigh = highest.average_risk_level > 2.5;
-    const isMed = highest.average_risk_level >= 1.5;
+    const isMed  = highest.average_risk_level >= 1.5;
     const accentColor = isHigh ? C.high : isMed ? C.medium : C.low;
-    const bgColor = isHigh ? C.highBg : isMed ? C.mediumBg : C.lowBg;
+    const bgColor     = isHigh ? C.highBg : isMed ? C.mediumBg : C.lowBg;
 
     const recLines = highest.top_recommendations.flatMap((r) =>
-      doc.splitTextToSize(`• ${r}`, CW - 10),
+      doc.splitTextToSize(`• ${r}`, CW - 10) as string[],
     );
-    const sectionH = 32 + recLines.length * 4.5;
+    const sectionH = 34 + recLines.length * 4.5;
     checkPage(sectionH + 4);
 
-    // Accent left border
     setFill(doc, accentColor);
-    doc.rect(M, y, 2, sectionH, "F");
-
+    doc.rect(M, y, 2.5, sectionH, "F");
     setFill(doc, bgColor);
-    doc.rect(M + 2, y, CW - 2, sectionH, "F");
+    doc.rect(M + 2.5, y, CW - 2.5, sectionH, "F");
 
     setColor(doc, C.black);
     doc.setFont("helvetica", "bold");
@@ -310,15 +227,84 @@ export function exportConsolidatedReportAsPDF(
       y += 5;
       doc.setFont("helvetica", "normal");
       doc.setFontSize(8);
-      setColor(doc, C.black);
       recLines.forEach((line: string) => {
         checkPage(5);
         doc.text(line, M + 6, y);
         y += 4.5;
       });
     }
-    y += 6;
+    y += 8;
   }
+
+  // ── Bar chart: Dominant risk per dimension (AFTER attention section) ──────
+  checkPage(75);
+  setColor(doc, C.black);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(12);
+  doc.text("Dominant Risk Level by Dimension", M, y);
+  y += 4;
+  setColor(doc, C.gray);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(8);
+  doc.text("Percentage of dominant risk level per dimension", M, y);
+  y += 6;
+
+  const chartH = 48;
+  const n = report.dimension_summaries.length;
+  const barW = Math.min(18, (CW - 4) / n - 3);
+  const gap  = (CW - n * barW) / (n + 1);
+  const chartBottom = y + chartH;
+
+  setDraw(doc, C.grayLight);
+  doc.setLineWidth(0.2);
+  [0, 25, 50, 75, 100].forEach((pct) => {
+    const lineY = chartBottom - (pct / 100) * chartH;
+    doc.line(M, lineY, M + CW, lineY);
+    setColor(doc, C.gray);
+    doc.setFontSize(6.5);
+    doc.text(`${pct}%`, M - 1, lineY + 1, { align: "right" });
+  });
+
+  report.dimension_summaries.forEach((s, i) => {
+    const { high_risk_percentage: h, medium_risk_percentage: m, low_risk_percentage: l } =
+      s.risk_level_distribution;
+    let pct = l; let color = C.low;
+    if (m > pct) { pct = m; color = C.medium; }
+    if (h > pct) { pct = h; color = C.high; }
+
+    const bx = M + gap + i * (barW + gap);
+    const bh = (pct / 100) * chartH;
+    const by = chartBottom - bh;
+
+    setFill(doc, color);
+    doc.roundedRect(bx, by, barW, bh, 1, 1, "F");
+
+    setColor(doc, C.gray);
+    doc.setFontSize(6);
+    const label = s.dimension_name.length > 10
+      ? s.dimension_name.slice(0, 9) + "…"
+      : s.dimension_name;
+    doc.text(label, bx + barW / 2, chartBottom + 4, { align: "center" });
+  });
+
+  y = chartBottom + 10;
+
+  // Legend
+  const legendItems = [
+    { label: "High Risk", color: C.high },
+    { label: "Medium Risk", color: C.medium },
+    { label: "Low Risk", color: C.low },
+  ];
+  let lx = M;
+  legendItems.forEach(({ label, color }) => {
+    setFill(doc, color);
+    doc.rect(lx, y - 3, 4, 4, "F");
+    setColor(doc, C.gray);
+    doc.setFontSize(8);
+    doc.text(label, lx + 6, y);
+    lx += 32;
+  });
+  y += 10;
 
   // ── Footer on every page ─────────────────────────────────────────────────
   const totalPages = (doc.internal as any).getNumberOfPages();
