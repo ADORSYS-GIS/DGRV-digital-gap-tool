@@ -541,7 +541,44 @@ pub async fn delete_report(
     ))
 }
 
-/// Download latest PDF report by assessment ID
+/// Generate fresh PDF, overwrite the single stored file for this assessment, and stream it back
+#[utoipa::path(
+    post,
+    path = "/reports/assessment/{assessment_id}/generate-and-export",
+    params(("assessment_id" = Uuid, Path, description = "Assessment ID")),
+    responses(
+        (status = 200, description = "PDF generated and returned", body = Vec<u8>),
+        (status = 404, description = "Assessment not found")
+    )
+)]
+pub async fn generate_and_export_report(
+    State(state): State<AppState>,
+    Path(assessment_id): Path<Uuid>,
+) -> Result<impl axum::response::IntoResponse, (StatusCode, Json<serde_json::Value>)> {
+    tracing::info!(assessment_id = %assessment_id, "Generating fresh PDF for export");
+
+    let (pdf_bytes, _) = state
+        .report_service
+        .generate_and_export(assessment_id)
+        .await
+        .map_err(crate::api::handlers::common::handle_error)?;
+
+    let mut headers = http::HeaderMap::new();
+    headers.insert(
+        http::header::CONTENT_TYPE,
+        http::HeaderValue::from_static("application/pdf"),
+    );
+    headers.insert(
+        http::header::CONTENT_DISPOSITION,
+        http::HeaderValue::from_str(&format!(
+            "attachment; filename=\"report-{}.pdf\"",
+            assessment_id
+        ))
+        .unwrap(),
+    );
+
+    Ok((headers, pdf_bytes))
+}
 #[utoipa::path(
     get,
     path = "/reports/assessment/{assessment_id}/download",

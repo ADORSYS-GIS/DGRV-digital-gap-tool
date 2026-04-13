@@ -2,8 +2,8 @@ import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { SubmissionDetail } from "@/components/shared/submissions/SubmissionDetail";
 import { Button } from "@/components/ui/button";
 import { useSubmission } from "@/hooks/submissions/useSubmission";
-import { useDownloadReportByAssessment } from "@/hooks/reports/useDownloadReportByAssessment";
-import { ArrowLeft, Download } from "lucide-react";
+import { useGenerateAndExportReport } from "@/hooks/reports/useGenerateAndExportReport";
+import { ArrowLeft, Download, Loader2 } from "lucide-react";
 import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
@@ -14,17 +14,13 @@ const ExportReportPage: React.FC = () => {
     submissionId: string;
   }>();
   const navigate = useNavigate();
-  const downloadReportMutation = useDownloadReportByAssessment();
+  const generateMutation = useGenerateAndExportReport();
 
-  const {
-    data: submission,
-    isLoading,
-    error,
-  } = useSubmission(submissionId || "");
+  const { data: submission, isLoading, error } = useSubmission(submissionId || "");
 
   const handleExportReport = () => {
     if (submissionId) {
-      downloadReportMutation.mutate(submissionId);
+      generateMutation.mutate(submissionId);
     } else {
       toast.error("Submission ID is missing. Cannot export report.");
     }
@@ -47,9 +43,7 @@ const ExportReportPage: React.FC = () => {
   }
 
   if (!submission) {
-    return (
-      <div className="text-center text-gray-500">Submission not found.</div>
-    );
+    return <div className="text-center text-gray-500">Submission not found.</div>;
   }
 
   return (
@@ -70,25 +64,33 @@ const ExportReportPage: React.FC = () => {
             Export Report
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl">
-            Review submission details and export the final report.
+            Generates a fresh PDF with the latest assessment data and action plan.
           </p>
         </div>
         <div className="flex-shrink-0">
           <Button
             onClick={handleExportReport}
+            disabled={generateMutation.isPending}
             className="flex items-center gap-2 h-12 px-6 rounded-xl bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white font-medium shadow-lg hover:shadow-xl transition-all duration-300"
           >
-            <Download className="h-5 w-5" />
-            <span>Export Report</span>
+            {generateMutation.isPending ? (
+              <>
+                <Loader2 className="h-5 w-5 animate-spin" />
+                <span>Generating…</span>
+              </>
+            ) : (
+              <>
+                <Download className="h-5 w-5" />
+                <span>Generate & Export PDF</span>
+              </>
+            )}
           </Button>
         </div>
       </div>
 
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
         <div className="p-6 border-b border-gray-100 bg-gray-50/50">
-          <h2 className="text-xl font-semibold text-gray-900">
-            Submission Details
-          </h2>
+          <h2 className="text-xl font-semibold text-gray-900">Submission Details</h2>
         </div>
         <div className="p-6">
           <SubmissionDetail summary={submission} />

@@ -106,6 +106,55 @@ impl ReportService {
         Ok((report, file_data))
     }
 
+    /// Generate fresh PDF, overwrite the single stored file for this assessment, return bytes
+    pub async fn generate_and_export(
+        &self,
+        assessment_id: Uuid,
+    ) -> Result<(Bytes, String), AppError> {
+        // 1. Generate PDF
+        let pdf_bytes = PdfGeneratorService::generate_assessment_pdf(
+            self.db.as_ref(),
+            assessment_id,
+        )
+        .await?;
+
+        // 2. Fixed path per assessment — overwrites on every export
+        let object_name = format!("reports/{}/report.pdf", assessment_id);
+        self.storage_service
+            .upload_file(&object_name, pdf_bytes.clone(), "application/pdf")
+            .await?;
+
+        // 3. Upsert single report record
+        let existing = ReportsRepository::find_latest_pdf_by_assessment(self.db.as_ref(), assessment_id).await?;
+        if let Some(report) = existing {
+            let mut active: crate::entities::reports::ActiveModel = report.into();
+            active.file_path = sea_orm::ActiveValue::Set(Some(object_name.clone()));
+            active.status = sea_orm::ActiveValue::Set(ReportStatus::Completed);
+            active.generated_at = sea_orm::ActiveValue::Set(chrono::Utc::now());
+            active.updated_at = sea_orm::ActiveValue::Set(chrono::Utc::now());
+            let id = active.report_id.clone().unwrap();
+            ReportsRepository::update(self.db.as_ref(), id, active).await?;
+        } else {
+            let new_report = crate::entities::reports::ActiveModel {
+                report_id: sea_orm::ActiveValue::Set(uuid::Uuid::new_v4()),
+                assessment_id: sea_orm::ActiveValue::Set(assessment_id),
+                report_type: sea_orm::ActiveValue::Set(ReportType::Detailed),
+                title: sea_orm::ActiveValue::Set(format!("Report {}", assessment_id)),
+                format: sea_orm::ActiveValue::Set(ReportFormat::Pdf),
+                summary: sea_orm::ActiveValue::Set(None),
+                report_data: sea_orm::ActiveValue::Set(None),
+                file_path: sea_orm::ActiveValue::Set(Some(object_name.clone())),
+                status: sea_orm::ActiveValue::Set(ReportStatus::Completed),
+                generated_at: sea_orm::ActiveValue::Set(chrono::Utc::now()),
+                created_at: sea_orm::ActiveValue::Set(chrono::Utc::now()),
+                updated_at: sea_orm::ActiveValue::Set(chrono::Utc::now()),
+            };
+            ReportsRepository::create(self.db.as_ref(), new_report).await?;
+        }
+
+        Ok((pdf_bytes, object_name))
+    }
+
     pub async fn delete_report(&self, report_id: Uuid) -> Result<bool, AppError> {
         // Get report metadata
         let report = ReportsRepository::find_by_id(self.db.as_ref(), report_id)
