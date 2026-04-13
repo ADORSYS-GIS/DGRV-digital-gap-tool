@@ -99,3 +99,37 @@
     @apply transition-all duration-300 hover:shadow-lg hover:shadow-dgrv-blue/25;
   }
 }
+
+/* ── Print styles for consolidated report export ── */
+@media print {
+  /* Hide everything except the report content */
+  body > * { display: none !important; }
+  #root > * { display: none !important; }
+
+  /* Show only the report ref div */
+  [data-print-report] {
+    display: block !important;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: white;
+  }
+
+  /* Ensure badges render with full text */
+  [class*="rounded-full"] {
+    overflow: visible !important;
+    white-space: nowrap !important;
+  }
+
+  /* Hide sidebar, navbar, buttons */
+  nav, header, aside, button, [role="navigation"] {
+    display: none !important;
+  }
+
+  /* Page margins */
+  @page {
+    margin: 15mm;
+    size: A4;
+  }
+}

@@ -1,7 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useMemo, useRef, useState } from "react";
-import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
 import { ConsolidatedReport } from "@/openapi-client";
 import { consolidatedReportRepository } from "@/services/consolidated_reports/consolidatedReportRepository";
 import {
@@ -177,24 +174,48 @@ export function ConsolidatedReportPage() {
   const reportRef = useRef<HTMLDivElement>(null);
 
   const handleExportPDF = () => {
-    if (reportRef.current) {
-      html2canvas(reportRef.current, {
-        scale: 3,
-        useCORS: true,
-        letterRendering: true,
-        allowTaint: false,
-        backgroundColor: "#ffffff",
-      }).then(
-        (canvas: HTMLCanvasElement) => {
-          const imgData = canvas.toDataURL("image/png");
-          const pdf = new jsPDF("p", "mm", "a4");
-          const pdfWidth = pdf.internal.pageSize.getWidth();
-          const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-          pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-          pdf.save("consolidated-report.pdf");
-        },
-      );
-    }
+    if (!reportRef.current) return;
+
+    // Open a new window with just the report content for clean printing
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) return;
+
+    const styles = Array.from(document.styleSheets)
+      .map((sheet) => {
+        try {
+          return Array.from(sheet.cssRules)
+            .map((rule) => rule.cssText)
+            .join("\n");
+        } catch {
+          return sheet.href ? `@import url("${sheet.href}");` : "";
+        }
+      })
+      .join("\n");
+
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="UTF-8" />
+          <title>Consolidated Report</title>
+          <style>${styles}</style>
+          <style>
+            body { background: white; padding: 20px; font-family: Arial, sans-serif; }
+            button, [role="button"] { display: none !important; }
+            @page { margin: 15mm; size: A4; }
+          </style>
+        </head>
+        <body>
+          ${reportRef.current.innerHTML}
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => {
+      printWindow.print();
+      printWindow.close();
+    }, 800);
   };
 
   const fetchReport = async () => {
