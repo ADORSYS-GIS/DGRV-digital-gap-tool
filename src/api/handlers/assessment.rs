@@ -426,7 +426,7 @@ pub async fn create_dimension_assessment(
         assessment_id: sea_orm::Set(assessment_id),
         dimension_id: sea_orm::Set(request.dimension_id),
         current_state_id: sea_orm::Set(request.current_state_id),
-        desired_state_id: sea_orm::Set(request.desired_state_id),
+        desired_state_id: sea_orm::Set(Some(request.desired_state_id)),
         gap_score: sea_orm::Set(request.gap_score),
         gap_id: sea_orm::Set(gap.gap_id),
         organization_id: sea_orm::Set(request.organization_id),
@@ -589,7 +589,7 @@ pub async fn update_dimension_assessment(
     }
 
     if let Some(desired_state_id) = request.desired_state_id {
-        active_model.desired_state_id = sea_orm::Set(desired_state_id);
+        active_model.desired_state_id = sea_orm::Set(Some(desired_state_id));
     }
 
     // If gap_score is being updated, also update the gap_id

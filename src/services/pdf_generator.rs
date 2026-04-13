@@ -113,8 +113,10 @@ impl PdfGeneratorService {
                 } else { 0 };
 
             let desired_level =
-                if let Some(s) = DesiredStatesRepository::find_by_id(db, dim_assessment.desired_state_id).await? {
-                    s.score
+                if let Some(desired_state_id) = dim_assessment.desired_state_id {
+                    if let Some(s) = DesiredStatesRepository::find_by_id(db, desired_state_id).await? {
+                        s.score
+                    } else { 0 }
                 } else { 0 };
 
             let gap_severity_str = format!("{:?}", gap.gap_severity).to_uppercase();

@@ -30,6 +30,21 @@ function setColor(doc: jsPDF, color: RGB) { doc.setTextColor(color[0], color[1],
 function setFill(doc: jsPDF, color: RGB)  { doc.setFillColor(color[0], color[1], color[2]); }
 function setDraw(doc: jsPDF, color: RGB)  { doc.setDrawColor(color[0], color[1], color[2]); }
 
+function sanitize(text: string): string {
+  return text
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&nbsp;/g, " ")
+    // Replace any character outside printable ASCII with a space
+    // eslint-disable-next-line no-control-regex
+    .replace(/[^\x20-\x7E]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 async function loadImageAsDataUrl(src: string): Promise<string | null> {
   return new Promise((resolve) => {
     const img = new Image();
@@ -155,7 +170,7 @@ export async function exportConsolidatedReportAsPDF(
     setColor(doc, C.black);
     doc.setFont("helvetica", "normal");
     doc.setFontSize(8.5);
-    doc.text(s.dimension_name, xs[0] + 2.5, y + 5);
+    doc.text(sanitize(s.dimension_name), xs[0] + 2.5, y + 5);
 
     const { high_risk_percentage: h, medium_risk_percentage: m, low_risk_percentage: l } =
       s.risk_level_distribution;
@@ -180,7 +195,7 @@ export async function exportConsolidatedReportAsPDF(
     const bgColor     = isHigh ? C.highBg : isMed ? C.mediumBg : C.lowBg;
 
     const recLines = highest.top_recommendations.flatMap((r) =>
-      doc.splitTextToSize(`• ${r}`, CW - 10) as string[],
+      doc.splitTextToSize(`• ${sanitize(r)}`, CW - 10) as string[],
     );
     const sectionH = 34 + recLines.length * 4.5;
     checkPage(sectionH + 4);
@@ -208,7 +223,7 @@ export async function exportConsolidatedReportAsPDF(
     setColor(doc, C.black);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(10);
-    doc.text(highest.dimension_name, M + 6, y + 20);
+    doc.text(sanitize(highest.dimension_name), M + 6, y + 20);
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(8.5);
@@ -281,9 +296,9 @@ export async function exportConsolidatedReportAsPDF(
 
     setColor(doc, C.gray);
     doc.setFontSize(6);
-    const label = s.dimension_name.length > 10
-      ? s.dimension_name.slice(0, 9) + "…"
-      : s.dimension_name;
+    const label = sanitize(s.dimension_name).length > 10
+      ? sanitize(s.dimension_name).slice(0, 9) + "…"
+      : sanitize(s.dimension_name);
     doc.text(label, bx + barW / 2, chartBottom + 4, { align: "center" });
   });
 
