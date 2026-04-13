@@ -175,7 +175,64 @@ export function ConsolidatedReportPage() {
 
   const handleExportPDF = () => {
     if (!reportRef.current) return;
-    window.print();
+
+    // Deep clone the report
+    const clone = reportRef.current.cloneNode(true) as HTMLElement;
+
+    // Find every element that looks like a badge (small, rounded, colored background)
+    // and replace it with plain text
+    const allElements = clone.querySelectorAll<HTMLElement>("*");
+    allElements.forEach((el) => {
+      const style = window.getComputedStyle(el);
+      const borderRadius = parseFloat(style.borderRadius);
+      const fontSize = parseFloat(style.fontSize);
+      const text = el.textContent?.trim() || "";
+
+      // Badge heuristic: small font, high border-radius, non-white background, short text
+      if (
+        borderRadius > 8 &&
+        fontSize <= 14 &&
+        text.length > 0 &&
+        text.length < 20 &&
+        el.children.length === 0
+      ) {
+        const span = document.createElement("span");
+        span.textContent = text;
+        span.style.cssText = "font-weight:600;font-size:12px;color:#111;";
+        el.replaceWith(span);
+      }
+    });
+
+    // Remove buttons, icons, tooltips
+    clone.querySelectorAll("button,[role='button'],svg,[data-radix-popper-content-wrapper]")
+      .forEach((el) => el.remove());
+
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) return;
+
+    printWindow.document.write(`<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8"/>
+  <title>Consolidated Report</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:Arial,sans-serif;font-size:13px;color:#111;background:white;padding:20px;}
+    table{width:100%;border-collapse:collapse;margin-bottom:20px;}
+    th{background:#f1f5f9;padding:8px 10px;text-align:left;font-size:11px;font-weight:700;color:#475569;border-bottom:2px solid #e2e8f0;text-transform:uppercase;}
+    td{padding:8px 10px;border-bottom:1px solid #e2e8f0;vertical-align:middle;font-size:12px;}
+    tr:nth-child(even) td{background:#f8fafc;}
+    h1,h2,h3{margin-bottom:6px;color:#1e293b;}
+    p{margin-bottom:4px;color:#475569;font-size:12px;}
+    .card-section{border:1px solid #e2e8f0;border-radius:8px;padding:16px;margin-bottom:16px;background:white;}
+    @page{margin:15mm;size:A4;}
+  </style>
+</head>
+<body>${clone.innerHTML}</body>
+</html>`);
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => { printWindow.print(); printWindow.close(); }, 800);
   };
 
   const fetchReport = async () => {
