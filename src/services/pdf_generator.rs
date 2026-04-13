@@ -108,8 +108,10 @@ impl PdfGeneratorService {
                 .ok_or_else(|| AppError::NotFound("Gap not found".to_string()))?;
 
             let current_level =
-                if let Some(s) = CurrentStatesRepository::find_by_id(db, dim_assessment.current_state_id).await? {
-                    s.score
+                if let Some(current_state_id) = dim_assessment.current_state_id {
+                    if let Some(s) = CurrentStatesRepository::find_by_id(db, current_state_id).await? {
+                        s.score
+                    } else { 0 }
                 } else { 0 };
 
             let desired_level =

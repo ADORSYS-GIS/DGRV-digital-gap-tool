@@ -99,7 +99,7 @@ pub struct DimensionAssessmentResponse {
     pub dimension_assessment_id: Uuid,
     pub assessment_id: Uuid,
     pub dimension_id: Uuid,
-    pub current_state_id: Uuid,
+    pub current_state_id: Option<Uuid>,
     pub desired_state_id: Option<Uuid>,
     pub gap_score: i32,
     pub gap_id: Uuid,

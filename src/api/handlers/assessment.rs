@@ -425,7 +425,7 @@ pub async fn create_dimension_assessment(
         dimension_assessment_id: sea_orm::Set(Uuid::new_v4()),
         assessment_id: sea_orm::Set(assessment_id),
         dimension_id: sea_orm::Set(request.dimension_id),
-        current_state_id: sea_orm::Set(request.current_state_id),
+        current_state_id: sea_orm::Set(Some(request.current_state_id)),
         desired_state_id: sea_orm::Set(Some(request.desired_state_id)),
         gap_score: sea_orm::Set(request.gap_score),
         gap_id: sea_orm::Set(gap.gap_id),
@@ -585,7 +585,7 @@ pub async fn update_dimension_assessment(
         dimension_assessment.clone().into();
 
     if let Some(current_state_id) = request.current_state_id {
-        active_model.current_state_id = sea_orm::Set(current_state_id);
+        active_model.current_state_id = sea_orm::Set(Some(current_state_id));
     }
 
     if let Some(desired_state_id) = request.desired_state_id {
