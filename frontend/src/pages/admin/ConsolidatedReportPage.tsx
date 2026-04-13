@@ -178,7 +178,13 @@ export function ConsolidatedReportPage() {
 
   const handleExportPDF = () => {
     if (reportRef.current) {
-      html2canvas(reportRef.current, { scale: 2 }).then(
+      html2canvas(reportRef.current, {
+        scale: 3,
+        useCORS: true,
+        letterRendering: true,
+        allowTaint: false,
+        backgroundColor: "#ffffff",
+      }).then(
         (canvas: HTMLCanvasElement) => {
           const imgData = canvas.toDataURL("image/png");
           const pdf = new jsPDF("p", "mm", "a4");
@@ -279,7 +285,7 @@ export function ConsolidatedReportPage() {
           ? "warning"
           : "success";
     return (
-      <Badge variant={variant} className="font-mono">
+      <Badge variant={variant} className="font-mono tabular-nums min-w-[70px] justify-center">
         {percentage.toFixed(2)}%
       </Badge>
     );
@@ -561,7 +567,7 @@ export function ConsolidatedReportPage() {
                         Average Risk Score:
                       </span>
                       <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${badgeClass}`}>
-                        {isLow ? "Low" : isMedium ? "Medium" : "High"} — {level.toFixed(2)}
+                        {isLow ? "Low" : isMedium ? "Medium" : "High"}
                       </span>
                     </div>
                   </div>

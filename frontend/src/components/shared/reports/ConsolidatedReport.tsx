@@ -263,7 +263,7 @@ export const ConsolidatedReport: React.FC<ConsolidatedReportProps> = ({
           ? "warning"
           : "success";
     return (
-      <Badge variant={variant} className="font-mono">
+      <Badge variant={variant} className="font-mono tabular-nums min-w-[70px] justify-center">
         {percentage.toFixed(2)}%
       </Badge>
     );
@@ -505,7 +505,7 @@ export const ConsolidatedReport: React.FC<ConsolidatedReportProps> = ({
                         Average Risk Score:
                       </span>
                       <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${badgeClass}`}>
-                        {isLow ? "Low" : isMedium ? "Medium" : "High"} — {level.toFixed(2)}
+                        {isLow ? "Low" : isMedium ? "Medium" : "High"}
                       </span>
                     </div>
                   </div>
