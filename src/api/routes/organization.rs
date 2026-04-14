@@ -16,7 +16,7 @@ pub fn create_organization_routes() -> Router<AppState> {
                 .put(update_organization)
                 .delete(delete_organization),
         )
-        .route("/:org_id/invitations", post(invite_user_to_organization))
+        .route("/:org_id/invitations", post(invite_user_to_organization).get(get_organization_invitations))
         .route("/:org_id/members", get(get_organization_members))
         .route(
             "/:org_id/groups",
