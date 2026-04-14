@@ -180,7 +180,28 @@ pub async fn delete_organization(
     let admin_token = keycloak_service.get_admin_token().await?;
 
     match keycloak_service.delete_organization(&admin_token, &org_id).await {
-        Ok(_) => Ok(StatusCode::NO_CONTENT),
+        Ok(_) => {
+            // Cascade delete all app DB data for this organization
+            let db = &state.db;
+            // Find and delete all assessments for this org (cascades to dimension_assessments, action_plans, etc.)
+            let assessments = crate::repositories::assessments::AssessmentsRepository::find_by_organization_id(
+                db.as_ref(),
+                org_id.clone(),
+            )
+            .await
+            .unwrap_or_default();
+
+            for assessment in assessments {
+                let _ = crate::repositories::assessments::AssessmentsRepository::delete(
+                    db.as_ref(),
+                    assessment.assessment_id,
+                )
+                .await;
+            }
+
+            tracing::info!("Deleted all app data for organization {}", org_id);
+            Ok(StatusCode::NO_CONTENT)
+        }
         Err(e) => {
             tracing::error!("Failed to delete organization: {}", e);
             Err(AppError::InternalServerError(

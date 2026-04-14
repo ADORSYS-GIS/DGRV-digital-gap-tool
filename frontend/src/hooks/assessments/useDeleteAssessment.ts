@@ -15,10 +15,9 @@ export function useDeleteAssessment() {
       const previousAssessments =
         queryClient.getQueryData<Assessment[]>(["assessments"]) ?? [];
 
+      // Optimistically remove from the list
       queryClient.setQueryData<Assessment[]>(["assessments"], (old = []) =>
-        old.map((a) =>
-          a.id === id ? { ...a, syncStatus: SyncStatus.DELETED } : a,
-        ),
+        old.filter((a) => a.id !== id),
       );
 
       return { previousAssessments };

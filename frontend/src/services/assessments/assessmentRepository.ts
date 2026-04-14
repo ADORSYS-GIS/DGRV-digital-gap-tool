@@ -114,31 +114,21 @@ export const assessmentRepository = {
     });
   },
   delete: async (id: string): Promise<void> => {
-    const existingAssessment = await db.assessments.get(id);
-    if (!existingAssessment) {
-      console.warn(`Assessment with ID ${id} not found in IndexedDB.`);
-      return;
-    }
-
-    // Try to delete from backend if online
+    // Always attempt backend deletion first — don't gate on IndexedDB presence
     if (navigator.onLine) {
       try {
         await deleteAssessmentApi({ id });
-        // If successful, delete from local DB
-        await db.assessments.delete(id);
-        return;
       } catch (error) {
         console.error(`Failed to delete assessment ${id} from backend:`, error);
-        // Fall through to offline handling
+        throw error; // Surface the error so the UI knows it failed
       }
     }
 
-    // Offline or backend failure: mark as deleted locally and queue for sync
-    await db.assessments.update(id, { syncStatus: SyncStatus.DELETED });
-    syncService.addToSyncQueue("Assessment", id, "DELETE", {
-      ...existingAssessment,
-      syncStatus: SyncStatus.DELETED,
-    });
+    // Clean up local cache regardless
+    const existingAssessment = await db.assessments.get(id);
+    if (existingAssessment) {
+      await db.assessments.delete(id);
+    }
   },
   markAsSynced: async (offlineId: string, serverId: string): Promise<void> => {
     await db.assessments.update(offlineId, {

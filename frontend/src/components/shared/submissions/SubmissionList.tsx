@@ -7,6 +7,7 @@ import { useDeleteAssessment } from "@/hooks/assessments/useDeleteAssessment";
 import { useAuth } from "@/context/AuthContext";
 import { ROLES } from "@/constants/roles";
 import { db } from "@/services/db";
+import { getGroup } from "@/openapi-client/services.gen";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,16 +18,27 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
 
-// Resolve cooperation name from IndexedDB by ID
+// Resolve cooperation name — first from IndexedDB, then from API
 function useCooperationName(cooperationId?: string | null): string | null {
   const [name, setName] = useState<string | null>(null);
   useEffect(() => {
     if (!cooperationId) return;
-    db.cooperations.get(cooperationId).then((coop) => {
-      if (coop?.name) setName(coop.name);
-    });
+    let cancelled = false;
+    (async () => {
+      const coop = await db.cooperations.get(cooperationId);
+      if (coop?.name) {
+        if (!cancelled) setName(coop.name);
+        return;
+      }
+      try {
+        const response = await getGroup({ groupId: cooperationId });
+        if (!cancelled && response?.name) setName(response.name);
+      } catch {
+        // silently ignore
+      }
+    })();
+    return () => { cancelled = true; };
   }, [cooperationId]);
   return name;
 }
@@ -41,16 +53,11 @@ interface SubmissionListProps {
 
 const getStatusVariant = (status: string) => {
   switch (status.toLowerCase()) {
-    case "reviewed":
-      return "success";
-    case "under review":
-      return "warning";
-    case "draft":
-      return "outline";
-    case "completed":
-      return "default";
-    default:
-      return "secondary";
+    case "reviewed":      return "success";
+    case "under review":  return "warning";
+    case "draft":         return "outline";
+    case "completed":     return "default";
+    default:              return "secondary";
   }
 };
 
@@ -64,8 +71,7 @@ interface SubmissionItemData {
   gaps_count: number;
 }
 
-// Small component to show cooperation name badge
-const CooperationBadge = ({ cooperationId }: { cooperationId?: string | null }) => {
+const CooperationBadge = ({ cooperationId }: { cooperationId?: string | null | undefined }) => {
   const name = useCooperationName(cooperationId);
   if (!name) return null;
   return (
@@ -86,8 +92,7 @@ export const SubmissionList = ({
   const { user } = useAuth();
   const deleteAssessment = useDeleteAssessment();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [submissionToDelete, setSubmissionToDelete] =
-    useState<AssessmentSummary | null>(null);
+  const [submissionToDelete, setSubmissionToDelete] = useState<AssessmentSummary | null>(null);
 
   const userRoles = (user?.roles || []).map((role) => role.toLowerCase());
   const canDelete =
@@ -97,15 +102,10 @@ export const SubmissionList = ({
   const items = limit ? submissions.slice(0, limit) : submissions;
 
   const handleSubmissionClick = (submissionId: string) => {
-    if (onSubmissionSelect) {
-      onSubmissionSelect(submissionId);
-    }
+    if (onSubmissionSelect) onSubmissionSelect(submissionId);
   };
 
-  const handleDeleteClick = (
-    e: React.MouseEvent,
-    submission: AssessmentSummary,
-  ) => {
+  const handleDeleteClick = (e: React.MouseEvent, submission: AssessmentSummary) => {
     e.preventDefault();
     e.stopPropagation();
     setSubmissionToDelete(submission);
@@ -123,15 +123,8 @@ export const SubmissionList = ({
     }
   };
 
-  // Transform AssessmentSummary to the format expected by the list item
-  const getSubmissionData = (
-    submission: AssessmentSummary,
-  ): SubmissionItemData | null => {
-    if (!submission || !submission.assessment) {
-      console.warn("Invalid submission data:", submission);
-      return null;
-    }
-
+  const getSubmissionData = (submission: AssessmentSummary): SubmissionItemData | null => {
+    if (!submission || !submission.assessment) return null;
     return {
       id: submission.assessment.assessment_id || "unknown-id",
       name: submission.assessment.document_title || "Unnamed Assessment",
@@ -144,31 +137,46 @@ export const SubmissionList = ({
   };
 
   if (items.length === 0) {
-    return (
-      <div className="text-center py-8">
-        <p className="text-gray-500">No submissions found</p>
-      </div>
-    );
+    return <div className="text-center py-8"><p className="text-gray-500">No submissions found</p></div>;
   }
 
-  // Filter out any invalid submissions
   const validItems = items
-    .map((submission) => ({
-      submission,
-      data: getSubmissionData(submission),
-    }))
-    .filter((item) => item.data !== null) as Array<{
-    submission: AssessmentSummary;
-    data: SubmissionItemData;
-  }>;
+    .map((submission) => ({ submission, data: getSubmissionData(submission) }))
+    .filter((item) => item.data !== null) as Array<{ submission: AssessmentSummary; data: SubmissionItemData }>;
 
   if (validItems.length === 0) {
-    return (
-      <div className="text-center py-8">
-        <p className="text-gray-500">No valid submissions found</p>
-      </div>
-    );
+    return <div className="text-center py-8"><p className="text-gray-500">No valid submissions found</p></div>;
   }
+
+  const renderContent = (submission: AssessmentSummary, submissionData: SubmissionItemData) => (
+    <div className="flex-1 space-y-1">
+      <div className="flex items-center space-x-2.5">
+        <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">
+          {submissionData.name}
+        </h3>
+        <Badge variant={getStatusVariant(submissionData.status)} className="text-xs font-medium px-2 py-0.5">
+          {submissionData.status}
+        </Badge>
+      </div>
+      <p className="text-sm text-muted-foreground">
+        Submitted on{" "}
+        {new Date(submissionData.created_at).toLocaleDateString(undefined, {
+          year: "numeric", month: "long", day: "numeric",
+        })}
+      </p>
+      <div className="pt-1 flex items-center gap-3 text-sm">
+        <CooperationBadge cooperationId={submission.assessment?.cooperation_id} />
+      </div>
+      {submissionData.overall_score !== null && (
+        <div className="pt-2 flex items-center space-x-6 text-sm">
+          <div className="flex items-center">
+            <span className="font-semibold text-foreground">{submissionData.overall_score.toFixed(1)}%</span>
+            <span className="ml-1.5 text-muted-foreground">overall score</span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 
   return (
     <div className="space-y-3">
@@ -184,136 +192,35 @@ export const SubmissionList = ({
                 <div className="p-2.5 bg-primary/10 rounded-full mt-0.5 group-hover:bg-primary/20 transition-colors">
                   <Leaf className="h-5 w-5 text-primary" />
                 </div>
-                <div className="flex-1 space-y-1">
-                  <div className="flex items-center space-x-2.5">
-                    <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">
-                      {submissionData.name}
-                    </h3>
-                    <Badge
-                      variant={getStatusVariant(submissionData.status)}
-                      className="text-xs font-medium px-2 py-0.5"
-                    >
-                      {submissionData.status}
-                    </Badge>
-                  </div>
-
-                  <p className="text-sm text-muted-foreground">
-                    Submitted on{" "}
-                    {new Date(submissionData.created_at).toLocaleDateString(
-                      undefined,
-                      {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      },
-                    )}
-                  </p>
-
-                  <div className="pt-1 flex items-center gap-3 text-sm">
-                    <CooperationBadge cooperationId={submission.assessment?.cooperation_id} />
-                  </div>
-
-                  <div className="pt-2 flex items-center space-x-6 text-sm">
-                    {submissionData.overall_score !== null && (
-                      <div className="flex items-center">
-                        <span className="font-semibold text-foreground">
-                          {submissionData.overall_score.toFixed(1)}%
-                        </span>
-                        <span className="ml-1.5 text-muted-foreground">
-                          overall score
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </div>
+                {renderContent(submission, submissionData)}
               </div>
-
               <div className="text-sm font-medium text-muted-foreground group-hover:text-primary transition-colors flex items-center">
-                View details
-                <span className="ml-1 transition-transform group-hover:translate-x-1">
-                  →
-                </span>
+                View details<span className="ml-1 transition-transform group-hover:translate-x-1">→</span>
               </div>
             </div>
           </button>
         ) : (
-          <div
-            key={submissionData.id}
-            className="border rounded-xl p-4 hover:bg-muted/50 hover:shadow-sm transition-all duration-200 group bg-card"
-          >
-            <Link
-              to={`${basePath}/submissions/${submissionData.id}`}
-              className="block"
-            >
+          <div key={submissionData.id} className="border rounded-xl p-4 hover:bg-muted/50 hover:shadow-sm transition-all duration-200 group bg-card">
+            <Link to={`${basePath}/submissions/${submissionData.id}`} className="block">
               <div className="flex items-center justify-between">
                 <div className="flex items-start space-x-4">
                   <div className="p-2.5 bg-primary/10 rounded-full mt-0.5 group-hover:bg-primary/20 transition-colors">
                     <Leaf className="h-5 w-5 text-primary" />
                   </div>
-                  <div className="flex-1 space-y-1">
-                    <div className="flex items-center space-x-2.5">
-                      <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">
-                        {submissionData.name}
-                      </h3>
-                      <Badge
-                        variant={getStatusVariant(submissionData.status)}
-                        className="text-xs font-medium px-2 py-0.5"
-                      >
-                        {submissionData.status}
-                      </Badge>
-                    </div>
-
-                    <p className="text-sm text-muted-foreground">
-                      Submitted on{" "}
-                      {new Date(submissionData.created_at).toLocaleDateString(
-                        undefined,
-                        {
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        },
-                      )}
-                    </p>
-
-                    <div className="pt-1 flex items-center gap-3 text-sm">
-                      <CooperationBadge cooperationId={submission.assessment?.cooperation_id} />
-                    </div>
-
-                    <div className="pt-2 flex items-center space-x-6 text-sm">
-                      {submissionData.overall_score !== null && (
-                        <div className="flex items-center">
-                          <span className="font-semibold text-foreground">
-                            {submissionData.overall_score.toFixed(1)}%
-                          </span>
-                          <span className="ml-1.5 text-muted-foreground">
-                            overall score
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
+                  {renderContent(submission, submissionData)}
                 </div>
-
                 <div className="flex items-center gap-2">
                   {canDelete && (
                     <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        handleDeleteClick(e, submission);
-                      }}
+                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDeleteClick(e, submission); }}
                       className="p-1.5 text-muted-foreground hover:text-destructive transition-colors rounded-md hover:bg-destructive/10"
                       aria-label="Delete submission"
-                      title="Delete submission"
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
                   )}
                   <div className="text-sm font-medium text-muted-foreground group-hover:text-primary transition-colors flex items-center">
-                    View details
-                    <span className="ml-1 transition-transform group-hover:translate-x-1">
-                      →
-                    </span>
+                    View details<span className="ml-1 transition-transform group-hover:translate-x-1">→</span>
                   </div>
                 </div>
               </div>
@@ -329,11 +236,9 @@ export const SubmissionList = ({
             <AlertDialogDescription>
               Are you sure you want to delete{" "}
               <span className="font-medium">
-                {submissionToDelete?.assessment?.document_title ||
-                  "this submission"}
+                {submissionToDelete?.assessment?.document_title || "this submission"}
               </span>
-              ? This action cannot be undone and will permanently remove the
-              submission and all associated data.
+              ? This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
