@@ -558,16 +558,28 @@ pub async fn generate_and_export_report(
 ) -> Result<impl axum::response::IntoResponse, (StatusCode, Json<serde_json::Value>)> {
     tracing::info!(assessment_id = %assessment_id, "Generating fresh PDF for export");
 
-    // Fetch org name from Keycloak to include in the report header
+    // Fetch cooperation name from Keycloak to include in the report header
     let organization_name = async {
         let admin_token = state.keycloak_service.get_admin_token().await.ok()?;
-        // Get the assessment to find the org ID
         let assessment = crate::repositories::assessments::AssessmentsRepository::find_by_id(
             &state.db,
             assessment_id,
         )
         .await
         .ok()??;
+
+        // Use cooperation name if available, otherwise fall back to org name
+        if let Some(cooperation_id) = &assessment.cooperation_id {
+            if let Ok(group) = state
+                .keycloak_service
+                .get_group_by_id(&admin_token, cooperation_id)
+                .await
+            {
+                return Some(group.name);
+            }
+        }
+
+        // Fallback: org name
         let org = state
             .keycloak_service
             .get_organization(&admin_token, &assessment.organization_id)
