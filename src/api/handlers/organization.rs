@@ -179,11 +179,24 @@ pub async fn delete_organization(
 
     let admin_token = keycloak_service.get_admin_token().await?;
 
+    // Fetch all org members before deleting the org
+    let members = keycloak_service
+        .get_organization_members(&admin_token, &org_id)
+        .await
+        .unwrap_or_default();
+
     match keycloak_service.delete_organization(&admin_token, &org_id).await {
         Ok(_) => {
+            // Delete all Keycloak users that belonged to this organization
+            for member in &members {
+                match keycloak_service.delete_user(&admin_token, &member.id).await {
+                    Ok(_) => tracing::info!("Deleted user {} from Keycloak", member.id),
+                    Err(e) => tracing::warn!("Failed to delete user {}: {}", member.id, e),
+                }
+            }
+
             // Cascade delete all app DB data for this organization
             let db = &state.db;
-            // Find and delete all assessments for this org (cascades to dimension_assessments, action_plans, etc.)
             let assessments = crate::repositories::assessments::AssessmentsRepository::find_by_organization_id(
                 db.as_ref(),
                 org_id.clone(),
@@ -199,7 +212,7 @@ pub async fn delete_organization(
                 .await;
             }
 
-            tracing::info!("Deleted all app data for organization {}", org_id);
+            tracing::info!("Deleted organization {} and {} associated users", org_id, members.len());
             Ok(StatusCode::NO_CONTENT)
         }
         Err(e) => {
