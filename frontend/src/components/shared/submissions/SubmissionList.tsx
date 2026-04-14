@@ -1,11 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AssessmentSummary } from "@/types/assessment";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
-import { Leaf, Trash2 } from "lucide-react";
+import { Leaf, Trash2, Building2 } from "lucide-react";
 import { useDeleteAssessment } from "@/hooks/assessments/useDeleteAssessment";
 import { useAuth } from "@/context/AuthContext";
 import { ROLES } from "@/constants/roles";
+import { db } from "@/services/db";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,6 +18,18 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+
+// Resolve cooperation name from IndexedDB by ID
+function useCooperationName(cooperationId?: string | null): string | null {
+  const [name, setName] = useState<string | null>(null);
+  useEffect(() => {
+    if (!cooperationId) return;
+    db.cooperations.get(cooperationId).then((coop) => {
+      if (coop?.name) setName(coop.name);
+    });
+  }, [cooperationId]);
+  return name;
+}
 
 interface SubmissionListProps {
   submissions: AssessmentSummary[];
@@ -50,6 +63,18 @@ interface SubmissionItemData {
   overall_score: number | null;
   gaps_count: number;
 }
+
+// Small component to show cooperation name badge
+const CooperationBadge = ({ cooperationId }: { cooperationId?: string | null }) => {
+  const name = useCooperationName(cooperationId);
+  if (!name) return null;
+  return (
+    <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+      <Building2 className="h-3 w-3" />
+      {name}
+    </span>
+  );
+};
 
 export const SubmissionList = ({
   submissions,
@@ -184,6 +209,10 @@ export const SubmissionList = ({
                     )}
                   </p>
 
+                  <div className="pt-1 flex items-center gap-3 text-sm">
+                    <CooperationBadge cooperationId={submission.assessment?.cooperation_id} />
+                  </div>
+
                   <div className="pt-2 flex items-center space-x-6 text-sm">
                     {submissionData.overall_score !== null && (
                       <div className="flex items-center">
@@ -245,6 +274,10 @@ export const SubmissionList = ({
                         },
                       )}
                     </p>
+
+                    <div className="pt-1 flex items-center gap-3 text-sm">
+                      <CooperationBadge cooperationId={submission.assessment?.cooperation_id} />
+                    </div>
 
                     <div className="pt-2 flex items-center space-x-6 text-sm">
                       {submissionData.overall_score !== null && (
