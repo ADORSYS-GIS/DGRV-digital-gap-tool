@@ -36,6 +36,7 @@ const UserDashboard: React.FC = () => {
   const cooperationIdFromRoute = useCooperationId();
   const {
     cooperationId: cooperationIdFromPath,
+    cooperationName,
     isLoading: isLoadingCoopFromPath,
     error: coopFromPathError,
   } = useCooperationIdFromPath();
@@ -92,7 +93,7 @@ const UserDashboard: React.FC = () => {
         <header className="space-y-3">
           <div>
             <p className="text-xs font-medium uppercase tracking-[0.2em] text-primary/80">
-              User panel
+              {cooperationName || "User panel"}
             </p>
             <h1 className="mt-1 text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
               User management dashboard

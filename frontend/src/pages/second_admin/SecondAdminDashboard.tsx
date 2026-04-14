@@ -90,9 +90,16 @@ const SecondAdminDashboard: React.FC = () => {
       <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-8 sm:px-6 lg:px-8">
         {/* Welcome Header */}
         <header className="space-y-2">
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-            Cooperatives management dashboard
-          </h1>
+          <div>
+            {user?.organization_name && (
+              <p className="text-xs font-medium uppercase tracking-[0.2em] text-primary/80">
+                {user.organization_name}
+              </p>
+            )}
+            <h1 className="mt-1 text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+              Cooperatives management dashboard
+            </h1>
+          </div>
           <p className="max-w-2xl text-sm text-muted-foreground">
             Welcome back{" "}
             <span className="font-medium text-foreground">

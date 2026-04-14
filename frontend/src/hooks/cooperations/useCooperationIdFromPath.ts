@@ -30,13 +30,14 @@ export const useCooperationIdFromPath = () => {
       if (!cooperationPath) return null;
       const cooperation =
         await cooperationRepository.getByPath(cooperationPath);
-      return cooperation?.id ?? null;
+      return cooperation ? { id: cooperation.id, name: cooperation.name } : null;
     },
   });
 
   return {
     cooperationPath,
-    cooperationId: query.data ?? null,
+    cooperationId: query.data?.id ?? null,
+    cooperationName: query.data?.name ?? null,
     isLoading: query.isLoading,
     error: query.error,
   };
