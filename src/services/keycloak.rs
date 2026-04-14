@@ -538,21 +538,24 @@ impl KeycloakService {
         }
     }
 
-    /// Get pending invitations for an organization
-    /// Since Keycloak doesn't have a direct "list invitations" API, we find users
-    /// who are in the realm but NOT yet org members (emailVerified=false, requiredActions contains VERIFY_EMAIL)
+    /// Get pending invitations for an organization.
+    /// Returns users who have the org_admin role but are not yet members of this org.
     pub async fn get_organization_invitations(
         &self,
         token: &str,
         org_id: &str,
     ) -> Result<Vec<crate::api::dto::invitation::PendingInvitation>> {
-        // Get current org members to exclude them
-        let members = self.get_organization_members(token, org_id).await.unwrap_or_default();
-        let member_ids: std::collections::HashSet<String> = members.iter().map(|m| m.id.clone()).collect();
+        // Get current org members so we can exclude them
+        let members = self
+            .get_organization_members(token, org_id)
+            .await
+            .unwrap_or_default();
+        let member_ids: std::collections::HashSet<String> =
+            members.iter().map(|m| m.id.clone()).collect();
 
-        // Get all realm users with emailVerified=false (pending verification = pending invitation)
+        // Fetch all users that have the org_admin realm role assigned
         let url = format!(
-            "{}/admin/realms/{}/users?emailVerified=false&max=100",
+            "{}/admin/realms/{}/roles/org_admin/users?max=200",
             self.config.keycloak.url, self.config.keycloak.realm
         );
 
@@ -564,6 +567,7 @@ impl KeycloakService {
 
         let users: Vec<KeycloakUser> = response.json().await.unwrap_or_default();
 
+        // Keep only those not yet in this org — they are pending
         let pending: Vec<crate::api::dto::invitation::PendingInvitation> = users
             .into_iter()
             .filter(|u| !member_ids.contains(&u.id))
