@@ -98,28 +98,57 @@ impl ActionPlanService {
 
         if let Some(d) = params.description {
             let current_rec_id = action_item.recommendation_id.clone().unwrap();
-            let mut rec: recommendations::ActiveModel =
-                recommendations::Entity::find_by_id(current_rec_id)
-                    .one(self.db.as_ref())
-                    .await?
-                    .ok_or_else(|| AppError::NotFound("Recommendation not found".to_string()))?
-                    .into();
+            let current_rec = recommendations::Entity::find_by_id(current_rec_id)
+                .one(self.db.as_ref())
+                .await?
+                .ok_or_else(|| AppError::NotFound("Recommendation not found".to_string()))?;
 
-            rec.description = Set(d);
-            rec.updated_at = Set(chrono::Utc::now());
-            rec.update(self.db.as_ref()).await?;
+            if current_rec.source == "admin" {
+                // Admin recommendation — never mutate it.
+                // Create a new action_plan-scoped copy and point the action item to it.
+                let new_rec = recommendations::ActiveModel {
+                    recommendation_id: Set(Uuid::new_v4()),
+                    dimension_id: Set(current_rec.dimension_id),
+                    priority: Set(current_rec.priority),
+                    description: Set(d),
+                    source: Set("action_plan".to_string()),
+                    created_at: Set(chrono::Utc::now()),
+                    updated_at: Set(chrono::Utc::now()),
+                };
+                let saved = new_rec.insert(self.db.as_ref()).await?;
+                action_item.recommendation_id = Set(saved.recommendation_id);
+            } else {
+                // Already a user-scoped recommendation — safe to update in place.
+                let mut rec: recommendations::ActiveModel = current_rec.into();
+                rec.description = Set(d);
+                rec.updated_at = Set(chrono::Utc::now());
+                rec.update(self.db.as_ref()).await?;
+            }
         } else if let Some(t) = params.title {
             let current_rec_id = action_item.recommendation_id.clone().unwrap();
-            let mut rec: recommendations::ActiveModel =
-                recommendations::Entity::find_by_id(current_rec_id)
-                    .one(self.db.as_ref())
-                    .await?
-                    .ok_or_else(|| AppError::NotFound("Recommendation not found".to_string()))?
-                    .into();
+            let current_rec = recommendations::Entity::find_by_id(current_rec_id)
+                .one(self.db.as_ref())
+                .await?
+                .ok_or_else(|| AppError::NotFound("Recommendation not found".to_string()))?;
 
-            rec.description = Set(t);
-            rec.updated_at = Set(chrono::Utc::now());
-            rec.update(self.db.as_ref()).await?;
+            if current_rec.source == "admin" {
+                let new_rec = recommendations::ActiveModel {
+                    recommendation_id: Set(Uuid::new_v4()),
+                    dimension_id: Set(current_rec.dimension_id),
+                    priority: Set(current_rec.priority),
+                    description: Set(t),
+                    source: Set("action_plan".to_string()),
+                    created_at: Set(chrono::Utc::now()),
+                    updated_at: Set(chrono::Utc::now()),
+                };
+                let saved = new_rec.insert(self.db.as_ref()).await?;
+                action_item.recommendation_id = Set(saved.recommendation_id);
+            } else {
+                let mut rec: recommendations::ActiveModel = current_rec.into();
+                rec.description = Set(t);
+                rec.updated_at = Set(chrono::Utc::now());
+                rec.update(self.db.as_ref()).await?;
+            }
         }
 
         if let Some(s) = params.status {
