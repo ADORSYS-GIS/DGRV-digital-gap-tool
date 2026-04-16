@@ -77,6 +77,19 @@ impl RecommendationsRepository {
             .await
             .map_err(AppError::from)
     }
+
+    /// Find all admin-created recommendations for a dimension (source = "admin").
+    pub async fn find_admin_by_dimension(
+        db: &DbConn,
+        dimension_id: Uuid,
+    ) -> Result<Vec<recommendations::Model>, AppError> {
+        Recommendations::find()
+            .filter(recommendations::Column::DimensionId.eq(dimension_id))
+            .filter(recommendations::Column::Source.eq("admin"))
+            .all(db)
+            .await
+            .map_err(AppError::from)
+    }
     pub async fn find_by_dimension_and_priority(
         db: &DbConn,
         dimension_id: Uuid,

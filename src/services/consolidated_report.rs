@@ -74,7 +74,7 @@ async fn process_submissions(
         let (average_gap_score, risk_level_distribution, average_risk_level) =
             calculate_dimension_metrics(&das);
 
-        let recommendations = RecommendationsRepository::find_by_dimension(&db, dimension_id)
+        let recommendations = RecommendationsRepository::find_admin_by_dimension(&db, dimension_id)
             .await
             .map_err(|e| e.to_string())?;
 
