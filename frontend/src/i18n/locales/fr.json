@@ -51,12 +51,12 @@
       "delete": "Supprimer",
       "manageLevels": "Gérer les niveaux"
     },
-    "createBtn": "Create Btn",
+    "createBtn": "Créer",
     "delete": {
       "confirm": "Confirm",
       "deleting": "Deleting",
-      "description": "Description",
-      "title": "Gestion"
+      "description": "Consultez les détails et les recommandations de l'évaluation.",
+      "title": "Évaluation"
     }
   },
   "adminLevels": {
@@ -904,10 +904,10 @@
       "orgIdNotFound": "ID de l'organisation non trouvé"
     },
     "manageCoopUsers": {
-      "description": "Description",
+      "description": "Consultez les détails et les recommandations de l'évaluation.",
       "empty": {
-        "description": "Description",
-        "title": "Gestion"
+        "description": "Consultez les détails et les recommandations de l'évaluation.",
+        "title": "Évaluation"
       },
       "error": {
         "load": "Load",
@@ -917,31 +917,31 @@
         "resolveTitle": "Resolve"
       },
       "sectionLabel": "Section",
-      "title": "Gestion"
+      "title": "Évaluation"
     },
     "manageCoopUsersPage": {
-      "description": "Description",
+      "description": "Consultez les détails et les recommandations de l'évaluation.",
       "empty": {
-        "description": "Description",
-        "title": "Gestion"
+        "description": "Consultez les détails et les recommandations de l'évaluation.",
+        "title": "Évaluation"
       },
       "error": "Error",
-      "title": "Gestion"
+      "title": "Évaluation"
     },
     "manageCoops": {
-      "description": "Description",
+      "description": "Consultez les détails et les recommandations de l'évaluation.",
       "empty": {
-        "description": "Description",
-        "title": "Gestion"
+        "description": "Consultez les détails et les recommandations de l'évaluation.",
+        "title": "Évaluation"
       },
-      "title": "Gestion"
+      "title": "Évaluation"
     },
     "submissionsPage": {
-      "description": "Description",
+      "description": "Consultez les détails et les recommandations de l'évaluation.",
       "empty": "Empty",
       "noSubmissions": "No Submissions",
       "submissionCount": "Submission Count",
-      "title": "Gestion"
+      "title": "Évaluation"
     }
   },
   "sharedSubmissions": {
@@ -968,7 +968,7 @@
     },
     "detail": {
       "currentLevel": "Current Level",
-      "description": "Description",
+      "description": "Consultez les détails et les recommandations de l'évaluation.",
       "descriptionNotFound": "Description Not Found",
       "desiredLevel": "Desired Level",
       "dimensionAssessments": "Dimension Assessments",
@@ -978,11 +978,11 @@
       "exportPdf": "Export Pdf",
       "noDimensionAssessments": "No Dimension Assessments",
       "riskLevel": "Risk Level",
-      "riskLevelDesc": "Risk Level Desc",
+      "riskLevelDesc": "Description du niveau d'exposition au risque pour cette dimension.",
       "status": "Statut",
       "submittedAt": "Soumis le",
-      "subtitle": "Gérez les détails ici",
-      "title": "Gestion",
+      "subtitle": "Voir et gérer le détail de la soumission actuelle.",
+      "title": "Évaluation",
       "unavailable": "Unavailable",
       "unknownDimension": "Unknown Dimension",
       "untitledAssessment": "Untitled Assessment"
@@ -1033,7 +1033,7 @@
       "progressOf": "Progress Of",
       "submitError": "Submit Error",
       "submitSuccess": "Submit Success",
-      "subtitle": "Gérez les détails ici",
+      "subtitle": "Voir et gérer le détail de la soumission actuelle.",
       "unableToLoad": "Unable To Load",
       "welcome": "Welcome",
       "yourProgress": "Your Progress"
@@ -1078,8 +1078,8 @@
     "delete": {
       "confirm": "Confirm",
       "deleting": "Deleting",
-      "description": "Description",
-      "title": "Gestion"
+      "description": "Consultez les détails et les recommandations de l'évaluation.",
+      "title": "Évaluation"
     }
   },
   "answerDimension": {
@@ -1176,7 +1176,7 @@
     }
   },
   "adminManageGapRecs": {
-    "subtitle": "Gérez les détails ici",
+    "subtitle": "Voir et gérer le détail de la soumission actuelle.",
     "title": "Gestion"
   },
   "adminManageOrgs": {
@@ -1254,8 +1254,8 @@
       "cancel": "Cancel",
       "continue": "Continue",
       "cooperative": "Cooperative",
-      "createBtn": "Create Btn",
-      "createDesc": "Create Desc",
+      "createBtn": "Créer",
+      "createDesc": "Remplissez les détails pour initialiser une nouvelle évaluation.",
       "createTitle": "Create",
       "creating": "Creating",
       "deleteAria": "Delete Aria",
@@ -1264,12 +1264,12 @@
       "dimensions": "Dimensions",
       "draftAssessment": "Draft Assessment",
       "loadingDimensions": "Loading Dimensions",
-      "namePlaceholder": "Name Placeholder",
+      "namePlaceholder": "Entrez le nom de l'évaluation...",
       "noDimensionsDesc": "No Dimensions Desc",
       "noDimensionsTitle": "No Dimensions",
       "ok": "Ok",
-      "selectCoop": "Select Coop",
-      "selectDims": "Select Dims"
+      "selectCoop": "Sélectionnez une coopérative",
+      "selectDims": "Sélectionner des dimensions"
     },
     "dimensionCard": {
       "assigned": "Assigned",
@@ -1279,16 +1279,16 @@
       "start": "Start"
     },
     "errorBoundary": {
-      "description": "Description",
+      "description": "Consultez les détails et les recommandations de l'évaluation.",
       "errorDetails": "Error Details",
       "refreshPage": "Refresh Page",
-      "title": "Gestion",
+      "title": "Évaluation",
       "tryAgain": "Try Again"
     },
     "invitationPending": {
-      "description": "Description",
+      "description": "Consultez les détails et les recommandations de l'évaluation.",
       "logout": "Logout",
-      "title": "Gestion"
+      "title": "Évaluation"
     },
     "loading": {
       "loadingAria": "Loading Aria"

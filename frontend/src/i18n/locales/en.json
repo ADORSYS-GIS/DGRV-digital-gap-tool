@@ -51,7 +51,7 @@
       "delete": "Delete",
       "manageLevels": "Manage Levels"
     },
-    "createBtn": "Create Btn",
+    "createBtn": "Create",
     "delete": {
       "confirm": "Confirm",
       "deleting": "Deleting",
@@ -996,7 +996,7 @@
       "exportPdf": "Export Pdf",
       "noDimensionAssessments": "No Dimension Assessments",
       "riskLevel": "Risk Level",
-      "riskLevelDesc": "Risk Level Desc",
+      "riskLevelDesc": "Description of the risk exposure block for this dimension.",
       "status": "Status",
       "submittedAt": "Submitted At",
       "subtitle": "Manage details here",
@@ -1190,7 +1190,7 @@
     }
   },
   "adminGaps": {
-    "createBtn": "Create Btn",
+    "createBtn": "Create",
     "delete": {
       "confirm": "Confirm",
       "deleting": "Deleting",
@@ -1302,8 +1302,8 @@
       "cancel": "Cancel",
       "continue": "Continue",
       "cooperative": "Cooperative",
-      "createBtn": "Create Btn",
-      "createDesc": "Create Desc",
+      "createBtn": "Create",
+      "createDesc": "Fill the details below to initialize a new assessment.",
       "createTitle": "Create",
       "creating": "Creating",
       "deleteAria": "Delete Aria",
@@ -1312,12 +1312,12 @@
       "dimensions": "Dimensions",
       "draftAssessment": "Draft Assessment",
       "loadingDimensions": "Loading Dimensions",
-      "namePlaceholder": "Name Placeholder",
+      "namePlaceholder": "Enter the assessment name...",
       "noDimensionsDesc": "No Dimensions Desc",
       "noDimensionsTitle": "No Dimensions",
       "ok": "Ok",
-      "selectCoop": "Select Coop",
-      "selectDims": "Select Dims"
+      "selectCoop": "Select Cooperative",
+      "selectDims": "Select Dimensions"
     },
     "dimensionCard": {
       "assigned": "Assigned",
