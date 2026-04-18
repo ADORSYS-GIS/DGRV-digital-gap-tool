@@ -17,8 +17,8 @@
     "actions": "Actions",
     "emptySearch": "No results match your search.",
     "emptyAction": "Click {{action}} to get started.",
-    "errorOccurred": "Error Occurred",
-    "unknownError": "Unknown Error"
+    "errorOccurred": "An error occurred",
+    "unknownError": "Unknown error"
   },
   "adminDimensions": {
     "title": "Dimensions",
@@ -987,16 +987,16 @@
     "detail": {
       "currentLevel": "Current Level",
       "description": "Description",
-      "descriptionNotFound": "Description Not Found",
+      "descriptionNotFound": "Description not found",
       "desiredLevel": "Desired Level",
       "dimensionAssessments": "Dimension Assessments",
       "dimensionAssessmentsDesc": "Performance overview across assessment dimensions",
-      "errorLoad": "Error Load",
+      "errorLoad": "Failed to load details",
       "errorLoading": "Error Loading",
       "exportPdf": "Export Pdf",
       "noDimensionAssessments": "No Dimension Assessments",
       "riskLevel": "Risk Level",
-      "riskLevelDesc": "Description of the risk exposure block for this dimension.",
+      "riskLevelDesc": "The gap between your current and desired levels is analyzed to determine a risk level, indicating the urgency and importance of addressing this area.",
       "status": "Status",
       "submittedAt": "Submitted At",
       "subtitle": "Manage details here",
@@ -1302,10 +1302,10 @@
       "cancel": "Cancel",
       "continue": "Continue",
       "cooperative": "Cooperative",
-      "createBtn": "Create",
-      "createDesc": "Fill the details below to initialize a new assessment.",
-      "createTitle": "Create",
-      "creating": "Creating",
+      "createBtn": "Create Assessment",
+      "createDesc": "Define the assessment name, select the target cooperation, and pick the dimensions you want to evaluate.",
+      "createTitle": "Create New Assessment",
+      "creating": "Creating...",
       "deleteAria": "Delete Aria",
       "deleteDesc": "Delete Desc",
       "deleteTitle": "Delete",
@@ -1353,6 +1353,11 @@
       "submittedOn": "Submitted On",
       "unknownDate": "Unknown Date",
       "unknownError": "Unknown Error"
+    },
+    "gap_severity": {
+      "LOW": "LOW",
+      "MEDIUM": "MEDIUM",
+      "HIGH": "HIGH"
     }
   },
   "test": {
