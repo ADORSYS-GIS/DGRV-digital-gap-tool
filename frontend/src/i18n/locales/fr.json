@@ -16,7 +16,9 @@
     "loading": "Chargement...",
     "actions": "Actions",
     "emptySearch": "Aucun résultat ne correspond à votre recherche.",
-    "emptyAction": "Cliquez sur {{action}} pour commencer."
+    "emptyAction": "Cliquez sur {{action}} pour commencer.",
+    "errorOccurred": "Error Occurred",
+    "unknownError": "Unknown Error"
   },
   "adminDimensions": {
     "title": "Dimensions",
@@ -30,14 +32,31 @@
       "saving": "Enregistrement...",
       "updating": "Mise à jour...",
       "namePlaceholder": "Entrez le nom de la dimension",
-      "descPlaceholder": "Entrez la description de la dimension"
+      "descPlaceholder": "Entrez la description de la dimension",
+      "descAdd": "Desc Add",
+      "descEdit": "Desc Edit",
+      "descPlaceholderAdd": "Desc Placeholder Add",
+      "namePlaceholderAdd": "Name Placeholder Add"
     },
     "validation": {
       "nameRequired": "Le nom est requis",
       "descRequired": "La description est requise"
     },
     "list": {
-      "empty": "Aucune dimension trouvée."
+      "empty": "Aucune dimension trouvée.",
+      "emptyDescription": "Empty Description",
+      "emptyTitle": "Empty"
+    },
+    "card": {
+      "delete": "Delete",
+      "manageLevels": "Manage Levels"
+    },
+    "createBtn": "Create Btn",
+    "delete": {
+      "confirm": "Confirm",
+      "deleting": "Deleting",
+      "description": "Description",
+      "title": ""
     }
   },
   "adminLevels": {
@@ -189,7 +208,13 @@
     "organizations": {
       "title": "Rapports d'organisation",
       "errorLoading": "Erreur lors du chargement des organisations : {{error}}"
-    }
+    },
+    "backToOrgs": "Back To Orgs",
+    "selectOrg": "Select Org",
+    "submissionsForOrg": "Submissions For Org",
+    "subtitleAll": "Subtitle All",
+    "subtitleOrg": "Subtitle Org",
+    "title": ""
   },
   "assessmentAnswering": {
     "validation": {
@@ -369,7 +394,8 @@
         "noRole": "Aucun rôle ne sera assigné avec vos permissions actuelles",
         "cancel": "Annuler",
         "submit": "Envoyer l'invitation",
-        "submitting": "Ajout..."
+        "submitting": "Ajout...",
+        "adding": "Adding"
       },
       "toast": {
         "success": "Utilisateur invité avec succès.",
@@ -401,6 +427,9 @@
         "error": "Échec de la mise à jour des dimensions de l'utilisateur."
       },
       "saving": "Enregistrement..."
+    },
+    "form": {
+      "submit": "Submit"
     }
   },
   "adminDashboard": {
@@ -476,7 +505,18 @@
       "status": "Statut",
       "cooperative": "Coopérative",
       "actions": "Actions",
-      "noUsers": "Aucun utilisateur trouvé."
+      "noUsers": "Aucun utilisateur trouvé.",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "roles": {
+        "orgAdmin": "Org Admin"
+      },
+      "sectionLabel": "Section",
+      "statusLabel": {
+        "active": "Active",
+        "inactive": "Inactive",
+        "pending": "Pending"
+      }
     },
     "status": {
       "active": "Actif",
@@ -497,7 +537,8 @@
       "confirm": "Supprimer",
       "cancel": "Annuler",
       "success": "Utilisateur supprimé avec succès",
-      "error": "Échec de la suppression de l'utilisateur"
+      "error": "Échec de la suppression de l'utilisateur",
+      "deleting": "Deleting"
     },
     "invite": {
       "title": "Inviter un nouvel utilisateur",
@@ -516,7 +557,26 @@
       "validation": {
         "name": "Le nom est requis",
         "email": "Adresse e-mail invalide",
-        "role": "Le rôle est requis"
+        "role": "Le rôle est requis",
+        "firstNameRequired": "First Name Required",
+        "invalidEmail": "Invalid Email",
+        "lastNameRequired": "Last Name Required",
+        "roleRequired": "Role Required"
+      },
+      "form": {
+        "email": "Email",
+        "emailPlaceholder": "Email Placeholder",
+        "firstName": "First Name",
+        "firstNamePlaceholder": "First Name Placeholder",
+        "inviting": "Inviting",
+        "lastName": "Last Name",
+        "lastNamePlaceholder": "Last Name Placeholder",
+        "role": "Role",
+        "submit": "Submit"
+      },
+      "toast": {
+        "error": "Error",
+        "success": "Success"
       }
     }
   },
@@ -773,6 +833,12 @@
       "error": "Erreur lors du chargement des organisations : {{message}}",
       "emptyTitle": "Aucune organisation trouvée",
       "emptyDesc": "Vous devez créer ou être affecté à une organisation pour gérer les utilisateurs."
+    },
+    "orgUsers": {
+      "error": "Error",
+      "inviteUser": "Invite User",
+      "subtitle": "Sub",
+      "title": ""
     }
   },
   "viewReports": {
@@ -833,6 +899,46 @@
     },
     "consolidatedReportPage": {
       "orgIdNotFound": "ID de l'organisation non trouvé"
+    },
+    "manageCoopUsers": {
+      "description": "Description",
+      "empty": {
+        "description": "Description",
+        "title": ""
+      },
+      "error": {
+        "load": "Load",
+        "noCoopDescription": "No Coop Description",
+        "noCoopTitle": "No Coop",
+        "resolveDescription": "Resolve Description",
+        "resolveTitle": "Resolve"
+      },
+      "sectionLabel": "Section",
+      "title": ""
+    },
+    "manageCoopUsersPage": {
+      "description": "Description",
+      "empty": {
+        "description": "Description",
+        "title": ""
+      },
+      "error": "Error",
+      "title": ""
+    },
+    "manageCoops": {
+      "description": "Description",
+      "empty": {
+        "description": "Description",
+        "title": ""
+      },
+      "title": ""
+    },
+    "submissionsPage": {
+      "description": "Description",
+      "empty": "Empty",
+      "noSubmissions": "No Submissions",
+      "submissionCount": "Submission Count",
+      "title": ""
     }
   },
   "sharedSubmissions": {
@@ -850,6 +956,46 @@
       "noSubmissionsForOrg": "Aucune soumission trouvée pour votre organisation.",
       "noSubmissionsForCoop": "Aucune soumission trouvée pour votre coopérative.",
       "noSubmissions": "Aucune soumission trouvée."
+    },
+    "chart": {
+      "assessment": "Assessment",
+      "currentState": "Current State",
+      "desiredState": "Desired State",
+      "noData": "No Data"
+    },
+    "detail": {
+      "currentLevel": "Current Level",
+      "description": "Description",
+      "descriptionNotFound": "Description Not Found",
+      "desiredLevel": "Desired Level",
+      "dimensionAssessments": "Dimension Assessments",
+      "dimensionAssessmentsDesc": "Dimension Assessments Desc",
+      "errorLoad": "Error Load",
+      "errorLoading": "Error Loading",
+      "exportPdf": "Export Pdf",
+      "noDimensionAssessments": "No Dimension Assessments",
+      "riskLevel": "Risk Level",
+      "riskLevelDesc": "Risk Level Desc",
+      "status": "Status",
+      "submittedAt": "Submitted At",
+      "subtitle": "Sub",
+      "title": "",
+      "unavailable": "Unavailable",
+      "unknownDimension": "Unknown Dimension",
+      "untitledAssessment": "Untitled Assessment"
+    },
+    "list": {
+      "deleteAction": "Delete Action",
+      "deleteDescription": "Delete Description",
+      "deleteTitle": "Delete",
+      "deleteWarning": "Delete Warning",
+      "deleting": "Deleting",
+      "noValidFound": "No Valid Found",
+      "notFound": "Not Found",
+      "overallScore": "Overall Score",
+      "submittedOn": "Submitted On",
+      "thisSubmission": "This Submission",
+      "viewDetails": "View Details"
     }
   },
   "sharedAssessments": {
@@ -864,6 +1010,24 @@
       "resolveCooperativeError": "Nous n'avons pas pu déterminer à quelle coopérative vous appartenez.",
       "noDraftsTitle": "Pas d'ébauches d'évaluation",
       "noDraftsSubtitle": "Commencez par créer votre première évaluation pour une coopérative."
+    },
+    "detail": {
+      "assessmentIdNotFound": "Assessment Id Not Found",
+      "assessmentNotFound": "Assessment Not Found",
+      "digitalGapAssessment": "Digital Gap Assessment",
+      "failedToFetch": "Failed To Fetch",
+      "finishAssessment": "Finish Assessment",
+      "intro": "Intro",
+      "loading": "Loading",
+      "noDimensionsAssigned": "No Dimensions Assigned",
+      "noDimensionsConfigured": "No Dimensions Configured",
+      "progressOf": "Progress Of",
+      "submitError": "Submit Error",
+      "submitSuccess": "Submit Success",
+      "subtitle": "Sub",
+      "unableToLoad": "Unable To Load",
+      "welcome": "Welcome",
+      "yourProgress": "Your Progress"
     }
   },
   "adminManageDigitalGaps": {
@@ -876,7 +1040,11 @@
     "title": "Écarts de Numérisation",
     "addBtn": "Ajouter un écart de numérisation",
     "list": {
-      "empty": "Aucun écart de numérisation trouvé."
+      "empty": "Aucun écart de numérisation trouvé.",
+      "actions": "Actions",
+      "description": "Description",
+      "gapCount": "Gap Count",
+      "severity": "Severity"
     },
     "validation": {
       "dimensionRequired": "La dimension est requise",
@@ -897,7 +1065,13 @@
       "saving": "Enregistrement..."
     },
     "updateBtn": "Mettre à jour l'écart de numérisation",
-    "createBtn": "Créer l'écart de numérisation"
+    "createBtn": "Créer l'écart de numérisation",
+    "delete": {
+      "confirm": "Confirm",
+      "deleting": "Deleting",
+      "description": "Description",
+      "title": ""
+    }
   },
   "answerDimension": {
     "loadingAssessment": "Chargement de l'évaluation…",
@@ -991,5 +1165,140 @@
       "actionPlan": "Plan d'Action",
       "submissions": "Soumissions"
     }
+  },
+  "adminManageGapRecs": {
+    "subtitle": "Sub",
+    "title": ""
+  },
+  "adminManageOrgs": {
+    "error": "Error",
+    "noOrgs": "No Orgs",
+    "noOrgsSubtitle": "No Orgs Sub",
+    "subtitle": "Sub",
+    "title": ""
+  },
+  "assessmentDetail": {
+    "dimensionsSubtitle": "Dimensions Sub",
+    "errorFetch": "Error Fetch",
+    "errorNotFound": "Error Not Found"
+  },
+  "shared": {
+    "actionPlans": {
+      "actionItem": "Action Item",
+      "addBtn": "Add Btn",
+      "addNewActionItem": "Add New Action Item",
+      "adding": "Adding",
+      "approved": "Approved",
+      "cancel": "Cancel",
+      "createFailed": "Create Failed",
+      "createSuccess": "Create Success",
+      "createdOn": "Created On",
+      "delete": "Delete",
+      "deleteAction": "Delete Action",
+      "deleteActionItemTitle": "Delete Action Item",
+      "deleteDesc": "Delete Desc",
+      "deleting": "Deleting",
+      "descPlaceholder": "Desc Placeholder",
+      "description": "Description",
+      "dimension": "Dimension",
+      "done": "Done",
+      "editAction": "Edit Action",
+      "editActionItemTitle": "Edit Action Item",
+      "error": "Error",
+      "errorLoading": "Error Loading",
+      "failedUpdateStatus": "Failed Update Status",
+      "inProgress": "In Progress",
+      "moveToNext": "Move To Next",
+      "moveToPrev": "Move To Prev",
+      "movedTo": "Moved To",
+      "noActionPlan": "No Action Plan",
+      "noActionPlans": "No Action Plans",
+      "noActionPlansDesc": "No Action Plans Desc",
+      "noItemsApproved": "No Items Approved",
+      "noItemsCompleted": "No Items Completed",
+      "noItemsInProgress": "No Items In Progress",
+      "noItemsTodo": "No Items Todo",
+      "planDescription": "Plan Description",
+      "priority": "Priority",
+      "priorityHigh": "Priority High",
+      "priorityLow": "Priority Low",
+      "priorityMedium": "Priority Medium",
+      "priorityWord": "Priority Word",
+      "selectDimError": "Select Dim Error",
+      "selectDimension": "Select Dimension",
+      "selectPriority": "Select Priority",
+      "statusApproved": "Status Approved",
+      "statusCompleted": "Status Completed",
+      "statusInProgress": "Status In Progress",
+      "statusNotStarted": "Status Not Started",
+      "todo": "Todo",
+      "unknownAssessment": "Unknown Assessment",
+      "unknownDimension": "Unknown Dimension",
+      "updateBtn": "Update Btn",
+      "updating": "Updating",
+      "viewPlan": "View Plan"
+    },
+    "assessments": {
+      "answer": "Answer",
+      "assessmentName": "Assessment Name",
+      "assignedTo": "Assigned To",
+      "cancel": "Cancel",
+      "continue": "Continue",
+      "cooperative": "Cooperative",
+      "createBtn": "Create Btn",
+      "createDesc": "Create Desc",
+      "createTitle": "Create",
+      "creating": "Creating",
+      "deleteAria": "Delete Aria",
+      "deleteDesc": "Delete Desc",
+      "deleteTitle": "Delete",
+      "dimensions": "Dimensions",
+      "draftAssessment": "Draft Assessment",
+      "loadingDimensions": "Loading Dimensions",
+      "namePlaceholder": "Name Placeholder",
+      "noDimensionsDesc": "No Dimensions Desc",
+      "noDimensionsTitle": "No Dimensions",
+      "ok": "Ok",
+      "selectCoop": "Select Coop",
+      "selectDims": "Select Dims"
+    },
+    "dimensionCard": {
+      "assigned": "Assigned",
+      "assignedToCoopUser": "Assigned To Coop User",
+      "completed": "Completed",
+      "modify": "Modify",
+      "start": "Start"
+    },
+    "errorBoundary": {
+      "description": "Description",
+      "errorDetails": "Error Details",
+      "refreshPage": "Refresh Page",
+      "title": "",
+      "tryAgain": "Try Again"
+    },
+    "invitationPending": {
+      "description": "Description",
+      "logout": "Logout",
+      "title": ""
+    },
+    "loading": {
+      "loadingAria": "Loading Aria"
+    },
+    "reports": {
+      "chooseSubmissionDesc": "Choose Submission Desc",
+      "failedToLoadSubmissions": "Failed To Load Submissions",
+      "generatePdf": "Generate Pdf",
+      "generating": "Generating",
+      "generationFailed": "Generation Failed",
+      "noSubmissionsFound": "No Submissions Found",
+      "selectSubmission": "Select Submission",
+      "selectSubmissionInfo": "Select Submission Info",
+      "submittedOn": "Submitted On",
+      "unknownDate": "Unknown Date",
+      "unknownError": "Unknown Error"
+    }
+  },
+  "test": {
+    "com": "Com"
   }
 }
