@@ -47,6 +47,7 @@ import { cn } from "@/utils/utils";
 import { useDgrvAdminConsolidatedReport } from "@/hooks/consolidated_reports/useDgrvAdminConsolidatedReport";
 import { useOrgAdminConsolidatedReport } from "@/hooks/consolidated_reports/useOrgAdminConsolidatedReport";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
+import { useTranslation } from "react-i18next";
 
 interface ChartData {
   dimension_name: string;
@@ -161,6 +162,7 @@ interface ConsolidatedReportProps {
 export const ConsolidatedReport: React.FC<ConsolidatedReportProps> = ({
   organizationId,
 }) => {
+  const { t } = useTranslation();
   const {
     data: dgrvData,
     isLoading: dgrvLoading,
@@ -205,14 +207,14 @@ export const ConsolidatedReport: React.FC<ConsolidatedReportProps> = ({
       } = summary.risk_level_distribution;
 
       let dominantRisk = {
-        name: "Low Risk",
+        name: t("consolidatedReport.focus.lowRisk"),
         value: low_risk_percentage,
         color: RISK_COLORS.low,
       };
 
       if (medium_risk_percentage >= dominantRisk.value) {
         dominantRisk = {
-          name: "Medium Risk",
+          name: t("consolidatedReport.focus.mediumRisk"),
           value: medium_risk_percentage,
           color: RISK_COLORS.medium,
         };
@@ -220,7 +222,7 @@ export const ConsolidatedReport: React.FC<ConsolidatedReportProps> = ({
 
       if (high_risk_percentage >= dominantRisk.value) {
         dominantRisk = {
-          name: "High Risk",
+          name: t("consolidatedReport.focus.highRisk"),
           value: high_risk_percentage,
           color: RISK_COLORS.high,
         };
@@ -305,22 +307,22 @@ export const ConsolidatedReport: React.FC<ConsolidatedReportProps> = ({
       <div className="flex justify-between items-center">
         <div className="space-y-2">
           <h1 className="text-3xl font-bold tracking-tight">
-            Consolidated Report
+            {t("consolidatedReport.title")}
           </h1>
           <p className="text-muted-foreground">
-            Comprehensive overview of digital gap analysis
+            {t("consolidatedReport.subtitle")}
           </p>
         </div>
         <Button onClick={handleExportPDF} className="gap-2">
           <Download className="h-4 w-4" />
-          Export PDF
+          {t("consolidatedReport.exportPDF")}
         </Button>
       </div>
 
       <div className="p-4">
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           <MetricCard
-            title="Total Submissions"
+            title={t("consolidatedReport.metrics.totalSubmissions")}
             value={report.total_submissions}
             icon={<FileText className="h-5 w-5" />}
           />
@@ -329,35 +331,26 @@ export const ConsolidatedReport: React.FC<ConsolidatedReportProps> = ({
         <Card className="transition-all duration-200 hover:shadow-md mt-6">
           <CardHeader>
             <div className="flex items-center gap-2">
-              <CardTitle>Dimension Analysis</CardTitle>
-              <InfoPopover title="About Dimension Analysis">
+              <CardTitle>{t("consolidatedReport.dimensions.title")}</CardTitle>
+              <InfoPopover title={t("consolidatedReport.dimensions.popoverTitle")}>
                 <p>
-                  This table provides a detailed breakdown of risk distribution
-                  for each dimension across all submissions. It helps in
-                  identifying which areas of your organization are most exposed
-                  to digital risks.
+                  {t("consolidatedReport.dimensions.popoverDesc")}
                 </p>
                 <ul className="mt-2 list-disc pl-4 space-y-1">
                   <li>
-                    <strong>High Risk %:</strong> The percentage of submissions
-                    where the dimension was assessed as high risk. High-risk
-                    areas require immediate attention.
+                    <strong>{t("consolidatedReport.dimensions.table.highRisk")}</strong> {t("consolidatedReport.dimensions.highRiskDesc")}
                   </li>
                   <li>
-                    <strong>Medium Risk %:</strong> The percentage of
-                    submissions where the dimension was assessed as medium risk.
-                    These areas should be monitored.
+                    <strong>{t("consolidatedReport.dimensions.table.mediumRisk")}</strong> {t("consolidatedReport.dimensions.mediumRiskDesc")}
                   </li>
                   <li>
-                    <strong>Low Risk %:</strong> The percentage of submissions
-                    where the dimension was assessed as low risk. These are
-                    areas of strength.
+                    <strong>{t("consolidatedReport.dimensions.table.lowRisk")}</strong> {t("consolidatedReport.dimensions.lowRiskDesc")}
                   </li>
                 </ul>
               </InfoPopover>
             </div>
             <CardDescription>
-              Detailed breakdown of risk levels and gap scores by dimension
+              {t("consolidatedReport.dimensions.subtitle")}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -365,12 +358,12 @@ export const ConsolidatedReport: React.FC<ConsolidatedReportProps> = ({
               <Table>
                 <TableHeader>
                   <TableRow className="hover:bg-transparent">
-                    <TableHead className="font-semibold">Dimension</TableHead>
-                    <TableHead className="font-semibold">High Risk %</TableHead>
+                    <TableHead className="font-semibold">{t("consolidatedReport.dimensions.table.dimension")}</TableHead>
+                    <TableHead className="font-semibold">{t("consolidatedReport.dimensions.table.highRisk")}</TableHead>
                     <TableHead className="font-semibold">
                       Medium Risk %
                     </TableHead>
-                    <TableHead className="font-semibold">Low Risk %</TableHead>
+                    <TableHead className="font-semibold">{t("consolidatedReport.dimensions.table.lowRisk")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -432,22 +425,22 @@ export const ConsolidatedReport: React.FC<ConsolidatedReportProps> = ({
               : "text-emerald-500";
 
           const title = isHigh
-            ? "Highest Risk Dimension & Recommendations"
+            ? t("consolidatedReport.focus.high.title")
             : isMedium
-              ? "Dimension Needing Attention & Recommendations"
-              : "Dimension with Most Room to Improve";
+              ? t("consolidatedReport.focus.medium.title")
+              : t("consolidatedReport.focus.low.title");
 
           const subtitle = isHigh
-            ? "Priority focus area requiring immediate attention"
+            ? t("consolidatedReport.focus.high.subtitle")
             : isMedium
-              ? "This dimension has a moderate gap — worth monitoring and improving"
-              : "All dimensions are performing well. This one has the most potential for further growth";
+              ? t("consolidatedReport.focus.medium.subtitle")
+              : t("consolidatedReport.focus.low.subtitle");
 
           const popoverBody = isHigh
-            ? "This dimension has the highest average risk score across all submissions. It represents the most critical area requiring immediate action."
+            ? t("consolidatedReport.focus.high.popover")
             : isMedium
-              ? "This dimension has a moderate average risk score. It is not critical but should be monitored and improved over time."
-              : "All dimensions are at low risk. This dimension has the highest score among them, meaning it has the most room for further improvement — not that it is at risk.";
+              ? t("consolidatedReport.focus.medium.popover")
+              : t("consolidatedReport.focus.low.popover");
 
           const badgeClass = isHigh
             ? "bg-destructive text-destructive-foreground"
@@ -462,10 +455,10 @@ export const ConsolidatedReport: React.FC<ConsolidatedReportProps> = ({
               : "bg-emerald-500";
 
           const recTitle = isHigh
-            ? "Top High-Priority Recommendations"
+            ? t("consolidatedReport.focus.high.recTitle")
             : isMedium
-              ? "Recommendations to Improve This Dimension"
-              : "Suggestions to Further Strengthen This Dimension";
+              ? t("consolidatedReport.focus.medium.recTitle")
+              : t("consolidatedReport.focus.low.recTitle");
 
           return (
             <Card className={`border-l-4 ${accent} transition-all duration-200 hover:shadow-md mt-6`}>
@@ -473,11 +466,10 @@ export const ConsolidatedReport: React.FC<ConsolidatedReportProps> = ({
                 <div className="flex items-center gap-2">
                   <Icon className={`h-5 w-5 ${iconColor}`} />
                   <CardTitle>{title}</CardTitle>
-                  <InfoPopover title="About This Section">
+                  <InfoPopover title={t("consolidatedReport.focus.aboutTitle")}>
                     <p>{popoverBody}</p>
                     <p className="mt-2">
-                      The recommendations below are tailored to this dimension
-                      and can be incorporated into your action plan.
+                      {t("consolidatedReport.focus.aboutDesc")}
                     </p>
                   </InfoPopover>
                 </div>
@@ -522,23 +514,18 @@ export const ConsolidatedReport: React.FC<ConsolidatedReportProps> = ({
             <CardHeader>
               <div className="flex items-center gap-2">
                 <BarChart3 className="h-5 w-5 text-muted-foreground" />
-                <CardTitle>Dominant Risk level by Dimension</CardTitle>
-                <InfoPopover title="About Dominant Risk">
+                <CardTitle>{t("consolidatedReport.chart.title")}</CardTitle>
+                <InfoPopover title={t("consolidatedReport.chart.aboutTitle")}>
                   <p>
-                    This bar chart visualizes the most dominant risk level
-                    (High, Medium, or Low) for each dimension. The dominant risk
-                    is the risk level with the highest percentage of submissions
-                    for that dimension.
+                    {t("consolidatedReport.chart.aboutDesc1")}
                   </p>
                   <p className="mt-2">
-                    This provides a quick overview of the general risk profile
-                    of each dimension, helping you to easily spot which
-                    dimensions are consistently ranked as high-risk.
+                    {t("consolidatedReport.chart.aboutDesc2")}
                   </p>
                 </InfoPopover>
               </div>
               <CardDescription>
-                Percentage of dominant risk level per dimension
+                {t("consolidatedReport.chart.subtitle")}
               </CardDescription>
             </CardHeader>
             <CardContent>

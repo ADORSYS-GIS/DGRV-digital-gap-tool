@@ -61,7 +61,9 @@ export const SubmissionDetail = ({ summary }: SubmissionDetailProps) => {
                   {t("sharedSubmissions.detail.status")}
                 </p>
                 <p className="text-sm font-medium text-foreground capitalize">
-                  {submission.assessment.status || "—"}
+                  {submission.assessment.status
+                    ? t(`sharedSubmissions.status.${submission.assessment.status.toLowerCase()}`, { defaultValue: submission.assessment.status })
+                    : "—"}
                 </p>
               </div>
             </div>
