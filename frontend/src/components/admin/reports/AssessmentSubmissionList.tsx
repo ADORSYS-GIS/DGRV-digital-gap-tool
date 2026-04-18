@@ -7,6 +7,7 @@ import { useDownloadReportByAssessment } from "@/hooks/reports/useDownloadReport
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
 import { ApiError } from "@/openapi-client/core/ApiError";
+import { useTranslation } from "react-i18next";
 
 interface AssessmentSubmissionListProps {
   organizationId: string;
@@ -20,17 +21,18 @@ export const AssessmentSubmissionList: React.FC<
     isLoading,
     error,
   } = useSubmissionsByOrganization(organizationId);
+  const { t } = useTranslation();
   const downloadReportMutation = useDownloadReportByAssessment();
 
   const handleExportReport = (assessmentId: string) => {
     downloadReportMutation.mutate(assessmentId, {
       onSuccess: () => {
-        toast.success("Report downloaded successfully!");
+        toast.success(t("adminReports.submissions.exportSuccess"));
       },
       onError: (err) => {
         const errorMessage =
-          err instanceof ApiError ? err.message : "An unknown error occurred";
-        toast.error(`Failed to download report: ${errorMessage}`);
+          err instanceof ApiError ? err.message : t("common.noDescription");
+        toast.error(t("adminReports.submissions.exportError", { error: errorMessage }));
       },
     });
   };
@@ -41,14 +43,14 @@ export const AssessmentSubmissionList: React.FC<
 
   if (error) {
     return (
-      <p className="text-red-500">Error loading submissions: {error.message}</p>
+      <p className="text-red-500">{t("adminReports.organizations.errorLoading", { error: error.message })}</p>
     );
   }
 
   return (
     <div className="grid gap-4">
       {submissions?.length === 0 && (
-        <p>No assessment submissions found for this organization.</p>
+        <p>{t("adminReports.submissions.empty")}</p>
       )}
       {submissions?.map((submission) => (
         <Card key={submission.assessment.assessment_id}>
@@ -58,12 +60,12 @@ export const AssessmentSubmissionList: React.FC<
           <CardContent className="flex justify-between items-center">
             <div>
               <p className="text-sm text-muted-foreground">
-                Submitted on:{" "}
+                {t("adminReports.submissions.submittedOn")}:{" "}
                 {submission.assessment.completed_at
                   ? new Date(
-                      submission.assessment.completed_at,
-                    ).toLocaleDateString()
-                  : "N/A"}
+                    submission.assessment.completed_at,
+                  ).toLocaleDateString()
+                  : t("common.noTitle")}
               </p>
             </div>
             <div className="space-x-2">
@@ -74,7 +76,7 @@ export const AssessmentSubmissionList: React.FC<
                 }
                 disabled={downloadReportMutation.isPending}
               >
-                Export Report
+                {t("adminReports.submissions.exportReport")}
               </Button>
               <Link
                 to={`/admin/action-plans/${submission.assessment.assessment_id}`}

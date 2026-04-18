@@ -24,6 +24,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { ReportActions } from "@/components/shared/reports/ReportActions";
 import { SubmissionChart } from "@/components/shared/submissions/SubmissionChart";
+import { useTranslation, Trans } from "react-i18next";
 import { AssessmentSummary } from "@/types/assessment";
 import { SyncStatus } from "@/types/sync";
 import { useDimensions } from "@/hooks/dimensions/useDimensions";
@@ -34,6 +35,7 @@ import { IDimensionAssessment } from "@/types/dimension";
 const UserDashboard: React.FC = () => {
   const { user } = useAuth();
   const cooperationIdFromRoute = useCooperationId();
+  const { t } = useTranslation();
   const {
     cooperationId: cooperationIdFromPath,
     cooperationName,
@@ -93,19 +95,18 @@ const UserDashboard: React.FC = () => {
         <header className="space-y-3">
           <div>
             <p className="text-xs font-medium uppercase tracking-[0.2em] text-primary/80">
-              {cooperationName || "User panel"}
+              {cooperationName || t("userDashboard.header.panel")}
             </p>
             <h1 className="mt-1 text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-              User management dashboard
+              {t("userDashboard.header.title")}
             </h1>
           </div>
           <p className="max-w-2xl text-sm text-muted-foreground">
-            Welcome back{" "}
-            <span className="font-medium text-foreground">
-              {user?.name || user?.preferred_username || "User"}
-            </span>
-            . Use these tools to create assessments, monitor action plans, and
-            review submissions for your cooperatives.
+            <Trans
+              i18nKey="userDashboard.header.welcome"
+              values={{ name: user?.name || user?.preferred_username || t("userDashboard.header.defaultUser") }}
+              components={{ 1: <span className="font-medium text-foreground" /> }}
+            />
           </p>
         </header>
 
@@ -114,16 +115,16 @@ const UserDashboard: React.FC = () => {
           <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-3">
             <Link to="/user/assessments">
               <DashboardCard
-                title="Answer assessment"
-                description="Fill out and manage cooperative assessments."
+                title={t("userDashboard.cards.answer.title")}
+                description={t("userDashboard.cards.answer.description")}
                 icon={FilePenLine}
                 variant="default"
               />
             </Link>
             <Link to="/user/action-plans">
               <DashboardCard
-                title="View action plan"
-                description="Review and monitor strategic action plans."
+                title={t("userDashboard.cards.actionPlan.title")}
+                description={t("userDashboard.cards.actionPlan.description")}
                 icon={ClipboardList}
                 variant="default"
               />
@@ -133,8 +134,8 @@ const UserDashboard: React.FC = () => {
               className="md:col-span-3 lg:col-span-1"
             >
               <DashboardCard
-                title="View submissions"
-                description="Track and evaluate completed assessments."
+                title={t("userDashboard.cards.submissions.title")}
+                description={t("userDashboard.cards.submissions.description")}
                 icon={ClipboardCheck}
                 variant="default"
               />
@@ -149,10 +150,10 @@ const UserDashboard: React.FC = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Download className="h-5 w-5" />
-                <span>Export reports</span>
+                <span>{t("userDashboard.reports.export.title")}</span>
               </CardTitle>
               <CardDescription>
-                Generate and download assessment reports for your cooperatives.
+                {t("userDashboard.reports.export.description")}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -166,15 +167,15 @@ const UserDashboard: React.FC = () => {
               <div>
                 <CardTitle className="flex items-center gap-2">
                   <History className="h-5 w-5" />
-                  <span>Recent submissions</span>
+                  <span>{t("userDashboard.reports.recent.title")}</span>
                 </CardTitle>
                 <CardDescription>
-                  Latest assessments completed for your cooperatives.
+                  {t("userDashboard.reports.recent.description")}
                 </CardDescription>
               </div>
               <Link to="/user/submissions">
                 <Button variant="outline" size="sm">
-                  View all
+                  {t("userDashboard.reports.recent.viewAll")}
                 </Button>
               </Link>
             </CardHeader>
@@ -186,7 +187,7 @@ const UserDashboard: React.FC = () => {
               )}
               {(error || coopFromPathError) && (
                 <div className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-                  <p className="font-medium">Unable to load submissions.</p>
+                  <p className="font-medium">{t("userDashboard.reports.recent.error")}</p>
                   <p className="mt-1 opacity-90">
                     {error?.message || (coopFromPathError as Error)?.message}
                   </p>
@@ -196,8 +197,7 @@ const UserDashboard: React.FC = () => {
                 !error &&
                 (!submissions || submissions.length === 0) && (
                   <div className="flex min-h-[120px] items-center justify-center text-sm text-muted-foreground">
-                    No submissions found yet. Results will appear here once
-                    assessments are completed.
+                    {t("userDashboard.reports.recent.empty")}
                   </div>
                 )}
               {!isLoading &&
@@ -219,16 +219,15 @@ const UserDashboard: React.FC = () => {
           <section aria-label="Latest assessment results">
             <Card>
               <CardHeader>
-                <CardTitle>Latest assessment results</CardTitle>
+                <CardTitle>{t("userDashboard.chart.title")}</CardTitle>
                 <CardDescription>
-                  Compare current and desired states for each dimension in the
-                  most recent submission.
+                  {t("userDashboard.chart.description")}
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <SubmissionChart
                   assessments={latestAssessments}
-                  assessmentName={submissions[0]?.assessment?.document_title}
+                  assessmentName={submissions[0]?.assessment?.document_title || ""}
                   dimensions={dimensions}
                   allDimensionStates={allDimensionStates}
                 />

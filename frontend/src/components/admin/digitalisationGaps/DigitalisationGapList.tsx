@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Pencil, Trash2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -42,6 +43,7 @@ export function DigitalisationGapList({
     IDigitalisationGapWithDimension | undefined
   >(undefined);
   const [deletingGapId, setDeletingGapId] = useState<string | null>(null);
+  const { t } = useTranslation();
   const deleteMutation = useDeleteDigitalisationGap();
 
   const groupedGaps = useMemo(() => {
@@ -87,7 +89,7 @@ export function DigitalisationGapList({
                   {dimensionName}
                 </span>
                 <span className="px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-medium">
-                  {gaps.length} gaps
+                  {t("adminGaps.list.gapCount", { count: gaps.length })}
                 </span>
               </div>
             </AccordionTrigger>
@@ -97,13 +99,13 @@ export function DigitalisationGapList({
                   <TableHeader>
                     <TableRow className="bg-gray-50/50 hover:bg-gray-50/50 border-b border-gray-100">
                       <TableHead className="pl-6 h-12 font-medium text-gray-600">
-                        Description
+                        {t("adminGaps.list.description")}
                       </TableHead>
                       <TableHead className="h-12 font-medium text-gray-600 w-[150px]">
-                        Severity
+                        {t("adminGaps.list.severity")}
                       </TableHead>
                       <TableHead className="pr-6 h-12 font-medium text-gray-600 text-right w-[120px]">
-                        Actions
+                        {t("adminGaps.list.actions")}
                       </TableHead>
                     </TableRow>
                   </TableHeader>
@@ -119,13 +121,12 @@ export function DigitalisationGapList({
                         <TableCell className="py-4">
                           <span
                             className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                            ${
-                              gap.gap_severity === "HIGH"
+                            ${gap.gap_severity === "HIGH"
                                 ? "bg-red-100 text-red-700"
                                 : gap.gap_severity === "MEDIUM"
                                   ? "bg-yellow-100 text-yellow-700"
                                   : "bg-green-100 text-green-700"
-                            }`}
+                              }`}
                           >
                             {gap.gap_severity}
                           </span>
@@ -153,15 +154,16 @@ export function DigitalisationGapList({
                               <AlertDialogContent>
                                 <AlertDialogHeader>
                                   <AlertDialogTitle>
-                                    Are you sure?
+                                    {t("adminGaps.delete.title")}
                                   </AlertDialogTitle>
                                   <AlertDialogDescription>
-                                    This action cannot be undone. This will
-                                    permanently delete the digitalisation gap.
+                                    {t("adminGaps.delete.description")}
                                   </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
-                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogCancel>
+                                    {t("common.cancel")}
+                                  </AlertDialogCancel>
                                   <AlertDialogAction
                                     onClick={() => handleDelete(gap.id)}
                                     disabled={
@@ -171,9 +173,9 @@ export function DigitalisationGapList({
                                     className="bg-red-600 hover:bg-red-700"
                                   >
                                     {deleteMutation.isPending &&
-                                    deletingGapId === gap.id
-                                      ? "Deleting..."
-                                      : "Delete"}
+                                      deletingGapId === gap.id
+                                      ? t("adminGaps.delete.deleting")
+                                      : t("adminGaps.delete.confirm")}
                                   </AlertDialogAction>
                                 </AlertDialogFooter>
                               </AlertDialogContent>

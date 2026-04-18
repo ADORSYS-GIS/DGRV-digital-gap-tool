@@ -4,7 +4,7 @@ import { describe, it, expect, vi } from "vitest";
 import ManageAssessments from "../ManageAssessments";
 import { useAssessmentsByOrganization } from "@/hooks/assessments/useAssessmentsByOrganization";
 import { useAssessmentsByCooperation } from "@/hooks/assessments/useAssessmentsByCooperation";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/hooks/useAuth";
 import { useOrganizationId } from "@/hooks/organizations/useOrganizationId";
 import { useCooperationId } from "@/hooks/cooperations/useCooperationId";
 import { useOrganizationDimensions } from "@/hooks/organization_dimensions/useOrganizationDimensions";
@@ -16,7 +16,22 @@ vi.mock("@/hooks/assessments/useAssessmentsByOrganization", () => ({
 vi.mock("@/hooks/assessments/useAssessmentsByCooperation", () => ({
   useAssessmentsByCooperation: vi.fn(),
 }));
+
+vi.mock("react-i18next", () => ({
+  useTranslation: () => ({
+    t: (key: string) => key,
+  }),
+}));
+
 vi.mock("@/context/AuthContext", () => ({
+  AuthContext: {
+    Provider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+    Consumer: ({ children }: { children: any }) => children({}),
+  },
+  useAuth: vi.fn(),
+}));
+
+vi.mock("@/hooks/useAuth", () => ({
   useAuth: vi.fn(),
 }));
 vi.mock("@/hooks/organizations/useOrganizationId", () => ({
@@ -83,7 +98,7 @@ describe("ManageAssessments", () => {
 
     render(<ManageAssessments />);
 
-    expect(screen.getByText(/manage assessments/i)).toBeInTheDocument();
+    expect(screen.getByText(/sharedAssessments.manage.title/i)).toBeInTheDocument();
     expect(screen.getByText(/test assessment/i)).toBeInTheDocument();
   });
 });

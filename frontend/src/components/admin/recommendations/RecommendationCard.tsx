@@ -9,6 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { EditRecommendationForm } from "./EditRecommendationForm";
 import { useDeleteRecommendation } from "@/hooks/recommendations/useDeleteRecommendation";
 import { Badge } from "@/components/ui/badge";
@@ -22,12 +23,13 @@ interface RecommendationCardProps {
 export function RecommendationCard({
   recommendation,
 }: RecommendationCardProps) {
+  const { t } = useTranslation();
   const [isEditDialogOpen, setEditDialogOpen] = useState(false);
   const deleteRecommendation = useDeleteRecommendation();
 
   const handleDelete = async () => {
     if (
-      window.confirm("Are you sure you want to delete this recommendation?")
+      window.confirm(t("adminRecommendations.card.confirmDelete"))
     ) {
       await deleteRecommendation.mutate(recommendation.id);
     }
@@ -43,7 +45,7 @@ export function RecommendationCard({
               <CardDescription className="mt-1">
                 {recommendation.description?.substring(0, 100)}
                 {recommendation.description &&
-                recommendation.description.length > 100
+                  recommendation.description.length > 100
                   ? "..."
                   : ""}
               </CardDescription>
@@ -58,8 +60,8 @@ export function RecommendationCard({
               )}
             >
               {recommendation.syncStatus === SyncStatus.SYNCED
-                ? "Synced"
-                : "Pending"}
+                ? t("adminRecommendations.card.synced")
+                : t("adminRecommendations.card.pending")}
             </Badge>
           </div>
         </CardHeader>
@@ -78,7 +80,7 @@ export function RecommendationCard({
                 disabled={deleteRecommendation.isPending}
               >
                 <Pencil className="h-4 w-4 mr-1" />
-                Edit
+                {t("adminRecommendations.card.edit")}
               </Button>
               <Button
                 variant="outline"
@@ -87,7 +89,7 @@ export function RecommendationCard({
                 disabled={deleteRecommendation.isPending}
               >
                 <Trash2 className="h-4 w-4 mr-1" />
-                {deleteRecommendation.isPending ? "Deleting..." : "Delete"}
+                {deleteRecommendation.isPending ? t("adminRecommendations.card.deleting") : t("adminRecommendations.card.delete")}
               </Button>
             </div>
           </div>

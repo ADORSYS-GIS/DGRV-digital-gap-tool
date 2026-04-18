@@ -4,8 +4,10 @@ import { AssessmentSubmissionList } from "@/components/admin/reports/AssessmentS
 import { Organization } from "@/types/organization";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const ReportsPage: React.FC = () => {
+  const { t } = useTranslation();
   const [selectedOrganization, setSelectedOrganization] =
     useState<Organization | null>(null);
 
@@ -25,17 +27,17 @@ const ReportsPage: React.FC = () => {
                 onClick={handleBackToOrganizations}
                 className="text-gray-500 hover:text-primary hover:bg-primary/5 -ml-2"
               >
-                <ArrowLeft className="mr-1 h-4 w-4" /> Back to Organizations
+                <ArrowLeft className="mr-1 h-4 w-4" /> {t("adminReports.backToOrgs")}
               </Button>
             </div>
           )}
           <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-gray-900">
-            Admin Reports
+            {t("adminReports.title")}
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl">
             {selectedOrganization
-              ? `View submissions for ${selectedOrganization.name}`
-              : "View and manage reports across all organizations."}
+              ? t("adminReports.subtitleOrg", { name: selectedOrganization.name })
+              : t("adminReports.subtitleAll")}
           </p>
         </div>
       </div>
@@ -45,7 +47,7 @@ const ReportsPage: React.FC = () => {
           <div>
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-semibold text-gray-900">
-                Submissions for {selectedOrganization.name}
+                {t("adminReports.submissionsForOrg", { name: selectedOrganization.name })}
               </h2>
             </div>
             <AssessmentSubmissionList
@@ -56,7 +58,7 @@ const ReportsPage: React.FC = () => {
           <div>
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-semibold text-gray-900">
-                Select an Organization
+                {t("adminReports.selectOrg")}
               </h2>
             </div>
             <OrganizationReportList

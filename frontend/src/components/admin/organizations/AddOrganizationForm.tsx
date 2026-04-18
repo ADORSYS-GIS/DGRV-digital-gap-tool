@@ -14,6 +14,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { useAddOrganization } from "@/hooks/organizations/useAddOrganization";
 import { PlusCircle, Building2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import {
   Form,
   FormControl,
@@ -23,23 +24,25 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 
-const organizationSchema = z.object({
-  name: z
-    .string()
-    .min(1, "Organization name is required")
-    .refine((s) => !s.includes(" "), "Spaces are not allowed in the name"),
-  domain: z.string().min(1, "Domain is required"),
-  description: z.string().optional(),
-});
+const organizationSchema = (t: any) =>
+  z.object({
+    name: z
+      .string()
+      .min(1, t("adminOrgs.validation.nameRequired"))
+      .refine((s) => !s.includes(" "), t("adminOrgs.validation.nameNoSpaces")),
+    domain: z.string().min(1, t("adminOrgs.validation.domainRequired")),
+    description: z.string().optional(),
+  });
 
-type OrganizationFormValues = z.infer<typeof organizationSchema>;
+type OrganizationFormValues = z.infer<ReturnType<typeof organizationSchema>>;
 
 export const AddOrganizationForm: React.FC = () => {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const addOrganizationMutation = useAddOrganization();
 
   const form = useForm<OrganizationFormValues>({
-    resolver: zodResolver(organizationSchema),
+    resolver: zodResolver(organizationSchema(t)),
     defaultValues: {
       name: "",
       domain: "",
@@ -66,7 +69,7 @@ export const AddOrganizationForm: React.FC = () => {
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button className="bg-primary hover:bg-primary/90 text-white shadow-sm transition-all duration-200">
-          <PlusCircle className="mr-2 h-4 w-4" /> Add Organization
+          <PlusCircle className="mr-2 h-4 w-4" /> {t("adminOrgs.addBtn")}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden rounded-2xl border-0 shadow-2xl">
@@ -77,11 +80,11 @@ export const AddOrganizationForm: React.FC = () => {
                 <Building2 className="h-5 w-5" />
               </div>
               <DialogTitle className="text-2xl font-bold text-gray-900">
-                Add New Organization
+                {t("adminOrgs.form.titleAdd")}
               </DialogTitle>
             </div>
             <p className="text-sm text-muted-foreground pl-12">
-              Enter the details to create a new cooperative.
+              {t("adminOrgs.form.descAdd")}
             </p>
           </DialogHeader>
         </div>
@@ -96,10 +99,10 @@ export const AddOrganizationForm: React.FC = () => {
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Organization Name</FormLabel>
+                    <FormLabel>{t("adminOrgs.form.name")}</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="e.g. GreenValleyCoop"
+                        placeholder={t("adminOrgs.form.namePlaceholder")}
                         {...field}
                         className="h-11 rounded-lg border-gray-200 focus:border-primary focus:ring-primary/20 transition-all"
                       />
@@ -113,10 +116,10 @@ export const AddOrganizationForm: React.FC = () => {
                 name="domain"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Domain</FormLabel>
+                    <FormLabel>{t("adminOrgs.form.domain")}</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="e.g. greenvalley.com"
+                        placeholder={t("adminOrgs.form.domainPlaceholder")}
                         {...field}
                         className="h-11 rounded-lg border-gray-200 focus:border-primary focus:ring-primary/20 transition-all"
                       />
@@ -130,10 +133,10 @@ export const AddOrganizationForm: React.FC = () => {
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Description</FormLabel>
+                    <FormLabel>{t("adminOrgs.form.description")}</FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="Brief description of the organization"
+                        placeholder={t("adminOrgs.form.descPlaceholder")}
                         {...field}
                         className="min-h-[100px] rounded-lg border-gray-200 focus:border-primary focus:ring-primary/20 transition-all resize-none"
                       />
@@ -150,10 +153,10 @@ export const AddOrganizationForm: React.FC = () => {
                 >
                   {addOrganizationMutation.isPending ? (
                     <span className="flex items-center gap-2">
-                      <span className="animate-spin">⏳</span> Adding...
+                      <span className="animate-spin">⏳</span> {t("adminOrgs.form.saving")}
                     </span>
                   ) : (
-                    "Create Organization"
+                    t("adminOrgs.createBtn")
                   )}
                 </Button>
               </div>

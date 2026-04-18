@@ -19,9 +19,9 @@ import {
 } from "@/components/ui/card";
 import { useDeleteDigitalisationLevel } from "@/hooks/digitalisationLevels/useDeleteDigitalisationLevel";
 import { IDigitalisationLevel } from "@/types/digitalisationLevel";
-import { useQueryClient } from "@tanstack/react-query";
 import { Edit, Trash2 } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { EditLevelForm } from "./EditLevelForm";
 
 interface LevelCardProps {
@@ -30,10 +30,9 @@ interface LevelCardProps {
 }
 
 export const LevelCard = ({ level, existingLevels }: LevelCardProps) => {
-  const [isDeleting, setIsDeleting] = useState(false);
+  const { t } = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
   const deleteLevelMutation = useDeleteDigitalisationLevel();
-  const queryClient = useQueryClient();
   const handleDelete = () => {
     deleteLevelMutation.mutate({
       dimensionId: level.dimensionId,
@@ -46,9 +45,9 @@ export const LevelCard = ({ level, existingLevels }: LevelCardProps) => {
       <CardHeader>
         <div className="flex justify-between items-start">
           <div>
-            <CardTitle>{level.title || "No Title"}</CardTitle>
+            <CardTitle>{level.title || t("common.noTitle")}</CardTitle>
             <p className="text-sm text-gray-600 dark:text-gray-400 pt-2">
-              {level.description || "No description available."}
+              {level.description || t("common.noDescription")}
             </p>
           </div>
         </div>
@@ -57,27 +56,32 @@ export const LevelCard = ({ level, existingLevels }: LevelCardProps) => {
       <CardFooter className="mt-auto flex justify-end space-x-2 p-4">
         <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
           <Edit className="mr-2 h-4 w-4" />
-          Edit
+          {t("common.edit")}
         </Button>
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button variant="destructive" size="sm" disabled={isDeleting}>
+            <Button
+              variant="destructive"
+              size="sm"
+              disabled={deleteLevelMutation.isPending}
+            >
               <Trash2 className="mr-2 h-4 w-4" />
-              {isDeleting ? "Deleting..." : "Delete"}
+              {deleteLevelMutation.isPending
+                ? t("adminLevels.delete.deleting")
+                : t("adminLevels.card.delete")}
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+              <AlertDialogTitle>{t("adminLevels.delete.title")}</AlertDialogTitle>
               <AlertDialogDescription>
-                This action cannot be undone. This will permanently delete the
-                level.
+                {t("adminLevels.delete.description")}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
               <AlertDialogAction onClick={handleDelete}>
-                Continue
+                {t("adminLevels.delete.confirm")}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

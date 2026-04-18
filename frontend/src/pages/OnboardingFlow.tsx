@@ -6,6 +6,7 @@ import OnboardingStep from "@/components/onboarding/OnboardingStep";
 import OnboardingCompletion from "@/components/onboarding/OnboardingCompletion";
 import ProgressIndicators from "@/components/onboarding/ProgressIndicators";
 import { ROLES } from "@/constants/roles";
+import { useTranslation } from "react-i18next";
 
 interface OnboardingStepData {
   icon: React.ComponentType<LucideProps>;
@@ -16,31 +17,28 @@ interface OnboardingStepData {
   bgColor: string;
 }
 
-const onboardingSteps: OnboardingStepData[] = [
+const getOnboardingSteps = (t: any): OnboardingStepData[] => [
   {
     icon: BarChart3,
-    title: "Assess Your Current",
-    titleHighlight: "Digitalization Level",
-    description:
-      "Quickly evaluate where your cooperative stands today in its digital transformation journey.",
+    title: t("onboarding.steps.step0.title"),
+    titleHighlight: t("onboarding.steps.step0.titleHighlight"),
+    description: t("onboarding.steps.step0.description"),
     color: "text-blue-600",
     bgColor: "bg-blue-50",
   },
   {
     icon: Target,
-    title: "Define Your Future",
-    titleHighlight: "'To-Be' Goals",
-    description:
-      "Set your vision for the level of digitalization you want to achieve and create your roadmap.",
+    title: t("onboarding.steps.step1.title"),
+    titleHighlight: t("onboarding.steps.step1.titleHighlight"),
+    description: t("onboarding.steps.step1.description"),
     color: "text-blue-600",
     bgColor: "bg-blue-50",
   },
   {
     icon: TrendingUp,
-    title: "Analyze Results &",
-    titleHighlight: "Close the Gap",
-    description:
-      "Get personalized recommendations and actionable strategies to drive your cooperative forward.",
+    title: t("onboarding.steps.step2.title"),
+    titleHighlight: t("onboarding.steps.step2.titleHighlight"),
+    description: t("onboarding.steps.step2.description"),
     color: "text-blue-600",
     bgColor: "bg-blue-50",
   },
@@ -49,12 +47,14 @@ const onboardingSteps: OnboardingStepData[] = [
 export default function EnhancedOnboardingFlow() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
+  const onboardingStepsObj = getOnboardingSteps(t);
   const [currentStep, setCurrentStep] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [showCompletion, setShowCompletion] = useState(false);
 
   const handleNext = () => {
-    if (currentStep < onboardingSteps.length - 1) {
+    if (currentStep < onboardingStepsObj.length - 1) {
       setIsTransitioning(true);
       setTimeout(() => {
         setCurrentStep(currentStep + 1);
@@ -124,7 +124,7 @@ export default function EnhancedOnboardingFlow() {
     }
   };
 
-  const currentStepData = onboardingSteps[currentStep];
+  const currentStepData = onboardingStepsObj[currentStep];
 
   if (!currentStepData) {
     return (
@@ -132,11 +132,10 @@ export default function EnhancedOnboardingFlow() {
         <div className="mx-auto flex max-w-6xl flex-1 items-center justify-center px-4 py-8 sm:px-6 lg:px-8">
           <div className="text-center space-y-2">
             <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-              Something went wrong
+              {t("onboarding.error.title")}
             </h1>
             <p className="max-w-md text-sm text-muted-foreground">
-              We could not load your onboarding steps. Please refresh the page
-              or try again later.
+              {t("onboarding.error.description")}
             </p>
           </div>
         </div>
@@ -150,26 +149,11 @@ export default function EnhancedOnboardingFlow() {
         {/* Welcome header */}
         <header className="space-y-2">
           <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-            Welcome to your digitalization journey
+            {t("onboarding.welcome.title")}
           </h1>
           <p className="max-w-2xl text-sm text-muted-foreground">
-            {user ? (
-              <>
-                Hello{" "}
-                <span className="font-medium text-foreground">
-                  {user.name || user.preferred_username || "there"}
-                </span>
-                . Follow these quick steps to understand your current
-                digitalization level, define your goals, and get tailored
-                recommendations.
-              </>
-            ) : (
-              <>
-                Follow these quick steps to understand your current
-                digitalization level, define your goals, and get tailored
-                recommendations.
-              </>
-            )}
+            {user ? t("onboarding.welcome.subtitleHello", { name: user.name || user.preferred_username || "there" })
+              : t("onboarding.welcome.subtitleGuest")}
           </p>
         </header>
 
@@ -179,11 +163,10 @@ export default function EnhancedOnboardingFlow() {
             <div className="rounded-2xl border bg-card shadow-sm">
               <div className="border-b px-6 py-4">
                 <h2 className="text-base font-semibold tracking-tight text-foreground">
-                  Step {currentStep + 1} of {onboardingSteps.length}
+                  {t("onboarding.stepProgress", { current: currentStep + 1, total: onboardingStepsObj.length })}
                 </h2>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Complete each step to unlock personalized insights for your
-                  cooperative.
+                  {t("onboarding.stepDescription")}
                 </p>
               </div>
               <div className="px-4 py-6 sm:px-6">
@@ -198,7 +181,7 @@ export default function EnhancedOnboardingFlow() {
                     step={currentStepData}
                     isTransitioning={isTransitioning}
                     currentStep={currentStep}
-                    totalSteps={onboardingSteps.length}
+                    totalSteps={onboardingStepsObj.length}
                     handlePrevious={handlePrevious}
                     handleNext={handleNext}
                   />
@@ -208,17 +191,16 @@ export default function EnhancedOnboardingFlow() {
 
             {!showCompletion && (
               <div className="flex items-center justify-center gap-2">
-                {onboardingSteps.map((step, index) => (
+                {onboardingStepsObj.map((step, index) => (
                   <div
                     key={index}
                     aria-hidden="true"
-                    className={`h-1.5 w-6 rounded-full transition-all duration-300 ${
-                      index === currentStep
+                    className={`h-1.5 w-6 rounded-full transition-all duration-300 ${index === currentStep
                         ? step.color.replace("text-", "bg-")
                         : index < currentStep
                           ? "bg-emerald-500"
                           : "bg-muted"
-                    }`}
+                      }`}
                   />
                 ))}
               </div>
@@ -228,26 +210,18 @@ export default function EnhancedOnboardingFlow() {
           {/* Context panel */}
           <aside className="space-y-4 rounded-2xl border bg-card p-6 shadow-sm">
             <h2 className="text-base font-semibold tracking-tight text-foreground">
-              What you can expect
+              {t("onboarding.context.title")}
             </h2>
             <p className="text-sm text-muted-foreground">
-              This onboarding takes just a few moments and helps us tailor the
-              digital gap assessment experience to your cooperative&apos;s
-              needs.
+              {t("onboarding.context.description")}
             </p>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li className="flex gap-2">
-                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-blue-500" />
-                Understand your current digitalization level.
-              </li>
-              <li className="flex gap-2">
-                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-blue-500" />
-                Define your desired future state and priorities.
-              </li>
-              <li className="flex gap-2">
-                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-blue-500" />
-                Receive data-driven recommendations and next steps.
-              </li>
+              {(t('onboarding.context.list', { returnObjects: true }) as string[]).map((item, index) => (
+                <li key={index} className="flex gap-2">
+                  <span className="mt-1 h-1.5 w-1.5 rounded-full bg-blue-500" />
+                  {item}
+                </li>
+              ))}
             </ul>
           </aside>
         </section>

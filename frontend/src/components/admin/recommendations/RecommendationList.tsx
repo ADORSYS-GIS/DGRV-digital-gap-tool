@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { IRecommendation } from "@/types/recommendation";
 import {
   Table,
@@ -28,6 +29,7 @@ interface RecommendationListProps {
 export function RecommendationList({
   recommendations,
 }: RecommendationListProps) {
+  const { t } = useTranslation();
   const [editingRecommendation, setEditingRecommendation] =
     useState<IRecommendation | null>(null);
   const deleteRecommendation = useDeleteRecommendation();
@@ -38,7 +40,7 @@ export function RecommendationList({
     return recommendations.reduce(
       (acc, rec) => {
         const dimension = dimensions.find((d) => d.id === rec.dimension_id);
-        const dimensionName = dimension?.name || "Uncategorized";
+        const dimensionName = dimension?.name || t("common.noTitle");
 
         if (!acc[dimensionName]) {
           acc[dimensionName] = [];
@@ -53,9 +55,9 @@ export function RecommendationList({
   if (recommendations.length === 0) {
     return (
       <div className="text-center text-gray-500 py-8">
-        <p>No recommendations found.</p>
+        <p>{t("adminRecommendations.list.empty")}</p>
         <p className="text-sm text-muted-foreground">
-          Click "Add Recommendation" to create one.
+          {t("adminRecommendations.list.emptyDesc")}
         </p>
       </div>
     );
@@ -64,10 +66,12 @@ export function RecommendationList({
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold tracking-tight">Recommendations</h2>
+        <h2 className="text-2xl font-bold tracking-tight">{t("adminRecommendations.title")}</h2>
         <p className="text-sm text-muted-foreground">
-          {recommendations.length} total recommendations across{" "}
-          {Object.keys(groupedRecommendations).length} dimensions
+          {t("adminRecommendations.list.summary", {
+            total: recommendations.length,
+            dimCount: Object.keys(groupedRecommendations).length,
+          })}
         </p>
       </div>
 
@@ -87,8 +91,8 @@ export function RecommendationList({
                   <span className="px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-medium">
                     {dimensionRecs.length}{" "}
                     {dimensionRecs.length === 1
-                      ? "recommendation"
-                      : "recommendations"}
+                      ? t("adminRecommendations.list.recommendation")
+                      : t("adminRecommendations.list.recommendations")}
                   </span>
                 </div>
               </AccordionTrigger>
@@ -98,13 +102,13 @@ export function RecommendationList({
                     <TableHeader>
                       <TableRow className="bg-gray-50/50 hover:bg-gray-50/50 border-b border-gray-100">
                         <TableHead className="pl-6 h-12 font-medium text-gray-600 w-[120px]">
-                          Priority
+                          {t("adminRecommendations.form.priority")}
                         </TableHead>
                         <TableHead className="h-12 font-medium text-gray-600">
-                          Description
+                          {t("adminRecommendations.form.description")}
                         </TableHead>
                         <TableHead className="pr-6 h-12 font-medium text-gray-600 w-[120px] text-right">
-                          Actions
+                          {t("common.actions")}
                         </TableHead>
                       </TableRow>
                     </TableHeader>
@@ -124,15 +128,18 @@ export function RecommendationList({
                                     : "secondary"
                               }
                               className={`capitalize font-medium px-2.5 py-0.5 text-xs rounded-full shadow-none
-                                ${
-                                  recommendation.priority === "HIGH"
-                                    ? "bg-red-100 text-red-700 hover:bg-red-100"
-                                    : recommendation.priority === "MEDIUM"
-                                      ? "bg-yellow-100 text-yellow-700 hover:bg-yellow-100"
-                                      : "bg-green-100 text-green-700 hover:bg-green-100"
+                                ${recommendation.priority === "HIGH"
+                                  ? "bg-red-100 text-red-700 hover:bg-red-100"
+                                  : recommendation.priority === "MEDIUM"
+                                    ? "bg-yellow-100 text-yellow-700 hover:bg-yellow-100"
+                                    : "bg-green-100 text-green-700 hover:bg-green-100"
                                 }`}
                             >
-                              {recommendation.priority?.toLowerCase() || "N/A"}
+                              {recommendation.priority === "HIGH"
+                                ? t("adminRecommendations.priorities.high")
+                                : recommendation.priority === "MEDIUM"
+                                  ? t("adminRecommendations.priorities.medium")
+                                  : t("adminRecommendations.priorities.low")}
                             </Badge>
                           </TableCell>
                           <TableCell className="py-4">
@@ -151,7 +158,7 @@ export function RecommendationList({
                                 }
                               >
                                 <Pencil className="h-4 w-4" />
-                                <span className="sr-only">Edit</span>
+                                <span className="sr-only">{t("common.edit")}</span>
                               </Button>
                               <Button
                                 variant="ghost"
@@ -161,7 +168,7 @@ export function RecommendationList({
                                   e.stopPropagation();
                                   if (
                                     window.confirm(
-                                      "Are you sure you want to delete this recommendation?",
+                                      t("adminRecommendations.card.confirmDelete"),
                                     )
                                   ) {
                                     await deleteRecommendation.mutate(
@@ -171,7 +178,7 @@ export function RecommendationList({
                                 }}
                               >
                                 <Trash2 className="h-4 w-4" />
-                                <span className="sr-only">Delete</span>
+                                <span className="sr-only">{t("common.delete")}</span>
                               </Button>
                             </div>
                           </TableCell>

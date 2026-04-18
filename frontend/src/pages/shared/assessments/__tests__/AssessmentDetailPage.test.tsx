@@ -21,7 +21,47 @@ vi.mock("@/hooks/assessments/useDimensionAssessments", () => ({
   useDimensionAssessments: vi.fn(),
 }));
 
+vi.mock("react-i18next", () => ({
+  useTranslation: () => ({
+    t: (key: string) => key,
+  }),
+}));
+
+vi.mock("@/hooks/cooperations/useCooperationIdFromPath", () => ({
+  useCooperationIdFromPath: () => ({
+    cooperationId: "c1",
+    isLoading: false,
+    error: null,
+  }),
+}));
+
+vi.mock("@/hooks/cooperationUsers/useCooperationUsersForAdmin", () => ({
+  useCooperationUsersForAdmin: () => ({
+    data: [],
+    isLoading: false,
+  }),
+}));
+
+vi.mock("@/hooks/submissions/useSubmitAssessment", () => ({
+  useSubmitAssessment: () => ({
+    mutateAsync: vi.fn(),
+  }),
+}));
+
 vi.mock("@/context/AuthContext", () => ({
+  AuthContext: {
+    Provider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+    Consumer: ({ children }: { children: any }) => children({}),
+  },
+  useAuth: () => ({
+    user: {
+      roles: [],
+      assigned_dimensions: [],
+    },
+  }),
+}));
+
+vi.mock("@/hooks/useAuth", () => ({
   useAuth: () => ({
     user: {
       roles: [],
@@ -74,7 +114,7 @@ describe("AssessmentDetailPage", () => {
     render(<AssessmentDetailPage />);
 
     expect(
-      await screen.findByText(/digital gap assessment/i),
+      await screen.findByText(/sharedAssessments.detail.digitalGapAssessment/i),
     ).toBeInTheDocument();
     expect(screen.getByText(/dimension one/i)).toBeInTheDocument();
   });

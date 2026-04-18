@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -7,20 +7,21 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useAddDimension } from "@/hooks/dimensions/useAddDimension";
 import { Layers, Type, FileText } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
-const formSchema = z.object({
-  name: z.string().min(1, "Dimension name is required"),
-  description: z.string().optional(),
-});
+const formSchema = (t: any) =>
+  z.object({
+    name: z.string().min(1, t("adminDimensions.validation.nameRequired")),
+    description: z.string().optional(),
+  });
 
-type FormValues = z.infer<typeof formSchema>;
+type FormValues = z.infer<ReturnType<typeof formSchema>>;
 
 interface AddDimensionFormProps {
   isOpen: boolean;
@@ -31,13 +32,14 @@ export const AddDimensionForm = ({
   isOpen,
   onClose,
 }: AddDimensionFormProps) => {
+  const { t } = useTranslation();
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
   } = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(formSchema(t)),
   });
 
   const addDimensionMutation = useAddDimension();
@@ -70,11 +72,11 @@ export const AddDimensionForm = ({
                 <Layers className="h-5 w-5" />
               </div>
               <DialogTitle className="text-2xl font-bold text-gray-900">
-                Add New Dimension
+                {t("adminDimensions.form.titleAdd")}
               </DialogTitle>
             </div>
             <p className="text-sm text-muted-foreground pl-12">
-              Create a new dimension to categorize assessments.
+              {t("adminDimensions.form.descAdd")}
             </p>
           </DialogHeader>
         </div>
@@ -82,13 +84,13 @@ export const AddDimensionForm = ({
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             <div className="space-y-2">
               <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-gray-700">
-                Dimension Name
+                {t("adminDimensions.form.name")}
               </label>
               <div className="relative">
                 <Type className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                 <Input
                   {...register("name")}
-                  placeholder="e.g. Digital Strategy"
+                  placeholder={t("adminDimensions.form.namePlaceholderAdd")}
                   className="pl-10 h-11 rounded-lg border-gray-200 focus:border-primary focus:ring-primary/20 transition-all"
                 />
               </div>
@@ -100,13 +102,13 @@ export const AddDimensionForm = ({
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-gray-700">
-                Description
+                {t("adminDimensions.form.description")}
               </label>
               <div className="relative">
                 <FileText className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                 <Textarea
                   {...register("description")}
-                  placeholder="Brief description of what this dimension evaluates..."
+                  placeholder={t("adminDimensions.form.descPlaceholderAdd")}
                   className="pl-10 min-h-[100px] rounded-lg border-gray-200 focus:border-primary focus:ring-primary/20 transition-all resize-none"
                 />
               </div>
@@ -119,10 +121,11 @@ export const AddDimensionForm = ({
               >
                 {addDimensionMutation.isPending ? (
                   <span className="flex items-center gap-2">
-                    <span className="animate-spin">⏳</span> Adding...
+                    <span className="animate-spin">⏳</span>{" "}
+                    {t("adminDimensions.form.saving")}
                   </span>
                 ) : (
-                  "Create Dimension"
+                  t("adminDimensions.createBtn")
                 )}
               </Button>
             </div>

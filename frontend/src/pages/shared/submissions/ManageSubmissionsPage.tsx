@@ -8,8 +8,10 @@ import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { useSubmissionsByOrganization } from "@/hooks/submissions/useSubmissionsByOrganization";
 import { useSubmissionsByCooperation } from "@/hooks/submissions/useSubmissionsByCooperation";
 import { useLocation, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 export default function ManageSubmissionsPage() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { assessmentId } = useParams<{ assessmentId?: string }>();
   const location = useLocation();
@@ -123,12 +125,11 @@ export default function ManageSubmissionsPage() {
             </div>
             <div className="ml-3">
               <h3 className="text-sm font-medium text-red-800">
-                Access Denied
+                {t('sharedSubmissions.manage.accessDenied')}
               </h3>
               <div className="mt-2 text-sm text-red-700">
                 <p>
-                  You don't have permission to view submissions. Please contact
-                  your administrator.
+                  {t('sharedSubmissions.manage.accessDeniedDesc')}
                 </p>
               </div>
             </div>
@@ -142,12 +143,12 @@ export default function ManageSubmissionsPage() {
     <div className="container mx-auto p-4 md:p-6 lg:p-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          {assessmentId ? "Submission Details" : "My Submissions"}
+          {assessmentId ? t('sharedSubmissions.manage.titleSubDetails') : t('sharedSubmissions.manage.titleMySubmissions')}
         </h1>
         <p className="text-gray-600">
           {assessmentId
-            ? "View and manage submission details"
-            : "View and manage your submissions"}
+            ? t('sharedSubmissions.manage.descSubDetails')
+            : t('sharedSubmissions.manage.descMySubmissions')}
         </p>
       </div>
 
@@ -173,19 +174,19 @@ export default function ManageSubmissionsPage() {
             </div>
             <div className="ml-3">
               <h3 className="text-sm font-medium text-red-800">
-                Error loading submissions
+                {t('sharedSubmissions.manage.errorLoading')}
               </h3>
               <div className="mt-2 text-sm text-red-700">
                 <p>
                   {error instanceof Error
                     ? error.message
-                    : "An unknown error occurred"}
+                    : t('common.unknownError', 'An unknown error occurred')}
                 </p>
                 <button
                   onClick={handleRefetch}
                   className="mt-2 inline-flex items-center px-3 py-1 border border-transparent text-sm leading-4 font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                 >
-                  Retry
+                  {t('sharedSubmissions.manage.retry')}
                 </button>
               </div>
             </div>
@@ -197,8 +198,7 @@ export default function ManageSubmissionsPage() {
       {!isLoading && !error && isCoopUser && !effectiveCooperationId && (
         <div className="text-center py-12 border-2 border-dashed rounded-lg">
           <p className="text-gray-500">
-            No cooperative determined for your account. Please contact your
-            administrator.
+            {t('sharedSubmissions.manage.noCooperative')}
           </p>
         </div>
       )}
@@ -217,12 +217,12 @@ export default function ManageSubmissionsPage() {
         <div className="text-center py-12 border-2 border-dashed rounded-lg">
           <p className="text-gray-500">
             {assessmentId
-              ? "No submission found for this assessment."
+              ? t('sharedSubmissions.manage.noSubmissionsForAssessment')
               : isOrgAdmin
-                ? "No submission found for this assessment in your organization."
+                ? t('sharedSubmissions.manage.noSubmissionsForOrg')
                 : isCoopUser
-                  ? "No submission found for this assessment in your cooperative."
-                  : "No submission found."}
+                  ? t('sharedSubmissions.manage.noSubmissionsForCoop')
+                  : t('sharedSubmissions.manage.noSubmissions')}
           </p>
         </div>
       )}

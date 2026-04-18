@@ -12,8 +12,10 @@ import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { useGenerateAndExportReport } from "@/hooks/reports/useGenerateAndExportReport";
 import { Button } from "@/components/ui/button";
 import { Download, Loader2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export default function SubmissionDetailPage() {
+  const { t } = useTranslation();
   const { submissionId } = useParams<{ submissionId: string }>();
   const { user } = useAuth();
   const organizationId = useOrganizationId();
@@ -68,11 +70,10 @@ export default function SubmissionDetailPage() {
         <header className="flex items-center justify-between">
           <div className="space-y-1">
             <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-              Submission details
+              {t('sharedSubmissions.detail.title')}
             </h1>
             <p className="text-sm text-muted-foreground">
-              Review the assessment submission, its dimensions, and gap
-              analysis.
+              {t('sharedSubmissions.detail.description')}
             </p>
           </div>
           {summary && (
@@ -87,7 +88,7 @@ export default function SubmissionDetailPage() {
               ) : (
                 <Download className="mr-2 h-4 w-4" />
               )}
-              Generate & Export PDF
+              {t('sharedSubmissions.detail.exportPdf')}
             </Button>
           )}
         </header>
@@ -100,7 +101,7 @@ export default function SubmissionDetailPage() {
 
         {(error || coopFromPathError) && (
           <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-            <p className="font-semibold">Unable to load submission</p>
+            <p className="font-semibold">{t('sharedSubmissions.detail.errorLoading')}</p>
             <p className="mt-1 opacity-90">
               {error?.message || (coopFromPathError as Error)?.message}
             </p>
@@ -111,8 +112,7 @@ export default function SubmissionDetailPage() {
 
         {!summary && !isLoading && !error && (
           <div className="rounded-lg border border-muted-foreground/30 bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
-            Submission details are unavailable. Please return to submissions and
-            try again.
+            {t('sharedSubmissions.detail.unavailable')}
           </div>
         )}
       </div>

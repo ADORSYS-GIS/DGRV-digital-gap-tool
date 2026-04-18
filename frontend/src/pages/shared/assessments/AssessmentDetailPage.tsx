@@ -13,8 +13,10 @@ import { useAuth } from "@/context/AuthContext";
 import { useSubmitAssessment } from "@/hooks/submissions/useSubmitAssessment";
 import { useCooperationUsersForAdmin } from "@/hooks/cooperationUsers/useCooperationUsersForAdmin";
 import { ROLES } from "@/constants/roles";
+import { useTranslation } from "react-i18next";
 
 const AssessmentDetailPage: React.FC = () => {
+  const { t } = useTranslation();
   const { assessmentId } = useParams<{ assessmentId: string }>();
   const { mutateAsync: submitAssessment } = useSubmitAssessment();
   const navigate = useNavigate();
@@ -47,10 +49,10 @@ const AssessmentDetailPage: React.FC = () => {
             setDimensions([]);
           }
         } else {
-          setError("Assessment not found.");
+          setError(t("sharedAssessments.detail.assessmentNotFound"));
         }
       } catch (err) {
-        setError("Failed to fetch assessment details.");
+        setError(t("sharedAssessments.detail.failedToFetch"));
         console.error(err);
       } finally {
         setLoading(false);
@@ -118,7 +120,7 @@ const AssessmentDetailPage: React.FC = () => {
         `/${basePath}/assessment/${assessmentId}/dimension/${dimensionId}`,
       );
     } else {
-      toast.error("Assessment ID not found.");
+      toast.error(t("sharedAssessments.detail.assessmentIdNotFound"));
     }
   };
 
@@ -126,11 +128,11 @@ const AssessmentDetailPage: React.FC = () => {
     if (assessmentId) {
       try {
         await submitAssessment(assessmentId);
-        toast.success("Assessment submitted successfully!");
+        toast.success(t("sharedAssessments.detail.submitSuccess"));
         const basePath = location.pathname.split("/")[1];
         navigate(`/${basePath}/assessments`);
       } catch (error) {
-        toast.error("Failed to submit assessment.");
+        toast.error(t("sharedAssessments.detail.submitError"));
       }
     }
   };
@@ -138,7 +140,7 @@ const AssessmentDetailPage: React.FC = () => {
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
-        <p className="text-sm text-muted-foreground">Loading assessment…</p>
+        <p className="text-sm text-muted-foreground">{t("sharedAssessments.detail.loading")}</p>
       </div>
     );
   }
@@ -147,7 +149,7 @@ const AssessmentDetailPage: React.FC = () => {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background px-4">
         <div className="max-w-md rounded-xl border border-destructive/40 bg-destructive/10 px-6 py-4 text-sm text-destructive">
-          <p className="font-semibold">Unable to load assessment</p>
+          <p className="font-semibold">{t("sharedAssessments.detail.unableToLoad")}</p>
           <p className="mt-1 opacity-90">{error}</p>
         </div>
       </div>
@@ -158,7 +160,7 @@ const AssessmentDetailPage: React.FC = () => {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background px-4">
         <div className="max-w-md rounded-xl border border-muted-foreground/30 bg-muted/40 px-6 py-4 text-sm text-muted-foreground">
-          Assessment not found.
+          {t("sharedAssessments.detail.assessmentNotFound")}
         </div>
       </div>
     );
@@ -177,18 +179,20 @@ const AssessmentDetailPage: React.FC = () => {
           <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
             <div>
               <h1 className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
-                Digital gap assessment
+                {t("sharedAssessments.detail.digitalGapAssessment")}
               </h1>
               <p className="mt-1 text-sm text-muted-foreground">
-                Complete each dimension to understand your current and desired
-                digital maturity.
+                {t("sharedAssessments.detail.subtitle")}
               </p>
             </div>
             <div className="w-full max-w-xs space-y-1">
               <div className="flex items-center justify-between text-xs font-medium text-muted-foreground">
-                <span>Your progress</span>
+                <span>{t("sharedAssessments.detail.yourProgress")}</span>
                 <span>
-                  {completedPerspectives} of {filteredDimensions.length}
+                  {t("sharedAssessments.detail.progressOf", {
+                    current: completedPerspectives,
+                    total: filteredDimensions.length,
+                  })}
                 </span>
               </div>
               <Progress value={progressPercentage} className="h-2" />
@@ -202,12 +206,12 @@ const AssessmentDetailPage: React.FC = () => {
         {/* Intro copy */}
         <section className="mb-10 text-center">
           <h2 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-            Welcome to your digital journey
+            {t("sharedAssessments.detail.welcome")}
           </h2>
           <p className="mx-auto mt-2 max-w-2xl text-sm text-muted-foreground">
-            Assess your cooperative across {filteredDimensions.length} key
-            digital perspectives. Select a card below to start or continue an
-            assessment.
+            {t("sharedAssessments.detail.intro", {
+              count: filteredDimensions.length,
+            })}
           </p>
         </section>
 
@@ -216,8 +220,8 @@ const AssessmentDetailPage: React.FC = () => {
           {filteredDimensions.length === 0 ? (
             <div className="flex min-h-[160px] items-center justify-center rounded-xl border border-dashed border-muted-foreground/30 bg-muted/40 px-6 py-10 text-center text-sm text-muted-foreground">
               {isCoopUserRestricted
-                ? "No dimensions are assigned to your account for this assessment."
-                : "No dimensions are configured for this assessment yet."}
+                ? t("sharedAssessments.detail.noDimensionsAssigned")
+                : t("sharedAssessments.detail.noDimensionsConfigured")}
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -242,7 +246,7 @@ const AssessmentDetailPage: React.FC = () => {
               disabled={progressPercentage < 100}
               onClick={handleSubmit}
             >
-              Finish assessment
+              {t("sharedAssessments.detail.finishAssessment")}
             </Button>
           </section>
         )}

@@ -1,24 +1,22 @@
-import { Dimension } from "@/types/dimension";
+import { IDimension } from "@/types/dimension";
 import { DimensionCard } from "./DimensionCard";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { Layers } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface DimensionListProps {
-  dimensions: Dimension[];
+  dimensions: IDimension[];
 }
 
 export const DimensionList = ({ dimensions }: DimensionListProps) => {
+  const { t } = useTranslation();
+
   if (dimensions.length === 0) {
     return (
       <EmptyState
         icon={Layers}
-        title="No dimensions created yet"
-        description="Click 'Add Dimension' to get started."
-        action={
-          <div className="mt-4">
-            {/* The button in the parent component handles the action */}
-          </div>
-        }
+        title={t("adminDimensions.list.emptyTitle")}
+        description={t("adminDimensions.list.emptyDescription")}
       />
     );
   }

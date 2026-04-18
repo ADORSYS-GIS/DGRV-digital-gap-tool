@@ -1,0 +1,856 @@
+{
+  "common": {
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "saving": "Enregistrement...",
+    "deleting": "Suppression...",
+    "noTitle": "Pas de titre",
+    "noDescription": "Pas de description disponible.",
+    "back": "Retour",
+    "next": "Suivant",
+    "submit": "Envoyer",
+    "form": "Formulaire",
+    "status": "Statut",
+    "loading": "Chargement...",
+    "actions": "Actions",
+    "emptySearch": "Aucun résultat ne correspond à votre recherche.",
+    "emptyAction": "Cliquez sur {{action}} pour commencer."
+  },
+  "adminDimensions": {
+    "title": "Dimensions",
+    "addBtn": "Ajouter une dimension",
+    "updateBtn": "Modifier la dimension",
+    "form": {
+      "titleAdd": "Ajouter une nouvelle dimension",
+      "titleEdit": "Modifier la dimension",
+      "name": "Nom de la dimension",
+      "description": "Description",
+      "saving": "Enregistrement...",
+      "updating": "Mise à jour...",
+      "namePlaceholder": "Entrez le nom de la dimension",
+      "descPlaceholder": "Entrez la description de la dimension"
+    },
+    "validation": {
+      "nameRequired": "Le nom est requis",
+      "descRequired": "La description est requise"
+    },
+    "list": {
+      "empty": "Aucune dimension trouvée."
+    }
+  },
+  "adminLevels": {
+    "title": "Niveaux de digitalisation",
+    "addBtn": "Ajouter un niveau",
+    "updateBtn": "Modifier le niveau",
+    "form": {
+      "titleAddCurrent": "Ajouter un niveau actuel",
+      "titleAddDesired": "Ajouter un niveau souhaité",
+      "titleEdit": "Modifier le niveau",
+      "levelId": "ID du niveau",
+      "levelName": "Nom du niveau",
+      "description": "Description",
+      "saving": "Enregistrement...",
+      "updating": "Mise à jour..."
+    },
+    "validation": {
+      "titleRequired": "Le titre est requis",
+      "descRequired": "La description est requise",
+      "stateRequired": "Veuillez sélectionner un état",
+      "idRequired": "L'ID du niveau est requis",
+      "stateExists": "L'ID du niveau existe déjà",
+      "stateNumber": "L'état doit être un nombre"
+    },
+    "card": {
+      "delete": "Supprimer"
+    },
+    "delete": {
+      "title": "Êtes-vous sûr ?",
+      "description": "Cette action ne peut pas être annulée. Cela supprimera définitivement le niveau.",
+      "confirm": "Continuer",
+      "deleting": "Suppression en cours..."
+    },
+    "list": {
+      "emptyCurrent": "Aucun niveau trouvé pour cet état."
+    },
+    "selectState": {
+      "title": "Gérer les niveaux de digitalisation",
+      "description": "Choisissez l'état que vous souhaitez configurer.",
+      "currentTitle": "État actuel",
+      "currentDesc": "Définir les niveaux actuels.",
+      "desiredTitle": "État souhaité",
+      "desiredDesc": "Définir les niveaux cibles."
+    }
+  },
+  "adminOrgs": {
+    "form": {
+      "titleAdd": "Ajouter une nouvelle organisation",
+      "titleEdit": "Modifier l'organisation",
+      "descAdd": "Entrez les détails pour créer une nouvelle coopérative.",
+      "descEdit": "Mettre à jour les informations de l'organisation.",
+      "name": "Nom de l'organisation",
+      "domain": "Domaine",
+      "description": "Description",
+      "namePlaceholder": "ex: GreenValleyCoop",
+      "domainPlaceholder": "ex: greenvalley.com",
+      "descPlaceholder": "Brève description de l'organisation",
+      "saving": "Ajout...",
+      "updating": "Mise à jour..."
+    },
+    "validation": {
+      "nameRequired": "Le nom de l'organisation est requis",
+      "nameNoSpaces": "Les espaces ne sont pas autorisés dans le nom",
+      "domainRequired": "Le domaine est requis",
+      "nameMin": "Le nom doit comporter au moins 2 caractères.",
+      "domainMin": "Le domaine doit comporter au moins 2 caractères."
+    },
+    "card": {
+      "domain": "Domaine",
+      "description": "Description",
+      "manageUsers": "Gérer les utilisateurs",
+      "dimensions": "Dimensions",
+      "edit": "Modifier",
+      "delete": "Supprimer",
+      "assignDimensions": "Assigner des dimensions",
+      "assignDimensionsDesc": "Assigner des dimensions à cette organisation"
+    },
+    "list": {
+      "title": "Organisations",
+      "emptyTitle": "Aucune organisation trouvée",
+      "emptyDesc": "Commencez par ajouter votre première organisation."
+    },
+    "delete": {
+      "title": "Êtes-vous sûr ?",
+      "description": "Cette action ne peut pas être annulée. Cela supprimera définitivement l'organisation et ses données de nos serveurs.",
+      "confirm": "Continuer",
+      "deleting": "Suppression en cours..."
+    },
+    "addBtn": "Ajouter une organisation",
+    "createBtn": "Créer l'organisation",
+    "updateBtn": "Mettre à jour l'organisation",
+    "assignDimensions": "Assigner des dimensions"
+  },
+  "adminRecommendations": {
+    "title": "Recommandations",
+    "addBtn": "Ajouter une recommandation",
+    "updateBtn": "Modifier la recommandation",
+    "form": {
+      "titleAdd": "Ajouter une nouvelle recommandation",
+      "titleEdit": "Modifier la recommandation",
+      "descAdd": "Remplissez les détails ci-dessous pour créer une nouvelle recommandation.",
+      "descEdit": "Mettez à jour les détails de la recommandation ci-dessous.",
+      "dimension": "Dimension",
+      "priority": "Priorité",
+      "description": "Description",
+      "dimPlaceholder": "Sélectionnez une dimension",
+      "prioPlaceholder": "Sélectionnez une priorité",
+      "descPlaceholder": "Entrez une description détaillée",
+      "adding": "Ajout...",
+      "updating": "Mise à jour..."
+    },
+    "validation": {
+      "dimensionRequired": "La dimension est requise",
+      "priorityRequired": "La priorité est requise",
+      "descriptionRequired": "La description est requise",
+      "alreadyExists": "Une recommandation avec cette priorité existe déjà pour la dimension sélectionnée."
+    },
+    "list": {
+      "empty": "Aucune recommandation trouvée.",
+      "emptyDesc": "Cliquez sur \"Ajouter une recommandation\" pour en créer une.",
+      "summary": "{{total}} recommandations au total sur {{dimCount}} dimensions",
+      "recommendation": "recommandation",
+      "recommendations": "recommandations"
+    },
+    "card": {
+      "synced": "Synchronisé",
+      "pending": "En attente",
+      "edit": "Modifier",
+      "delete": "Supprimer",
+      "deleting": "Suppression...",
+      "confirmDelete": "Êtes-vous sûr de vouloir supprimer cette recommandation ?"
+    },
+    "priorities": {
+      "low": "Basse",
+      "medium": "Moyenne",
+      "high": "Haute"
+    }
+  },
+  "adminReports": {
+    "submissions": {
+      "title": "Soumissions d'évaluation",
+      "empty": "Aucune soumission d'évaluation trouvée pour cette organisation.",
+      "submittedOn": "Soumis le",
+      "exportReport": "Exporter le rapport",
+      "viewActionPlan": "Voir le plan d'action",
+      "exportSuccess": "Rapport téléchargé avec succès !",
+      "exportError": "Échec du téléchargement du rapport : {{error}}"
+    },
+    "organizations": {
+      "title": "Rapports d'organisation",
+      "errorLoading": "Erreur lors du chargement des organisations : {{error}}"
+    }
+  },
+  "assessmentAnswering": {
+    "validation": {
+      "selectLevels": "Veuillez sélectionner à la fois le niveau actuel et le niveau souhaité",
+      "unexpectedError": "Une erreur inattendue s'est produite"
+    },
+    "errors": {
+      "notConfigured": "Cette dimension n'a pas été entièrement configurée avec les descriptions de niveau. Veuillez contacter votre administrateur.",
+      "loadGapError": "Échec du chargement de la description de l'écart.",
+      "noGapFound": "Aucune description d'écart trouvée."
+    },
+    "dimension": {
+      "currentLevel": "Niveau actuel",
+      "desiredLevel": "Niveau souhaité",
+      "selectCurrent": "Sélectionnez votre niveau actuel pour cette dimension",
+      "selectDesired": "Sélectionnez votre niveau souhaité pour cette dimension",
+      "yourCurrent": "Votre niveau actuel",
+      "yourDesired": "Votre niveau souhaité"
+    },
+    "form": {
+      "submitting": "Envoi en cours...",
+      "submit": "Soumettre l'évaluation",
+      "analyzing": "Analyse de votre écart...",
+      "analysis": "Analyse de l'évaluation",
+      "gapAnalysis": "Analyse de l'écart de digitalisation",
+      "severity": "Sévérité",
+      "risk": "RISQUE",
+      "noDescription": "Pas de description disponible"
+    },
+    "selector": {
+      "levelRange": "Niveau {{current}} sur {{total}} : {{name}}",
+      "prev": "Niveau précédent",
+      "next": "Niveau suivant",
+      "ariaLabel": "Niveau {{level}}"
+    }
+  },
+  "onboarding": {
+    "welcome": {
+      "title": "Bienvenue dans l'outil de diagnostic numérique",
+      "subtitleHello": "Bienvenue, {{name}} ! Configurons votre profil d'évaluation de la digitalisation.",
+      "subtitleGuest": "Bienvenue ! Laissez-nous vous guider à travers le processus d'évaluation de la digitalisation."
+    },
+    "stepProgress": "Étape {{current}} sur {{total}}",
+    "stepDescription": "Complétez ces étapes rapides pour personnaliser votre expérience d'évaluation.",
+    "steps": {
+      "prev": "Précédent",
+      "next": "Suivant",
+      "finish": "Terminer",
+      "back": "Retour aux étapes",
+      "ready": "Vous êtes prêt à commencer !",
+      "begin": "Commencer votre voyage",
+      "completionDesc": "Votre voyage vers la digitalisation commence maintenant. Transformons votre coopérative avec des informations basées sur les données et une planification stratégique.",
+      "step0": {
+        "title": "Suivez vos",
+        "titleHighlight": "Progrès numériques",
+        "description": "Surveillez l'évolution de votre coopérative à travers plusieurs dimensions de digitalisation avec des mesures intuitives."
+      },
+      "step1": {
+        "title": "Fixez des",
+        "titleHighlight": "Objectifs stratégiques",
+        "description": "Définissez où vous voulez aller et établissez des cibles claires pour votre transformation numérique."
+      },
+      "step2": {
+        "title": "Des conseils",
+        "titleHighlight": "Actionnables",
+        "description": "Recevez des conseils spécifiques basés sur des données, adaptés à l'état actuel et aux objectifs de votre coopérative."
+      },
+      "basics": "Bases",
+      "dimensions": "Dimensions",
+      "completion": "Terminé"
+    },
+    "context": {
+      "title": "Pourquoi cet accueil ?",
+      "description": "Cette introduction rapide vous aide à comprendre comment utiliser efficacement l'outil de diagnostic numérique :",
+      "list": [
+        "Comprendre votre niveau actuel de digitalisation à travers les dimensions",
+        "Définir votre futur état souhaité et vos priorités",
+        "Recevoir des recommandations basées sur les données et des prochaines étapes exploitables"
+      ]
+    },
+    "error": {
+      "title": "Erreur d'accueil",
+      "description": "Nous n'avons pas pu charger les étapes d'accueil. Veuillez réessayer ou contacter le support."
+    },
+    "title": "Bienvenue sur Finance Friend",
+    "subtitle": "Configurons votre coopérative pour la transformation numérique.",
+    "completion": {
+      "title": "Configuration Terminée !",
+      "message": "Votre coopérative est maintenant prête à commencer son parcours d'évaluation numérique.",
+      "cta": "Aller au Tableau de Bord"
+    }
+  },
+  "userComponents": {
+    "assessment": {
+      "title": "Évaluation en cours",
+      "description": "Continuez votre analyse des écarts numériques en cours",
+      "continue": "Continuer l’évaluation",
+      "lastUpdated": "Dernière mise à jour : {{date}}",
+      "progressLabel": "Progression"
+    },
+    "actions": {
+      "title": "Actions Rapides",
+      "description": "Commencer une nouvelle évaluation ou voir les résultats",
+      "startNew": "Nouvelle Évaluation",
+      "viewReports": "Voir les Rapports"
+    },
+    "stats": {
+      "total": "Total des Évaluations",
+      "completion": "Taux de Réalisation",
+      "average": "Score Moyen"
+    }
+  },
+  "secondAdminCooperations": {
+    "add": {
+      "title": "Ajouter une nouvelle coopérative",
+      "description": "Créez un nouveau profil de coopérative pour commencer à suivre les évaluations et les plans d'action.",
+      "triggerLabel": "Ajouter une coopérative",
+      "loadingLabel": "Enregistrement de la coopérative...",
+      "ariaLabel": "Formulaire de création de coopérative",
+      "nameLabel": "Nom",
+      "namePlaceholder": "ex: Coopérative de la Vallée Verte",
+      "nameHelper": "Utilisez le nom officiel que les administrateurs et les membres reconnaissent.",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Décrivez brièvement la coopérative, son orientation et ses membres.",
+      "descriptionHelper": "Cela aide les autres administrateurs à comprendre rapidement de quoi traite cette coopérative.",
+      "cancel": "Annuler",
+      "submit": "Créer la coopérative",
+      "saving": "Enregistrement..."
+    },
+    "edit": {
+      "title": "Modifier la coopérative",
+      "description": "Mettez à jour les informations du profil de la coopérative. Les modifications s'appliquent immédiatement après l'enregistrement.",
+      "triggerLabel": "Modifier",
+      "ariaLabel": "Formulaire de modification de coopérative",
+      "submit": "Enregistrer les modifications"
+    },
+    "delete": {
+      "triggerLabel": "Supprimer",
+      "title": "Êtes-vous sûr ?",
+      "description": "Cette action ne peut pas être annulée. Cela supprimera définitivement la coopérative et retirera ses données de nos serveurs.",
+      "cancel": "Annuler",
+      "confirm": "Continuer"
+    },
+    "card": {
+      "srCooperative": "Coopérative",
+      "profileLabel": "Profil de la coopérative",
+      "noDescription": "Aucune description fournie pour cette coopérative pour le moment."
+    },
+    "simpleCard": {
+      "srCooperation": "Coopération"
+    },
+    "assign": {
+      "trigger": "Assigner des dimensions"
+    }
+  },
+  "secondAdminCooperationUsers": {
+    "add": {
+      "title": "Ajouter un nouvel utilisateur",
+      "description": "Invitez un nouvel administrateur ou membre dans cette coopérative. Ils recevront un e-mail avec les détails d'accès une fois leur compte créé.",
+      "triggerLabel": {
+        "inviting": "Invitation de l'utilisateur...",
+        "add": "Ajouter un utilisateur"
+      },
+      "form": {
+        "ariaLabel": "Formulaire d'ajout d'utilisateur de coopérative",
+        "emailLabel": "Email",
+        "firstNameLabel": "Prénom",
+        "firstNamePlaceholder": "Optionnel",
+        "lastNameLabel": "Nom",
+        "lastNamePlaceholder": "Optionnel",
+        "dimensionsLabel": "Dimensions que cet utilisateur peut répondre",
+        "dimensionsDescription": "Sélectionnez les dimensions d'évaluation que cet utilisateur de coopérative est autorisé à répondre. Ils ne verront et ne répondront qu'à ces dimensions dans les évaluations assignées.",
+        "noDimensions": "Aucune dimension disponible pour cette organisation.",
+        "roleLabel": "Rôle",
+        "roleCoopAdmin": "Administrateur de coopérative",
+        "roleCoopUser": "Utilisateur de coopérative",
+        "noRole": "Aucun rôle ne sera assigné avec vos permissions actuelles",
+        "cancel": "Annuler",
+        "submit": "Envoyer l'invitation",
+        "submitting": "Ajout..."
+      },
+      "toast": {
+        "success": "Utilisateur invité avec succès.",
+        "error": "Échec de l'invitation de l'utilisateur."
+      }
+    },
+    "list": {
+      "columns": {
+        "email": "Email",
+        "firstName": "Prénom",
+        "lastName": "Nom",
+        "verified": "Email vérifié",
+        "actions": "Actions"
+      },
+      "status": {
+        "verified": "Vérifié",
+        "pending": "En attente"
+      },
+      "actions": {
+        "delete": "Supprimer"
+      }
+    },
+    "edit": {
+      "title": "Modifier les dimensions de l'utilisateur",
+      "description": "Mettez à jour les dimensions que cet utilisateur est autorisé à répondre.",
+      "triggerLabel": "Modifier",
+      "toast": {
+        "success": "Dimensions de l'utilisateur mises à jour avec succès.",
+        "error": "Échec de la mise à jour des dimensions de l'utilisateur."
+      },
+      "saving": "Enregistrement..."
+    }
+  },
+  "adminDashboard": {
+    "title": "Bienvenue, Administrateur",
+    "welcomePrefix": "Bon retour parmi nous ",
+    "defaultAdmin": "Administrateur",
+    "welcomeSuffix": "",
+    "stats": {
+      "orgs": {
+        "title": "Organisations",
+        "desc": "Total des organisations actives"
+      },
+      "users": {
+        "title": "Utilisateurs",
+        "desc": "Total des utilisateurs actifs"
+      },
+      "assessments": {
+        "title": "Évaluations",
+        "desc": "Total des soumissions reçues"
+      },
+      "dimensions": {
+        "title": "Dimensions",
+        "desc": "Dimensions d'évaluation actives"
+      }
+    },
+    "tools": {
+      "title": "Outils de Gestion",
+      "orgs": {
+        "title": "Organisations",
+        "desc": "Gérer les organisations et leurs métadonnées"
+      },
+      "users": {
+        "title": "Gérer les Utilisateurs",
+        "desc": "Inviter et gérer les administrateurs système"
+      },
+      "dimensions": {
+        "title": "Dimensions",
+        "desc": "Gérer les dimensions d'évaluation"
+      },
+      "gaps": {
+        "title": "Écarts Numériques",
+        "desc": "Définir et gérer les types d'écarts de numérisation"
+      },
+      "recommendations": {
+        "title": "Recommandations",
+        "desc": "Configurer les recommandations d'évaluation numérique"
+      },
+      "actionPlans": {
+        "title": "Plans d'Action",
+        "desc": "Réviser et mettre à jour les modèles de plan d'action"
+      },
+      "reports": {
+        "title": "Voir les Rapports",
+        "desc": "Réviser et exporter des rapports complets"
+      },
+      "consolidated": {
+        "title": "Rapport Consolidé",
+        "desc": "Voir l'analyse globale du système"
+      }
+    },
+    "recent": {
+      "title": "Activité Récente",
+      "desc": "Dernières soumissions d'évaluation dans le système",
+      "viewAll": "Tout voir",
+      "error": "Échec du chargement de l'activité récente : {{message}}"
+    }
+  },
+  "sharedUsers": {
+    "table": {
+      "name": "Nom",
+      "email": "E-mail",
+      "role": "Rôle",
+      "status": "Statut",
+      "cooperative": "Coopérative",
+      "actions": "Actions",
+      "noUsers": "Aucun utilisateur trouvé."
+    },
+    "status": {
+      "active": "Actif",
+      "inactive": "Inactif",
+      "pending": "En attente",
+      "invited": "Invité"
+    },
+    "roles": {
+      "admin": "Admin",
+      "user": "Utilisateur",
+      "coop_admin": "Admin de Coopérative",
+      "coop_user": "Utilisateur de Coopérative",
+      "org_admin": "Admin d'Organisation"
+    },
+    "delete": {
+      "title": "Supprimer l'utilisateur",
+      "description": "Êtes-vous sûr de vouloir supprimer cet utilisateur ? Cette action est irréversible.",
+      "confirm": "Supprimer",
+      "cancel": "Annuler",
+      "success": "Utilisateur supprimé avec succès",
+      "error": "Échec de la suppression de l'utilisateur"
+    },
+    "invite": {
+      "title": "Inviter un nouvel utilisateur",
+      "description": "Envoyez une invitation à un nouvel utilisateur pour rejoindre le système.",
+      "name": "Nom complet",
+      "email": "Adresse de courriel",
+      "role": "Rôle système",
+      "cooperative": "Assigner à une coopérative",
+      "selectRole": "Sélectionnez un rôle",
+      "selectCoop": "Sélectionnez une coopérative",
+      "cancel": "Annuler",
+      "submit": "Envoyer l'invitation",
+      "sending": "Envoi en cours...",
+      "success": "Invitation envoyée avec succès",
+      "error": "Échec de l'envoi de l'invitation",
+      "validation": {
+        "name": "Le nom est requis",
+        "email": "Adresse e-mail invalide",
+        "role": "Le rôle est requis"
+      }
+    }
+  },
+  "userDashboard": {
+    "header": {
+      "panel": "Panneau Coopératif",
+      "title": "Tableau de Bord",
+      "welcome": "Bon retour parmi nous <1>{{name}}</1>. Consultez vos dernières évaluations et vos progrès.",
+      "defaultUser": "Utilisateur"
+    },
+    "cards": {
+      "answer": {
+        "title": "Répondre à l'Évaluation",
+        "description": "Complétez votre évaluation des écarts numériques"
+      },
+      "actionPlan": {
+        "title": "Plan d'Action",
+        "description": "Consultez votre stratégie de numérisation"
+      },
+      "submissions": {
+        "title": "Mes Soumissions",
+        "description": "Consultez vos évaluations précédentes"
+      }
+    },
+    "reports": {
+      "export": {
+        "title": "Exporter les Rapports",
+        "description": "Téléchargez vos résultats d'évaluation"
+      },
+      "recent": {
+        "title": "Activité Récente",
+        "description": "Vos dernières soumissions d'évaluation",
+        "viewAll": "Tout voir",
+        "error": "Échec du chargement des dernières soumissions",
+        "empty": "Aucune soumission récente trouvée"
+      }
+    },
+    "chart": {
+      "title": "Profil Numérique de la Coopérative",
+      "description": "Aperçu de vos derniers résultats d'évaluation"
+    }
+  },
+  "thirdAdmin": {
+    "header": {
+      "defaultType": "Panneau Coopératif",
+      "title": "Tableau de Bord de l'Administrateur de Coopérative",
+      "welcome": "Bon retour parmi nous <1>{{name}}</1>. Utilisez ces outils pour suivre les évaluations, les utilisateurs et les plans d'action de votre coopérative.",
+      "defaultUser": "Administrateur"
+    },
+    "cards": {
+      "manageUsers": {
+        "title": "Gérer les Utilisateurs",
+        "description": "Inviter et gérer le personnel de la coopérative"
+      },
+      "answerAssessment": {
+        "title": "Répondre à l'Évaluation",
+        "description": "Compléter les évaluations des écarts numériques"
+      },
+      "viewActionPlan": {
+        "title": "Plans d'Action",
+        "description": "Réviser votre stratégie de numérisation"
+      },
+      "viewSubmissions": {
+        "title": "Soumissions",
+        "description": "Suivre l'avancement des évaluations"
+      }
+    },
+    "reports": {
+      "export": {
+        "title": "Exporter les Rapports",
+        "description": "Télécharger les résultats d'évaluation"
+      },
+      "recent": {
+        "title": "Activité Récente",
+        "description": "Dernières soumissions d'évaluation",
+        "viewAll": "Tout voir",
+        "error": "Échec du chargement des dernières soumissions",
+        "empty": "Aucune soumission récente trouvée"
+      }
+    },
+    "chart": {
+      "title": "Profil Numérique de la Coopérative",
+      "description": "Aperçu des derniers résultats d'évaluation"
+    }
+  },
+  "home": {
+    "hero": {
+      "title": "Outil d'Analyse des Écarts Numériques",
+      "subtitle": "Permettre aux organisations soutenues par le DGRV d'identifier, de mesurer et de combler les lacunes numériques.",
+      "cta": "Commencer"
+    },
+    "features": {
+      "title": "Fonctionnalités Clés",
+      "assessment": {
+        "title": "Évaluation Complète",
+        "desc": "Identifier les lacunes dans plusieurs dimensions de la numérisation."
+      },
+      "reports": {
+        "title": "Rapports Exploitables",
+        "desc": "Générer des rapports détaillés et des recommandations d'amélioration."
+      },
+      "tracking": {
+        "title": "Suivi des Progrès",
+        "desc": "Suivez le parcours de numérisation de votre organisation au fil du temps."
+      }
+    }
+  },
+  "nav": {
+    "home": "Accueil",
+    "dashboard": "Tableau de Bord",
+    "login": "Connexion",
+    "logout": "Déconnexion",
+    "settings": "Paramètres",
+    "profile": "Profil"
+  },
+  "consolidatedReport": {
+    "title": "Rapport Consolidé",
+    "subtitle": "Aperçu complet de l'analyse des écarts numériques",
+    "exportPDF": "Exporter en PDF",
+    "metrics": {
+      "totalSubmissions": "Total des soumissions"
+    },
+    "dimensions": {
+      "title": "Analyse par Dimension",
+      "subtitle": "Répartition détaillée des niveaux de risque et des scores d'écart par dimension",
+      "popoverTitle": "À propos de l'analyse des dimensions",
+      "popoverDesc": "Ce tableau fournit une ventilation détaillée de la répartition des risques pour chaque dimension à travers toutes les soumissions. Il aide à identifier les domaines de votre organisation les plus exposés aux risques numériques.",
+      "highRiskDesc": "Le pourcentage de soumissions où la dimension a été évaluée comme présentant un risque élevé. Les domaines à haut risque nécessitent une attention immédiate.",
+      "mediumRiskDesc": "Le pourcentage de soumissions où la dimension a été évaluée comme présentant un risque moyen. Ces domaines doivent être surveillés.",
+      "lowRiskDesc": "Le pourcentage de soumissions où la dimension a été évaluée comme présentant un faible risque. Ce sont des points forts.",
+      "table": {
+        "dimension": "Dimension",
+        "highRisk": "Risque élevé %",
+        "mediumRisk": "Risque moyen %",
+        "lowRisk": "Risque faible %"
+      }
+    },
+    "focus": {
+      "high": {
+        "title": "Dimension à Risque Élevé et Recommandations",
+        "subtitle": "Domaine prioritaire nécessitant une attention immédiate",
+        "popover": "Cette dimension a le score de risque moyen le plus élevé de toutes les soumissions. Elle représente le domaine le plus critique nécessitant une action immédiate.",
+        "recTitle": "Principales Recommandations de Haute Priorité"
+      },
+      "medium": {
+        "title": "Dimension Nécessitant de l'Attention et Recommandations",
+        "subtitle": "Cette dimension présente un écart modéré - mérite d'être surveillée et améliorée",
+        "popover": "Cette dimension a un score de risque moyen modéré. Elle n'est pas critique mais doit être surveillée et améliorée au fil du temps.",
+        "recTitle": "Recommandations pour Améliorer cette Dimension"
+      },
+      "low": {
+        "title": "Dimension avec le Plus Grand Potentiel d'Amélioration",
+        "subtitle": "Toutes les dimensions sont performantes. Celle-ci a le plus grand potentiel de croissance supplémentaire",
+        "popover": "Toutes les dimensions présentent un faible risque. Cette dimension a le score le plus élevé parmi elles, ce qui signifie qu'elle a le plus de marge de progression, et non qu'elle est à risque.",
+        "recTitle": "Suggestions pour Renforcer Davantage cette Dimension"
+      },
+      "aboutTitle": "À propos de cette section",
+      "aboutDesc": "Les recommandations ci-dessous sont adaptées à cette dimension et peuvent être intégrées à votre plan d'action.",
+      "avgScore": "Score de Risque Moyen :",
+      "lowRisk": "Faible",
+      "mediumRisk": "Moyen",
+      "highRisk": "Élevé"
+    },
+    "chart": {
+      "title": "Niveau de Risque Dominant par Dimension",
+      "subtitle": "Pourcentage du niveau de risque dominant par dimension",
+      "aboutTitle": "À propos du Risque Dominant",
+      "aboutDesc1": "Ce diagramme à barres visualise le niveau de risque le plus dominant (Élevé, Moyen ou Faible) pour chaque dimension. Le risque dominant est le niveau de risque ayant le pourcentage de soumissions le plus élevé pour cette dimension.",
+      "aboutDesc2": "Ceci donne un aperçu rapide du profil de risque général de chaque dimension, vous aidant à repérer facilement les dimensions qui sont systématiquement classées comme à haut risque.",
+      "lowRisk": "Risque Faible",
+      "mediumRisk": "Risque Moyen",
+      "highRisk": "Risque Élevé"
+    },
+    "errors": {
+      "fetch": "Échec de récupération du rapport consolidé",
+      "loadTitle": "Erreur lors du chargement du rapport",
+      "tryAgain": "Réessayer"
+    },
+    "empty": {
+      "title": "Aucune donnée de rapport disponible",
+      "desc": "Il n'y a pas de données de rapport consolidé à afficher pour le moment.",
+      "refresh": "Actualiser les données"
+    }
+  },
+  "orgReports": {
+    "loadingError": "Erreur lors du chargement des rapports : {{message}}",
+    "backToOrgs": "Retour aux Organisations",
+    "title": "Rapports de l'Organisation",
+    "subtitle": "Afficher les soumissions pour l'Organisation {{name}}",
+    "selectSubmission": "Sélectionner une soumission",
+    "noSubmissions": "Aucune soumission trouvée pour cette organisation."
+  },
+  "exportReport": {
+    "missingId": "ID de soumission manquant",
+    "loadingError": "Erreur lors du chargement du rapport : {{message}}",
+    "notFound": "Rapport non trouvé",
+    "back": "Retour aux Soumissions",
+    "title": "Exporter le Rapport",
+    "subtitle": "Générer et télécharger un rapport PDF professionnel de l'évaluation des écarts de numérisation",
+    "generating": "Génération du PDF...",
+    "generateBtn": "Générer le PDF",
+    "details": "Détails de la soumission"
+  },
+  "sharedPages": {
+    "manageUsers": {
+      "title": "Gérer les Utilisateurs de l'Organisation",
+      "subtitle": "Sélectionnez une organisation pour gérer ses utilisateurs et ses invitations.",
+      "error": "Erreur lors du chargement des organisations : {{message}}",
+      "emptyTitle": "Aucune organisation trouvée",
+      "emptyDesc": "Vous devez créer ou être affecté à une organisation pour gérer les utilisateurs."
+    }
+  },
+  "viewReports": {
+    "loadingError": "Erreur lors du chargement des rapports : {{message}}",
+    "title": "Voir les Rapports",
+    "subtitle": "Réviser et exporter des rapports complets pour les organisations",
+    "selectOrg": "Sélectionner une Organisation",
+    "noOrgs": "Aucune organisation trouvée."
+  },
+  "secondAdmin": {
+    "header": {
+      "title": "Tableau de Bord de Gestion de Coopérative",
+      "welcome": "Bon retour parmi nous <1>{{name}}</1>. Utilisez ces outils pour gérer les coopératives, les utilisateurs, les évaluations et les plans d'action.",
+      "defaultUser": "Administrateur"
+    },
+    "cards": {
+      "manageCoops": {
+        "title": "Gérer les Coopératives",
+        "description": "Voir et gérer les profils des coopératives"
+      },
+      "manageUsers": {
+        "title": "Utilisateurs de Coopérative",
+        "description": "Inviter et gérer le personnel de la coopérative"
+      },
+      "createAssessment": {
+        "title": "Créer une Évaluation",
+        "description": "Assigner de nouvelles évaluations aux coopératives"
+      },
+      "viewActionPlan": {
+        "title": "Plans d'Action",
+        "description": "Réviser et mettre à jour les stratégies de numérisation"
+      },
+      "viewSubmissions": {
+        "title": "Soumissions",
+        "description": "Suivre l'avancement de la réalisation des évaluations"
+      },
+      "consolidatedReport": {
+        "title": "Rapport Consolidé",
+        "description": "Analyser globalement les écarts de numérisation"
+      }
+    },
+    "reports": {
+      "export": {
+        "title": "Exporter les Rapports",
+        "description": "Générer des rapports PDF pour votre organisation"
+      },
+      "recent": {
+        "title": "Soumissions Récentes",
+        "description": "Dernières activités d'évaluation",
+        "viewAll": "Tout voir",
+        "error": "Échec du chargement des soumissions récentes",
+        "empty": "Aucune soumission récente trouvée"
+      }
+    },
+    "chart": {
+      "title": "Profil Numérique de l'Organisation",
+      "description": "Aperçu des derniers résultats d'évaluation"
+    },
+    "consolidatedReportPage": {
+      "orgIdNotFound": "ID de l'organisation non trouvé"
+    }
+  },
+  "sharedSubmissions": {
+    "manage": {
+      "accessDenied": "Accès Refusé",
+      "accessDeniedDesc": "Vous n'avez pas les autorisations nécessaires pour voir cette page.",
+      "titleSubDetails": "Détails de la soumission",
+      "titleMySubmissions": "Mes soumissions",
+      "descSubDetails": "Consulter les détails et l'analyse des écarts de cette soumission.",
+      "descMySubmissions": "Suivre et réviser vos évaluations d'écarts de numérisation.",
+      "errorLoading": "Erreur lors du chargement des soumissions",
+      "retry": "Réessayer",
+      "noCooperative": "Aucune coopérative déterminée pour votre utilisateur.",
+      "noSubmissionsForAssessment": "Aucune soumission trouvée pour cette évaluation.",
+      "noSubmissionsForOrg": "Aucune soumission trouvée pour votre organisation.",
+      "noSubmissionsForCoop": "Aucune soumission trouvée pour votre coopérative.",
+      "noSubmissions": "Aucune soumission trouvée."
+    }
+  },
+  "sharedAssessments": {
+    "manage": {
+      "noCooperations": "Aucune coopérative trouvée",
+      "createCooperationFirst": "Veuillez d'abord créer au moins une coopérative avant de créer une évaluation.",
+      "title": "Gérer les Évaluations",
+      "subtitle": "Créer et gérer les évaluations d'écarts numériques pour vos coopératives.",
+      "createBtn": "Créer une Évaluation",
+      "unableToLoadError": "Impossible de charger les évaluations",
+      "noCooperativeDetermined": "Aucune coopérative déterminée",
+      "resolveCooperativeError": "Nous n'avons pas pu déterminer à quelle coopérative vous appartenez.",
+      "noDraftsTitle": "Pas d'ébauches d'évaluation",
+      "noDraftsSubtitle": "Commencez par créer votre première évaluation pour une coopérative."
+    }
+  },
+  "adminManageDigitalGaps": {
+    "title": "Gérer les Écarts de Numérisation",
+    "subtitle": "Définir et gérer les écarts qui représentent des défis de numérisation.",
+    "addBtn": "Ajouter un Écart de Numérisation",
+    "error": "Erreur lors du chargement des écarts de numérisation : {{message}}"
+  },
+  "adminGaps": {
+    "title": "Écarts de Numérisation",
+    "addBtn": "Ajouter un écart de numérisation",
+    "list": {
+      "empty": "Aucun écart de numérisation trouvé."
+    },
+    "validation": {
+      "dimensionRequired": "La dimension est requise",
+      "descriptionRequired": "La description est requise",
+      "duplicateGap": "Un écart pour cette dimension et cette gravité existe déjà"
+    },
+    "form": {
+      "titleAdd": "Ajouter un écart de numérisation",
+      "titleEdit": "Modifier l'écart de numérisation",
+      "descAdd": "Créer une nouvelle définition d'écart de numérisation.",
+      "descEdit": "Mettre à jour les détails de l'écart de numérisation.",
+      "dimension": "Dimension",
+      "selectDimension": "Sélectionnez une dimension",
+      "severity": "Gravité",
+      "selectSeverity": "Sélectionnez la gravité",
+      "description": "Description",
+      "descPlaceholder": "Entrez la description détaillée de l'écart",
+      "saving": "Enregistrement..."
+    },
+    "updateBtn": "Mettre à jour l'écart de numérisation",
+    "createBtn": "Créer l'écart de numérisation"
+  }
+}

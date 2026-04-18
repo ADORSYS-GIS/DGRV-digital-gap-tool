@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { SubmissionList } from "@/components/shared/submissions/SubmissionList";
 import { Badge } from "@/components/ui/badge";
@@ -10,6 +11,7 @@ import { SyncStatus } from "@/types/sync";
 import { Building2, ChevronDown, ChevronRight } from "lucide-react";
 
 function CooperativeSubmissions({ cooperation }: { cooperation: Cooperation }) {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const { data: submissions = [], isLoading } = useSubmissionsByCooperation(
     cooperation.id,
@@ -34,7 +36,7 @@ function CooperativeSubmissions({ cooperation }: { cooperation: Cooperation }) {
           )}
         </div>
         <Badge variant="secondary" className="shrink-0">
-          {isLoading && isOpen ? "…" : `${isOpen ? submissions.length : "?"} submission${submissions.length !== 1 ? "s" : ""}`}
+          {isLoading && isOpen ? "…" : t("secondAdmin.submissionsPage.submissionCount", { count: isOpen ? submissions.length : 0 })}
         </Badge>
         {isOpen
           ? <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />
@@ -49,7 +51,7 @@ function CooperativeSubmissions({ cooperation }: { cooperation: Cooperation }) {
             <div className="flex justify-center py-4"><LoadingSpinner /></div>
           ) : submissions.length === 0 ? (
             <p className="text-sm text-muted-foreground py-2">
-              No submissions yet for this cooperative.
+              {t("secondAdmin.submissionsPage.noSubmissions")}
             </p>
           ) : (
             <SubmissionList
@@ -75,15 +77,16 @@ function CooperativeSubmissions({ cooperation }: { cooperation: Cooperation }) {
 }
 
 export default function SubmissionsByCooperativePage() {
+  const { t } = useTranslation();
   const organizationId = useOrganizationId();
   const { data: cooperations = [], isLoading } = useCooperations(organizationId || undefined);
 
   return (
     <div className="space-y-6 overflow-y-auto h-full">
       <div className="rounded-xl bg-gradient-to-r from-primary/5 via-primary/10 to-transparent px-6 py-5 border border-primary/10">
-        <h1 className="text-2xl font-bold tracking-tight text-gray-900">Submissions</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-gray-900">{t("secondAdmin.submissionsPage.title")}</h1>
         <p className="text-sm text-muted-foreground mt-1">
-          View assessment submissions grouped by cooperative.
+          {t("secondAdmin.submissionsPage.description")}
         </p>
       </div>
 
@@ -91,7 +94,7 @@ export default function SubmissionsByCooperativePage() {
 
       {!isLoading && cooperations.length === 0 && (
         <div className="text-center py-12 text-muted-foreground text-sm">
-          No cooperatives found. Create cooperatives first to see their submissions.
+          {t("secondAdmin.submissionsPage.empty")}
         </div>
       )}
 

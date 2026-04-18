@@ -1,10 +1,3 @@
-/**
- * Second admin dashboard page for cooperative management.
- * This page provides:
- * - Cooperative and user management tools
- * - Assessment creation and submission tracking
- * - Action plan overview
- */
 import { DashboardCard } from "@/components/shared/DashboardCard";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { ReportActions } from "@/components/shared/reports/ReportActions";
@@ -40,9 +33,11 @@ import {
   Users,
 } from "lucide-react";
 import React from "react";
+import { useTranslation, Trans } from "react-i18next";
 import { Link } from "react-router-dom";
 
 const SecondAdminDashboard: React.FC = () => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const organizationId = useOrganizationId();
   const {
@@ -97,16 +92,17 @@ const SecondAdminDashboard: React.FC = () => {
               </p>
             )}
             <h1 className="mt-1 text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-              Cooperatives management dashboard
+              {t('secondAdmin.header.title')}
             </h1>
           </div>
           <p className="max-w-2xl text-sm text-muted-foreground">
-            Welcome back{" "}
-            <span className="font-medium text-foreground">
-              {user?.name || user?.preferred_username || "Administrator"}
-            </span>
-            . Use these tools to manage cooperatives, users, assessments, and
-            action plans.
+            <Trans
+              i18nKey="secondAdmin.header.welcome"
+              values={{ name: user?.name || user?.preferred_username || t('secondAdmin.header.defaultUser') }}
+              components={{ 1: <span className="font-medium text-foreground" /> }}
+            >
+              Welcome back <span className="font-medium text-foreground">{user?.name || user?.preferred_username || t('secondAdmin.header.defaultUser')}</span>. Use these tools to manage cooperatives, users, assessments, and action plans.
+            </Trans>
           </p>
         </header>
 
@@ -115,48 +111,48 @@ const SecondAdminDashboard: React.FC = () => {
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             <Link to="/second-admin/cooperations">
               <DashboardCard
-                title="Manage cooperatives"
-                description="Administer cooperative profiles and data."
+                title={t('secondAdmin.cards.manageCoops.title')}
+                description={t('secondAdmin.cards.manageCoops.description')}
                 icon={Building2}
                 variant="default"
               />
             </Link>
             <Link to="/second-admin/manage-cooperation-users">
               <DashboardCard
-                title="Manage users"
-                description="Oversee user accounts and permissions."
+                title={t('secondAdmin.cards.manageUsers.title')}
+                description={t('secondAdmin.cards.manageUsers.description')}
                 icon={Users}
                 variant="default"
               />
             </Link>
             <Link to="/second-admin/assessments">
               <DashboardCard
-                title="Create assessment"
-                description="Design and deploy new assessments."
+                title={t('secondAdmin.cards.createAssessment.title')}
+                description={t('secondAdmin.cards.createAssessment.description')}
                 icon={FilePlus2}
                 variant="default"
               />
             </Link>
             <Link to="/second-admin/action-plans">
               <DashboardCard
-                title="View action plan"
-                description="Review and monitor strategic action plans."
+                title={t('secondAdmin.cards.viewActionPlan.title')}
+                description={t('secondAdmin.cards.viewActionPlan.description')}
                 icon={ClipboardList}
                 variant="default"
               />
             </Link>
             <Link to="/second-admin/submissions">
               <DashboardCard
-                title="View submissions"
-                description="Track and evaluate assessment submissions."
+                title={t('secondAdmin.cards.viewSubmissions.title')}
+                description={t('secondAdmin.cards.viewSubmissions.description')}
                 icon={ClipboardCheck}
                 variant="default"
               />
             </Link>
             <Link to={`/second-admin/consolidated-report/${organizationId}`}>
               <DashboardCard
-                title="Consolidated Report"
-                description="View consolidated report for all cooperatives"
+                title={t('secondAdmin.cards.consolidatedReport.title')}
+                description={t('secondAdmin.cards.consolidatedReport.description')}
                 icon={FileText}
                 variant="default"
               />
@@ -171,10 +167,10 @@ const SecondAdminDashboard: React.FC = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Download className="h-5 w-5" />
-                <span>Export reports</span>
+                <span>{t('secondAdmin.reports.export.title')}</span>
               </CardTitle>
               <CardDescription>
-                Generate and download assessment reports for your organization.
+                {t('secondAdmin.reports.export.description')}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -188,15 +184,15 @@ const SecondAdminDashboard: React.FC = () => {
               <div>
                 <CardTitle className="flex items-center gap-2">
                   <History className="h-5 w-5" />
-                  <span>Recent submissions</span>
+                  <span>{t('secondAdmin.reports.recent.title')}</span>
                 </CardTitle>
                 <CardDescription>
-                  Latest assessments completed across your cooperatives.
+                  {t('secondAdmin.reports.recent.description')}
                 </CardDescription>
               </div>
               <Link to="/second-admin/submissions">
                 <Button variant="outline" size="sm">
-                  View all
+                  {t('secondAdmin.reports.recent.viewAll')}
                 </Button>
               </Link>
             </CardHeader>
@@ -208,7 +204,7 @@ const SecondAdminDashboard: React.FC = () => {
               )}
               {error && (
                 <div className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-                  <p className="font-medium">Unable to load submissions.</p>
+                  <p className="font-medium">{t('secondAdmin.reports.recent.error')}</p>
                   <p className="mt-1 opacity-90">{error.message}</p>
                 </div>
               )}
@@ -216,8 +212,7 @@ const SecondAdminDashboard: React.FC = () => {
                 !error &&
                 (!submissions || submissions.length === 0) && (
                   <div className="flex min-h-[120px] items-center justify-center text-sm text-muted-foreground">
-                    No submissions found yet. Results will appear here once
-                    assessments are completed.
+                    {t('secondAdmin.reports.recent.empty')}
                   </div>
                 )}
               {!isLoading &&
@@ -236,19 +231,18 @@ const SecondAdminDashboard: React.FC = () => {
 
         {/* Latest Submission Chart */}
         {latestAssessments.length > 0 && allDimensions && (
-          <section aria-label="Latest assessment results">
+          <section aria-label={t('secondAdmin.chart.title')}>
             <Card>
               <CardHeader>
-                <CardTitle>Latest assessment results</CardTitle>
+                <CardTitle>{t('secondAdmin.chart.title')}</CardTitle>
                 <CardDescription>
-                  Compare current and desired states for each dimension in the
-                  most recent submission.
+                  {t('secondAdmin.chart.description')}
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <SubmissionChart
                   assessments={latestAssessments}
-                  assessmentName={submissions[0]?.assessment?.document_title}
+                  assessmentName={submissions[0]?.assessment?.document_title || ""}
                   dimensions={allDimensions}
                   allDimensionStates={allDimensionStates ?? []}
                 />

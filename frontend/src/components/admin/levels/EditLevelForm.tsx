@@ -15,16 +15,19 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import * as z from "zod";
-const formSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  description: z.string().min(1, "Description is required"),
-  state: z
-    .number()
-    .min(1, "Please select a state")
-    .refine((state) => state !== 0, "Level ID is required"),
-});
+import { useTranslation } from "react-i18next";
 
-type FormValues = z.infer<typeof formSchema>;
+const formSchema = (t: any) =>
+  z.object({
+    title: z.string().min(1, t("adminLevels.validation.titleRequired")),
+    description: z.string().min(1, t("adminLevels.validation.descRequired")),
+    state: z
+      .number()
+      .min(1, t("adminLevels.validation.stateRequired"))
+      .refine((state) => state !== 0, t("adminLevels.validation.idRequired")),
+  });
+
+type FormValues = z.infer<ReturnType<typeof formSchema>>;
 
 interface EditLevelFormProps {
   isOpen: boolean;
@@ -39,6 +42,7 @@ export const EditLevelForm = ({
   level,
   existingLevels,
 }: EditLevelFormProps) => {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const {
     register,
@@ -48,7 +52,7 @@ export const EditLevelForm = ({
     control,
     setError,
   } = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(formSchema(t)),
     defaultValues: {
       state: level.state,
       title: level.title ?? "",
@@ -76,7 +80,7 @@ export const EditLevelForm = ({
     if (isDuplicateState) {
       setError("state", {
         type: "manual",
-        message: "Level ID already exists for this dimension",
+        message: t("adminLevels.validation.stateExists"),
       });
       return;
     }
@@ -113,7 +117,7 @@ export const EditLevelForm = ({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            Edit {level.levelType === "current" ? "Current" : "Desired"} Level
+            {t("adminLevels.form.titleEdit")}
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -124,9 +128,12 @@ export const EditLevelForm = ({
               rules={{
                 validate: (value) => {
                   if (typeof value !== "number" || isNaN(value)) {
-                    return "State must be a number";
+                    return t("adminLevels.validation.stateNumber");
                   }
-                  return isStateAvailable(value) || "Level ID already exists";
+                  return (
+                    isStateAvailable(value) ||
+                    t("adminLevels.validation.stateExists")
+                  );
                 },
               }}
               render={({ field }) => (
@@ -134,7 +141,7 @@ export const EditLevelForm = ({
                   <Input
                     {...field}
                     type="number"
-                    placeholder="Level ID"
+                    placeholder={t("adminLevels.form.levelId")}
                     min={1}
                     onChange={(e) => {
                       const value = parseInt(e.target.value, 10);
@@ -152,7 +159,10 @@ export const EditLevelForm = ({
             />
           </>
           <div>
-            <Input {...register("title")} placeholder="Level Name" />
+            <Input
+              {...register("title")}
+              placeholder={t("adminLevels.form.levelName")}
+            />
             {errors.title && (
               <p className="text-red-500 text-sm mt-1">
                 {errors.title.message}
@@ -160,7 +170,10 @@ export const EditLevelForm = ({
             )}
           </div>
           <div>
-            <Textarea {...register("description")} placeholder="Description" />
+            <Textarea
+              {...register("description")}
+              placeholder={t("adminLevels.form.description")}
+            />
             {errors.description && (
               <p className="text-red-500 text-sm mt-1">
                 {errors.description.message}
@@ -169,7 +182,9 @@ export const EditLevelForm = ({
           </div>
           <DialogFooter>
             <Button type="submit" disabled={updateLevelMutation.isPending}>
-              {updateLevelMutation.isPending ? "Saving..." : "Save Changes"}
+              {updateLevelMutation.isPending
+                ? t("adminLevels.form.updating")
+                : t("adminLevels.updateBtn")}
             </Button>
           </DialogFooter>
         </form>

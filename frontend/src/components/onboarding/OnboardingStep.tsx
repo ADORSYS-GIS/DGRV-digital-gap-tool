@@ -1,4 +1,5 @@
 import { ArrowLeft, ArrowRight, CheckCircle, LucideProps } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface OnboardingStepProps {
   step: {
@@ -23,13 +24,14 @@ export default function OnboardingStep({
   handlePrevious,
   handleNext,
 }: OnboardingStepProps) {
+  const { t } = useTranslation();
+
   return (
     <div
-      className={`bg-white rounded-3xl shadow-2xl p-12 transition-all duration-500 ease-in-out ${
-        isTransitioning
+      className={`bg-white rounded-3xl shadow-2xl p-12 transition-all duration-500 ease-in-out ${isTransitioning
           ? "opacity-0 scale-95 translate-x-8"
           : "opacity-100 scale-100 translate-x-0"
-      }`}
+        }`}
     >
       <div className="flex justify-center mb-16">
         <step.icon className={`h-28 w-28 ${step.color}`} strokeWidth={1} />
@@ -52,14 +54,13 @@ export default function OnboardingStep({
         <button
           onClick={handlePrevious}
           disabled={currentStep === 0}
-          className={`flex items-center px-8 py-3 rounded-lg font-medium transition-all duration-200 ${
-            currentStep === 0
+          className={`flex items-center px-8 py-3 rounded-lg font-medium transition-all duration-200 ${currentStep === 0
               ? "text-gray-400 cursor-not-allowed bg-gray-100"
               : "text-white bg-gray-600 hover:bg-gray-700"
-          }`}
+            }`}
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Previous
+          {t("onboarding.steps.prev")}
         </button>
 
         <button
@@ -68,12 +69,12 @@ export default function OnboardingStep({
         >
           {currentStep === totalSteps - 1 ? (
             <>
-              Finish
+              {t("onboarding.steps.finish")}
               <CheckCircle className="ml-2 h-4 w-4 group-hover:scale-110 transition-transform duration-200" />
             </>
           ) : (
             <>
-              Next
+              {t("onboarding.steps.next")}
               <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform duration-200" />
             </>
           )}

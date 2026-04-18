@@ -40,9 +40,11 @@ import {
   Users,
 } from "lucide-react";
 import React from "react";
+import { useTranslation, Trans } from "react-i18next";
 import { Link } from "react-router-dom";
 
 const ThirdAdminDashboard: React.FC = () => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const cooperationIdFromRoute = useCooperationId();
   const {
@@ -111,19 +113,21 @@ const ThirdAdminDashboard: React.FC = () => {
         <header className="space-y-3">
           <div>
             <p className="text-xs font-medium uppercase tracking-[0.2em] text-primary/80">
-              {cooperationName || "Third admin"}
+              {cooperationName || t("thirdAdmin.header.defaultType")}
             </p>
             <h1 className="mt-1 text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-              Cooperative management snapshot
+              {t("thirdAdmin.header.title")}
             </h1>
           </div>
           <p className="max-w-2xl text-sm text-muted-foreground">
-            Welcome back{" "}
-            <span className="font-medium text-foreground">
-              {user?.name || user?.preferred_username || "Administrator"}
-            </span>
-            . Use these tools to keep your cooperative's assessments, users, and
-            action plans on track.
+            <Trans
+              i18nKey="thirdAdmin.header.welcome"
+              values={{ name: user?.name || user?.preferred_username || t("thirdAdmin.header.defaultUser") }}
+            >
+              Welcome back <span className="font-medium text-foreground">{"{{name}}"}</span>.
+              Use these tools to keep your cooperative's assessments, users, and
+              action plans on track.
+            </Trans>
           </p>
         </header>
 
@@ -132,32 +136,32 @@ const ThirdAdminDashboard: React.FC = () => {
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <Link to="/third-admin/manage-cooperation-users">
               <DashboardCard
-                title="Manage users"
-                description="Administer user accounts and permissions."
+                title={t("thirdAdmin.cards.manageUsers.title")}
+                description={t("thirdAdmin.cards.manageUsers.description")}
                 icon={Users}
                 variant="default"
               />
             </Link>
             <Link to="/third-admin/assessments">
               <DashboardCard
-                title="Answer assessment"
-                description="Fill out and manage cooperative assessments."
+                title={t("thirdAdmin.cards.answerAssessment.title")}
+                description={t("thirdAdmin.cards.answerAssessment.description")}
                 icon={FilePenLine}
                 variant="default"
               />
             </Link>
             <Link to="/third-admin/action-plans">
               <DashboardCard
-                title="View action plan"
-                description="Review and track strategic action plans."
+                title={t("thirdAdmin.cards.viewActionPlan.title")}
+                description={t("thirdAdmin.cards.viewActionPlan.description")}
                 icon={ClipboardList}
                 variant="default"
               />
             </Link>
             <Link to="/third-admin/submissions">
               <DashboardCard
-                title="View submissions"
-                description="Browse and manage all assessment submissions."
+                title={t("thirdAdmin.cards.viewSubmissions.title")}
+                description={t("thirdAdmin.cards.viewSubmissions.description")}
                 icon={Inbox}
                 variant="default"
               />
@@ -172,10 +176,10 @@ const ThirdAdminDashboard: React.FC = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Download className="h-5 w-5" />
-                <span>Export reports</span>
+                <span>{t("thirdAdmin.reports.export.title")}</span>
               </CardTitle>
               <CardDescription>
-                Generate and download assessment reports for your cooperative.
+                {t("thirdAdmin.reports.export.description")}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -189,15 +193,15 @@ const ThirdAdminDashboard: React.FC = () => {
               <div>
                 <CardTitle className="flex items-center gap-2">
                   <History className="h-5 w-5" />
-                  <span>Recent submissions</span>
+                  <span>{t("thirdAdmin.reports.recent.title")}</span>
                 </CardTitle>
                 <CardDescription>
-                  Latest assessments completed for your cooperative.
+                  {t("thirdAdmin.reports.recent.description")}
                 </CardDescription>
               </div>
               <Link to="/third-admin/submissions">
                 <Button variant="outline" size="sm">
-                  View all
+                  {t("thirdAdmin.reports.recent.viewAll")}
                 </Button>
               </Link>
             </CardHeader>
@@ -209,7 +213,7 @@ const ThirdAdminDashboard: React.FC = () => {
               )}
               {(error || coopFromPathError) && (
                 <div className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-                  <p className="font-medium">Unable to load submissions.</p>
+                  <p className="font-medium">{t("thirdAdmin.reports.recent.error")}</p>
                   <p className="mt-1 opacity-90">
                     {error?.message || (coopFromPathError as Error)?.message}
                   </p>
@@ -218,9 +222,8 @@ const ThirdAdminDashboard: React.FC = () => {
               {!isLoading &&
                 !error &&
                 (!submissions || submissions.length === 0) && (
-                  <div className="flex min-h-[120px] items-center justify-center text-sm text-muted-foreground">
-                    No submissions found yet. Results will appear here once
-                    assessments are completed.
+                  <div className="flex min-h-[120px] items-center justify-center text-sm text-muted-foreground text-center">
+                    {t("thirdAdmin.reports.recent.empty")}
                   </div>
                 )}
               {!isLoading &&
@@ -242,10 +245,9 @@ const ThirdAdminDashboard: React.FC = () => {
           <section aria-label="Latest assessment results">
             <Card>
               <CardHeader>
-                <CardTitle>Latest assessment results</CardTitle>
+                <CardTitle>{t("thirdAdmin.chart.title")}</CardTitle>
                 <CardDescription>
-                  Compare current and desired states for each dimension in the
-                  most recent submission.
+                  {t("thirdAdmin.chart.description")}
                 </CardDescription>
               </CardHeader>
               <CardContent>

@@ -1,16 +1,19 @@
 import { IDigitalisationLevel } from "@/types/digitalisationLevel";
 import { LevelCard } from "./LevelCard";
+import { useTranslation } from "react-i18next";
 
 interface LevelsListProps {
   levels: IDigitalisationLevel[];
 }
 
 export const LevelsList = ({ levels }: LevelsListProps) => {
+  const { t } = useTranslation();
+
   if (levels.length === 0) {
     return (
       <div className="p-6 text-center text-gray-500 dark:text-gray-400">
-        <p>No levels found for this state.</p>
-        <p>Click "Add Level" to get started.</p>
+        <p>{t("adminLevels.list.emptyCurrent")}</p>
+        <p>{t("common.emptyAction", { action: t("adminLevels.addBtn") })}</p>
       </div>
     );
   }

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -18,6 +19,7 @@ import { useOrganizationId } from "@/hooks/organizations/useOrganizationId";
  * Uses a dialog-based form with clear labels, helper copy and loading states.
  */
 export const AddCooperationForm: React.FC = () => {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -42,7 +44,9 @@ export const AddCooperationForm: React.FC = () => {
     setIsOpen(false);
   };
 
-  const triggerLabel = isLoading ? "Saving cooperative…" : "Add cooperative";
+  const triggerLabel = isLoading
+    ? t("secondAdminCooperations.add.loadingLabel")
+    : t("secondAdminCooperations.add.triggerLabel");
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -59,24 +63,23 @@ export const AddCooperationForm: React.FC = () => {
       <DialogContent className="sm:max-w-[480px]">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold">
-            Add new cooperative
+            {t("secondAdminCooperations.add.title")}
           </DialogTitle>
           <p className="text-sm text-muted-foreground">
-            Create a new cooperative profile to start tracking assessments and
-            action plans.
+            {t("secondAdminCooperations.add.description")}
           </p>
         </DialogHeader>
         <form
           onSubmit={handleSubmit}
           className="space-y-5 py-4"
-          aria-label="Create cooperative form"
+          aria-label={t("secondAdminCooperations.add.ariaLabel")}
         >
           <div className="space-y-2">
             <label
               htmlFor="cooperative-name"
               className="text-sm font-medium leading-none text-foreground"
             >
-              Name <span className="text-destructive">*</span>
+              {t("secondAdminCooperations.add.nameLabel")} <span className="text-destructive">*</span>
             </label>
             <Input
               id="cooperative-name"
@@ -87,7 +90,7 @@ export const AddCooperationForm: React.FC = () => {
               autoFocus
             />
             <p className="text-xs text-muted-foreground">
-              Use the official name that admins and members recognize.
+              {t("secondAdminCooperations.add.nameHelper")}
             </p>
           </div>
           <div className="space-y-2">
@@ -95,7 +98,7 @@ export const AddCooperationForm: React.FC = () => {
               htmlFor="cooperative-description"
               className="text-sm font-medium leading-none text-foreground"
             >
-              Description <span className="text-destructive">*</span>
+              {t("secondAdminCooperations.add.descriptionLabel")} <span className="text-destructive">*</span>
             </label>
             <Textarea
               id="cooperative-description"
@@ -106,8 +109,7 @@ export const AddCooperationForm: React.FC = () => {
               className="min-h-[110px]"
             />
             <p className="text-xs text-muted-foreground">
-              This helps other admins quickly understand what this cooperative
-              is about.
+              {t("secondAdminCooperations.add.descriptionHelper")}
             </p>
           </div>
           <div className="flex flex-col-reverse gap-3 pt-4 sm:flex-row sm:justify-end">
@@ -117,7 +119,7 @@ export const AddCooperationForm: React.FC = () => {
               className="w-full sm:w-auto"
               onClick={handleCancel}
             >
-              Cancel
+              {t("secondAdminCooperations.add.cancel")}
             </Button>
             <Button
               type="submit"
@@ -127,10 +129,10 @@ export const AddCooperationForm: React.FC = () => {
               {isLoading ? (
                 <>
                   <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                  Saving…
+                  {t("secondAdminCooperations.add.saving")}
                 </>
               ) : (
-                "Create cooperative"
+                t("secondAdminCooperations.add.submit")
               )}
             </Button>
           </div>

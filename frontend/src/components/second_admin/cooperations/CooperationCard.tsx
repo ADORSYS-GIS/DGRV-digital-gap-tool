@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Cooperation } from "@/types/cooperation";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Handshake } from "lucide-react";
@@ -30,6 +31,7 @@ export const CooperationCard: React.FC<CooperationCardProps> = ({
   onUpdate,
   onDelete,
 }) => {
+  const { t } = useTranslation();
   const initial = cooperation.name?.charAt(0)?.toUpperCase() ?? "?";
 
   return (
@@ -40,7 +42,7 @@ export const CooperationCard: React.FC<CooperationCardProps> = ({
       <CardContent className="flex flex-1 flex-col justify-between gap-6 p-6 pt-8">
         <div className="flex items-start gap-4">
           <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 text-primary ring-1 ring-primary/10 shadow-sm transition-all duration-300 group-hover/card:from-primary/20 group-hover/card:to-primary/10 group-hover/card:ring-primary/20">
-            <span className="sr-only">Cooperative</span>
+            <span className="sr-only">{t("secondAdminCooperations.card.srCooperative")}</span>
             <Handshake className="hidden h-5 w-5 sm:block" aria-hidden="true" />
             <span
               className="text-base font-semibold sm:hidden"
@@ -60,14 +62,14 @@ export const CooperationCard: React.FC<CooperationCardProps> = ({
               </CardTitle>
             </div>
             <p className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
-              Cooperative profile
+              {t("secondAdminCooperations.card.profileLabel")}
             </p>
           </div>
         </div>
 
         <p className="line-clamp-3 text-sm leading-relaxed text-muted-foreground">
           {cooperation.description ||
-            "No description provided for this cooperative yet."}
+            t("secondAdminCooperations.card.noDescription")}
         </p>
 
         <div className="mt-2 grid grid-cols-2 gap-3 border-t border-gray-100 pt-4">

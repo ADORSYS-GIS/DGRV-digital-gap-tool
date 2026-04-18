@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -20,6 +21,7 @@ interface DeleteCooperationDialogProps {
 export const DeleteCooperationDialog: React.FC<
   DeleteCooperationDialogProps
 > = ({ cooperationId, onDelete }) => {
+  const { t } = useTranslation();
   const handleDelete = () => {
     onDelete(cooperationId);
   };
@@ -32,20 +34,19 @@ export const DeleteCooperationDialog: React.FC<
           size="sm"
           className="w-full shadow-sm hover:shadow-md transition-all"
         >
-          <Trash2 className="mr-2 h-4 w-4" /> Delete
+          <Trash2 className="mr-2 h-4 w-4" /> {t("secondAdminCooperations.delete.triggerLabel")}
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+          <AlertDialogTitle>{t("secondAdminCooperations.delete.title")}</AlertDialogTitle>
           <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete the
-            cooperative and remove its data from our servers.
+            {t("secondAdminCooperations.delete.description")}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={handleDelete}>Continue</AlertDialogAction>
+          <AlertDialogCancel>{t("secondAdminCooperations.delete.cancel")}</AlertDialogCancel>
+          <AlertDialogAction onClick={handleDelete}>{t("secondAdminCooperations.delete.confirm")}</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

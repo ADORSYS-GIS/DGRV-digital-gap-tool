@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -24,6 +25,7 @@ interface EditCooperationUserFormProps {
 }
 
 export const EditCooperationUserForm = ({ user }: EditCooperationUserFormProps) => {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [selectedDimensionIds, setSelectedDimensionIds] = useState<string[]>(
     user.dimensionIds || [],
@@ -56,12 +58,12 @@ export const EditCooperationUserForm = ({ user }: EditCooperationUserFormProps) 
       await db.cooperationUsers.update(user.id, {
         dimensionIds: selectedDimensionIds,
       });
-      toast.success("User dimensions updated successfully.");
+      toast.success(t("secondAdminCooperationUsers.edit.toast.success"));
       queryClient.invalidateQueries({ queryKey: ["cooperationUsers", cooperationId] });
       setIsOpen(false);
     },
     onError: () => {
-      toast.error("Failed to update user dimensions.");
+      toast.error(t("secondAdminCooperationUsers.edit.toast.error"));
     },
   });
 
@@ -79,24 +81,24 @@ export const EditCooperationUserForm = ({ user }: EditCooperationUserFormProps) 
         className="border-blue-200 text-blue-700 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-800"
       >
         <Pencil className="mr-2 h-4 w-4" />
-        Edit
+        {t("secondAdminCooperationUsers.edit.triggerLabel")}
       </Button>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="sm:max-w-[480px]">
           <DialogHeader>
-            <DialogTitle>Edit user dimensions</DialogTitle>
+            <DialogTitle>{t("secondAdminCooperationUsers.edit.title")}</DialogTitle>
             <p className="text-sm text-muted-foreground">
-              Update the dimensions this user is allowed to answer.
+              {t("secondAdminCooperationUsers.edit.description")}
             </p>
           </DialogHeader>
 
           <div className="space-y-2 py-4">
-            <Label>Dimensions this user can answer</Label>
+            <Label>{t("secondAdminCooperationUsers.add.form.dimensionsLabel")}</Label>
             <div className="mt-2 grid gap-2 max-h-56 overflow-y-auto rounded-md border bg-muted/40 p-3">
               {filteredDimensions.length === 0 && (
                 <p className="text-xs text-muted-foreground">
-                  No dimensions available for this organization.
+                  {t("secondAdminCooperationUsers.add.form.noDimensions")}
                 </p>
               )}
               {filteredDimensions.map((dimension) => (
@@ -119,10 +121,12 @@ export const EditCooperationUserForm = ({ user }: EditCooperationUserFormProps) 
 
           <div className="flex justify-end gap-3">
             <Button variant="outline" onClick={() => setIsOpen(false)}>
-              Cancel
+              {t("secondAdminCooperationUsers.add.form.cancel")}
             </Button>
             <Button onClick={() => saveUser()} disabled={isPending || !userId}>
-              {isPending ? "Saving…" : "Save changes"}
+              {isPending
+                ? t("secondAdminCooperationUsers.edit.saving")
+                : t("secondAdminCooperationUsers.form.submit", { defaultValue: "Save changes" })}
             </Button>
           </div>
         </DialogContent>

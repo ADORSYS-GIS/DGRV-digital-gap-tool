@@ -7,6 +7,7 @@ import { ArrowLeft, Download, Loader2 } from "lucide-react";
 import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 const ExportReportPage: React.FC = () => {
   const { organizationId, submissionId } = useParams<{
@@ -15,6 +16,7 @@ const ExportReportPage: React.FC = () => {
   }>();
   const navigate = useNavigate();
   const generateMutation = useGenerateAndExportReport();
+  const { t } = useTranslation();
 
   const { data: submission, isLoading, error } = useSubmission(submissionId || "");
 
@@ -22,7 +24,7 @@ const ExportReportPage: React.FC = () => {
     if (submissionId) {
       generateMutation.mutate(submissionId);
     } else {
-      toast.error("Submission ID is missing. Cannot export report.");
+      toast.error(t("exportReport.missingId"));
     }
   };
 
@@ -37,13 +39,13 @@ const ExportReportPage: React.FC = () => {
   if (error) {
     return (
       <div className="text-center text-red-500">
-        Error loading submission: {error.message}
+        {t("exportReport.loadingError", { message: error.message })}
       </div>
     );
   }
 
   if (!submission) {
-    return <div className="text-center text-gray-500">Submission not found.</div>;
+    return <div className="text-center text-gray-500">{t("exportReport.notFound")}</div>;
   }
 
   return (
@@ -57,14 +59,14 @@ const ExportReportPage: React.FC = () => {
               onClick={() => navigate(`/admin/reports/${organizationId}`)}
               className="text-gray-500 hover:text-primary hover:bg-primary/5 -ml-2"
             >
-              <ArrowLeft className="mr-1 h-4 w-4" /> Back to Submissions
+              <ArrowLeft className="mr-1 h-4 w-4" /> {t("exportReport.back")}
             </Button>
           </div>
           <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-gray-900">
-            Export Report
+            {t("exportReport.title")}
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl">
-            Generates a fresh PDF with the latest assessment data and action plan.
+            {t("exportReport.subtitle")}
           </p>
         </div>
         <div className="flex-shrink-0">
@@ -76,12 +78,12 @@ const ExportReportPage: React.FC = () => {
             {generateMutation.isPending ? (
               <>
                 <Loader2 className="h-5 w-5 animate-spin" />
-                <span>Generating…</span>
+                <span>{t("exportReport.generating")}</span>
               </>
             ) : (
               <>
                 <Download className="h-5 w-5" />
-                <span>Generate & Export PDF</span>
+                <span>{t("exportReport.generateBtn")}</span>
               </>
             )}
           </Button>
@@ -90,7 +92,7 @@ const ExportReportPage: React.FC = () => {
 
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
         <div className="p-6 border-b border-gray-100 bg-gray-50/50">
-          <h2 className="text-xl font-semibold text-gray-900">Submission Details</h2>
+          <h2 className="text-xl font-semibold text-gray-900">{t("exportReport.details")}</h2>
         </div>
         <div className="p-6">
           <SubmissionDetail summary={submission} />

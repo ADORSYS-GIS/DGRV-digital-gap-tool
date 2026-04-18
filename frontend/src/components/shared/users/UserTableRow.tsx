@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { TableRow, TableCell } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -23,17 +24,18 @@ interface UserTableRowProps {
 }
 
 export const UserTableRow: React.FC<UserTableRowProps> = ({ user }) => {
+  const { t } = useTranslation();
   const { orgId } = useParams<{ orgId: string }>();
   const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const deleteUserMutation = useDeleteUser(orgId!);
 
   const getStatusInfo = () => {
     if (user.syncStatus === "pending" || user.emailVerified === false) {
-      return { label: "Pending", variant: "secondary" as const };
+      return { label: t("sharedUsers.table.statusLabel.pending"), variant: "secondary" as const };
     }
     return user.enabled
-      ? { label: "Active", variant: "success" as const }
-      : { label: "Inactive", variant: "destructive" as const };
+      ? { label: t("sharedUsers.table.statusLabel.active"), variant: "success" as const }
+      : { label: t("sharedUsers.table.statusLabel.inactive"), variant: "destructive" as const };
   };
 
   const status = getStatusInfo();
@@ -53,7 +55,7 @@ export const UserTableRow: React.FC<UserTableRowProps> = ({ user }) => {
       <TableCell className="font-medium">{user.email}</TableCell>
       <TableCell>{user.firstName}</TableCell>
       <TableCell>{user.lastName}</TableCell>
-      <TableCell>Org Admin</TableCell>
+      <TableCell>{t("sharedUsers.table.roles.orgAdmin")}</TableCell>
       <TableCell>
         <Badge variant={status.variant}>
           {status.label}
@@ -71,16 +73,15 @@ export const UserTableRow: React.FC<UserTableRowProps> = ({ user }) => {
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+              <AlertDialogTitle>{t("sharedUsers.delete.title")}</AlertDialogTitle>
               <AlertDialogDescription>
-                This action cannot be undone. This will permanently delete the
-                user account.
+                {t("sharedUsers.delete.description")}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
               <AlertDialogAction onClick={handleDelete}>
-                {deleteUserMutation.isPending ? "Deleting..." : "Delete"}
+                {deleteUserMutation.isPending ? t("sharedUsers.delete.deleting") : t("sharedUsers.delete.confirm")}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

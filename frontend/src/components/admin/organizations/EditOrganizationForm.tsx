@@ -14,10 +14,15 @@ import { Button } from "@/components/ui/button";
 import { useUpdateOrganization } from "@/hooks/organizations/useUpdateOrganization";
 import { Organization } from "@/types/organization";
 
-const formSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters."),
-  domain: z.string().min(2, "Domain must be at least 2 characters."),
-});
+import { useTranslation } from "react-i18next";
+
+const formSchema = (t: any) =>
+  z.object({
+    name: z.string().min(2, t("adminOrgs.validation.nameMin")),
+    domain: z.string().min(2, t("adminOrgs.validation.domainMin")),
+  });
+
+type FormValues = z.infer<ReturnType<typeof formSchema>>;
 
 interface EditOrganizationFormProps {
   organization: Organization;
@@ -28,8 +33,9 @@ export const EditOrganizationForm = ({
   organization,
   onSuccess,
 }: EditOrganizationFormProps) => {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const { t } = useTranslation();
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema(t)),
     defaultValues: {
       name: organization.name,
       domain: organization.domain,
@@ -38,7 +44,7 @@ export const EditOrganizationForm = ({
 
   const updateOrganization = useUpdateOrganization();
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
+  const onSubmit = (values: FormValues) => {
     updateOrganization.mutate(
       { ...organization, ...values },
       {
@@ -55,9 +61,9 @@ export const EditOrganizationForm = ({
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Organization Name</FormLabel>
+              <FormLabel>{t("adminOrgs.form.name")}</FormLabel>
               <FormControl>
-                <Input placeholder="Enter organization name" {...field} />
+                <Input placeholder={t("adminOrgs.form.namePlaceholder")} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -68,16 +74,16 @@ export const EditOrganizationForm = ({
           name="domain"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Organization Domain</FormLabel>
+              <FormLabel>{t("adminOrgs.form.domain")}</FormLabel>
               <FormControl>
-                <Input placeholder="Enter organization domain" {...field} />
+                <Input placeholder={t("adminOrgs.form.domainPlaceholder")} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
         <Button type="submit" disabled={updateOrganization.isPending}>
-          {updateOrganization.isPending ? "Saving..." : "Save Changes"}
+          {updateOrganization.isPending ? t("adminOrgs.form.updating") : t("common.save")}
         </Button>
       </form>
     </Form>

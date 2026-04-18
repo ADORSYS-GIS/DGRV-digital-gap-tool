@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Cooperation } from "@/types/cooperation";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Handshake } from "lucide-react";
@@ -13,6 +14,7 @@ interface SimpleCooperationCardProps {
 export const SimpleCooperationCard = ({
   cooperation,
 }: SimpleCooperationCardProps) => {
+  const { t } = useTranslation();
   const initial = cooperation.name?.charAt(0)?.toUpperCase() ?? "?";
 
   return (
@@ -21,7 +23,7 @@ export const SimpleCooperationCard = ({
       <CardContent className="flex flex-1 flex-col justify-between gap-4 p-5 pt-7">
         <div className="flex items-start gap-4">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary ring-1 ring-primary/15">
-            <span className="sr-only">Cooperation</span>
+            <span className="sr-only">{t("secondAdminCooperations.simpleCard.srCooperation")}</span>
             <Handshake className="hidden h-5 w-5 sm:block" aria-hidden="true" />
             <span
               className="text-sm font-semibold sm:hidden"
@@ -39,7 +41,7 @@ export const SimpleCooperationCard = ({
             </CardTitle>
             <p className="line-clamp-2 text-xs text-muted-foreground">
               {cooperation.description ||
-                "No description provided for this cooperative yet."}
+                t("secondAdminCooperations.card.noDescription")}
             </p>
           </div>
         </div>

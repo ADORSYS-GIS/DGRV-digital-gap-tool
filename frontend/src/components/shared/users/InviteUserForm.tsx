@@ -1,3 +1,5 @@
+import React from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -25,17 +27,6 @@ import { z } from "zod";
 import { Mail, User, Shield, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 
-const inviteUserSchema = z.object({
-  email: z.string().email({ message: "Invalid email address" }),
-  firstName: z.string().min(1, { message: "First name is required" }),
-  lastName: z.string().min(1, { message: "Last name is required" }),
-  roles: z
-    .array(z.string())
-    .min(1, { message: "At least one role is required" }),
-});
-
-type InviteUserFormValues = z.infer<typeof inviteUserSchema>;
-
 interface InviteUserFormProps {
   isOpen: boolean;
   onClose: () => void;
@@ -47,6 +38,19 @@ export const InviteUserForm: React.FC<InviteUserFormProps> = ({
   onClose,
   orgId,
 }) => {
+  const { t } = useTranslation();
+
+  const inviteUserSchema = z.object({
+    email: z.string().email({ message: t("sharedUsers.invite.validation.invalidEmail") }),
+    firstName: z.string().min(1, { message: t("sharedUsers.invite.validation.firstNameRequired") }),
+    lastName: z.string().min(1, { message: t("sharedUsers.invite.validation.lastNameRequired") }),
+    roles: z
+      .array(z.string())
+      .min(1, { message: t("sharedUsers.invite.validation.roleRequired") }),
+  });
+
+  type InviteUserFormValues = z.infer<typeof inviteUserSchema>;
+
   const { isAdmin, isOrgAdmin, isCoopAdmin } = useCurrentUser();
 
   const getRoleToAssign = () => {
@@ -77,12 +81,12 @@ export const InviteUserForm: React.FC<InviteUserFormProps> = ({
     };
     inviteUserMutation.mutate(invitation, {
       onSuccess: () => {
-        toast.success("Invitation sent successfully");
+        toast.success(t("sharedUsers.invite.toast.success"));
         onClose();
         form.reset();
       },
       onError: (error) => {
-        toast.error("Failed to send invitation", {
+        toast.error(t("sharedUsers.invite.toast.error"), {
           description: error.message,
         });
       },
@@ -99,11 +103,11 @@ export const InviteUserForm: React.FC<InviteUserFormProps> = ({
                 <UserPlus className="h-5 w-5" />
               </div>
               <DialogTitle className="text-2xl font-bold text-gray-900">
-                Invite User
+                {t("sharedUsers.invite.title")}
               </DialogTitle>
             </div>
             <p className="text-sm text-muted-foreground pl-12">
-              Send an invitation to add a new user to the organization.
+              {t("sharedUsers.invite.description")}
             </p>
           </DialogHeader>
         </div>
@@ -118,13 +122,13 @@ export const InviteUserForm: React.FC<InviteUserFormProps> = ({
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-gray-700">Email</FormLabel>
+                    <FormLabel className="text-gray-700">{t("sharedUsers.invite.form.email")}</FormLabel>
                     <FormControl>
                       <div className="relative">
                         <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                         <Input
                           type="email"
-                          placeholder="user@example.com"
+                          placeholder={t("sharedUsers.invite.form.emailPlaceholder")}
                           className="pl-10 h-11 rounded-lg border-gray-200 focus:border-primary focus:ring-primary/20 transition-all"
                           {...field}
                         />
@@ -141,13 +145,13 @@ export const InviteUserForm: React.FC<InviteUserFormProps> = ({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-gray-700">
-                        First Name
+                        {t("sharedUsers.invite.form.firstName")}
                       </FormLabel>
                       <FormControl>
                         <div className="relative">
                           <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                           <Input
-                            placeholder="John"
+                            placeholder={t("sharedUsers.invite.form.firstNamePlaceholder")}
                             className="pl-10 h-11 rounded-lg border-gray-200 focus:border-primary focus:ring-primary/20 transition-all"
                             {...field}
                           />
@@ -162,12 +166,12 @@ export const InviteUserForm: React.FC<InviteUserFormProps> = ({
                   name="lastName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-gray-700">Last Name</FormLabel>
+                      <FormLabel className="text-gray-700">{t("sharedUsers.invite.form.lastName")}</FormLabel>
                       <FormControl>
                         <div className="relative">
                           <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                           <Input
-                            placeholder="Doe"
+                            placeholder={t("sharedUsers.invite.form.lastNamePlaceholder")}
                             className="pl-10 h-11 rounded-lg border-gray-200 focus:border-primary focus:ring-primary/20 transition-all"
                             {...field}
                           />
@@ -183,7 +187,7 @@ export const InviteUserForm: React.FC<InviteUserFormProps> = ({
                 name="roles"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-gray-700">Role</FormLabel>
+                    <FormLabel className="text-gray-700">{t("sharedUsers.invite.form.role")}</FormLabel>
                     <FormControl>
                       <div className="relative">
                         <Shield className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
@@ -208,10 +212,10 @@ export const InviteUserForm: React.FC<InviteUserFormProps> = ({
                 >
                   {inviteUserMutation.isPending ? (
                     <span className="flex items-center gap-2">
-                      <span className="animate-spin">⏳</span> Inviting...
+                      <span className="animate-spin">⏳</span> {t("sharedUsers.invite.form.inviting")}
                     </span>
                   ) : (
-                    "Send Invitation"
+                    t("sharedUsers.invite.form.submit")
                   )}
                 </Button>
               </div>

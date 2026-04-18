@@ -4,21 +4,23 @@ import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { SimpleOrganizationCard } from "@/components/shared/organizations/SimpleOrganizationCard";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { Building2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export default function ManageUsers() {
   const { data: organizations, isLoading, error } = useOrganizations();
   const location = useLocation();
   const basePath = location.pathname.split("/").slice(0, 2).join("/");
+  const { t } = useTranslation();
 
   return (
     <div className="space-y-8 max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
       <div className="mb-8 rounded-2xl bg-gradient-to-r from-primary/5 via-primary/10 to-transparent p-6 sm:p-10 border border-primary/10">
         <div className="space-y-2">
           <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-gray-900">
-            Manage Users
+            {t("sharedPages.manageUsers.title")}
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl">
-            Select an organization to view and manage its users.
+            {t("sharedPages.manageUsers.subtitle")}
           </p>
         </div>
       </div>
@@ -26,7 +28,7 @@ export default function ManageUsers() {
       {isLoading && <LoadingSpinner />}
       {error && (
         <div className="p-4 rounded-lg bg-red-50 text-red-600 border border-red-200">
-          An error occurred: {error.message}
+          {t("sharedPages.manageUsers.error", { message: error.message })}
         </div>
       )}
       {!isLoading && !error && (
@@ -42,8 +44,8 @@ export default function ManageUsers() {
           ) : (
             <EmptyState
               icon={Building2}
-              title="No organizations found"
-              description="There are no organizations available to manage users for."
+              title={t("sharedPages.manageUsers.emptyTitle")}
+              description={t("sharedPages.manageUsers.emptyDesc")}
             />
           )}
         </>

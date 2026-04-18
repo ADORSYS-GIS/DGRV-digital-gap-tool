@@ -21,6 +21,7 @@ import { useDeleteDimension } from "@/hooks/dimensions/useDeleteDimension";
 import { IDimension } from "@/types/dimension";
 import { Layers, Trash2 } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { SelectStateDialog } from "../levels/SelectStateDialog";
 import { EditDimensionForm } from "./EditDimensionForm";
@@ -31,6 +32,7 @@ interface DimensionCardProps {
 
 export const DimensionCard = ({ dimension }: DimensionCardProps) => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [isSelectStateDialogOpen, setSelectStateDialogOpen] = useState(false);
   const { mutate: deleteDimension, isPending: isDeleting } =
     useDeleteDimension();
@@ -74,7 +76,7 @@ export const DimensionCard = ({ dimension }: DimensionCardProps) => {
             onClick={handleManageLevels}
             className="w-full justify-center bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white shadow-sm hover:shadow transition-all duration-300 border-0"
           >
-            Manage Levels
+            {t("adminDimensions.card.manageLevels")}
           </Button>
           <div className="grid grid-cols-2 gap-3 w-full">
             <EditDimensionForm dimension={dimension} />
@@ -84,26 +86,28 @@ export const DimensionCard = ({ dimension }: DimensionCardProps) => {
                   variant="outline"
                   className="w-full justify-center border-red-200 text-red-700 hover:bg-red-50 hover:text-red-800 hover:border-red-300 transition-colors"
                 >
-                  <Trash2 className="mr-2 h-4 w-4" /> Delete
+                  <Trash2 className="mr-2 h-4 w-4" /> {t("adminDimensions.card.delete")}
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                  <AlertDialogTitle>
+                    {t("adminDimensions.delete.title")}
+                  </AlertDialogTitle>
                   <AlertDialogDescription>
-                    This action cannot be undone. This will permanently delete
-                    the dimension and remove its associated data from our
-                    servers.
+                    {t("adminDimensions.delete.description")}
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
                   <AlertDialogAction
                     onClick={handleDelete}
                     disabled={isDeleting}
                     className="bg-red-600 hover:bg-red-700"
                   >
-                    {isDeleting ? "Deleting..." : "Continue"}
+                    {isDeleting
+                      ? t("adminDimensions.delete.deleting")
+                      : t("adminDimensions.delete.confirm")}
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>

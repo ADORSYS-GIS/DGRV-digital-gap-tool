@@ -34,16 +34,9 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { AlertTriangle, Layers, Activity, FileText } from "lucide-react";
 import * as z from "zod";
-
-const formInputSchema = z.object({
-  dimensionId: z.string().min(1, "Dimension is required"),
-  gap_severity: z.nativeEnum(Gap),
-  description: z.string().min(1, "Description is required"),
-});
-
-type AddDigitalisationGapFormValues = z.infer<typeof formInputSchema>;
 
 interface AddDigitalisationGapFormProps {
   isOpen: boolean;
@@ -56,7 +49,17 @@ export function AddDigitalisationGapForm({
   onClose,
   digitalisationGap,
 }: AddDigitalisationGapFormProps) {
+  const { t } = useTranslation();
   const { data: digitalisationGaps } = useDigitalisationGaps();
+
+  const formInputSchema = z.object({
+    dimensionId: z.string().min(1, t("adminGaps.validation.dimensionRequired")),
+    gap_severity: z.nativeEnum(Gap),
+    description: z.string().min(1, t("adminGaps.validation.descriptionRequired")),
+  });
+
+  type AddDigitalisationGapFormValues = z.infer<typeof formInputSchema>;
+
   const form = useForm<AddDigitalisationGapFormValues>({
     resolver: zodResolver(
       formInputSchema.refine(
@@ -72,8 +75,7 @@ export function AddDigitalisationGapForm({
           return !existingGap;
         },
         {
-          message:
-            "A gap with this severity already exists for this dimension.",
+          message: t("adminGaps.validation.duplicateGap"),
           path: ["gap_severity"],
         },
       ),
@@ -95,7 +97,7 @@ export function AddDigitalisationGapForm({
       form.reset({
         dimensionId: "",
         gap_severity: Gap.MEDIUM,
-        scope: "",
+        description: "",
       });
     } else if (digitalisationGap) {
       // Populate form for editing
@@ -139,13 +141,15 @@ export function AddDigitalisationGapForm({
                 <AlertTriangle className="h-5 w-5" />
               </div>
               <DialogTitle className="text-2xl font-bold text-gray-900">
-                {digitalisationGap ? "Edit" : "Add"} Digitalisation Gap
+                {digitalisationGap
+                  ? t("adminGaps.form.titleEdit")
+                  : t("adminGaps.form.titleAdd")}
               </DialogTitle>
             </div>
             <p className="text-sm text-muted-foreground pl-12">
               {digitalisationGap
-                ? "Update the details of this digitalisation gap."
-                : "Define a new potential gap for assessment."}
+                ? t("adminGaps.form.descEdit")
+                : t("adminGaps.form.descAdd")}
             </p>
           </DialogHeader>
         </div>
@@ -157,7 +161,9 @@ export function AddDigitalisationGapForm({
                 name="dimensionId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-gray-700">Dimension</FormLabel>
+                    <FormLabel className="text-gray-700">
+                      {t("adminGaps.form.dimension")}
+                    </FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
@@ -166,7 +172,9 @@ export function AddDigitalisationGapForm({
                         <div className="relative">
                           <Layers className="absolute left-3 top-3 h-4 w-4 text-gray-400 z-10" />
                           <SelectTrigger className="pl-10 h-11 rounded-lg border-gray-200 focus:border-primary focus:ring-primary/20 transition-all">
-                            <SelectValue placeholder="Select a dimension" />
+                            <SelectValue
+                              placeholder={t("adminGaps.form.selectDimension")}
+                            />
                           </SelectTrigger>
                         </div>
                       </FormControl>
@@ -188,7 +196,7 @@ export function AddDigitalisationGapForm({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-gray-700">
-                      Gap Severity
+                      {t("adminGaps.form.severity")}
                     </FormLabel>
                     <Select
                       onValueChange={field.onChange}
@@ -198,7 +206,9 @@ export function AddDigitalisationGapForm({
                         <div className="relative">
                           <Activity className="absolute left-3 top-3 h-4 w-4 text-gray-400 z-10" />
                           <SelectTrigger className="pl-10 h-11 rounded-lg border-gray-200 focus:border-primary focus:ring-primary/20 transition-all">
-                            <SelectValue placeholder="Select a gap severity" />
+                            <SelectValue
+                              placeholder={t("adminGaps.form.selectSeverity")}
+                            />
                           </SelectTrigger>
                         </div>
                       </FormControl>
@@ -219,12 +229,14 @@ export function AddDigitalisationGapForm({
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-gray-700">Description</FormLabel>
+                    <FormLabel className="text-gray-700">
+                      {t("adminGaps.form.description")}
+                    </FormLabel>
                     <FormControl>
                       <div className="relative">
                         <FileText className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                         <Textarea
-                          placeholder="Describe the digital gap..."
+                          placeholder={t("adminGaps.form.descPlaceholder")}
                           className="pl-10 min-h-[100px] rounded-lg border-gray-200 focus:border-primary focus:ring-primary/20 transition-all resize-none"
                           {...field}
                         />
@@ -241,7 +253,7 @@ export function AddDigitalisationGapForm({
                   onClick={onClose}
                   className="flex-1 h-11 rounded-lg border-gray-200 hover:bg-gray-50 text-gray-700"
                 >
-                  Cancel
+                  {t("common.cancel")}
                 </Button>
                 <Button
                   type="submit"
@@ -250,12 +262,13 @@ export function AddDigitalisationGapForm({
                 >
                   {addMutation.isPending || updateMutation.isPending ? (
                     <span className="flex items-center gap-2">
-                      <span className="animate-spin">⏳</span> Saving...
+                      <span className="animate-spin">⏳</span>{" "}
+                      {t("adminGaps.form.saving")}
                     </span>
                   ) : digitalisationGap ? (
-                    "Update Gap"
+                    t("adminGaps.updateBtn")
                   ) : (
-                    "Create Gap"
+                    t("adminGaps.createBtn")
                   )}
                 </Button>
               </div>

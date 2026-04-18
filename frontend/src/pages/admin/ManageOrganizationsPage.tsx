@@ -7,8 +7,10 @@ import { AssignDimensionDialog } from "@/components/admin/organizations/AssignDi
 import { Organization } from "@/types/organization";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { Building2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const ManageOrganizationsPage: React.FC = () => {
+  const { t } = useTranslation();
   const { data: organizations, isLoading, error } = useOrganizations();
   const [isAssignDimensionDialogOpen, setIsAssignDimensionDialogOpen] =
     useState(false);
@@ -30,10 +32,10 @@ const ManageOrganizationsPage: React.FC = () => {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 rounded-2xl bg-gradient-to-r from-primary/5 via-primary/10 to-transparent p-6 sm:p-10 border border-primary/10">
         <div className="space-y-2">
           <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-gray-900">
-            Manage Organizations
+            {t("adminManageOrgs.title")}
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl">
-            Add and manage cooperatives in the system.
+            {t("adminManageOrgs.subtitle")}
           </p>
         </div>
         <div className="flex-shrink-0">
@@ -44,7 +46,7 @@ const ManageOrganizationsPage: React.FC = () => {
       {isLoading && <LoadingSpinner />}
       {error && (
         <div className="p-4 rounded-lg bg-red-50 text-red-600 border border-red-200">
-          Error loading organizations: {error.message}
+          {t("adminManageOrgs.error", { message: error.message })}
         </div>
       )}
       {!isLoading && !error && (
@@ -57,8 +59,8 @@ const ManageOrganizationsPage: React.FC = () => {
           ) : (
             <EmptyState
               icon={Building2}
-              title="No organizations found"
-              description="Get started by adding your first cooperative to the system."
+              title={t("adminManageOrgs.noOrgs")}
+              description={t("adminManageOrgs.noOrgsSubtitle")}
             />
           )}
         </>

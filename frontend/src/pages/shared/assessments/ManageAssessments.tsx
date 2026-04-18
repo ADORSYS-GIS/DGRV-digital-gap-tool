@@ -16,12 +16,14 @@ import { useOrganizationDimensions } from "@/hooks/organization_dimensions/useOr
 import { useCooperations } from "@/hooks/cooperations/useCooperations";
 import { toast } from "sonner";
 import { SyncStatus } from "@/types/sync";
+import { useTranslation } from "react-i18next";
 
 /**
  * Unified management screen for draft assessments.
  * Org admins see assessments across cooperations; coop users see only their own.
  */
 export default function ManageAssessments() {
+  const { t } = useTranslation();
   const [isAddDialogOpen, setAddDialogOpen] = useState(false);
   const [isNoDimensionsModalOpen, setNoDimensionsModalOpen] = useState(false);
   const { user } = useAuth();
@@ -64,9 +66,8 @@ export default function ManageAssessments() {
     }
 
     if (!cooperations || cooperations.length === 0) {
-      toast.error("No Cooperations Available", {
-        description:
-          "Please create a cooperation before creating an assessment.",
+      toast.error(t("sharedAssessments.manage.noCooperations"), {
+        description: t("sharedAssessments.manage.createCooperationFirst"),
       });
       return;
     }
@@ -149,11 +150,10 @@ export default function ManageAssessments() {
         <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-              Manage assessments
+              {t("sharedAssessments.manage.title")}
             </h1>
             <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-              Create and track draft assessments across your cooperatives before
-              they are sent out for completion.
+              {t("sharedAssessments.manage.subtitle")}
             </p>
           </div>
           {isOrgAdmin && (
@@ -163,7 +163,7 @@ export default function ManageAssessments() {
               className="gap-2 rounded-full shadow-sm transition-all hover:shadow-md"
             >
               <PlusCircle className="h-4 w-4" aria-hidden="true" />
-              <span>Create assessment</span>
+              <span>{t("sharedAssessments.manage.createBtn")}</span>
             </Button>
           )}
         </header>
@@ -176,17 +176,16 @@ export default function ManageAssessments() {
 
         {error && (
           <div className="rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-            <p className="font-medium">Unable to load draft assessments.</p>
+            <p className="font-medium">{t("sharedAssessments.manage.unableToLoadError")}</p>
             <p className="mt-1 opacity-90">{error.message}</p>
           </div>
         )}
 
         {!isLoading && !error && isCoopUser && !effectiveCooperationId && (
           <div className="rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-            <p className="font-medium">No cooperative determined.</p>
+            <p className="font-medium">{t("sharedAssessments.manage.noCooperativeDetermined")}</p>
             <p className="mt-1 opacity-90">
-              We could not resolve your cooperative from the route or token.
-              Please contact your administrator.
+              {t("sharedAssessments.manage.resolveCooperativeError")}
             </p>
           </div>
         )}
@@ -194,11 +193,10 @@ export default function ManageAssessments() {
         {!isLoading && !error && assessments && assessments.length === 0 && (
           <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-muted-foreground/30 bg-muted/40 px-6 py-12 text-center">
             <h2 className="text-lg font-semibold text-foreground">
-              No draft assessments yet
+              {t("sharedAssessments.manage.noDraftsTitle")}
             </h2>
             <p className="mt-2 max-w-md text-sm text-muted-foreground">
-              Draft assessments will appear here once you start planning new
-              evaluations for your cooperatives.
+              {t("sharedAssessments.manage.noDraftsSubtitle")}
             </p>
             {isOrgAdmin && (
               <div className="mt-4">
@@ -208,7 +206,7 @@ export default function ManageAssessments() {
                   className="gap-2"
                 >
                   <PlusCircle className="h-4 w-4" aria-hidden="true" />
-                  <span>Create assessment</span>
+                  <span>{t("sharedAssessments.manage.createBtn")}</span>
                 </Button>
               </div>
             )}

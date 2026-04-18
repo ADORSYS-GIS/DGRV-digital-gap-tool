@@ -14,8 +14,10 @@ import {
 } from "@/components/ui/card";
 import { LevelsList } from "@/components/admin/levels/LevelsList";
 import { LevelType } from "@/types/digitalisationLevel";
+import { useTranslation } from "react-i18next";
 
 export default function ManageDigitalisationLevels() {
+  const { t } = useTranslation();
   const { dimensionId } = useParams<{ dimensionId: string }>();
   const [searchParams] = useSearchParams();
   const levelType = searchParams.get("levelType") as LevelType | null;
@@ -37,13 +39,13 @@ export default function ManageDigitalisationLevels() {
   if (!levelType) {
     return (
       <div className="container mx-auto p-4 md:p-6 lg:p-8">
-        <h1 className="text-2xl font-bold">Please select a level type</h1>
+        <h1 className="text-2xl font-bold">{t("adminManageDigitalLevels.selectType")}</h1>
       </div>
     );
   }
 
   const title =
-    levelType === "current" ? "Manage Current State" : "Manage Desired State";
+    levelType === "current" ? t("adminManageDigitalLevels.titleCurrent") : t("adminManageDigitalLevels.titleDesired");
 
   return (
     <div className="container mx-auto p-4 md:p-6 lg:p-8">
@@ -56,10 +58,10 @@ export default function ManageDigitalisationLevels() {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="text-xl font-bold text-gray-800 dark:text-gray-200">
-                Digitalisation Levels
+                {t("adminManageDigitalLevels.cardTitle")}
               </CardTitle>
               <CardDescription className="text-gray-600 dark:text-gray-400">
-                Manage the digitalisation levels for the {levelType} state.
+                {t("adminManageDigitalLevels.cardSubtitle", { type: levelType })}
               </CardDescription>
             </div>
             <Button
@@ -67,7 +69,7 @@ export default function ManageDigitalisationLevels() {
               className="bg-blue-500 text-white hover:bg-blue-600 transition-colors duration-300"
             >
               <PlusCircle className="mr-2 h-4 w-4" />
-              Add Level
+              {t("adminManageDigitalLevels.addBtn")}
             </Button>
           </div>
         </CardHeader>

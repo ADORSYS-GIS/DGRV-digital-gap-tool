@@ -12,7 +12,10 @@ import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
  * Page component for managing recommendations in the admin panel.
  * Displays a list of recommendations with options to add, edit, and delete them.
  */
+import { useTranslation } from "react-i18next";
+
 export default function ManageRecommendations() {
+  const { t } = useTranslation();
   const [isAddDialogOpen, setAddDialogOpen] = useState(false);
   const {
     data: recommendationsData,
@@ -36,10 +39,10 @@ export default function ManageRecommendations() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl bg-gradient-to-r from-primary/5 via-primary/10 to-transparent p-6 sm:p-10 border border-primary/10">
         <div className="space-y-2">
           <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-gray-900">
-            Manage Recommendations
+            {t("adminManageRecs.title")}
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl">
-            Add, edit, or remove recommendations for the digital gap assessment.
+            {t("adminManageRecs.subtitle")}
           </p>
         </div>
         <div className="flex items-center space-x-2">
@@ -48,7 +51,7 @@ export default function ManageRecommendations() {
             className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white shadow-md hover:shadow-lg transition-all duration-300 h-11 px-6 rounded-lg"
           >
             <PlusCircle className="mr-2 h-5 w-5" />
-            Add Recommendation
+            {t("adminManageRecs.addBtn")}
           </Button>
         </div>
       </div>
@@ -79,7 +82,7 @@ export default function ManageRecommendations() {
             </div>
             <div className="ml-3">
               <h3 className="text-sm font-medium text-red-800">
-                Error loading recommendations
+                {t("adminManageRecs.errorLoading")}
               </h3>
               <div className="mt-2 text-sm text-red-700">
                 <p>{error.message}</p>
@@ -91,7 +94,7 @@ export default function ManageRecommendations() {
                   onClick={handleRetry}
                   className="bg-white text-red-700 hover:bg-red-50"
                 >
-                  Retry
+                  {t("adminManageRecs.retryBtn")}
                 </Button>
               </div>
             </div>
@@ -102,13 +105,13 @@ export default function ManageRecommendations() {
       {/* Empty state */}
       {!isLoading && !error && recommendations.length === 0 && (
         <div className="text-center py-12 border rounded-lg">
-          <h3 className="text-lg font-medium mb-2">No recommendations found</h3>
+          <h3 className="text-lg font-medium mb-2">{t("adminManageRecs.noRecs")}</h3>
           <p className="text-sm text-muted-foreground mb-4">
-            Get started by adding a new recommendation
+            {t("adminManageRecs.noRecsSubtitle")}
           </p>
           <Button onClick={() => setAddDialogOpen(true)}>
             <PlusCircle className="mr-2 h-4 w-4" />
-            Add Recommendation
+            {t("adminManageRecs.addBtn")}
           </Button>
         </div>
       )}

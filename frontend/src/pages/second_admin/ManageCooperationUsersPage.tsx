@@ -5,11 +5,13 @@ import { useCooperationUsers } from "@/hooks/cooperationUsers/useCooperationUser
 import { useAuth } from "@/context/AuthContext";
 import { ROLES } from "@/constants/roles";
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 
 /**
  * Detail page for managing the users of a specific cooperation.
  */
 export default function ManageCooperationUsersPage() {
+  const { t } = useTranslation();
   const { data: users, isLoading, error } = useCooperationUsers();
   const { user: currentUser } = useAuth();
 
@@ -30,11 +32,10 @@ export default function ManageCooperationUsersPage() {
         <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-              Manage cooperative users
+              {t("secondAdmin.manageCoopUsersPage.title")}
             </h1>
             <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-              Invite new admins or members, review access, and keep your
-              cooperative workspace up to date.
+              {t("secondAdmin.manageCoopUsersPage.description")}
             </p>
           </div>
           <AddCooperationUserForm />
@@ -48,7 +49,7 @@ export default function ManageCooperationUsersPage() {
 
         {error && (
           <div className="rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-            <p className="font-medium">Unable to load cooperative users.</p>
+            <p className="font-medium">{t("secondAdmin.manageCoopUsersPage.error")}</p>
             <p className="mt-1 opacity-90">{error.message}</p>
           </div>
         )}
@@ -56,10 +57,10 @@ export default function ManageCooperationUsersPage() {
         {!isLoading && !error && filteredUsers.length === 0 && (
           <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-muted-foreground/30 bg-muted/40 px-6 py-12 text-center">
             <h2 className="text-lg font-semibold text-foreground">
-              No users added yet
+              {t("secondAdmin.manageCoopUsersPage.empty.title")}
             </h2>
             <p className="mt-2 max-w-md text-sm text-muted-foreground">
-              Start by inviting your first admin or member to this cooperative.
+              {t("secondAdmin.manageCoopUsersPage.empty.description")}
             </p>
             <div className="mt-4">
               <AddCooperationUserForm />
@@ -69,7 +70,7 @@ export default function ManageCooperationUsersPage() {
 
         {!isLoading && !error && filteredUsers.length > 0 && (
           <section
-            aria-label="Cooperative users table"
+            aria-label={t("sharedUsers.table.sectionLabel")}
             className="rounded-xl border border-border bg-card p-4 shadow-sm sm:p-6"
           >
             <CooperationUserList users={filteredUsers} />

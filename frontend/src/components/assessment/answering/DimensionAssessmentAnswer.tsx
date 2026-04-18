@@ -10,6 +10,7 @@ import {
   IDimensionWithStates,
 } from "@/types/dimension";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 interface DimensionAssessmentAnswerProps {
   /** The dimension data with its states */
@@ -41,6 +42,7 @@ export function DimensionAssessmentAnswer({
   existingAssessment,
   readOnly = false,
 }: DimensionAssessmentAnswerProps) {
+  const { t } = useTranslation();
   const currentAvailableLevels =
     dimension.current_states
       ?.map((s: IDimensionState) => ({
@@ -99,7 +101,7 @@ export function DimensionAssessmentAnswer({
     setLocalError(null);
 
     if (currentLevel === null || desiredLevel === null) {
-      setLocalError("Please select both current and desired levels");
+      setLocalError(t("assessmentAnswering.validation.selectLevels"));
       return;
     }
 
@@ -111,7 +113,7 @@ export function DimensionAssessmentAnswer({
     );
 
     if (!currentState || !desiredState) {
-      setLocalError("Please select both current and desired levels");
+      setLocalError(t("assessmentAnswering.validation.selectLevels"));
       return;
     }
 
@@ -119,7 +121,7 @@ export function DimensionAssessmentAnswer({
       onSubmit(currentLevel, desiredLevel, currentState.id, desiredState.id);
     } catch (err) {
       setLocalError(
-        err instanceof Error ? err.message : "An unexpected error occurred",
+        err instanceof Error ? err.message : t("assessmentAnswering.validation.unexpectedError"),
       );
     }
   };
@@ -149,20 +151,19 @@ export function DimensionAssessmentAnswer({
 
           {(dimension.current_states?.length === 0 ||
             dimension.desired_states?.length === 0) && (
-            <div className="mb-4 p-4 bg-yellow-50 text-yellow-700 rounded-md flex items-start space-x-2">
-              <AlertCircle className="h-5 w-5 mt-0.5 flex-shrink-0" />
-              <div>
-                This dimension has not been fully configured with level
-                descriptions. Please contact your administrator.
+              <div className="mb-4 p-4 bg-yellow-50 text-yellow-700 rounded-md flex items-start space-x-2">
+                <AlertCircle className="h-5 w-5 mt-0.5 flex-shrink-0" />
+                <div>
+                  {t("assessmentAnswering.errors.notConfigured")}
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
           <LevelSelector
-            title="Current Level"
+            title={t("assessmentAnswering.dimension.currentLevel")}
             description={
               currentAvailableLevels.find((l) => l.value === currentLevel)
-                ?.name ?? "Select your current level for this dimension"
+                ?.name ?? t("assessmentAnswering.dimension.selectCurrent")
             }
             level={currentLevel}
             onChange={setCurrentLevel}
@@ -171,10 +172,10 @@ export function DimensionAssessmentAnswer({
           />
 
           <LevelSelector
-            title="Desired Level"
+            title={t("assessmentAnswering.dimension.desiredLevel")}
             description={
               desiredAvailableLevels.find((l) => l.value === desiredLevel)
-                ?.name ?? "Select your desired level for this dimension"
+                ?.name ?? t("assessmentAnswering.dimension.selectDesired")
             }
             level={desiredLevel}
             onChange={setDesiredLevel}
@@ -183,22 +184,22 @@ export function DimensionAssessmentAnswer({
           />
 
           {!readOnly && (
-          <div className="flex justify-end space-x-3">
-            <Button
-              type="submit"
-              disabled={isSubmitting || !isFormValid}
-              className="min-w-[150px]"
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Submitting...
-                </>
-              ) : (
-                "Submit Assessment"
-              )}
-            </Button>
-          </div>
+            <div className="flex justify-end space-x-3">
+              <Button
+                type="submit"
+                disabled={isSubmitting || !isFormValid}
+                className="min-w-[150px]"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    {t("assessmentAnswering.form.submitting")}
+                  </>
+                ) : (
+                  t("assessmentAnswering.form.submit")
+                )}
+              </Button>
+            </div>
           )}
         </form>
       </CardContent>

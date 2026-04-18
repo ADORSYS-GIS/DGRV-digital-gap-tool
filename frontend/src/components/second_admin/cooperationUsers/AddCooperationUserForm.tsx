@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
@@ -33,6 +34,7 @@ export const AddCooperationUserForm = () => {
   const [selectedDimensionIds, setSelectedDimensionIds] = useState<string[]>(
     [],
   );
+  const { t } = useTranslation();
   const { mutate: addUser, isPending } = useAddCooperationUser();
   const { user: currentUser } = useAuth();
   const { cooperationId } = useParams<{ cooperationId: string }>();
@@ -78,7 +80,7 @@ export const AddCooperationUserForm = () => {
       { user, cooperationId },
       {
         onSuccess: () => {
-          toast.success("User successfully invited.");
+          toast.success(t("secondAdminCooperationUsers.add.toast.success"));
           setIsOpen(false);
           setEmail("");
           setFirstName("");
@@ -86,7 +88,7 @@ export const AddCooperationUserForm = () => {
           setSelectedDimensionIds([]);
         },
         onError: (error) => {
-          toast.error(error.message || "Failed to invite user.");
+          toast.error(error.message || t("secondAdminCooperationUsers.add.toast.error"));
         },
       },
     );
@@ -96,7 +98,9 @@ export const AddCooperationUserForm = () => {
     setIsOpen(false);
   };
 
-  const triggerLabel = isPending ? "Inviting user…" : "Add user";
+  const triggerLabel = isPending
+    ? t("secondAdminCooperationUsers.add.triggerLabel.inviting")
+    : t("secondAdminCooperationUsers.add.triggerLabel.add");
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -113,21 +117,20 @@ export const AddCooperationUserForm = () => {
       <DialogContent className="sm:max-w-[480px]">
         <DialogHeader>
           <DialogTitle className="text-lg font-semibold">
-            Add a new user
+            {t("secondAdminCooperationUsers.add.title")}
           </DialogTitle>
           <p className="text-sm text-muted-foreground">
-            Invite a new admin or member to this cooperative. They will receive
-            an email with access details once their account is created.
+            {t("secondAdminCooperationUsers.add.description")}
           </p>
         </DialogHeader>
         <form
           onSubmit={handleSubmit}
           className="space-y-5 py-4"
-          aria-label="Add cooperative user form"
+          aria-label={t("secondAdminCooperationUsers.add.form.ariaLabel")}
         >
           <div className="space-y-2">
             <Label htmlFor="coop-user-email">
-              Email <span className="text-destructive">*</span>
+              {t("secondAdminCooperationUsers.add.form.emailLabel")} <span className="text-destructive">*</span>
             </Label>
             <Input
               id="coop-user-email"
@@ -140,36 +143,34 @@ export const AddCooperationUserForm = () => {
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="coop-user-first-name">First name</Label>
+              <Label htmlFor="coop-user-first-name">{t("secondAdminCooperationUsers.add.form.firstNameLabel")}</Label>
               <Input
                 id="coop-user-first-name"
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
-                placeholder="Optional"
+                placeholder={t("secondAdminCooperationUsers.add.form.firstNamePlaceholder")}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="coop-user-last-name">Last name</Label>
+              <Label htmlFor="coop-user-last-name">{t("secondAdminCooperationUsers.add.form.lastNameLabel")}</Label>
               <Input
                 id="coop-user-last-name"
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
-                placeholder="Optional"
+                placeholder={t("secondAdminCooperationUsers.add.form.lastNamePlaceholder")}
               />
             </div>
           </div>
           {newUserRole === ROLES.COOP_USER && (
             <div className="space-y-2">
-              <Label>Dimensions this user can answer</Label>
-              <p className="text-xs text-muted-foreground">
-                Select the assessment dimensions that this Cooperative user is
-                allowed to answer. They will only see and answer these
-                dimensions in assigned assessments.
+              <Label>{t("secondAdminCooperationUsers.add.form.dimensionsLabel")}</Label>
+              <p className="text-sm text-muted-foreground">
+                {t("secondAdminCooperationUsers.add.form.dimensionsDescription")}
               </p>
               <div className="mt-2 grid gap-2 max-h-56 overflow-y-auto rounded-md border bg-muted/40 p-3">
                 {filteredDimensions.length === 0 && (
                   <p className="text-xs text-muted-foreground">
-                    No dimensions available for this organization.
+                    {t("secondAdminCooperationUsers.add.form.noDimensions")}
                   </p>
                 )}
                 {filteredDimensions.map((dimension) => (
@@ -194,15 +195,15 @@ export const AddCooperationUserForm = () => {
             </div>
           )}
           <div className="space-y-2">
-            <Label htmlFor="coop-user-role">Role</Label>
+            <Label htmlFor="coop-user-role">{t("secondAdminCooperationUsers.add.form.roleLabel")}</Label>
             <Input
               id="coop-user-role"
               value={
                 newUserRole
                   ? newUserRole === ROLES.COOP_ADMIN
-                    ? "Cooperative admin"
-                    : "Cooperative user"
-                  : "No role will be assigned with your current permissions"
+                    ? t("secondAdminCooperationUsers.add.form.roleCoopAdmin")
+                    : t("secondAdminCooperationUsers.add.form.roleCoopUser")
+                  : t("secondAdminCooperationUsers.add.form.noRole")
               }
               disabled
             />
@@ -214,14 +215,14 @@ export const AddCooperationUserForm = () => {
               className="w-full sm:w-auto"
               onClick={handleCancel}
             >
-              Cancel
+              {t("secondAdminCooperationUsers.add.form.cancel")}
             </Button>
             <Button
               type="submit"
               disabled={isPending || !newUserRole}
               className="w-full sm:w-auto"
             >
-              {isPending ? "Adding…" : "Send invitation"}
+              {isPending ? t("secondAdminCooperationUsers.add.form.adding") : t("secondAdminCooperationUsers.add.form.submit")}
             </Button>
           </div>
         </form>

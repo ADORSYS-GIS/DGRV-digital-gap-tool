@@ -6,8 +6,10 @@ import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
+import { useTranslation, Trans } from "react-i18next";
 
 const OrganizationReportsPage: React.FC = () => {
+  const { t } = useTranslation();
   const { organizationId } = useParams<{ organizationId: string }>();
   const navigate = useNavigate();
 
@@ -37,7 +39,7 @@ const OrganizationReportsPage: React.FC = () => {
   if (error) {
     return (
       <div className="text-red-500 text-center">
-        Error loading submissions: {error.message}
+        {t("orgReports.loadingError", { message: error.message })}
       </div>
     );
   }
@@ -53,17 +55,16 @@ const OrganizationReportsPage: React.FC = () => {
               onClick={() => navigate("/admin/reports")}
               className="text-gray-500 hover:text-primary hover:bg-primary/5 -ml-2"
             >
-              <ArrowLeft className="mr-1 h-4 w-4" /> Back to Organizations
+              <ArrowLeft className="mr-1 h-4 w-4" /> {t("orgReports.backToOrgs")}
             </Button>
           </div>
           <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-gray-900">
-            Organization Reports
+            {t("orgReports.title")}
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl">
-            View submissions for Organization{" "}
-            <span className="font-semibold text-primary">
-              {organizationName}
-            </span>
+            <Trans i18nKey="orgReports.subtitle" values={{ name: organizationName }}>
+              View submissions for Organization <span className="font-semibold text-primary">{{ name: organizationName }}</span>
+            </Trans>
           </p>
         </div>
       </div>
@@ -71,7 +72,7 @@ const OrganizationReportsPage: React.FC = () => {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-semibold text-gray-900">
-            Select a Submission
+            {t("orgReports.selectSubmission")}
           </h2>
         </div>
         {submissions && submissions.length > 0 ? (
@@ -83,7 +84,7 @@ const OrganizationReportsPage: React.FC = () => {
         ) : (
           <div className="text-center py-12 bg-gray-50 rounded-xl border border-dashed border-gray-300">
             <p className="text-gray-500">
-              No submissions found for this organization.
+              {t("orgReports.noSubmissions")}
             </p>
           </div>
         )}

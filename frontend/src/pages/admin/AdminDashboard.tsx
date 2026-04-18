@@ -27,10 +27,12 @@ import { SyncStatus } from "@/types/sync";
 import { Building2, FileText, History, Settings, Users } from "lucide-react";
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useTranslation, Trans } from "react-i18next";
 
 const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const {
     data: submissionsData = [],
     isLoading,
@@ -68,15 +70,14 @@ const AdminDashboard: React.FC = () => {
       <div className="mb-8 rounded-2xl bg-gradient-to-r from-primary/5 via-primary/10 to-transparent p-6 sm:p-10">
         <div className="space-y-2 max-w-3xl">
           <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-gray-900">
-            Admin Dashboard
+            {t("adminDashboard.title")}
           </h1>
           <p className="text-lg text-muted-foreground">
-            Welcome back,{" "}
+            {t("adminDashboard.welcomePrefix", { name: "" })}
             <span className="font-semibold text-primary">
-              {user?.name || user?.preferred_username || "Administrator"}
+              {user?.name || user?.preferred_username || t("adminDashboard.defaultAdmin")}
             </span>
-            . Manage the digital gap assessment platform and monitor system
-            performance.
+            {t("adminDashboard.welcomeSuffix")}
           </p>
         </div>
       </div>
@@ -86,7 +87,7 @@ const AdminDashboard: React.FC = () => {
         <Card className="shadow-sm hover:shadow-md transition-shadow duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total Organizations
+              {t("adminDashboard.stats.orgs.title")}
             </CardTitle>
             <Building2 className="h-4 w-4 text-primary" />
           </CardHeader>
@@ -95,14 +96,14 @@ const AdminDashboard: React.FC = () => {
               {organizations ? organizations.length : 0}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              Registered organizations
+              {t("adminDashboard.stats.orgs.desc")}
             </p>
           </CardContent>
         </Card>
         <Card className="shadow-sm hover:shadow-md transition-shadow duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Active Users
+              {t("adminDashboard.stats.users.title")}
             </CardTitle>
             <Users className="h-4 w-4 text-primary" />
           </CardHeader>
@@ -111,14 +112,14 @@ const AdminDashboard: React.FC = () => {
               {activeUsers}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              Across all organizations
+              {t("adminDashboard.stats.users.desc")}
             </p>
           </CardContent>
         </Card>
         <Card className="shadow-sm hover:shadow-md transition-shadow duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Assessments Taken
+              {t("adminDashboard.stats.assessments.title")}
             </CardTitle>
             <FileText className="h-4 w-4 text-primary" />
           </CardHeader>
@@ -127,14 +128,14 @@ const AdminDashboard: React.FC = () => {
               {submissions ? submissions.length : 0}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              Total submissions
+              {t("adminDashboard.stats.assessments.desc")}
             </p>
           </CardContent>
         </Card>
         <Card className="shadow-sm hover:shadow-md transition-shadow duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total Dimensions
+              {t("adminDashboard.stats.dimensions.title")}
             </CardTitle>
             <Settings className="h-4 w-4 text-primary" />
           </CardHeader>
@@ -143,7 +144,7 @@ const AdminDashboard: React.FC = () => {
               {dimensions ? dimensions.length : 0}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              Active assessment dimensions
+              {t("adminDashboard.stats.dimensions.desc")}
             </p>
           </CardContent>
         </Card>
@@ -153,70 +154,70 @@ const AdminDashboard: React.FC = () => {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-semibold tracking-tight">
-            Management Tools
+            {t("adminDashboard.tools.title")}
           </h2>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <Link to="/admin/organizations">
             <DashboardCard
-              title="Manage Organizations"
-              description="Create, edit, and manage organizations"
+              title={t("adminDashboard.tools.orgs.title")}
+              description={t("adminDashboard.tools.orgs.desc")}
               icon={Building2}
               variant="default"
             />
           </Link>
           <Link to="/admin/manage-users">
             <DashboardCard
-              title="Manage Users"
-              description="Create, edit, and manage users"
+              title={t("adminDashboard.tools.users.title")}
+              description={t("adminDashboard.tools.users.desc")}
               icon={Users}
               variant="default"
             />
           </Link>
           <Link to="/admin/dimensions">
             <DashboardCard
-              title="Manage Dimensions"
-              description="Create, edit, and manage dimensions"
+              title={t("adminDashboard.tools.dimensions.title")}
+              description={t("adminDashboard.tools.dimensions.desc")}
               icon={Settings}
               variant="default"
             />
           </Link>
           <Link to="/admin/digital-gaps">
             <DashboardCard
-              title="Manage Digital Gaps"
-              description="Create, edit, and manage digital gaps"
+              title={t("adminDashboard.tools.gaps.title")}
+              description={t("adminDashboard.tools.gaps.desc")}
               icon={Settings}
               variant="default"
             />
           </Link>
           <Link to="/admin/recommendations">
             <DashboardCard
-              title="Manage Recommendations"
-              description="Create, edit, and manage recommendations"
+              title={t("adminDashboard.tools.recommendations.title")}
+              description={t("adminDashboard.tools.recommendations.desc")}
               icon={FileText}
               variant="default"
             />
           </Link>
           <Link to="/admin/action-plans">
             <DashboardCard
-              title="View Action Plans"
-              description="View action plans by organization and submission"
+              title={t("adminDashboard.tools.actionPlans.title")}
+              description={t("adminDashboard.tools.actionPlans.desc")}
               icon={Settings}
               variant="default"
             />
           </Link>
           <Link to="/admin/reports">
             <DashboardCard
-              title="View Reports"
-              description="View reports by organization and submission"
+              title={t("adminDashboard.tools.reports.title")}
+              description={t("adminDashboard.tools.reports.desc")}
               icon={FileText}
               variant="default"
             />
           </Link>
           <Link to="/admin/consolidated-report">
             <DashboardCard
-              title="Consolidated Report"
-              description="View consolidated report for all organizations"
+              title={t("adminDashboard.tools.consolidated.title")}
+              description={t("adminDashboard.tools.consolidated.desc")}
               icon={FileText}
               variant="default"
             />
@@ -230,22 +231,22 @@ const AdminDashboard: React.FC = () => {
           <div className="space-y-1">
             <CardTitle className="flex items-center text-lg font-semibold">
               <History className="mr-2 h-5 w-5 text-muted-foreground" />
-              Recent Submissions
+              {t("adminDashboard.recent.title")}
             </CardTitle>
             <CardDescription>
-              A log of recent activities and system events.
+              {t("adminDashboard.recent.desc")}
             </CardDescription>
           </div>
           <Link to="/admin/reports">
             <Button variant="outline" size="sm" className="h-8">
-              View All
+              {t("adminDashboard.recent.viewAll")}
             </Button>
           </Link>
         </CardHeader>
         <CardContent className="p-6">
           {isLoading && <LoadingSpinner />}
           {error && (
-            <p className="text-red-500">An error occurred: {error.message}</p>
+            <p className="text-red-500">{t("adminDashboard.recent.error", { message: error.message })}</p>
           )}
           {submissions && (
             <SubmissionList

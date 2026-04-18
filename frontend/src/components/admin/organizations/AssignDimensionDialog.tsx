@@ -13,6 +13,7 @@ import { useSetAssignedDimensions } from "@/hooks/organization_dimensions/useSet
 import { Organization } from "@/types/organization";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useTranslation } from "react-i18next";
 
 interface AssignDimensionDialogProps {
   organization: Organization | null;
@@ -25,6 +26,7 @@ export const AssignDimensionDialog: React.FC<AssignDimensionDialogProps> = ({
   isOpen,
   onClose,
 }) => {
+  const { t } = useTranslation();
   const { data: allDimensions, isLoading: isLoadingDimensions } =
     useDimensions();
   const { data: assignedDimensionIds, isLoading: isLoadingAssigned } =
@@ -66,7 +68,9 @@ export const AssignDimensionDialog: React.FC<AssignDimensionDialogProps> = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Assign Dimensions to {organization?.name}</DialogTitle>
+          <DialogTitle>
+            {t("adminOrgs.assignDimensions")} to {organization?.name}
+          </DialogTitle>
         </DialogHeader>
         {isLoading ? (
           <LoadingSpinner />
@@ -93,10 +97,10 @@ export const AssignDimensionDialog: React.FC<AssignDimensionDialogProps> = ({
         )}
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
-            Cancel
+            {t("common.cancel")}
           </Button>
           <Button onClick={handleSave} disabled={isPending}>
-            {isPending ? "Saving..." : "Save"}
+            {isPending ? t("common.saving") : t("common.save")}
           </Button>
         </DialogFooter>
       </DialogContent>

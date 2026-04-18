@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { useOrganizations } from "@/hooks/organizations/useOrganizations";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { Organization } from "@/types/organization";
@@ -11,6 +12,7 @@ interface OrganizationReportListProps {
 export const OrganizationReportList: React.FC<OrganizationReportListProps> = ({
   onSelectOrganization,
 }) => {
+  const { t } = useTranslation();
   const { data: organizations, isLoading, error } = useOrganizations();
 
   if (isLoading) {
@@ -20,7 +22,7 @@ export const OrganizationReportList: React.FC<OrganizationReportListProps> = ({
   if (error) {
     return (
       <p className="text-red-500">
-        Error loading organizations: {error.message}
+        {t("adminReports.organizations.errorLoading", { error: error.message })}
       </p>
     );
   }

@@ -7,6 +7,7 @@ import { SubmissionList } from "@/components/shared/submissions/SubmissionList";
 import { KanbanBoard } from "@/components/shared/action_plans/KanbanBoard";
 import { AssessmentSummary } from "@/types/assessment";
 import { SyncStatus } from "@/types/sync";
+import { useTranslation } from "react-i18next";
 
 const ActionPlansPage: React.FC = () => {
   const [selectedOrganizationId, setSelectedOrganizationId] = useState<
@@ -14,6 +15,7 @@ const ActionPlansPage: React.FC = () => {
   >(null);
   const [selectedSubmission, setSelectedSubmission] =
     useState<AssessmentSummary | null>(null);
+  const { t } = useTranslation();
 
   const { data: organizations, isLoading: isLoadingOrganizations } =
     useOrganizations();
@@ -58,10 +60,10 @@ const ActionPlansPage: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl bg-gradient-to-r from-primary/5 via-primary/10 to-transparent p-6 sm:p-10 border border-primary/10">
         <div className="space-y-2">
           <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-gray-900">
-            Admin Action Plans
+            {t("adminActionPlans.title")}
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl">
-            Oversee and manage action plans across all organizations.
+            {t("adminActionPlans.subtitle")}
           </p>
         </div>
       </div>
@@ -70,7 +72,7 @@ const ActionPlansPage: React.FC = () => {
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold text-gray-900">
-              Select an Organization
+              {t("adminActionPlans.selectOrg")}
             </h2>
           </div>
           {isLoadingOrganizations ? (
@@ -92,10 +94,10 @@ const ActionPlansPage: React.FC = () => {
                 onClick={() => setSelectedOrganizationId(null)}
                 className="text-sm text-gray-500 hover:text-primary flex items-center gap-1 transition-colors"
               >
-                ← Back to Organizations
+                {t("adminActionPlans.backToOrgs")}
               </button>
               <h2 className="text-xl font-semibold text-gray-900">
-                Select a Submission
+                {t("adminActionPlans.selectSubmission")}
               </h2>
             </div>
           </div>

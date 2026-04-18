@@ -28,6 +28,7 @@ import { useDeleteOrganization } from "@/hooks/organizations/useDeleteOrganizati
 import { Organization } from "@/types/organization";
 import { Building2, FilePenLine, Trash2, Users } from "lucide-react";
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { EditOrganizationForm } from "./EditOrganizationForm";
 
 interface OrganizationCardProps {
@@ -41,6 +42,7 @@ export const OrganizationCard: React.FC<OrganizationCardProps> = ({
   onAssignDimension,
   isSelectable,
 }) => {
+  const { t } = useTranslation();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const deleteMutation = useDeleteOrganization();
 
@@ -84,11 +86,11 @@ export const OrganizationCard: React.FC<OrganizationCardProps> = ({
                       className="w-full justify-center bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white shadow-sm hover:shadow transition-all duration-300 border-0"
                       onClick={handleAssignDimension}
                     >
-                      <Users className="mr-2 h-4 w-4" /> Assign Dimension
+                      <Users className="mr-2 h-4 w-4" /> {t("adminOrgs.card.assignDimensions")}
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>Assign dimensions to this organization</p>
+                    <p>{t("adminOrgs.card.assignDimensionsDesc")}</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -100,12 +102,12 @@ export const OrganizationCard: React.FC<OrganizationCardProps> = ({
                   size="sm"
                   className="w-full justify-center border-blue-200 text-blue-700 hover:bg-blue-50 hover:text-blue-800 hover:border-blue-300 transition-colors"
                 >
-                  <FilePenLine className="mr-2 h-4 w-4" /> Edit
+                  <FilePenLine className="mr-2 h-4 w-4" /> {t("common.edit")}
                 </Button>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Edit Organization</DialogTitle>
+                  <DialogTitle>{t("adminOrgs.form.titleEdit")}</DialogTitle>
                 </DialogHeader>
                 <EditOrganizationForm
                   organization={organization}
@@ -120,24 +122,24 @@ export const OrganizationCard: React.FC<OrganizationCardProps> = ({
                   size="sm"
                   className="w-full justify-center border-red-200 text-red-700 hover:bg-red-50 hover:text-red-800 hover:border-red-300 transition-colors"
                 >
-                  <Trash2 className="mr-2 h-4 w-4" /> Delete
+                  <Trash2 className="mr-2 h-4 w-4" /> {t("common.delete")}
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                  <AlertDialogTitle>{t("adminOrgs.delete.title")}</AlertDialogTitle>
                   <AlertDialogDescription>
-                    This action cannot be undone. This will permanently delete
-                    the organization and remove its data from our servers.
+                    {t("adminOrgs.delete.description")}
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
                   <AlertDialogAction
                     onClick={handleDelete}
                     className="bg-red-600 hover:bg-red-700"
+                    disabled={deleteMutation.isPending}
                   >
-                    Continue
+                    {deleteMutation.isPending ? t("common.deleting") : t("adminOrgs.delete.confirm")}
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>

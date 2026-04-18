@@ -7,6 +7,7 @@
  * - Integration with dashboard card styling
  */
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { DashboardCard } from "@/components/shared/DashboardCard";
 import { ProgressIndicator } from "@/components/shared/ProgressIndicator";
 import { Button } from "@/components/ui/button";
@@ -28,16 +29,17 @@ export const AssessmentSection: React.FC<AssessmentSectionProps> = ({
   onStartAssessment,
   onContinueAssessment,
 }) => {
+  const { t } = useTranslation();
   return (
     <div className="space-y-6">
       {/* Current Assessment Card */}
       {currentAssessment && (
         <DashboardCard
-          title="Current Assessment"
-          description="Continue your ongoing digital gap assessment"
+          title={t("userComponents.assessment.title")}
+          description={t("userComponents.assessment.description")}
           icon={Clock}
           variant="default"
-          actionText="Continue"
+          actionText={t("userComponents.assessment.continue")}
           onAction={onContinueAssessment}
         >
           <div className="space-y-4">
@@ -46,13 +48,13 @@ export const AssessmentSection: React.FC<AssessmentSectionProps> = ({
                 {currentAssessment.title}
               </h4>
               <p className="text-sm text-gray-600">
-                Last updated: {currentAssessment.lastUpdated}
+                {t("userComponents.assessment.lastUpdated", { date: currentAssessment.lastUpdated })}
               </p>
             </div>
             <ProgressIndicator
               current={currentAssessment.progress}
               total={currentAssessment.total}
-              label="Assessment Progress"
+              label={t("userComponents.assessment.progressLabel")}
               variant="success"
             />
           </div>
@@ -61,19 +63,19 @@ export const AssessmentSection: React.FC<AssessmentSectionProps> = ({
 
       {/* Quick Actions */}
       <DashboardCard
-        title="Quick Actions"
-        description="Start a new assessment or view your progress"
+        title={t("userComponents.actions.title")}
+        description={t("userComponents.actions.description")}
         icon={Play}
         variant="success"
       >
         <div className="space-y-3">
           <Button className="w-full" onClick={onStartAssessment}>
             <Play className="h-4 w-4 mr-2" />
-            Start New Assessment
+            {t("userComponents.actions.startNew")}
           </Button>
           <Button variant="outline" className="w-full">
             <BarChart3 className="h-4 w-4 mr-2" />
-            View Progress Reports
+            {t("userComponents.actions.viewReports")}
           </Button>
         </div>
       </DashboardCard>

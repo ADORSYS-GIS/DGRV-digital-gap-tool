@@ -1,4 +1,5 @@
 import { Link, useLocation, Navigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useCooperations } from "@/hooks/cooperations/useCooperations";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { SimpleCooperationCard } from "@/components/second_admin/cooperations/SimpleCooperationCard";
@@ -13,6 +14,7 @@ import { useCooperationIdFromPath } from "@/hooks/cooperations/useCooperationIdF
  * directly to their own cooperative user list.
  */
 export default function ManageCooperationUsers() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const organizationId = useOrganizationId();
   const {
@@ -25,23 +27,9 @@ export default function ManageCooperationUsers() {
   const isCoopAdmin = user?.roles?.includes(ROLES.COOP_ADMIN);
   const {
     cooperationId: coopIdFromPath,
-    cooperationPath,
     isLoading: isLoadingCoopFromPath,
     error: coopFromPathError,
   } = useCooperationIdFromPath();
-
-  // Debug logs to understand coop-admin flow and available cooperations
-  console.log("[ManageCooperationUsers] user roles:", user?.roles);
-  console.log("[ManageCooperationUsers] basePath:", basePath);
-  console.log("[ManageCooperationUsers] cooperations data:", cooperations);
-  console.log(
-    "[ManageCooperationUsers] cooperationPath from token:",
-    cooperationPath,
-  );
-  console.log(
-    "[ManageCooperationUsers] cooperationId from path:",
-    coopIdFromPath,
-  );
 
   if (isCoopAdmin) {
     if (isLoading || isLoadingCoopFromPath) {
@@ -69,11 +57,10 @@ export default function ManageCooperationUsers() {
         <div className="overflow-y-auto h-full bg-background">
           <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-8 sm:px-6 lg:px-8">
             <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-              Unable to resolve cooperative
+              {t("secondAdmin.manageCoopUsers.error.resolveTitle")}
             </h1>
             <p className="max-w-2xl text-sm text-muted-foreground">
-              We could not resolve your cooperative from the token path. Please
-              contact your organization administrator to verify your access.
+              {t("secondAdmin.manageCoopUsers.error.resolveDescription")}
             </p>
           </div>
         </div>
@@ -84,11 +71,10 @@ export default function ManageCooperationUsers() {
       <div className="overflow-y-auto h-full bg-background">
         <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-8 sm:px-6 lg:px-8">
           <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-            No cooperative found
+            {t("secondAdmin.manageCoopUsers.error.noCoopTitle")}
           </h1>
           <p className="max-w-2xl text-sm text-muted-foreground">
-            We couldn't determine which cooperative you manage. Please contact
-            your organization administrator to verify your access.
+            {t("secondAdmin.manageCoopUsers.error.noCoopDescription")}
           </p>
         </div>
       </div>
@@ -101,11 +87,10 @@ export default function ManageCooperationUsers() {
         <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-              Select a cooperative to manage users
+              {t("secondAdmin.manageCoopUsers.title")}
             </h1>
             <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-              Choose a cooperative to view and manage its admins and members.
-              You can invite new users or clean up access when people leave.
+              {t("secondAdmin.manageCoopUsers.description")}
             </p>
           </div>
         </header>
@@ -118,7 +103,7 @@ export default function ManageCooperationUsers() {
 
         {error && (
           <div className="rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-            <p className="font-medium">Unable to load cooperatives.</p>
+            <p className="font-medium">{t("secondAdmin.manageCoopUsers.error.load")}</p>
             <p className="mt-1 opacity-90">{error.message}</p>
           </div>
         )}
@@ -126,17 +111,16 @@ export default function ManageCooperationUsers() {
         {!isLoading && !error && cooperations && cooperations.length === 0 && (
           <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-muted-foreground/30 bg-muted/40 px-6 py-12 text-center">
             <h2 className="text-lg font-semibold text-foreground">
-              No cooperatives available yet
+              {t("secondAdmin.manageCoopUsers.empty.title")}
             </h2>
             <p className="mt-2 max-w-md text-sm text-muted-foreground">
-              Once cooperatives have been created for this organization, you'll
-              be able to select one here and manage its users.
+              {t("secondAdmin.manageCoopUsers.empty.description")}
             </p>
           </div>
         )}
 
         {!isLoading && !error && cooperations && cooperations.length > 0 && (
-          <section aria-label="Cooperative selection">
+          <section aria-label={t("secondAdmin.manageCoopUsers.sectionLabel")}>
             <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
               {cooperations.map((coop) => (
                 <Link

@@ -1,0 +1,844 @@
+{
+  "common": {
+    "cancel": "Cancel",
+    "save": "Save",
+    "edit": "Edit",
+    "delete": "Delete",
+    "saving": "Saving...",
+    "deleting": "Deleting...",
+    "noTitle": "No Title",
+    "noDescription": "No description available.",
+    "back": "Back",
+    "next": "Next",
+    "submit": "Submit",
+    "form": "Form",
+    "status": "Status",
+    "loading": "Loading...",
+    "actions": "Actions",
+    "emptySearch": "No results match your search.",
+    "emptyAction": "Click {{action}} to get started."
+  },
+  "adminDimensions": {
+    "title": "Dimensions",
+    "addBtn": "Add Dimension",
+    "updateBtn": "Update Dimension",
+    "form": {
+      "titleAdd": "Add New Dimension",
+      "titleEdit": "Edit Dimension",
+      "name": "Dimension Name",
+      "description": "Description",
+      "saving": "Saving...",
+      "updating": "Updating...",
+      "namePlaceholder": "Enter dimension name",
+      "descPlaceholder": "Enter dimension description"
+    },
+    "validation": {
+      "nameRequired": "Name is required",
+      "descRequired": "Description is required"
+    },
+    "list": {
+      "empty": "No dimensions found."
+    }
+  },
+  "adminLevels": {
+    "title": "Digitalization Levels",
+    "addBtn": "Add Level",
+    "updateBtn": "Update Level",
+    "form": {
+      "titleAddCurrent": "Add Current Level",
+      "titleAddDesired": "Add Desired Level",
+      "titleEdit": "Edit Level",
+      "levelId": "Level ID",
+      "levelName": "Level Name",
+      "description": "Description",
+      "saving": "Saving...",
+      "updating": "Updating..."
+    },
+    "validation": {
+      "titleRequired": "Title is required",
+      "descRequired": "Description is required",
+      "stateRequired": "Please select a state",
+      "idRequired": "Level ID is required",
+      "stateExists": "Level ID already exists",
+      "stateNumber": "State must be a number"
+    },
+    "card": {
+      "delete": "Delete"
+    },
+    "delete": {
+      "title": "Are you sure?",
+      "description": "This action cannot be undone. This will permanently delete the level.",
+      "confirm": "Continue",
+      "deleting": "Deleting..."
+    },
+    "list": {
+      "emptyCurrent": "No levels found for this state."
+    },
+    "selectState": {
+      "title": "Manage Digitalization Levels",
+      "description": "Choose the state you want to configure.",
+      "currentTitle": "Current State",
+      "currentDesc": "Define the current levels.",
+      "desiredTitle": "Desired State",
+      "desiredDesc": "Set the target levels."
+    }
+  },
+  "adminOrgs": {
+    "form": {
+      "titleAdd": "Add New Organization",
+      "titleEdit": "Edit Organization",
+      "descAdd": "Enter the details to create a new cooperative.",
+      "descEdit": "Update organization information.",
+      "name": "Organization Name",
+      "domain": "Domain",
+      "description": "Description",
+      "namePlaceholder": "e.g. GreenValleyCoop",
+      "domainPlaceholder": "e.g. greenvalley.com",
+      "descPlaceholder": "Brief description of the organization",
+      "saving": "Adding...",
+      "updating": "Updating..."
+    },
+    "validation": {
+      "nameRequired": "Organization name is required",
+      "nameNoSpaces": "Spaces are not allowed in the name",
+      "domainRequired": "Domain is required",
+      "nameMin": "Name must be at least 2 characters.",
+      "domainMin": "Domain must be at least 2 characters."
+    },
+    "card": {
+      "domain": "Domain",
+      "description": "Description",
+      "manageUsers": "Manage Users",
+      "dimensions": "Dimensions",
+      "edit": "Edit",
+      "delete": "Delete",
+      "assignDimensions": "Assign Dimension",
+      "assignDimensionsDesc": "Assign dimensions to this organization"
+    },
+    "list": {
+      "title": "Organizations",
+      "emptyTitle": "No organizations found",
+      "emptyDesc": "Get started by adding your first organization."
+    },
+    "delete": {
+      "title": "Are you sure?",
+      "description": "This action cannot be undone. This will permanently delete the organization and remove its data from our servers.",
+      "confirm": "Continue",
+      "deleting": "Deleting..."
+    },
+    "addBtn": "Add Organization",
+    "createBtn": "Create Organization",
+    "updateBtn": "Update Organization",
+    "assignDimensions": "Assign Dimensions"
+  },
+  "adminRecommendations": {
+    "title": "Recommendations",
+    "addBtn": "Add Recommendation",
+    "updateBtn": "Update Recommendation",
+    "form": {
+      "titleAdd": "Add New Recommendation",
+      "titleEdit": "Edit Recommendation",
+      "descAdd": "Fill in the details below to create a new recommendation.",
+      "descEdit": "Update the recommendation details below.",
+      "dimension": "Dimension",
+      "priority": "Priority",
+      "description": "Description",
+      "dimPlaceholder": "Select a dimension",
+      "prioPlaceholder": "Select priority",
+      "descPlaceholder": "Enter detailed description",
+      "adding": "Adding...",
+      "updating": "Updating..."
+    },
+    "validation": {
+      "dimensionRequired": "Dimension is required",
+      "priorityRequired": "Priority is required",
+      "descriptionRequired": "Description is required",
+      "alreadyExists": "A recommendation with this priority already exists for the selected dimension."
+    },
+    "list": {
+      "empty": "No recommendations found.",
+      "emptyDesc": "Click \"Add Recommendation\" to create one.",
+      "summary": "{{total}} total recommendations across {{dimCount}} dimensions",
+      "recommendation": "recommendation",
+      "recommendations": "recommendations"
+    },
+    "card": {
+      "synced": "Synced",
+      "pending": "Pending",
+      "edit": "Edit",
+      "delete": "Delete",
+      "deleting": "Deleting...",
+      "confirmDelete": "Are you sure you want to delete this recommendation?"
+    },
+    "priorities": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High"
+    }
+  },
+  "adminReports": {
+    "submissions": {
+      "title": "Assessment Submissions",
+      "empty": "No assessment submissions found for this organization.",
+      "submittedOn": "Submitted on",
+      "exportReport": "Export Report",
+      "viewActionPlan": "View Action Plan",
+      "exportSuccess": "Report downloaded successfully!",
+      "exportError": "Failed to download report: {{error}}"
+    },
+    "organizations": {
+      "title": "Organization Reports",
+      "errorLoading": "Error loading organizations: {{error}}"
+    }
+  },
+  "assessmentAnswering": {
+    "validation": {
+      "selectLevels": "Please select both current and desired levels",
+      "unexpectedError": "An unexpected error occurred"
+    },
+    "errors": {
+      "notConfigured": "This dimension has not been fully configured with level descriptions. Please contact your administrator.",
+      "loadGapError": "Failed to load gap description.",
+      "noGapFound": "No gap description found."
+    },
+    "dimension": {
+      "currentLevel": "Current Level",
+      "desiredLevel": "Desired Level",
+      "selectCurrent": "Select your current level for this dimension",
+      "selectDesired": "Select your desired level for this dimension",
+      "yourCurrent": "Your Current Level",
+      "yourDesired": "Your Desired Level"
+    },
+    "form": {
+      "submitting": "Submitting...",
+      "submit": "Submit Assessment",
+      "analyzing": "Analyzing your gap...",
+      "analysis": "Assessment Analysis",
+      "gapAnalysis": "Digitalisation Gap Analysis",
+      "severity": "Severity",
+      "risk": "RISK",
+      "noDescription": "No description available"
+    },
+    "selector": {
+      "levelRange": "Level {{current}} of {{total}}: {{name}}",
+      "prev": "Previous level",
+      "next": "Next level",
+      "ariaLabel": "Level {{level}}"
+    }
+  },
+  "userComponents": {
+    "assessment": {
+      "title": "Current Assessment",
+      "description": "Continue your ongoing digital gap analysis",
+      "continue": "Continue Assessment",
+      "lastUpdated": "Last updated: {{date}}",
+      "progressLabel": "Progress"
+    },
+    "actions": {
+      "title": "Quick Actions",
+      "description": "Start a new assessment or view results",
+      "startNew": "Start New Assessment",
+      "viewReports": "View Reports"
+    },
+    "stats": {
+      "total": "Total Assessments",
+      "completion": "Completion Rate",
+      "average": "Average Score"
+    }
+  },
+  "onboarding": {
+    "welcome": {
+      "title": "Welcome to Finance Friend",
+      "subtitle": "Let's get your cooperative set up for digital transformation."
+    },
+    "stepProgress": "Step {{current}} of {{total}}",
+    "stepDescription": "Complete these quick steps to customize your assessment experience.",
+    "steps": {
+      "prev": "Previous",
+      "next": "Next",
+      "finish": "Finish",
+      "titleHighlight": "Digital Progress",
+      "description": "Monitor your cooperative's evolution across multiple digitalization dimensions with intuitive metrics.",
+      "basics": "Basics",
+      "dimensions": "Dimensions",
+      "completion": "Completion"
+    },
+    "step1": {
+      "title": "Set Clear",
+      "titleHighlight": "Strategic Goals",
+      "description": "Define where you want to go and establish clear targets for your digital transformation."
+    },
+    "step2": {
+      "title": "Actionable",
+      "titleHighlight": "Recommendations",
+      "description": "Receive specific, data-driven advice tailored to your cooperative's current state and goals."
+    },
+    "title": "Welcome to Finance Friend",
+    "subtitle": "Let's get your cooperative set up for digital transformation.",
+    "completion": {
+      "title": "Setup Complete!",
+      "message": "Your cooperative is now ready to begin its digital assessment journey.",
+      "cta": "Go to Dashboard"
+    }
+  },
+  "context": {
+    "title": "Why this onboarding?",
+    "description": "This quick introduction helps you understand how to use the Digital Gap Tool effectively:",
+    "list": [
+      "Understand your current digitalization level across dimensions",
+      "Define your desired future state and priorities",
+      "Receive data-driven recommendations and actionable next steps"
+    ]
+  },
+  "secondAdminCooperations": {
+    "add": {
+      "title": "Add new cooperative",
+      "description": "Create a new cooperative profile to start tracking assessments and action plans.",
+      "triggerLabel": "Add cooperative",
+      "loadingLabel": "Saving cooperative…",
+      "ariaLabel": "Create cooperative form",
+      "nameLabel": "Name",
+      "namePlaceholder": "e.g. Green Valley Cooperative",
+      "nameHelper": "Use the official name that admins and members recognize.",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Briefly describe the cooperative, its focus and members.",
+      "descriptionHelper": "This helps other admins quickly understand what this cooperative is about.",
+      "cancel": "Cancel",
+      "submit": "Create cooperative",
+      "saving": "Saving…"
+    },
+    "edit": {
+      "title": "Edit cooperative",
+      "description": "Update the cooperative's profile information. Changes apply immediately after saving.",
+      "triggerLabel": "Edit",
+      "ariaLabel": "Edit cooperative form",
+      "submit": "Save changes"
+    },
+    "delete": {
+      "triggerLabel": "Delete",
+      "title": "Are you sure?",
+      "description": "This action cannot be undone. This will permanently delete the cooperative and remove its data from our servers.",
+      "cancel": "Cancel",
+      "confirm": "Continue"
+    },
+    "card": {
+      "srCooperative": "Cooperative",
+      "profileLabel": "Cooperative profile",
+      "noDescription": "No description provided for this cooperative yet."
+    },
+    "simpleCard": {
+      "srCooperation": "Cooperation"
+    },
+    "assign": {
+      "trigger": "Assign Dimensions"
+    }
+  },
+  "secondAdminCooperationUsers": {
+    "add": {
+      "title": "Add a new user",
+      "description": "Invite a new admin or member to this cooperative. They will receive an email with access details once their account is created.",
+      "triggerLabel": {
+        "inviting": "Inviting user...",
+        "add": "Add user"
+      },
+      "form": {
+        "ariaLabel": "Add cooperative user form",
+        "emailLabel": "Email",
+        "firstNameLabel": "First name",
+        "firstNamePlaceholder": "Optional",
+        "lastNameLabel": "Last name",
+        "lastNamePlaceholder": "Optional",
+        "dimensionsLabel": "Dimensions this user can answer",
+        "dimensionsDescription": "Select the assessment dimensions that this Cooperative user is allowed to answer. They will only see and answer these dimensions in assigned assessments.",
+        "noDimensions": "No dimensions available for this organization.",
+        "roleLabel": "Role",
+        "roleCoopAdmin": "Cooperative admin",
+        "roleCoopUser": "Cooperative user",
+        "noRole": "No role will be assigned with your current permissions",
+        "cancel": "Cancel",
+        "submit": "Send invitation",
+        "submitting": "Adding..."
+      },
+      "toast": {
+        "success": "User successfully invited.",
+        "error": "Failed to invite user."
+      }
+    },
+    "list": {
+      "columns": {
+        "email": "Email",
+        "firstName": "First name",
+        "lastName": "Last name",
+        "verified": "Email verified",
+        "actions": "Actions"
+      },
+      "status": {
+        "verified": "Verified",
+        "pending": "Pending"
+      },
+      "actions": {
+        "delete": "Delete"
+      }
+    },
+    "edit": {
+      "title": "Edit user dimensions",
+      "description": "Update the dimensions this user is allowed to answer.",
+      "triggerLabel": "Edit",
+      "toast": {
+        "success": "User dimensions updated successfully.",
+        "error": "Failed to update user dimensions."
+      },
+      "saving": "Saving..."
+    }
+  },
+  "adminDashboard": {
+    "title": "Welcome, Administrator",
+    "welcomePrefix": "Welcome back ",
+    "defaultAdmin": "Administrator",
+    "welcomeSuffix": "",
+    "stats": {
+      "orgs": {
+        "title": "Organizations",
+        "desc": "Total active organizations"
+      },
+      "users": {
+        "title": "Users",
+        "desc": "Total active users across all orgs"
+      },
+      "assessments": {
+        "title": "Assessments",
+        "desc": "Total submissions received"
+      },
+      "dimensions": {
+        "title": "Dimensions",
+        "desc": "Active assessment dimensions"
+      }
+    },
+    "tools": {
+      "title": "Management Tools",
+      "orgs": {
+        "title": "Organizations",
+        "desc": "Manage organizations and their metadata"
+      },
+      "users": {
+        "title": "Manage Users",
+        "desc": "Invite and manage system administrators"
+      },
+      "dimensions": {
+        "title": "Dimensions",
+        "desc": "Manage assessment dimensions"
+      },
+      "gaps": {
+        "title": "Digital Gaps",
+        "desc": "Define and manage digitalisation gap types"
+      },
+      "recommendations": {
+        "title": "Recommendations",
+        "desc": "Configure digital assessment recommendations"
+      },
+      "actionPlans": {
+        "title": "Action Plans",
+        "desc": "Review and update action plan templates"
+      },
+      "reports": {
+        "title": "View Reports",
+        "desc": "Review and export comprehensive reports"
+      },
+      "consolidated": {
+        "title": "Consolidated Report",
+        "desc": "View overall system-wide analysis"
+      }
+    },
+    "recent": {
+      "title": "Recent Activity",
+      "desc": "Latest assessment submissions across the system",
+      "viewAll": "View All",
+      "error": "Failed to load recent activity: {{message}}"
+    }
+  },
+  "sharedUsers": {
+    "table": {
+      "name": "Name",
+      "email": "Email",
+      "role": "Role",
+      "status": "Status",
+      "cooperative": "Cooperative",
+      "actions": "Actions",
+      "noUsers": "No users found."
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "pending": "Pending",
+      "invited": "Invited"
+    },
+    "roles": {
+      "admin": "Admin",
+      "user": "User",
+      "coop_admin": "Cooperative Admin",
+      "coop_user": "Cooperative User",
+      "org_admin": "Organization Admin"
+    },
+    "delete": {
+      "title": "Delete User",
+      "description": "Are you sure you want to delete this user? This action cannot be undone.",
+      "confirm": "Delete",
+      "cancel": "Cancel",
+      "success": "User deleted successfully",
+      "error": "Failed to delete user"
+    },
+    "invite": {
+      "title": "Invite New User",
+      "description": "Send an invitation to a new user to join the system.",
+      "name": "Full Name",
+      "email": "Email Address",
+      "role": "System Role",
+      "cooperative": "Assign to Cooperative",
+      "selectRole": "Select a role",
+      "selectCoop": "Select a cooperative",
+      "cancel": "Cancel",
+      "submit": "Send Invitation",
+      "sending": "Sending...",
+      "success": "Invitation sent successfully",
+      "error": "Failed to send invitation",
+      "validation": {
+        "name": "Name is required",
+        "email": "Invalid email address",
+        "role": "Role is required"
+      }
+    }
+  },
+  "userDashboard": {
+    "header": {
+      "panel": "Cooperative Panel",
+      "title": "Dashboard",
+      "welcome": "Welcome back <1>{{name}}</1>. Review your latest assessments and progress.",
+      "defaultUser": "User"
+    },
+    "cards": {
+      "answer": {
+        "title": "Answer Assessment",
+        "description": "Complete your digital gap assessment"
+      },
+      "actionPlan": {
+        "title": "Action Plan",
+        "description": "View your digitalization strategy"
+      },
+      "submissions": {
+        "title": "My Submissions",
+        "description": "Review your previous assessments"
+      }
+    },
+    "reports": {
+      "export": {
+        "title": "Export Reports",
+        "description": "Download your assessment results"
+      },
+      "recent": {
+        "title": "Recent Activity",
+        "description": "Your latest assessment submissions",
+        "viewAll": "View All",
+        "error": "Failed to load recent submissions",
+        "empty": "No recent submissions found"
+      }
+    },
+    "chart": {
+      "title": "Cooperative Digital Profile",
+      "description": "Overview of your latest assessment results"
+    }
+  },
+  "thirdAdmin": {
+    "header": {
+      "defaultType": "Cooperative Panel",
+      "title": "Cooperative Administrator Dashboard",
+      "welcome": "Welcome back <1>{{name}}</1>. Use these tools to keep your cooperative's assessments, users, and action plans on track.",
+      "defaultUser": "Administrator"
+    },
+    "cards": {
+      "manageUsers": {
+        "title": "Manage Users",
+        "description": "Invite and manage cooperative staff"
+      },
+      "answerAssessment": {
+        "title": "Answer Assessment",
+        "description": "Complete digital gap assessments"
+      },
+      "viewActionPlan": {
+        "title": "Action Plans",
+        "description": "Review your digitalization strategy"
+      },
+      "viewSubmissions": {
+        "title": "Submissions",
+        "description": "Track assessment completion"
+      }
+    },
+    "reports": {
+      "export": {
+        "title": "Export Reports",
+        "description": "Download assessment results"
+      },
+      "recent": {
+        "title": "Recent Activity",
+        "description": "Latest assessment submissions",
+        "viewAll": "View All",
+        "error": "Failed to load recent submissions",
+        "empty": "No recent submissions found"
+      }
+    },
+    "chart": {
+      "title": "Cooperative Digital Profile",
+      "description": "Overview of latest assessment results"
+    }
+  },
+  "home": {
+    "hero": {
+      "title": "Digital Gap Analysis Tool",
+      "subtitle": "Empowering DGRV supported organizations to identify, measure, and bridge digital gaps.",
+      "cta": "Get Started"
+    },
+    "features": {
+      "title": "Key Features",
+      "assessment": {
+        "title": "Comprehensive Assessment",
+        "desc": "Identify gaps across multiple dimensions of digitalisation."
+      },
+      "reports": {
+        "title": "Actionable Reports",
+        "desc": "Generate detailed reports and recommendations for improvement."
+      },
+      "tracking": {
+        "title": "Progress Tracking",
+        "desc": "Monitor your organisation's digitalisation journey over time."
+      }
+    }
+  },
+  "nav": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "login": "Login",
+    "logout": "Logout",
+    "settings": "Settings",
+    "profile": "Profile"
+  },
+  "consolidatedReport": {
+    "title": "Consolidated Report",
+    "subtitle": "Comprehensive overview of digital gap analysis",
+    "exportPDF": "Export PDF",
+    "metrics": {
+      "totalSubmissions": "Total Submissions"
+    },
+    "dimensions": {
+      "title": "Dimension Analysis",
+      "subtitle": "Detailed breakdown of risk levels and gap scores by dimension",
+      "popoverTitle": "About Dimension Analysis",
+      "popoverDesc": "This table provides a detailed breakdown of risk distribution for each dimension across all submissions. It helps in identifying which areas of your organization are most exposed to digital risks.",
+      "highRiskDesc": "The percentage of submissions where the dimension was assessed as high risk. High-risk areas require immediate attention.",
+      "mediumRiskDesc": "The percentage of submissions where the dimension was assessed as medium risk. These areas should be monitored.",
+      "lowRiskDesc": "The percentage of submissions where the dimension was assessed as low risk. These are areas of strength.",
+      "table": {
+        "dimension": "Dimension",
+        "highRisk": "High Risk %",
+        "mediumRisk": "Medium Risk %",
+        "lowRisk": "Low Risk %"
+      }
+    },
+    "focus": {
+      "high": {
+        "title": "Highest Risk Dimension & Recommendations",
+        "subtitle": "Priority focus area requiring immediate attention",
+        "popover": "This dimension has the highest average risk score across all submissions. It represents the most critical area requiring immediate action.",
+        "recTitle": "Top High-Priority Recommendations"
+      },
+      "medium": {
+        "title": "Dimension Needing Attention & Recommendations",
+        "subtitle": "This dimension has a moderate gap — worth monitoring and improving",
+        "popover": "This dimension has a moderate average risk score. It is not critical but should be monitored and improved over time.",
+        "recTitle": "Recommendations to Improve This Dimension"
+      },
+      "low": {
+        "title": "Dimension with Most Room to Improve",
+        "subtitle": "All dimensions are performing well. This one has the most potential for further growth",
+        "popover": "All dimensions are at low risk. This dimension has the highest score among them, meaning it has the most room for further improvement — not that it is at risk.",
+        "recTitle": "Suggestions to Further Strengthen This Dimension"
+      },
+      "aboutTitle": "About This Section",
+      "aboutDesc": "The recommendations below are tailored to this dimension and can be incorporated into your action plan.",
+      "avgScore": "Average Risk Score:",
+      "lowRisk": "Low",
+      "mediumRisk": "Medium",
+      "highRisk": "High"
+    },
+    "chart": {
+      "title": "Dominant Risk level by Dimension",
+      "subtitle": "Percentage of dominant risk level per dimension",
+      "aboutTitle": "About Dominant Risk",
+      "aboutDesc1": "This bar chart visualizes the most dominant risk level (High, Medium, or Low) for each dimension. The dominant risk is the risk level with the highest percentage of submissions for that dimension.",
+      "aboutDesc2": "This provides a quick overview of the general risk profile of each dimension, helping you to easily spot which dimensions are consistently ranked as high-risk.",
+      "lowRisk": "Low Risk",
+      "mediumRisk": "Medium Risk",
+      "highRisk": "High Risk"
+    },
+    "errors": {
+      "fetch": "Failed to fetch consolidated report",
+      "loadTitle": "Error Loading Report",
+      "tryAgain": "Try Again"
+    },
+    "empty": {
+      "title": "No Report Data Available",
+      "desc": "There is no consolidated report data to display at this time.",
+      "refresh": "Refresh Data"
+    }
+  },
+  "orgReports": {
+    "loadingError": "Error loading reports: {{message}}",
+    "backToOrgs": "Back to Organizations",
+    "title": "Organization Reports",
+    "subtitle": "View submissions for Organization {{name}}",
+    "selectSubmission": "Select a submission",
+    "noSubmissions": "No submissions found for this organization."
+  },
+  "exportReport": {
+    "missingId": "Missing submission ID",
+    "loadingError": "Error loading report: {{message}}",
+    "notFound": "Report not found",
+    "back": "Back to Submissions",
+    "title": "Export Report",
+    "subtitle": "Generate and download a professional PDF report of the digitalisation gap assessment",
+    "generating": "Generating PDF...",
+    "generateBtn": "Generate PDF",
+    "details": "Submission Details"
+  },
+  "sharedPages": {
+    "manageUsers": {
+      "title": "Manage Organization Users",
+      "subtitle": "Select an organization to manage its users and invitations.",
+      "error": "Error loading organizations: {{message}}",
+      "emptyTitle": "No organizations found",
+      "emptyDesc": "You must create or be assigned to an organization to manage users."
+    }
+  },
+  "viewReports": {
+    "loadingError": "Error loading reports: {{message}}",
+    "title": "View Reports",
+    "subtitle": "Review and export comprehensive reports for organizations",
+    "selectOrg": "Select an Organization",
+    "noOrgs": "No organizations found."
+  },
+  "secondAdmin": {
+    "header": {
+      "title": "Cooperative Management Dashboard",
+      "welcome": "Welcome back <1>{{name}}</1>. Use these tools to manage cooperatives, users, assessments, and action plans.",
+      "defaultUser": "Administrator"
+    },
+    "cards": {
+      "manageCoops": {
+        "title": "Manage Cooperatives",
+        "description": "View and manage cooperative profiles"
+      },
+      "manageUsers": {
+        "title": "Cooperative Users",
+        "description": "Invite and manage cooperative staff"
+      },
+      "createAssessment": {
+        "title": "Create Assessment",
+        "description": "Assign new assessments to cooperatives"
+      },
+      "viewActionPlan": {
+        "title": "Action Plans",
+        "description": "Review and update digitalization strategies"
+      },
+      "viewSubmissions": {
+        "title": "Submissions",
+        "description": "Track assessment completion progress"
+      },
+      "consolidatedReport": {
+        "title": "Consolidated Report",
+        "description": "Analyze overall digitalization gaps"
+      }
+    },
+    "reports": {
+      "export": {
+        "title": "Export Reports",
+        "description": "Generate PDF reports for your organization"
+      },
+      "recent": {
+        "title": "Recent Submissions",
+        "description": "Latest assessment activities",
+        "viewAll": "View All",
+        "error": "Failed to load recent submissions",
+        "empty": "No recent submissions found"
+      }
+    },
+    "chart": {
+      "title": "Organization Digital Profile",
+      "description": "Overview of latest assessment results"
+    },
+    "consolidatedReportPage": {
+      "orgIdNotFound": "Organization ID not found"
+    }
+  },
+  "sharedSubmissions": {
+    "manage": {
+      "accessDenied": "Access Denied",
+      "accessDeniedDesc": "You do not have the required permissions to view this page.",
+      "titleSubDetails": "Submission Details",
+      "titleMySubmissions": "My Submissions",
+      "descSubDetails": "View the details and gap analysis of this submission.",
+      "descMySubmissions": "Track and review your digitalization gap assessments.",
+      "errorLoading": "Error loading submissions",
+      "retry": "Retry",
+      "noCooperative": "No cooperative determined for your user.",
+      "noSubmissionsForAssessment": "No submissions found for this assessment.",
+      "noSubmissionsForOrg": "No submissions found for your organization.",
+      "noSubmissionsForCoop": "No submissions found for your cooperative.",
+      "noSubmissions": "No submissions found."
+    }
+  },
+  "sharedAssessments": {
+    "manage": {
+      "noCooperations": "No cooperatives found",
+      "createCooperationFirst": "Please create at least one cooperative before creating an assessment.",
+      "title": "Manage Assessments",
+      "subtitle": "Create and manage digital gap assessments for your cooperatives.",
+      "createBtn": "Create Assessment",
+      "unableToLoadError": "Unable to load assessments",
+      "noCooperativeDetermined": "No cooperative determined",
+      "resolveCooperativeError": "We couldn't determine which cooperative you belong to.",
+      "noDraftsTitle": "No draft assessments",
+      "noDraftsSubtitle": "Start by creating your first assessment for a cooperative."
+    },
+    "adminManageDigitalGaps": {
+      "title": "Manage Digitalisation Gaps",
+      "subtitle": "Define and manage the gaps that represent digitalisation challenges.",
+      "addBtn": "Add Digitalisation Gap",
+      "error": "Error loading digitalization gaps: {{message}}"
+    },
+    "adminGaps": {
+      "title": "Digitalisation Gaps",
+      "addBtn": "Add Digitalization Gap",
+      "list": {
+        "empty": "No digitalization gaps found."
+      },
+      "validation": {
+        "dimensionRequired": "Dimension is required",
+        "descriptionRequired": "Description is required",
+        "duplicateGap": "A gap for this dimension and severity already exists"
+      },
+      "form": {
+        "titleAdd": "Add Digitalization Gap",
+        "titleEdit": "Edit Digitalization Gap",
+        "descAdd": "Create a new digitalization gap definition.",
+        "descEdit": "Update the digitalization gap details.",
+        "dimension": "Dimension",
+        "selectDimension": "Select a dimension",
+        "severity": "Severity",
+        "selectSeverity": "Select severity",
+        "description": "Description",
+        "descPlaceholder": "Enter detailed gap description",
+        "saving": "Saving..."
+      },
+      "updateBtn": "Update Digitalization Gap",
+      "createBtn": "Create Digitalization Gap"
+    }
+  }
+}

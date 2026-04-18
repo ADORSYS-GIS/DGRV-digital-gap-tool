@@ -19,17 +19,20 @@ import { useAuth } from "@/context/AuthContext";
 import { Home, LogOut, Menu, User, X } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 
 export const Navbar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { isAuthenticated, user, login, logout } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const roles =
     isAuthenticated && user
       ? [...(user.roles || []), ...(user.realm_access?.roles || [])].map((r) =>
-          r.toLowerCase(),
-        )
+        r.toLowerCase(),
+      )
       : [];
 
   const hasAdminRole = roles.includes(ROLES.ADMIN);
@@ -105,13 +108,15 @@ export const Navbar = () => {
                   onClick={() => navigate(getHomeRoute())}
                 >
                   <Home className="w-4 h-4" />
-                  <span>Home</span>
+                  <span>{t('nav.home')}</span>
                 </Button>
               </div>
             </div>
 
             {/* Right side */}
             <div className="flex items-center gap-3">
+              <LanguageSwitcher />
+
               {/* Desktop Auth/Profile */}
               <div className="hidden md:block">
                 {!isAuthenticated ? (
@@ -188,9 +193,8 @@ export const Navbar = () => {
 
       {/* Mobile Sidebar */}
       <div
-        className={`fixed top-0 left-0 h-full w-72 bg-gradient-to-b from-blue-50 to-white shadow-xl transform transition-transform duration-300 ease-in-out z-50 md:hidden ${
-          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`fixed top-0 left-0 h-full w-72 bg-gradient-to-b from-blue-50 to-white shadow-xl transform transition-transform duration-300 ease-in-out z-50 md:hidden ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
       >
         <div className="flex flex-col h-full">
           {/* Sidebar Header */}

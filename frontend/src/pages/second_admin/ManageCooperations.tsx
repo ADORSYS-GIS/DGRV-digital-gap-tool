@@ -1,19 +1,15 @@
-/**
- * Page for managing cooperations.
- * This page allows administrators to view, add, edit, and delete cooperations.
- */
-
 import { AddCooperationForm } from "@/components/second_admin/cooperations/AddCooperationForm";
 import { CooperationList } from "@/components/second_admin/cooperations/CooperationList";
-import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { useCooperations } from "@/hooks/cooperations/useCooperations";
 import { useDeleteCooperation } from "@/hooks/cooperations/useDeleteCooperation";
 import { useUpdateCooperation } from "@/hooks/cooperations/useUpdateCooperation";
 import { useOrganizationId } from "@/hooks/organizations/useOrganizationId";
 import { Cooperation } from "@/types/cooperation";
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 const ManageCooperations: React.FC = () => {
+  const { t } = useTranslation();
   const organizationId = useOrganizationId();
   const {
     data: cooperations,
@@ -41,10 +37,10 @@ const ManageCooperations: React.FC = () => {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
           <div>
             <h1 className="text-3xl font-bold tracking-tight text-foreground">
-              Manage Cooperatives
+              {t("secondAdmin.manageCoops.title")}
             </h1>
             <p className="mt-2 text-muted-foreground">
-              Add and manage cooperatives profiles and data
+              {t("secondAdmin.manageCoops.description")}
             </p>
           </div>
           <AddCooperationForm />
@@ -63,7 +59,7 @@ const ManageCooperations: React.FC = () => {
 
         {error && (
           <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-destructive">
-            <p className="font-medium">An error occurred</p>
+            <p className="font-medium">{t("common.errorOccurred")}</p>
             <p className="text-sm opacity-90">{error.message}</p>
           </div>
         )}
@@ -87,10 +83,10 @@ const ManageCooperations: React.FC = () => {
               </svg>
             </div>
             <h3 className="mt-4 text-lg font-semibold">
-              No cooperatives found
+              {t("secondAdmin.manageCoops.empty.title")}
             </h3>
             <p className="mb-4 mt-2 text-sm text-muted-foreground max-w-sm">
-              Get started by creating a new cooperative profile.
+              {t("secondAdmin.manageCoops.empty.description")}
             </p>
             <AddCooperationForm />
           </div>

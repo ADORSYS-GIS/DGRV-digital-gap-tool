@@ -3,6 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Pencil, Type, FileText } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -16,10 +17,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { useUpdateDimension } from "@/hooks/dimensions/useUpdateDimension";
 import { IDimension } from "@/types/dimension";
 
-const formSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  description: z.string().optional(),
-});
+const formSchema = (t: any) =>
+  z.object({
+    name: z.string().min(1, t("adminDimensions.validation.nameRequired")),
+    description: z.string().optional(),
+  });
 
 type EditDimensionFormProps = {
   dimension: IDimension;
@@ -28,10 +30,11 @@ type EditDimensionFormProps = {
 export const EditDimensionForm = ({ dimension }: EditDimensionFormProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { t } = useTranslation();
   const { mutate: updateDimension } = useUpdateDimension();
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<ReturnType<typeof formSchema>>>({
+    resolver: zodResolver(formSchema(t)),
     defaultValues: {
       name: dimension.name,
       description: dimension.description ?? "",
@@ -48,7 +51,7 @@ export const EditDimensionForm = ({ dimension }: EditDimensionFormProps) => {
     }
   }, [isOpen, form, dimension]);
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
+  const onSubmit = (values: z.infer<ReturnType<typeof formSchema>>) => {
     setIsSubmitting(true);
     const dimensionToUpdate: Partial<IDimension> = {
       name: values.name,
@@ -71,7 +74,7 @@ export const EditDimensionForm = ({ dimension }: EditDimensionFormProps) => {
           variant="outline"
           className="w-full justify-center border-blue-200 text-blue-700 hover:bg-blue-50 hover:text-blue-800 hover:border-blue-300 transition-colors"
         >
-          <Pencil className="mr-2 h-4 w-4" /> Edit
+          <Pencil className="mr-2 h-4 w-4" /> {t("common.edit")}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden rounded-2xl border-0 shadow-2xl">
@@ -82,11 +85,11 @@ export const EditDimensionForm = ({ dimension }: EditDimensionFormProps) => {
                 <Pencil className="h-5 w-5" />
               </div>
               <DialogTitle className="text-2xl font-bold text-gray-900">
-                Edit Dimension
+                {t("adminDimensions.form.titleEdit")}
               </DialogTitle>
             </div>
             <p className="text-sm text-muted-foreground pl-12">
-              Update the details of this dimension.
+              {t("adminDimensions.form.descEdit")}
             </p>
           </DialogHeader>
         </div>
@@ -97,7 +100,7 @@ export const EditDimensionForm = ({ dimension }: EditDimensionFormProps) => {
                 htmlFor="name"
                 className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-gray-700"
               >
-                Dimension Name
+                {t("adminDimensions.form.name")}
               </label>
               <div className="relative">
                 <Type className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
@@ -118,7 +121,7 @@ export const EditDimensionForm = ({ dimension }: EditDimensionFormProps) => {
                 htmlFor="description"
                 className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-gray-700"
               >
-                Description
+                {t("adminDimensions.form.description")}
               </label>
               <div className="relative">
                 <FileText className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
@@ -142,10 +145,11 @@ export const EditDimensionForm = ({ dimension }: EditDimensionFormProps) => {
               >
                 {isSubmitting ? (
                   <span className="flex items-center gap-2">
-                    <span className="animate-spin">⏳</span> Updating...
+                    <span className="animate-spin">⏳</span>{" "}
+                    {t("adminDimensions.form.updating")}
                   </span>
                 ) : (
-                  "Update Dimension"
+                  t("adminDimensions.updateBtn")
                 )}
               </Button>
             </div>

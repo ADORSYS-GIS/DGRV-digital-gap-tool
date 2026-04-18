@@ -7,6 +7,7 @@
  * - Visual indicators for each metric
  */
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileText, CheckCircle, TrendingUp } from "lucide-react";
 
@@ -21,12 +22,13 @@ export const UserStats: React.FC<UserStatsProps> = ({
   completionRate,
   averageScore,
 }) => {
+  const { t } = useTranslation();
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">
-            Total Assessments
+            {t("userComponents.stats.total")}
           </CardTitle>
           <FileText className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
@@ -37,7 +39,7 @@ export const UserStats: React.FC<UserStatsProps> = ({
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Completion Rate</CardTitle>
+          <CardTitle className="text-sm font-medium">{t("userComponents.stats.completion")}</CardTitle>
           <CheckCircle className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
@@ -47,7 +49,7 @@ export const UserStats: React.FC<UserStatsProps> = ({
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Average Score</CardTitle>
+          <CardTitle className="text-sm font-medium">{t("userComponents.stats.average")}</CardTitle>
           <TrendingUp className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>

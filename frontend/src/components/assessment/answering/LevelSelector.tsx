@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { useEffect, useCallback, useMemo } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface LevelSelectorProps {
   /** The title of the level selector */
@@ -40,6 +41,7 @@ export function LevelSelector({
   className,
   testId = "level-selector",
 }: LevelSelectorProps) {
+  const { t } = useTranslation();
   const levels = useMemo(
     () => availableLevels.sort((a, b) => a.value - b.value),
     [availableLevels],
@@ -141,7 +143,7 @@ export function LevelSelector({
         type="button"
         role="radio"
         aria-checked={safeLevel === lvl.value ? "true" : "false"}
-        aria-label={`Level ${lvl.value}`}
+        aria-label={t("assessmentAnswering.selector.ariaLabel", { level: lvl.value })}
         className={cn(
           "w-10 h-10 flex items-center justify-center rounded-full transition-colors",
           "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background",
@@ -183,13 +185,13 @@ export function LevelSelector({
             "p-1 rounded-full hover:bg-muted",
             safeLevel <= minLevel && "opacity-50 cursor-not-allowed",
           )}
-          aria-label="Previous level"
+          aria-label={t("assessmentAnswering.selector.prev")}
         >
           <ChevronLeft className="h-5 w-5" />
         </button>
 
         <span className="text-sm text-muted-foreground">
-          Level {safeLevel} of {maxLevel}: {selectedLevelData?.name}
+          {t("assessmentAnswering.selector.levelRange", { current: safeLevel, total: maxLevel, name: selectedLevelData?.name })}
         </span>
 
         <button
@@ -208,7 +210,7 @@ export function LevelSelector({
             "p-1 rounded-full hover:bg-muted",
             safeLevel >= maxLevel && "opacity-50 cursor-not-allowed",
           )}
-          aria-label="Next level"
+          aria-label={t("assessmentAnswering.selector.next")}
         >
           <ChevronRight className="h-5 w-5" />
         </button>
