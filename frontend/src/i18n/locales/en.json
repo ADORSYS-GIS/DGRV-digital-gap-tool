@@ -593,23 +593,64 @@
   "home": {
     "hero": {
       "title": "Digital Gap Analysis Tool",
-      "subtitle": "Empowering DGRV supported organizations to identify, measure, and bridge digital gaps.",
-      "cta": "Get Started"
+      "subtitle": "Empowering cooperatives with data-driven digital transformation",
+      "description": "Identify, measure and bridge the digital gaps within your cooperative. Get actionable insights and strategic recommendations tailored to your organization.",
+      "getStarted": "Get Started",
+      "continueToDashboard": "Go to Dashboard"
     },
     "features": {
       "title": "Key Features",
-      "assessment": {
-        "title": "Comprehensive Assessment",
+      "subtitle": "Everything you need to assess and improve your cooperative's digital maturity",
+      "gapAssessment": {
+        "title": "Gap Assessment",
         "desc": "Identify gaps across multiple dimensions of digitalisation."
       },
-      "reports": {
-        "title": "Actionable Reports",
-        "desc": "Generate detailed reports and recommendations for improvement."
+      "strategy": {
+        "title": "Strategic Planning",
+        "desc": "Define clear targets and a roadmap for digital transformation."
       },
       "tracking": {
         "title": "Progress Tracking",
         "desc": "Monitor your organisation's digitalisation journey over time."
       }
+    },
+    "header": {
+      "logoText": "D.G. MEMBER INSTITUTION",
+      "login": "Sign In"
+    },
+    "benefits": {
+      "title": "Why Choose This Tool?",
+      "subtitle": "Built specifically for DGRV member cooperatives and organisations",
+      "empowerment": {
+        "title": "Member Empowerment",
+        "desc": "Give every cooperative the data and tools to take charge of their digital journey."
+      },
+      "secure": {
+        "title": "Secure & Reliable",
+        "desc": "Enterprise-grade security ensuring your data stays protected."
+      },
+      "accessible": {
+        "title": "Globally Accessible",
+        "desc": "Use the tool from anywhere, in multiple languages."
+      }
+    },
+    "partners": {
+      "title": "Supported By",
+      "subtitle": "This tool is developed and maintained in collaboration with leading organisations",
+      "dgrv": "German Cooperative and Raiffeisen Confederation",
+      "bmz": "Federal Ministry for Economic Cooperation and Development"
+    },
+    "cta": {
+      "title": "Ready to Start Your Digital Transformation?",
+      "subtitle": "Join hundreds of cooperatives already using this tool to drive meaningful change.",
+      "getStartedNow": "Get Started Now",
+      "goDashboard": "Go to Dashboard"
+    },
+    "footer": {
+      "copyright": "© {{year}} DGRV Digital Gap Tool. All rights reserved.",
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service",
+      "contact": "Contact"
     }
   },
   "nav": {
@@ -618,7 +659,12 @@
     "login": "Login",
     "logout": "Logout",
     "settings": "Settings",
-    "profile": "Profile"
+    "profile": "Profile",
+    "signIn": "Sign In",
+    "signOut": "Sign Out",
+    "navigation": "Navigation",
+    "account": "Account",
+    "appDescription": "DGRV Digital Gap Analysis Tool"
   },
   "consolidatedReport": {
     "title": "Consolidated Report",
@@ -839,6 +885,105 @@
       },
       "updateBtn": "Update Digitalization Gap",
       "createBtn": "Create Digitalization Gap"
+    }
+  },
+  "answerDimension": {
+    "loadingAssessment": "Loading assessment…",
+    "failedToLoad": "Failed to load dimension details.",
+    "tryAgainLater": "Please try again later.",
+    "backToAssessment": "Back to assessment",
+    "notAllowed": "You are not allowed to answer this dimension.",
+    "notAssigned": "This assessment dimension is not assigned to your account.",
+    "dimensionAssessment": "{{name}} assessment",
+    "lockedBanner": "This dimension is assigned to a cooperative user. You can view the answers but cannot edit them.",
+    "dismiss": "Dismiss",
+    "previous": "Previous",
+    "goBack": "Go Back",
+    "next": "Next"
+  },
+  "adminManageDimensions": {
+    "title": "Manage Dimensions",
+    "subtitle": "Create and manage the digitalisation dimensions used in assessments.",
+    "addBtn": "Add Dimension",
+    "error": "Error loading dimensions: {{message}}"
+  },
+  "adminManageDigitalLevels": {
+    "titleCurrent": "Manage Current Digitalisation Levels",
+    "titleDesired": "Manage Desired Digitalisation Levels",
+    "selectType": "Please select a level type.",
+    "cardTitle": "Digitalisation Levels",
+    "cardSubtitle": "Managing {{type}} state levels",
+    "addBtn": "Add Level"
+  },
+  "adminManageRecs": {
+    "title": "Manage Recommendations",
+    "subtitle": "Create and manage strategic recommendations for each digitalisation dimension.",
+    "addBtn": "Add Recommendation",
+    "errorLoading": "Error loading recommendations",
+    "retryBtn": "Try again",
+    "noRecs": "No recommendations yet",
+    "noRecsSubtitle": "Get started by adding your first recommendation."
+  },
+  "adminActionPlans": {
+    "title": "Action Plans",
+    "subtitle": "View and manage digitalisation action plans for organizations.",
+    "selectOrg": "Select an Organization",
+    "backToOrgs": "Back to organizations",
+    "selectSubmission": "Select a Submission"
+  },
+  "adminManageActionPlan": {
+    "title": "Action Plan Configuration",
+    "subtitle": "Manage and configure action plan settings.",
+    "configSettings": "Configuration Settings",
+    "underDevelopment": "This feature is currently under development. Please check back later."
+  },
+  "adminManageDigitalGaps": {
+    "title": "Manage Digitalisation Gaps",
+    "subtitle": "Define and manage the gaps that represent digitalisation challenges.",
+    "addBtn": "Add Digitalisation Gap",
+    "error": "Error loading digitalization gaps: {{message}}"
+  },
+  "sidebar": {
+    "admin": {
+      "panelName": "Admin Panel",
+      "infoText": "Administrator panel for managing the entire system, including organizations, dimensions, and recommendations.",
+      "dashboard": "Dashboard",
+      "organizations": "Organizations",
+      "dimensions": "Dimensions",
+      "recommendations": "Recommendations",
+      "actionPlan": "Action Plan",
+      "digitalGaps": "Digital Gaps",
+      "manageUsers": "Manage Users",
+      "viewReports": "View Reports",
+      "consolidatedReport": "Consolidated Report"
+    },
+    "secondAdmin": {
+      "panelName": "Organisation Admin",
+      "infoText": "Panel for organization administrators to manage their cooperatives, users, and assessments.",
+      "dashboard": "Dashboard",
+      "cooperatives": "Cooperatives",
+      "manageUsers": "Manage Users",
+      "createAssessment": "Create Assessment",
+      "actionPlan": "Action Plan",
+      "submissions": "Submissions",
+      "consolidatedReport": "Consolidated Report"
+    },
+    "thirdAdmin": {
+      "panelName": "Cooperative Admin",
+      "infoText": "Panel for cooperative administrators to manage users and answer assessments for their cooperative.",
+      "dashboard": "Dashboard",
+      "manageUsers": "Manage Users",
+      "answerAssessment": "Answer Assessment",
+      "actionPlan": "View Action Plan",
+      "viewSubmissions": "View Submissions"
+    },
+    "user": {
+      "panelName": "Cooperative User",
+      "infoText": "Panel for cooperative users to create assessments and view action plans.",
+      "dashboard": "Dashboard",
+      "answerAssessment": "Answer Assessment",
+      "actionPlan": "Action Plan",
+      "submissions": "Submissions"
     }
   }
 }

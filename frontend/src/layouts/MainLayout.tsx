@@ -15,7 +15,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   return (
     <div className="h-screen overflow-hidden flex flex-col bg-gray-50">
       {shouldShowNavbar && <Navbar />}
-      <main className={`flex-1 overflow-hidden ${shouldShowNavbar ? "pt-16" : ""}`}>
+      <main className={`flex-1 overflow-auto ${shouldShowNavbar ? "pt-16" : ""}`}>
         {children}
       </main>
       <Toaster />

@@ -23,6 +23,7 @@ import { calculateGapScore } from "@/utils/gapCalculation";
 import { ArrowLeft, Lock } from "lucide-react";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 interface RouteParams extends Record<string, string | undefined> {
   assessmentId: string;
@@ -40,6 +41,7 @@ interface DimensionWithStates extends IDimensionWithStates {
 }
 
 export const AnswerDimensionAssessmentPage: React.FC = () => {
+  const { t } = useTranslation();
   const { assessmentId, dimensionId } = useParams<RouteParams>();
   const navigate = useNavigate();
   const location = useLocation();
@@ -387,7 +389,7 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
       <div className="flex min-h-screen items-center justify-center bg-background">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-          <span>Loading assessment…</span>
+          <span>{t("answerDimension.loadingAssessment")}</span>
         </div>
       </div>
     );
@@ -398,14 +400,14 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background px-4">
         <div className="max-w-md space-y-4 rounded-xl border border-destructive/40 bg-destructive/10 px-6 py-5 text-sm text-destructive">
-          <p className="font-semibold">Failed to load dimension details.</p>
+          <p className="font-semibold">{t("answerDimension.failedToLoad")}</p>
           <p className="opacity-90">
-            {dimensionError?.message || "Please try again later."}
+            {dimensionError?.message || t("answerDimension.tryAgainLater")}
           </p>
           <div className="pt-1">
             <Button variant="outline" size="sm" onClick={handleBack}>
               <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to assessment
+              {t("answerDimension.backToAssessment")}
             </Button>
           </div>
         </div>
@@ -419,15 +421,15 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
       <div className="flex min-h-screen items-center justify-center bg-background px-4">
         <div className="max-w-md space-y-4 rounded-xl border border-destructive/40 bg-destructive/10 px-6 py-5 text-sm text-destructive">
           <p className="font-semibold">
-            You are not allowed to answer this dimension.
+            {t("answerDimension.notAllowed")}
           </p>
           <p className="opacity-90">
-            This assessment dimension is not assigned to your account.
+            {t("answerDimension.notAssigned")}
           </p>
           <div className="pt-1">
             <Button variant="outline" size="sm" onClick={handleBack}>
               <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to assessment
+              {t("answerDimension.backToAssessment")}
             </Button>
           </div>
         </div>
@@ -451,7 +453,7 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
             onClick={handleBack}
           >
             <ArrowLeft className="h-4 w-4" />
-            Back
+            {t("common.back")}
           </Button>
         </div>
 
@@ -465,7 +467,7 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
           </div>
           <div>
             <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-              {dimension.name} assessment
+              {t("answerDimension.dimensionAssessment", { name: dimension.name })}
             </h1>
             {dimension.description && (
               <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
@@ -480,7 +482,7 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
           <div className="flex items-center gap-3 rounded-lg border border-muted bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
             <Lock className="h-4 w-4 shrink-0" aria-hidden="true" />
             <span>
-              This dimension is assigned to a cooperative user. You can view the answers but cannot edit them.
+              {t("answerDimension.lockedBanner")}
             </span>
           </div>
         )}
@@ -495,7 +497,7 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
                 onClick={handleCloseError}
                 className="text-xs font-medium underline underline-offset-2"
               >
-                Dismiss
+                {t("answerDimension.dismiss")}
               </button>
             </div>
           </div>
@@ -509,7 +511,7 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
             desiredState: dimension.desiredState || null,
           }}
           isSubmitting={isSubmitting}
-          onSubmit={isLockedForCoopAdmin ? async () => {} : handleSubmit}
+          onSubmit={isLockedForCoopAdmin ? async () => { } : handleSubmit}
           error={error || null}
           existingAssessment={existingAssessment || null}
           readOnly={isLockedForCoopAdmin}
@@ -518,40 +520,40 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
           (existingAssessment?.gap_id &&
             existingAssessment.currentState.level > 0 &&
             existingAssessment.desiredState.level > 0)) && (
-          <GapDescriptionDisplay
-            gapId={(showResult && gapId) || existingAssessment?.gap_id || ""}
-            currentLevel={
-              submittedData?.currentLevel ||
-              existingAssessment?.currentState.level ||
-              0
-            }
-            desiredLevel={
-              submittedData?.desiredLevel ||
-              existingAssessment?.desiredState.level ||
-              0
-            }
-            currentLevelDescription={
-              submittedData?.currentLevelDescription ||
-              existingAssessment?.currentState.description ||
-              ""
-            }
-            desiredLevelDescription={
-              submittedData?.desiredLevelDescription ||
-              existingAssessment?.desiredState.description ||
-              ""
-            }
-            currentLevelTitle={
-              submittedData?.currentLevelTitle ||
-              existingAssessment?.currentState.name ||
-              ""
-            }
-            desiredLevelTitle={
-              submittedData?.desiredLevelTitle ||
-              existingAssessment?.desiredState.name ||
-              ""
-            }
-          />
-        )}
+            <GapDescriptionDisplay
+              gapId={(showResult && gapId) || existingAssessment?.gap_id || ""}
+              currentLevel={
+                submittedData?.currentLevel ||
+                existingAssessment?.currentState.level ||
+                0
+              }
+              desiredLevel={
+                submittedData?.desiredLevel ||
+                existingAssessment?.desiredState.level ||
+                0
+              }
+              currentLevelDescription={
+                submittedData?.currentLevelDescription ||
+                existingAssessment?.currentState.description ||
+                ""
+              }
+              desiredLevelDescription={
+                submittedData?.desiredLevelDescription ||
+                existingAssessment?.desiredState.description ||
+                ""
+              }
+              currentLevelTitle={
+                submittedData?.currentLevelTitle ||
+                existingAssessment?.currentState.name ||
+                ""
+              }
+              desiredLevelTitle={
+                submittedData?.desiredLevelTitle ||
+                existingAssessment?.desiredState.name ||
+                ""
+              }
+            />
+          )}
 
         <div className="flex justify-between pb-4 pt-2">
           <Button
@@ -561,7 +563,7 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
             disabled={isFirstDimension}
             className="min-w-[180px]"
           >
-            Previous
+            {t("answerDimension.previous")}
           </Button>
           {isLastDimension ? (
             <Button
@@ -571,7 +573,7 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
               data-testid="continue-button"
               className="min-w-[180px]"
             >
-              Go Back
+              {t("answerDimension.goBack")}
             </Button>
           ) : (
             <Button
@@ -581,7 +583,7 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
               data-testid="continue-button"
               className="min-w-[180px]"
             >
-              Next
+              {t("answerDimension.next")}
             </Button>
           )}
         </div>

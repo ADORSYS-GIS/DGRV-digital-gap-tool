@@ -605,23 +605,64 @@
   "home": {
     "hero": {
       "title": "Outil d'Analyse des Écarts Numériques",
-      "subtitle": "Permettre aux organisations soutenues par le DGRV d'identifier, de mesurer et de combler les lacunes numériques.",
-      "cta": "Commencer"
+      "subtitle": "Permettre aux coopératives de se transformer numériquement grâce aux données",
+      "description": "Identifiez, mesurez et comblez les écarts numériques au sein de votre coopérative. Obtenez des informations exploitables et des recommandations stratégiques adaptées à votre organisation.",
+      "getStarted": "Commencer",
+      "continueToDashboard": "Aller au Tableau de Bord"
     },
     "features": {
       "title": "Fonctionnalités Clés",
-      "assessment": {
-        "title": "Évaluation Complète",
-        "desc": "Identifier les lacunes dans plusieurs dimensions de la numérisation."
+      "subtitle": "Tout ce dont vous avez besoin pour évaluer et améliorer la maturité numérique de votre coopérative",
+      "gapAssessment": {
+        "title": "Évaluation des Écarts",
+        "desc": "Identifiez les écarts à travers plusieurs dimensions de numérisation."
       },
-      "reports": {
-        "title": "Rapports Exploitables",
-        "desc": "Générer des rapports détaillés et des recommandations d'amélioration."
+      "strategy": {
+        "title": "Planification Stratégique",
+        "desc": "Définissez des objectifs clairs et une feuille de route pour la transformation numérique."
       },
       "tracking": {
         "title": "Suivi des Progrès",
-        "desc": "Suivez le parcours de numérisation de votre organisation au fil du temps."
+        "desc": "Surveillez le parcours de numérisation de votre organisation au fil du temps."
       }
+    },
+    "header": {
+      "logoText": "D.G. INSTITUTION MEMBRE",
+      "login": "Se Connecter"
+    },
+    "benefits": {
+      "title": "Pourquoi Choisir Cet Outil ?",
+      "subtitle": "Conçu spécifiquement pour les coopératives et organisations membres du DGRV",
+      "empowerment": {
+        "title": "Autonomisation des Membres",
+        "desc": "Donnez à chaque coopérative les données et outils pour maîtriser son parcours numérique."
+      },
+      "secure": {
+        "title": "Sécurisé et Fiable",
+        "desc": "Sécurité de niveau entreprise garantissant la protection de vos données."
+      },
+      "accessible": {
+        "title": "Accessible Mondialement",
+        "desc": "Utilisez l'outil depuis n'importe où, en plusieurs langues."
+      }
+    },
+    "partners": {
+      "title": "Soutenu Par",
+      "subtitle": "Cet outil est développé et maintenu en collaboration avec des organisations leaders",
+      "dgrv": "Confédération Allemande des Coopératives et Raiffeisen",
+      "bmz": "Ministère Fédéral de la Coopération Économique et du Développement"
+    },
+    "cta": {
+      "title": "Prêt à Commencer Votre Transformation Numérique ?",
+      "subtitle": "Rejoignez des centaines de coopératives qui utilisent déjà cet outil pour conduire un changement significatif.",
+      "getStartedNow": "Commencer Maintenant",
+      "goDashboard": "Aller au Tableau de Bord"
+    },
+    "footer": {
+      "copyright": "© {{year}} DGRV Outil d'Analyse des Écarts Numériques. Tous droits réservés.",
+      "privacy": "Politique de Confidentialité",
+      "terms": "Conditions d'Utilisation",
+      "contact": "Contact"
     }
   },
   "nav": {
@@ -630,7 +671,12 @@
     "login": "Connexion",
     "logout": "Déconnexion",
     "settings": "Paramètres",
-    "profile": "Profil"
+    "profile": "Profil",
+    "signIn": "Se Connecter",
+    "signOut": "Se Déconnecter",
+    "navigation": "Navigation",
+    "account": "Compte",
+    "appDescription": "Outil d'Analyse des Écarts Numériques DGRV"
   },
   "consolidatedReport": {
     "title": "Rapport Consolidé",
@@ -822,9 +868,9 @@
   },
   "adminManageDigitalGaps": {
     "title": "Gérer les Écarts de Numérisation",
-    "subtitle": "Définir et gérer les écarts qui représentent des défis de numérisation.",
+    "subtitle": "Définissez et gérez les écarts qui représentent des défis de numérisation.",
     "addBtn": "Ajouter un Écart de Numérisation",
-    "error": "Erreur lors du chargement des écarts de numérisation : {{message}}"
+    "error": "Erreur lors du chargement des écarts : {{message}}"
   },
   "adminGaps": {
     "title": "Écarts de Numérisation",
@@ -852,5 +898,98 @@
     },
     "updateBtn": "Mettre à jour l'écart de numérisation",
     "createBtn": "Créer l'écart de numérisation"
+  },
+  "answerDimension": {
+    "loadingAssessment": "Chargement de l'évaluation…",
+    "failedToLoad": "Impossible de charger les détails de la dimension.",
+    "tryAgainLater": "Veuillez réessayer plus tard.",
+    "backToAssessment": "Retour à l'évaluation",
+    "notAllowed": "Vous n'êtes pas autorisé à répondre à cette dimension.",
+    "notAssigned": "Cette dimension d'évaluation n'est pas assignée à votre compte.",
+    "dimensionAssessment": "Évaluation {{name}}",
+    "lockedBanner": "Cette dimension est assignée à un utilisateur coopératif. Vous pouvez consulter les réponses mais ne pouvez pas les modifier.",
+    "dismiss": "Ignorer",
+    "previous": "Précédent",
+    "goBack": "Retour",
+    "next": "Suivant"
+  },
+  "adminManageDimensions": {
+    "title": "Gérer les Dimensions",
+    "subtitle": "Créez et gérez les dimensions de numérisation utilisées dans les évaluations.",
+    "addBtn": "Ajouter une Dimension",
+    "error": "Erreur lors du chargement des dimensions : {{message}}"
+  },
+  "adminManageDigitalLevels": {
+    "titleCurrent": "Gérer les Niveaux de Numérisation Actuels",
+    "titleDesired": "Gérer les Niveaux de Numérisation Souhaités",
+    "selectType": "Veuillez sélectionner un type de niveau.",
+    "cardTitle": "Niveaux de Numérisation",
+    "cardSubtitle": "Gestion des niveaux d'état {{type}}",
+    "addBtn": "Ajouter un Niveau"
+  },
+  "adminManageRecs": {
+    "title": "Gérer les Recommandations",
+    "subtitle": "Créez et gérez des recommandations stratégiques pour chaque dimension numérique.",
+    "addBtn": "Ajouter une Recommandation",
+    "errorLoading": "Erreur lors du chargement des recommandations",
+    "retryBtn": "Réessayer",
+    "noRecs": "Aucune recommandation pour l'instant",
+    "noRecsSubtitle": "Commencez par ajouter votre première recommandation."
+  },
+  "adminActionPlans": {
+    "title": "Plans d'Action",
+    "subtitle": "Consultez et gérez les plans d'action de numérisation pour les organisations.",
+    "selectOrg": "Sélectionner une Organisation",
+    "backToOrgs": "Retour aux organisations",
+    "selectSubmission": "Sélectionner une Soumission"
+  },
+  "adminManageActionPlan": {
+    "title": "Configuration du Plan d'Action",
+    "subtitle": "Gérez et configurez les paramètres du plan d'action.",
+    "configSettings": "Paramètres de Configuration",
+    "underDevelopment": "Cette fonctionnalité est actuellement en cours de développement. Veuillez revenir plus tard."
+  },
+  "sidebar": {
+    "admin": {
+      "panelName": "Panneau Administrateur",
+      "infoText": "Panneau d'administration pour gérer l'ensemble du système, y compris les organisations, les dimensions et les recommandations.",
+      "dashboard": "Tableau de Bord",
+      "organizations": "Organisations",
+      "dimensions": "Dimensions",
+      "recommendations": "Recommandations",
+      "actionPlan": "Plan d'Action",
+      "digitalGaps": "Écarts Numériques",
+      "manageUsers": "Gérer les Utilisateurs",
+      "viewReports": "Voir les Rapports",
+      "consolidatedReport": "Rapport Consolidé"
+    },
+    "secondAdmin": {
+      "panelName": "Admin de l'Organisation",
+      "infoText": "Panneau pour les administrateurs d'organisation pour gérer leurs coopératives, utilisateurs et évaluations.",
+      "dashboard": "Tableau de Bord",
+      "cooperatives": "Coopératives",
+      "manageUsers": "Gérer les Utilisateurs",
+      "createAssessment": "Créer une Évaluation",
+      "actionPlan": "Plan d'Action",
+      "submissions": "Soumissions",
+      "consolidatedReport": "Rapport Consolidé"
+    },
+    "thirdAdmin": {
+      "panelName": "Admin de la Coopérative",
+      "infoText": "Panneau pour les administrateurs de coopérative pour gérer les utilisateurs et répondre aux évaluations.",
+      "dashboard": "Tableau de Bord",
+      "manageUsers": "Gérer les Utilisateurs",
+      "answerAssessment": "Répondre à l'Évaluation",
+      "actionPlan": "Voir le Plan d'Action",
+      "viewSubmissions": "Voir les Soumissions"
+    },
+    "user": {
+      "panelName": "Utilisateur Coopératif",
+      "infoText": "Panneau pour les utilisateurs de coopérative pour créer des évaluations et voir les plans d'action.",
+      "dashboard": "Tableau de Bord",
+      "answerAssessment": "Répondre à l'Évaluation",
+      "actionPlan": "Plan d'Action",
+      "submissions": "Soumissions"
+    }
   }
 }

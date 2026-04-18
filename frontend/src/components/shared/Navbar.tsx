@@ -124,7 +124,7 @@ export const Navbar = () => {
                     onClick={login}
                     className="bg-primary hover:bg-primary/90 text-white shadow-md hover:shadow-lg transition-all duration-300"
                   >
-                    Sign In
+                    {t('nav.signIn')}
                   </Button>
                 ) : (
                   <DropdownMenu>
@@ -162,7 +162,7 @@ export const Navbar = () => {
                         className="flex items-center gap-2 text-red-600 focus:text-red-600 focus:bg-red-50 cursor-pointer rounded-md mt-1"
                       >
                         <LogOut className="w-4 h-4" />
-                        <span>Sign Out</span>
+                        <span>{t('nav.signOut')}</span>
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -227,7 +227,7 @@ export const Navbar = () => {
             {/* Navigation Section */}
             <div className="space-y-3">
               <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">
-                Navigation
+                {t('nav.navigation')}
               </h3>
 
               {/* Home Button */}
@@ -241,14 +241,14 @@ export const Navbar = () => {
                 }}
               >
                 <Home className="w-5 h-5" />
-                <span className="font-medium">Home</span>
+                <span className="font-medium">{t('nav.home')}</span>
               </Button>
             </div>
 
             {/* Auth Section */}
             <div className="space-y-3">
               <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">
-                Account
+                {t('nav.account')}
               </h3>
 
               {!isAuthenticated ? (
@@ -262,7 +262,7 @@ export const Navbar = () => {
                   className="w-full h-12 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white border-0 rounded-lg font-medium"
                 >
                   <User className="w-5 h-5 mr-2" />
-                  Login
+                  {t('nav.login')}
                 </Button>
               ) : (
                 <div className="space-y-4">
@@ -295,7 +295,7 @@ export const Navbar = () => {
                     className="w-full h-12 bg-red-50 hover:bg-red-100 text-red-600 border-red-200 rounded-lg font-medium"
                   >
                     <LogOut className="w-4 h-4 mr-2" />
-                    Logout
+                    {t('nav.logout')}
                   </Button>
                 </div>
               )}
@@ -305,7 +305,7 @@ export const Navbar = () => {
             <div className="mt-auto pt-6 border-t border-blue-100">
               <div className="text-center">
                 <p className="text-xs text-gray-500 mb-2">
-                  DGRV Digital Gap Analysis Tool
+                  {t('nav.appDescription')}
                 </p>
                 <div className="flex justify-center space-x-2">
                   <div className="w-2 h-2 bg-blue-400 rounded-full"></div>

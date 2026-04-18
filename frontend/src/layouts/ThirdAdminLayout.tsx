@@ -8,35 +8,26 @@ import {
   BarChart3,
 } from "lucide-react";
 import { Sidebar } from "@/components/shared/Sidebar";
-
-const navLinks = [
-  { to: "/third-admin/dashboard", icon: BarChart3, text: "Dashboard" },
-  {
-    to: "/third-admin/manage-cooperation-users",
-    icon: Users,
-    text: "Manage Users",
-  },
-  {
-    to: "/third-admin/assessments",
-    icon: FilePenLine,
-    text: "Answer Assessment",
-  },
-  {
-    to: "/third-admin/action-plans",
-    icon: ClipboardList,
-    text: "View Action Plan",
-  },
-  { to: "/third-admin/submissions", icon: Inbox, text: "View Submissions" },
-];
+import { useTranslation } from "react-i18next";
 
 const ThirdAdminLayout: React.FC = () => {
+  const { t } = useTranslation();
+
+  const navLinks = [
+    { to: "/third-admin/dashboard", icon: BarChart3, text: t("sidebar.thirdAdmin.dashboard") },
+    { to: "/third-admin/manage-cooperation-users", icon: Users, text: t("sidebar.thirdAdmin.manageUsers") },
+    { to: "/third-admin/assessments", icon: FilePenLine, text: t("sidebar.thirdAdmin.answerAssessment") },
+    { to: "/third-admin/action-plans", icon: ClipboardList, text: t("sidebar.thirdAdmin.actionPlan") },
+    { to: "/third-admin/submissions", icon: Inbox, text: t("sidebar.thirdAdmin.viewSubmissions") },
+  ];
+
   return (
     <div className="flex h-full overflow-hidden bg-muted/30">
       <Sidebar
         navLinks={navLinks}
-        panelName="Cooperative Admin"
+        panelName={t("sidebar.thirdAdmin.panelName")}
         panelAbbreviation="T"
-        infoText="This panel is for cooperative administrators to manage users and answer assessments for their cooperative."
+        infoText={t("sidebar.thirdAdmin.infoText")}
       />
       <main className="flex-1 overflow-hidden flex flex-col">
         <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8 h-full overflow-hidden">
