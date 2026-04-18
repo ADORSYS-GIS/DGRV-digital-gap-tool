@@ -1,27 +1,25 @@
 import {
   Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Card, CardContent } from "@/components/ui/card";
 import { useDimensions } from "@/hooks/dimensions/useDimensions";
 import { AssessmentSummary } from "@/types/assessment";
 import { Calendar, CheckCircle, FileText, Shield } from "lucide-react";
 import { AssessmentDimensionItem } from "./AssessmentDimensionItem";
-import { DimensionAssessmentDetail } from "./DimensionAssessmentDetail";
+import { useTranslation } from "react-i18next";
 
 interface SubmissionDetailProps {
   summary: AssessmentSummary | undefined;
 }
 
 export const SubmissionDetail = ({ summary }: SubmissionDetailProps) => {
+  const { t } = useTranslation();
   const { data: dimensions } = useDimensions();
 
   if (!summary || !summary.assessment) {
     return (
       <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-        Unable to load submission details. Please go back and try again.
+        {t("sharedSubmissions.detail.errorLoad")}
       </div>
     );
   }
@@ -30,7 +28,7 @@ export const SubmissionDetail = ({ summary }: SubmissionDetailProps) => {
 
   const getDimensionName = (dimensionId: string) => {
     return (
-      dimensions?.find((d) => d.id === dimensionId)?.name || "Unknown Dimension"
+      dimensions?.find((d) => d.id === dimensionId)?.name || t("sharedSubmissions.detail.unknownDimension")
     );
   };
 
@@ -46,10 +44,10 @@ export const SubmissionDetail = ({ summary }: SubmissionDetailProps) => {
               <div>
                 <h1 className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
                   {submission.assessment.document_title ||
-                    "Untitled assessment"}
+                    t("sharedSubmissions.detail.untitledAssessment")}
                 </h1>
                 <p className="text-sm text-muted-foreground">
-                  Submission overview and dimension outcomes.
+                  {t("sharedSubmissions.detail.subtitle")}
                 </p>
               </div>
             </div>
@@ -60,7 +58,7 @@ export const SubmissionDetail = ({ summary }: SubmissionDetailProps) => {
               <CheckCircle className="h-5 w-5 text-emerald-600" />
               <div>
                 <p className="text-xs font-semibold text-muted-foreground">
-                  Status
+                  {t("sharedSubmissions.detail.status")}
                 </p>
                 <p className="text-sm font-medium text-foreground capitalize">
                   {submission.assessment.status || "—"}
@@ -71,13 +69,13 @@ export const SubmissionDetail = ({ summary }: SubmissionDetailProps) => {
               <Calendar className="h-5 w-5 text-primary" />
               <div>
                 <p className="text-xs font-semibold text-muted-foreground">
-                  Submitted at
+                  {t("sharedSubmissions.detail.submittedAt")}
                 </p>
                 <p className="text-sm font-medium text-foreground">
                   {submission.assessment.created_at
                     ? new Date(
-                        submission.assessment.created_at,
-                      ).toLocaleString()
+                      submission.assessment.created_at,
+                    ).toLocaleString()
                     : "—"}
                 </p>
               </div>
@@ -91,11 +89,10 @@ export const SubmissionDetail = ({ summary }: SubmissionDetailProps) => {
           <div className="flex items-center justify-between border-b border-border px-6 py-4">
             <div>
               <h2 className="text-lg font-semibold text-foreground">
-                Dimension assessments
+                {t("sharedSubmissions.detail.dimensionAssessments")}
               </h2>
               <p className="text-sm text-muted-foreground">
-                Review current vs desired states and gap analysis for each
-                dimension.
+                {t("sharedSubmissions.detail.dimensionAssessmentsDesc")}
               </p>
             </div>
             <div className="hidden sm:flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
@@ -105,7 +102,7 @@ export const SubmissionDetail = ({ summary }: SubmissionDetailProps) => {
 
           {(submission.dimension_assessments || []).length === 0 ? (
             <div className="px-6 py-10 text-center text-sm text-muted-foreground">
-              No dimension assessments available for this submission.
+              {t("sharedSubmissions.detail.noDimensionAssessments")}
             </div>
           ) : (
             <Accordion type="single" collapsible className="w-full">

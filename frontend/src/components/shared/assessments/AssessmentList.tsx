@@ -17,6 +17,7 @@ import {
 import { useDeleteAssessment } from "../../../hooks/assessments/useDeleteAssessment";
 import { useUpdateAssessment } from "../../../hooks/assessments/useUpdateAssessment";
 import { useDimensions } from "../../../hooks/dimensions/useDimensions";
+import { useTranslation } from "react-i18next";
 
 import { ROLES } from "@/constants/roles";
 
@@ -34,6 +35,7 @@ export function AssessmentList({
   userRoles,
   cooperationsById,
 }: AssessmentListProps) {
+  const { t } = useTranslation();
   const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedAssessment, setSelectedAssessment] =
     useState<Assessment | null>(null);
@@ -72,7 +74,7 @@ export function AssessmentList({
       if (!name) return null;
       return (
         <p className="mt-0.5 text-xs text-muted-foreground">
-          Assigned to{" "}
+          {t("shared.assessments.assignedTo")} {" "}
           <span className="font-medium text-foreground">{name}</span>
         </p>
       );
@@ -100,13 +102,13 @@ export function AssessmentList({
                   </h3>
                   {/* TODO: replace with real dates when available */}
                   <p className="mt-1 text-xs text-muted-foreground">
-                    Draft assessment
+                    {t("shared.assessments.draftAssessment")}
                   </p>
                   {cooperationLabel(assessment)}
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {isLoadingDimensions ? (
-                    <Badge variant="outline">Loading dimensions…</Badge>
+                    <Badge variant="outline">{t("shared.assessments.loadingDimensions")}</Badge>
                   ) : (
                     assessment.dimensionIds?.map((id) => {
                       const dimension = dimensions?.find((d) => d.id === id);
@@ -131,7 +133,7 @@ export function AssessmentList({
                 onClick={() => handleAnswer(assessment.id)}
                 className="min-w-[96px]"
               >
-                Answer
+                {t("shared.assessments.answer")}
               </Button>
               {canEditOrDelete && (
                 <div className="flex items-center gap-1.5">
@@ -140,7 +142,7 @@ export function AssessmentList({
                     size="icon"
                     onClick={() => handleDelete(assessment)}
                     className="text-red-600 hover:text-red-700"
-                    aria-label="Delete assessment"
+                    aria-label={t("shared.assessments.deleteAria")}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
@@ -152,16 +154,15 @@ export function AssessmentList({
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete draft assessment?</AlertDialogTitle>
+            <AlertDialogTitle>{t("shared.assessments.deleteTitle")}</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. The assessment and its configuration
-              will be permanently removed.
+              {t("shared.assessments.deleteDesc")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t("shared.assessments.cancel")}</AlertDialogCancel>
             <AlertDialogAction onClick={confirmDelete}>
-              Continue
+              {t("shared.assessments.continue")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

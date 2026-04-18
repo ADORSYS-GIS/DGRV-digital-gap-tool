@@ -8,6 +8,7 @@ import {
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
 import { useAuth } from "@/context/AuthContext";
+import { useTranslation } from "react-i18next";
 
 interface InvitationPendingDialogProps {
   isOpen: boolean;
@@ -16,6 +17,7 @@ interface InvitationPendingDialogProps {
 export const InvitationPendingDialog = ({
   isOpen,
 }: InvitationPendingDialogProps) => {
+  const { t } = useTranslation();
   const { logout } = useAuth();
 
   const handleLogout = () => {
@@ -26,15 +28,13 @@ export const InvitationPendingDialog = ({
     <AlertDialog open={isOpen}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Invitation Pending</AlertDialogTitle>
+          <AlertDialogTitle>{t("shared.invitationPending.title")}</AlertDialogTitle>
           <AlertDialogDescription>
-            Please accept the invitation to join the organization before
-            proceeding. If you haven't received an invitation, please contact
-            your administrator.
+            {t("shared.invitationPending.description")}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogAction onClick={handleLogout}>Logout</AlertDialogAction>
+          <AlertDialogAction onClick={handleLogout}>{t("shared.invitationPending.logout")}</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

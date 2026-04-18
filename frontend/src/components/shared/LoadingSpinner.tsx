@@ -7,6 +7,7 @@
  */
 import React from "react";
 import { cn } from "@/utils/utils";
+import { useTranslation } from "react-i18next";
 
 interface LoadingSpinnerProps {
   size?: "sm" | "md" | "lg" | "xl";
@@ -24,6 +25,7 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   className,
   text,
 }) => {
+  const { t } = useTranslation();
   const sizeClasses = {
     sm: "h-4 w-4",
     md: "h-8 w-8",
@@ -46,7 +48,7 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
           variantClasses[variant],
         )}
         role="status"
-        aria-label="Loading"
+        aria-label={t("shared.loading.loadingAria")}
       />
       {text && (
         <p

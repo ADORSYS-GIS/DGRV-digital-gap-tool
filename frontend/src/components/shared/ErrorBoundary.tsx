@@ -9,6 +9,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle, RefreshCw } from "lucide-react";
+import { Translation } from "react-i18next";
 
 interface ErrorBoundaryProps {
   children: React.ReactNode;
@@ -56,48 +57,51 @@ export class ErrorBoundary extends React.Component<
       }
 
       return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50">
-          <div className="max-w-md w-full p-6 bg-white rounded-lg shadow-md">
-            <div className="text-center">
-              <AlertTriangle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                Something went wrong
-              </h2>
-              <p className="text-gray-600 mb-6">
-                An unexpected error occurred. Please try refreshing the page or
-                contact support if the problem persists.
-              </p>
+        <Translation>
+          {(t) => (
+            <div className="min-h-screen flex items-center justify-center bg-gray-50">
+              <div className="max-w-md w-full p-6 bg-white rounded-lg shadow-md">
+                <div className="text-center">
+                  <AlertTriangle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+                  <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                    {t("shared.errorBoundary.title")}
+                  </h2>
+                  <p className="text-gray-600 mb-6">
+                    {t("shared.errorBoundary.description")}
+                  </p>
 
-              {this.state.error && (
-                <details className="mb-6 text-left">
-                  <summary className="cursor-pointer text-sm text-gray-500">
-                    Error details
-                  </summary>
-                  <pre className="mt-2 p-3 bg-gray-100 rounded text-xs overflow-auto">
-                    {this.state.error.toString()}
-                  </pre>
-                </details>
-              )}
+                  {this.state.error && (
+                    <details className="mb-6 text-left">
+                      <summary className="cursor-pointer text-sm text-gray-500">
+                        {t("shared.errorBoundary.errorDetails")}
+                      </summary>
+                      <pre className="mt-2 p-3 bg-gray-100 rounded text-xs overflow-auto">
+                        {this.state.error.toString()}
+                      </pre>
+                    </details>
+                  )}
 
-              <div className="flex gap-3 justify-center">
-                <Button
-                  variant="outline"
-                  onClick={this.handleReset}
-                  className="flex items-center gap-2"
-                >
-                  <RefreshCw className="h-4 w-4" />
-                  Try Again
-                </Button>
-                <Button
-                  onClick={this.handleReload}
-                  className="flex items-center gap-2"
-                >
-                  Refresh Page
-                </Button>
+                  <div className="flex gap-3 justify-center">
+                    <Button
+                      variant="outline"
+                      onClick={this.handleReset}
+                      className="flex items-center gap-2"
+                    >
+                      <RefreshCw className="h-4 w-4" />
+                      {t("shared.errorBoundary.tryAgain")}
+                    </Button>
+                    <Button
+                      onClick={this.handleReload}
+                      className="flex items-center gap-2"
+                    >
+                      {t("shared.errorBoundary.refreshPage")}
+                    </Button>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
+          )}
+        </Translation>
       );
     }
 

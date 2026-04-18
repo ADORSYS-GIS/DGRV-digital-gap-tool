@@ -14,6 +14,7 @@ import { useDimensionAssessments } from "@/hooks/assessments/useDimensionAssessm
 import { useDimensions } from "@/hooks/dimensions/useDimensions";
 import { useUpdateActionItem } from "@/hooks/action_plans/useUpdateActionItem";
 import { ActionItem } from "@/types/actionPlan";
+import { useTranslation } from "react-i18next";
 
 interface EditActionItemFormProps {
   item: ActionItem;
@@ -22,6 +23,7 @@ interface EditActionItemFormProps {
 }
 
 export function EditActionItemForm({ item, assessmentId, onSuccess }: EditActionItemFormProps) {
+  const { t } = useTranslation();
   const [description, setDescription] = useState(item.description);
   const [priority, setPriority] = useState<"low" | "medium" | "high">(item.priority);
   const [dimensionAssessmentId, setDimensionAssessmentId] = useState(item.dimension_assessment_id);
@@ -31,7 +33,7 @@ export function EditActionItemForm({ item, assessmentId, onSuccess }: EditAction
   const { updateItem, isUpdating } = useUpdateActionItem();
 
   const getDimensionName = (dimId: string) =>
-    dimensions?.find((d) => d.id === dimId)?.name || "Unknown Dimension";
+    dimensions?.find((d) => d.id === dimId)?.name || t("shared.actionPlans.unknownDimension");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,14 +49,14 @@ export function EditActionItemForm({ item, assessmentId, onSuccess }: EditAction
     <form onSubmit={handleSubmit} className="space-y-5">
       <div className="space-y-2">
         <Label htmlFor="description" className="text-gray-700 font-medium flex items-center gap-2">
-          <FileText className="h-4 w-4 text-gray-400" /> Description
+          <FileText className="h-4 w-4 text-gray-400" /> {t("shared.actionPlans.description")}
         </Label>
         <Textarea
           id="description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           className="min-h-[100px] rounded-lg border-gray-200 resize-none"
-          placeholder="Describe the action item"
+          placeholder={t("shared.actionPlans.descPlaceholder")}
           required
         />
       </div>
@@ -62,27 +64,27 @@ export function EditActionItemForm({ item, assessmentId, onSuccess }: EditAction
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label className="text-gray-700 font-medium flex items-center gap-2">
-            <AlertCircle className="h-4 w-4 text-gray-400" /> Priority
+            <AlertCircle className="h-4 w-4 text-gray-400" /> {t("shared.actionPlans.priority")}
           </Label>
           <Select value={priority} onValueChange={(v: "low" | "medium" | "high") => setPriority(v)}>
             <SelectTrigger className="h-11 rounded-lg border-gray-200">
-              <SelectValue placeholder="Select priority" />
+              <SelectValue placeholder={t("shared.actionPlans.selectPriority")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="low">Low</SelectItem>
-              <SelectItem value="medium">Medium</SelectItem>
-              <SelectItem value="high">High</SelectItem>
+              <SelectItem value="low">{t("shared.actionPlans.priorityLow")}</SelectItem>
+              <SelectItem value="medium">{t("shared.actionPlans.priorityMedium")}</SelectItem>
+              <SelectItem value="high">{t("shared.actionPlans.priorityHigh")}</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
         <div className="space-y-2">
           <Label className="text-gray-700 font-medium flex items-center gap-2">
-            <Layers className="h-4 w-4 text-gray-400" /> Dimension
+            <Layers className="h-4 w-4 text-gray-400" /> {t("shared.actionPlans.dimension")}
           </Label>
           <Select value={dimensionAssessmentId} onValueChange={setDimensionAssessmentId}>
             <SelectTrigger className="h-11 rounded-lg border-gray-200">
-              <SelectValue placeholder="Select dimension" />
+              <SelectValue placeholder={t("shared.actionPlans.selectDimension")} />
             </SelectTrigger>
             <SelectContent>
               {dimensionAssessments?.map((da) => (
@@ -96,7 +98,7 @@ export function EditActionItemForm({ item, assessmentId, onSuccess }: EditAction
       </div>
 
       <Button type="submit" disabled={isUpdating} className="w-full h-11 rounded-lg font-medium">
-        {isUpdating ? "Updating…" : "Update Action Item"}
+        {isUpdating ? t("shared.actionPlans.updating") : t("shared.actionPlans.updateBtn")}
       </Button>
     </form>
   );

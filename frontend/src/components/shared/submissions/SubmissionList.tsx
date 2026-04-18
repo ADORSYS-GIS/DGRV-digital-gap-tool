@@ -18,6 +18,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useTranslation } from "react-i18next";
 
 // Resolve cooperation name — first from IndexedDB, then from API
 function useCooperationName(cooperationId?: string | null): string | null {
@@ -53,11 +54,11 @@ interface SubmissionListProps {
 
 const getStatusVariant = (status: string) => {
   switch (status.toLowerCase()) {
-    case "reviewed":      return "success";
-    case "under review":  return "warning";
-    case "draft":         return "outline";
-    case "completed":     return "default";
-    default:              return "secondary";
+    case "reviewed": return "success";
+    case "under review": return "warning";
+    case "draft": return "outline";
+    case "completed": return "default";
+    default: return "secondary";
   }
 };
 
@@ -89,6 +90,7 @@ export const SubmissionList = ({
   showOrganization = false,
   onSubmissionSelect,
 }: SubmissionListProps) => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const deleteAssessment = useDeleteAssessment();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -137,7 +139,7 @@ export const SubmissionList = ({
   };
 
   if (items.length === 0) {
-    return <div className="text-center py-8"><p className="text-gray-500">No submissions found</p></div>;
+    return <div className="text-center py-8"><p className="text-gray-500">{t("sharedSubmissions.list.notFound")}</p></div>;
   }
 
   const validItems = items
@@ -145,7 +147,7 @@ export const SubmissionList = ({
     .filter((item) => item.data !== null) as Array<{ submission: AssessmentSummary; data: SubmissionItemData }>;
 
   if (validItems.length === 0) {
-    return <div className="text-center py-8"><p className="text-gray-500">No valid submissions found</p></div>;
+    return <div className="text-center py-8"><p className="text-gray-500">{t("sharedSubmissions.list.noValidFound")}</p></div>;
   }
 
   const renderContent = (submission: AssessmentSummary, submissionData: SubmissionItemData) => (
@@ -159,7 +161,7 @@ export const SubmissionList = ({
         </Badge>
       </div>
       <p className="text-sm text-muted-foreground">
-        Submitted on{" "}
+        {t("sharedSubmissions.list.submittedOn")}{" "}
         {new Date(submissionData.created_at).toLocaleDateString(undefined, {
           year: "numeric", month: "long", day: "numeric",
         })}
@@ -171,7 +173,7 @@ export const SubmissionList = ({
         <div className="pt-2 flex items-center space-x-6 text-sm">
           <div className="flex items-center">
             <span className="font-semibold text-foreground">{submissionData.overall_score.toFixed(1)}%</span>
-            <span className="ml-1.5 text-muted-foreground">overall score</span>
+            <span className="ml-1.5 text-muted-foreground">{t("sharedSubmissions.list.overallScore")}</span>
           </div>
         </div>
       )}
@@ -195,7 +197,7 @@ export const SubmissionList = ({
                 {renderContent(submission, submissionData)}
               </div>
               <div className="text-sm font-medium text-muted-foreground group-hover:text-primary transition-colors flex items-center">
-                View details<span className="ml-1 transition-transform group-hover:translate-x-1">→</span>
+                {t("sharedSubmissions.list.viewDetails")}<span className="ml-1 transition-transform group-hover:translate-x-1">→</span>
               </div>
             </div>
           </button>
@@ -220,7 +222,7 @@ export const SubmissionList = ({
                     </button>
                   )}
                   <div className="text-sm font-medium text-muted-foreground group-hover:text-primary transition-colors flex items-center">
-                    View details<span className="ml-1 transition-transform group-hover:translate-x-1">→</span>
+                    {t("sharedSubmissions.list.viewDetails")}<span className="ml-1 transition-transform group-hover:translate-x-1">→</span>
                   </div>
                 </div>
               </div>
@@ -232,22 +234,22 @@ export const SubmissionList = ({
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete submission?</AlertDialogTitle>
+            <AlertDialogTitle>{t("sharedSubmissions.list.deleteTitle")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete{" "}
+              {t("sharedSubmissions.list.deleteDescription")}{" "}
               <span className="font-medium">
-                {submissionToDelete?.assessment?.document_title || "this submission"}
+                {submissionToDelete?.assessment?.document_title || t("sharedSubmissions.list.thisSubmission")}
               </span>
-              ? This action cannot be undone.
+              ? {t("sharedSubmissions.list.deleteWarning")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirmDelete}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {deleteAssessment.isPending ? "Deleting..." : "Delete"}
+              {deleteAssessment.isPending ? t("sharedSubmissions.list.deleting") : t("sharedSubmissions.list.deleteAction")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

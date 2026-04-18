@@ -24,6 +24,7 @@ import { useAuth } from "@/context/AuthContext";
 import { ROLES } from "@/constants/roles";
 import { EditActionItemForm } from "./EditActionItemForm";
 import { useDeleteActionItem } from "@/hooks/action_plans/useDeleteActionItem";
+import { useTranslation } from "react-i18next";
 
 interface ActionItemCardProps {
   item: ActionItem;
@@ -32,6 +33,7 @@ interface ActionItemCardProps {
 }
 
 export function ActionItemCard({ item, onUpdate, assessmentId }: ActionItemCardProps) {
+  const { t } = useTranslation();
   const [isUpdating, setIsUpdating] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteItemOpen, setIsDeleteItemOpen] = useState(false);
@@ -43,28 +45,28 @@ export function ActionItemCard({ item, onUpdate, assessmentId }: ActionItemCardP
 
   const statusStyles = {
     todo: {
-      label: "Not Started",
+      label: t("shared.actionPlans.statusNotStarted"),
       className: "bg-gray-200 text-gray-800",
       borderColor: "border-gray-300",
       prev: null,
       next: "in_progress",
     },
     in_progress: {
-      label: "In Progress",
+      label: t("shared.actionPlans.statusInProgress"),
       className: "bg-blue-200 text-blue-800",
       borderColor: "border-blue-300",
       prev: "todo",
       next: "done",
     },
     done: {
-      label: "Completed",
+      label: t("shared.actionPlans.statusCompleted"),
       className: "bg-green-200 text-green-800",
       borderColor: "border-green-300",
       prev: "in_progress",
       next: "approved",
     },
     approved: {
-      label: "Approved",
+      label: t("shared.actionPlans.statusApproved"),
       className: "bg-purple-200 text-purple-800",
       borderColor: "border-purple-300",
       prev: "done",
@@ -96,17 +98,17 @@ export function ActionItemCard({ item, onUpdate, assessmentId }: ActionItemCardP
 
       if (updatedItem) {
         toast.success(
-          `Moved to ${statusStyles[newStatus as keyof typeof statusStyles].label}`,
+          `${t("shared.actionPlans.movedTo")} ${statusStyles[newStatus as keyof typeof statusStyles].label}`,
         );
         if (onUpdate) {
           onUpdate();
         }
       } else {
-        toast.error("Failed to update status");
+        toast.error(t("shared.actionPlans.failedUpdateStatus"));
       }
     } catch (error) {
       console.error("Error updating status:", error);
-      toast.error("An error occurred");
+      toast.error(t("shared.actionPlans.error"));
     } finally {
       setIsUpdating(false);
     }
@@ -129,7 +131,7 @@ export function ActionItemCard({ item, onUpdate, assessmentId }: ActionItemCardP
           >
             <div className="flex justify-between items-start mb-2">
               <span className="text-xs font-bold uppercase tracking-wider text-gray-400">
-                {item.priority || "Medium"} Priority
+                {item.priority || t("shared.actionPlans.priorityMedium")} {t("shared.actionPlans.priorityWord")}
               </span>
               <div className="flex items-center gap-2">
                 {canEdit && (
@@ -142,7 +144,7 @@ export function ActionItemCard({ item, onUpdate, assessmentId }: ActionItemCardP
                         e.stopPropagation();
                         setIsEditDialogOpen(true);
                       }}
-                      title="Edit Action"
+                      title={t("shared.actionPlans.editAction")}
                     >
                       <Pencil className="h-3.5 w-3.5" />
                     </Button>
@@ -154,7 +156,7 @@ export function ActionItemCard({ item, onUpdate, assessmentId }: ActionItemCardP
                         e.stopPropagation();
                         setIsDeleteItemOpen(true);
                       }}
-                      title="Delete Action"
+                      title={t("shared.actionPlans.deleteAction")}
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </Button>
@@ -171,7 +173,7 @@ export function ActionItemCard({ item, onUpdate, assessmentId }: ActionItemCardP
             </div>
 
             <h3 className="font-bold text-sm text-gray-800 mb-2 leading-tight pr-2">
-              {item.dimension || "Action Item"}
+              {item.dimension || t("shared.actionPlans.actionItem")}
             </h3>
 
             <p className="text-xs text-gray-500 mb-3 line-clamp-2 leading-relaxed">
@@ -196,7 +198,7 @@ export function ActionItemCard({ item, onUpdate, assessmentId }: ActionItemCardP
                         handleStatusUpdate(e, currentStatusStyle.prev as string)
                       }
                       disabled={isUpdating}
-                      title="Move to previous stage"
+                      title={t("shared.actionPlans.moveToPrev")}
                     >
                       <ArrowLeft className="h-3 w-3" />
                     </Button>
@@ -210,7 +212,7 @@ export function ActionItemCard({ item, onUpdate, assessmentId }: ActionItemCardP
                         handleStatusUpdate(e, currentStatusStyle.next as string)
                       }
                       disabled={isUpdating}
-                      title="Move to next stage"
+                      title={t("shared.actionPlans.moveToNext")}
                     >
                       <ArrowRight className="h-3 w-3" />
                     </Button>
@@ -223,7 +225,7 @@ export function ActionItemCard({ item, onUpdate, assessmentId }: ActionItemCardP
         <DialogContent className="sm:max-w-[500px] rounded-2xl">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold text-gray-900">
-              {item.dimension || "Action Item"}
+              {item.dimension || t("shared.actionPlans.actionItem")}
             </DialogTitle>
           </DialogHeader>
           <div className="py-4">
@@ -232,7 +234,7 @@ export function ActionItemCard({ item, onUpdate, assessmentId }: ActionItemCardP
                 {label}
               </span>
               <span className="text-xs font-bold uppercase tracking-wider text-gray-400 bg-gray-100 px-3 py-1 rounded-full">
-                {item.priority || "Medium"} Priority
+                {item.priority || t("shared.actionPlans.priorityMedium")} {t("shared.actionPlans.priorityWord")}
               </span>
             </div>
             <p className="text-gray-600 leading-relaxed whitespace-pre-wrap">
@@ -242,7 +244,7 @@ export function ActionItemCard({ item, onUpdate, assessmentId }: ActionItemCardP
           <DialogFooter className="sm:justify-start pt-4 border-t border-gray-100">
             <div className="flex items-center gap-2 text-xs text-gray-400">
               <Calendar className="h-3.5 w-3.5" />
-              Created on{" "}
+              {t("shared.actionPlans.createdOn")}{" "}
               {new Date().toLocaleDateString(undefined, {
                 year: "numeric",
                 month: "long",
@@ -259,7 +261,7 @@ export function ActionItemCard({ item, onUpdate, assessmentId }: ActionItemCardP
           <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent p-6 border-b border-primary/10">
             <DialogHeader className="mb-0">
               <DialogTitle className="text-2xl font-bold text-gray-900">
-                Edit Action Item
+                {t("shared.actionPlans.editActionItemTitle")}
               </DialogTitle>
             </DialogHeader>
           </div>
@@ -285,11 +287,10 @@ export function ActionItemCard({ item, onUpdate, assessmentId }: ActionItemCardP
             </div>
             <div className="space-y-2">
               <DialogTitle className="text-xl font-bold text-gray-900">
-                Delete Action Item
+                {t("shared.actionPlans.deleteActionItemTitle")}
               </DialogTitle>
               <DialogDescription className="text-gray-500">
-                Are you sure you want to delete this action item? This action
-                cannot be undone.
+                {t("shared.actionPlans.deleteDesc")}
               </DialogDescription>
             </div>
             <div className="flex w-full gap-3 pt-2">
@@ -299,7 +300,7 @@ export function ActionItemCard({ item, onUpdate, assessmentId }: ActionItemCardP
                 onClick={() => setIsDeleteItemOpen(false)}
                 disabled={isDeleting}
               >
-                Cancel
+                {t("shared.actionPlans.cancel")}
               </Button>
               <Button
                 variant="destructive"
@@ -307,7 +308,7 @@ export function ActionItemCard({ item, onUpdate, assessmentId }: ActionItemCardP
                 onClick={handleDelete}
                 disabled={isDeleting}
               >
-                {isDeleting ? "Deleting..." : "Delete"}
+                {isDeleting ? t("shared.actionPlans.deleting") : t("shared.actionPlans.delete")}
               </Button>
             </div>
           </div>

@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface NoDimensionsModalProps {
   isOpen: boolean;
@@ -15,6 +16,7 @@ interface NoDimensionsModalProps {
 }
 
 export function NoDimensionsModal({ isOpen, onClose }: NoDimensionsModalProps) {
+  const { t } = useTranslation();
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
@@ -22,18 +24,16 @@ export function NoDimensionsModal({ isOpen, onClose }: NoDimensionsModalProps) {
           <div className="flex items-center gap-4">
             <AlertTriangle className="h-8 w-8 text-yellow-500" />
             <DialogTitle className="text-lg font-semibold">
-              No Dimensions Assigned
+              {t("shared.assessments.noDimensionsTitle")}
             </DialogTitle>
           </div>
         </DialogHeader>
         <DialogDescription className="mt-4 text-sm text-muted-foreground">
-          Your organization does not have any dimensions assigned to it. Please
-          contact an administrator to assign dimensions before you can create an
-          assessment.
+          {t("shared.assessments.noDimensionsDesc")}
         </DialogDescription>
         <DialogFooter className="mt-6">
           <Button onClick={onClose} className="w-full">
-            OK
+            {t("shared.assessments.ok")}
           </Button>
         </DialogFooter>
       </DialogContent>

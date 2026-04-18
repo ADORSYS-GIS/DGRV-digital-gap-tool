@@ -32,6 +32,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { LoadingSpinner } from "../../shared/LoadingSpinner";
+import { useTranslation } from "react-i18next";
 
 const formSchema = z.object({
   name: z.string().min(1, "Assessment name is required"),
@@ -50,6 +51,7 @@ interface AddAssessmentFormProps {
  * Dialog form used by org admins to create a new draft assessment.
  */
 export function AddAssessmentForm({ isOpen, onClose }: AddAssessmentFormProps) {
+  const { t } = useTranslation();
   const organizationId = useOrganizationId();
 
   const { data: allDimensions, isLoading: isLoadingDimensions } =
@@ -96,11 +98,10 @@ export function AddAssessmentForm({ isOpen, onClose }: AddAssessmentFormProps) {
       <DialogContent className="sm:max-w-[520px]">
         <DialogHeader>
           <DialogTitle className="text-lg font-semibold">
-            Create new assessment
+            {t("shared.assessments.createTitle")}
           </DialogTitle>
           <p className="text-sm text-muted-foreground">
-            Define the assessment name, select the target cooperative, and pick
-            the dimensions you want to evaluate.
+            {t("shared.assessments.createDesc")}
           </p>
         </DialogHeader>
         <Form {...form}>
@@ -114,11 +115,11 @@ export function AddAssessmentForm({ isOpen, onClose }: AddAssessmentFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>
-                    Assessment name <span className="text-destructive">*</span>
+                    {t("shared.assessments.assessmentName")} <span className="text-destructive">*</span>
                   </FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="e.g. 2025 Digital Maturity Baseline"
+                      placeholder={t("shared.assessments.namePlaceholder")}
                       {...field}
                     />
                   </FormControl>
@@ -132,7 +133,7 @@ export function AddAssessmentForm({ isOpen, onClose }: AddAssessmentFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>
-                    Cooperative <span className="text-destructive">*</span>
+                    {t("shared.assessments.cooperative")} <span className="text-destructive">*</span>
                   </FormLabel>
                   <Select
                     onValueChange={field.onChange}
@@ -141,7 +142,7 @@ export function AddAssessmentForm({ isOpen, onClose }: AddAssessmentFormProps) {
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select a cooperative" />
+                        <SelectValue placeholder={t("shared.assessments.selectCoop")} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -162,7 +163,7 @@ export function AddAssessmentForm({ isOpen, onClose }: AddAssessmentFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>
-                    Dimensions <span className="text-destructive">*</span>
+                    {t("shared.assessments.dimensions")} <span className="text-destructive">*</span>
                   </FormLabel>
                   {isLoadingDimensions || isLoadingAssigned ? (
                     <div className="flex items-center justify-center py-4">
@@ -176,7 +177,7 @@ export function AddAssessmentForm({ isOpen, onClose }: AddAssessmentFormProps) {
                       }))}
                       onValueChange={field.onChange}
                       defaultValue={field.value}
-                      placeholder="Select dimensions"
+                      placeholder={t("shared.assessments.selectDims")}
                       maxCount={3}
                     />
                   )}
@@ -186,10 +187,10 @@ export function AddAssessmentForm({ isOpen, onClose }: AddAssessmentFormProps) {
             />
             <DialogFooter className="pt-2">
               <Button type="button" variant="outline" onClick={onClose}>
-                Cancel
+                {t("shared.assessments.cancel")}
               </Button>
               <Button type="submit" disabled={isAdding}>
-                {isAdding ? "Creating…" : "Create assessment"}
+                {isAdding ? t("shared.assessments.creating") : t("shared.assessments.createBtn")}
               </Button>
             </DialogFooter>
           </form>

@@ -14,12 +14,14 @@ import { Button } from "@/components/ui/button";
 import { AddActionItemForm } from "./AddActionItemForm";
 import { useAuth } from "@/context/AuthContext";
 import { ROLES } from "@/constants/roles";
+import { useTranslation } from "react-i18next";
 
 interface KanbanBoardProps {
   submissionId: string;
 }
 
 export function KanbanBoard({ submissionId }: KanbanBoardProps) {
+  const { t } = useTranslation();
   const { data: actionPlan, isLoading, error, refetch } = useActionPlan(submissionId);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { roles } = useAuth();
@@ -32,8 +34,8 @@ export function KanbanBoard({ submissionId }: KanbanBoardProps) {
   };
 
   if (isLoading) return <LoadingSpinner />;
-  if (error) return <p className="text-red-500">Error loading action plan.</p>;
-  if (!actionPlan) return <p>No action plan found for this submission.</p>;
+  if (error) return <p className="text-red-500">{t("shared.actionPlans.errorLoading")}</p>;
+  if (!actionPlan) return <p>{t("shared.actionPlans.noActionPlan")}</p>;
 
   const columns = {
     todo: actionPlan.action_items.filter((item) => item.status === "todo"),
@@ -52,7 +54,7 @@ export function KanbanBoard({ submissionId }: KanbanBoardProps) {
           <div className="flex items-center justify-between mb-1">
             <h2 className="text-base font-bold text-gray-700 flex items-center gap-2">
               <div className="p-1.5 bg-gray-100 rounded-md"><Clock className="h-4 w-4 text-gray-600" /></div>
-              To Do
+              {t("shared.actionPlans.todo")}
             </h2>
             <span className="px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-600 text-xs font-bold border border-gray-200">{columns.todo.length}</span>
           </div>
@@ -63,12 +65,12 @@ export function KanbanBoard({ submissionId }: KanbanBoardProps) {
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
                 <Button variant="outline" className="w-full h-10 border-dashed border-2 border-gray-300 text-gray-500 hover:border-primary hover:text-primary hover:bg-primary/5 rounded-xl mb-2">
-                  <Plus className="h-4 w-4 mr-2" /><span className="font-medium text-sm">Add Action Item</span>
+                  <Plus className="h-4 w-4 mr-2" /><span className="font-medium text-sm">{t("shared.actionPlans.addBtn")}</span>
                 </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-[600px] p-0 overflow-hidden rounded-2xl border-0 shadow-2xl">
                 <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent p-6 border-b border-primary/10">
-                  <DialogHeader><DialogTitle className="text-2xl font-bold text-gray-900">Add New Action Item</DialogTitle></DialogHeader>
+                  <DialogHeader><DialogTitle className="text-2xl font-bold text-gray-900">{t("shared.actionPlans.addNewActionItem")}</DialogTitle></DialogHeader>
                 </div>
                 <div className="p-6">
                   <AddActionItemForm actionPlanId={actionPlan.action_plan_id} assessmentId={submissionId} onSuccess={handleSuccess} />
@@ -77,7 +79,7 @@ export function KanbanBoard({ submissionId }: KanbanBoardProps) {
             </Dialog>
           )}
           {columns.todo.map((item) => <ActionItemCard key={item.action_item_id} item={item} onUpdate={refetch} assessmentId={submissionId} />)}
-          {columns.todo.length === 0 && !canEdit && <div className="text-center py-12 text-gray-400 text-sm italic">No items in To Do</div>}
+          {columns.todo.length === 0 && !canEdit && <div className="text-center py-12 text-gray-400 text-sm italic">{t("shared.actionPlans.noItemsTodo")}</div>}
         </div>
       </div>
 
@@ -87,7 +89,7 @@ export function KanbanBoard({ submissionId }: KanbanBoardProps) {
           <div className="flex items-center justify-between mb-1">
             <h2 className="text-base font-bold text-blue-700 flex items-center gap-2">
               <div className="p-1.5 bg-blue-100 rounded-md"><CirclePlay className="h-4 w-4 text-blue-600" /></div>
-              In Progress
+              {t("shared.actionPlans.inProgress")}
             </h2>
             <span className="px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-700 text-xs font-bold border border-blue-200">{columns.in_progress.length}</span>
           </div>
@@ -95,7 +97,7 @@ export function KanbanBoard({ submissionId }: KanbanBoardProps) {
         </div>
         <div className="p-3 space-y-3 overflow-y-auto flex-1 min-h-0">
           {columns.in_progress.map((item) => <ActionItemCard key={item.action_item_id} item={item} onUpdate={refetch} assessmentId={submissionId} />)}
-          {columns.in_progress.length === 0 && <div className="text-center py-12 text-blue-300 text-sm italic">No items in progress</div>}
+          {columns.in_progress.length === 0 && <div className="text-center py-12 text-blue-300 text-sm italic">{t("shared.actionPlans.noItemsInProgress")}</div>}
         </div>
       </div>
 
@@ -105,7 +107,7 @@ export function KanbanBoard({ submissionId }: KanbanBoardProps) {
           <div className="flex items-center justify-between mb-1">
             <h2 className="text-base font-bold text-green-700 flex items-center gap-2">
               <div className="p-1.5 bg-green-100 rounded-md"><CircleCheck className="h-4 w-4 text-green-600" /></div>
-              Done
+              {t("shared.actionPlans.done")}
             </h2>
             <span className="px-2.5 py-0.5 rounded-full bg-green-100 text-green-700 text-xs font-bold border border-green-200">{columns.done.length}</span>
           </div>
@@ -113,7 +115,7 @@ export function KanbanBoard({ submissionId }: KanbanBoardProps) {
         </div>
         <div className="p-3 space-y-3 overflow-y-auto flex-1 min-h-0">
           {columns.done.map((item) => <ActionItemCard key={item.action_item_id} item={item} onUpdate={refetch} assessmentId={submissionId} />)}
-          {columns.done.length === 0 && <div className="text-center py-12 text-green-300 text-sm italic">No items completed</div>}
+          {columns.done.length === 0 && <div className="text-center py-12 text-green-300 text-sm italic">{t("shared.actionPlans.noItemsCompleted")}</div>}
         </div>
       </div>
 
@@ -123,7 +125,7 @@ export function KanbanBoard({ submissionId }: KanbanBoardProps) {
           <div className="flex items-center justify-between mb-1">
             <h2 className="text-base font-bold text-purple-700 flex items-center gap-2">
               <div className="p-1.5 bg-purple-100 rounded-md"><ThumbsUp className="h-4 w-4 text-purple-600" /></div>
-              Approved
+              {t("shared.actionPlans.approved")}
             </h2>
             <span className="px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-700 text-xs font-bold border border-purple-200">{columns.approved.length}</span>
           </div>
@@ -131,7 +133,7 @@ export function KanbanBoard({ submissionId }: KanbanBoardProps) {
         </div>
         <div className="p-3 space-y-3 overflow-y-auto flex-1 min-h-0">
           {columns.approved.map((item) => <ActionItemCard key={item.action_item_id} item={item} onUpdate={refetch} assessmentId={submissionId} />)}
-          {columns.approved.length === 0 && <div className="text-center py-12 text-purple-300 text-sm italic">No items approved</div>}
+          {columns.approved.length === 0 && <div className="text-center py-12 text-purple-300 text-sm italic">{t("shared.actionPlans.noItemsApproved")}</div>}
         </div>
       </div>
     </div>

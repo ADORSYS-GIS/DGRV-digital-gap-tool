@@ -9,6 +9,8 @@ import {
 import { IDimensionAssessment, IDimensionState } from "@/types/dimension";
 import { cn } from "@/lib/utils";
 
+import { useTranslation } from "react-i18next";
+
 interface DimensionAssessmentDetailProps {
   assessment: IDimensionAssessment;
   allDimensionStates: IDimensionState[];
@@ -31,6 +33,7 @@ export function DimensionAssessmentDetail({
   assessment,
   allDimensionStates,
 }: DimensionAssessmentDetailProps) {
+  const { t } = useTranslation();
   const { currentState, desiredState } = assessment;
   const gapScore = desiredState.level - currentState.level;
   const risk = getRiskLevel(gapScore);
@@ -43,17 +46,17 @@ export function DimensionAssessmentDetail({
 
   const currentStateDescription =
     allStates.find((s) => s.id === currentState.id)?.description ??
-    "Description not found";
+    t("sharedSubmissions.detail.descriptionNotFound");
   const desiredStateDescription =
     allStates.find((s) => s.id === desiredState.id)?.description ??
-    "Description not found";
+    t("sharedSubmissions.detail.descriptionNotFound");
 
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4">
         <Card className="bg-red-50 border-red-200">
           <CardHeader>
-            <CardTitle>Your Current Level</CardTitle>
+            <CardTitle>{t("sharedSubmissions.detail.currentLevel")}</CardTitle>
             <CardDescription className="text-red-800 font-bold text-2xl">
               {currentState.level} {currentState.name}
             </CardDescription>
@@ -64,7 +67,7 @@ export function DimensionAssessmentDetail({
         </Card>
         <Card className="bg-green-50 border-green-200">
           <CardHeader>
-            <CardTitle>Your Desired Level</CardTitle>
+            <CardTitle>{t("sharedSubmissions.detail.desiredLevel")}</CardTitle>
             <CardDescription className="text-green-800 font-bold text-2xl">
               {desiredState.level} {desiredState.name}
             </CardDescription>
@@ -75,14 +78,12 @@ export function DimensionAssessmentDetail({
         </Card>
       </div>
       <div className="px-4 pb-4">
-        <h4 className="font-semibold mb-2">Risk Level</h4>
+        <h4 className="font-semibold mb-2">{t("sharedSubmissions.detail.riskLevel")}</h4>
         <Badge className={cn("text-sm px-3 py-1 rounded-md", risk.className)}>
           {risk.level}
         </Badge>
         <p className="text-sm text-gray-600 mt-2">
-          The gap between your current and desired levels is analyzed to
-          determine a risk level, indicating the urgency and importance of
-          addressing this area.
+          {t("sharedSubmissions.detail.riskLevelDesc")}
         </p>
       </div>
     </div>

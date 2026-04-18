@@ -10,6 +10,7 @@ import {
 } from "recharts";
 import { IDimensionAssessment, IDimensionState } from "@/types/dimension";
 import { IDimension } from "@/types/dimension";
+import { useTranslation } from "react-i18next";
 
 interface SubmissionChartProps {
   assessments: IDimensionAssessment[];
@@ -73,6 +74,7 @@ export function SubmissionChart({
   allDimensionStates,
   assessmentName,
 }: SubmissionChartProps) {
+  const { t } = useTranslation();
   const chartData = assessments
     .map((da) => {
       const dimension = dimensions.find((d) => d.id === da.dimensionId);
@@ -93,8 +95,8 @@ export function SubmissionChart({
       return {
         dimensionId: da.dimensionId,
         dimensionName: dimension.name,
-        "Current State": currentState?.level ?? da.currentState.level,
-        "Desired State": desiredState?.level ?? da.desiredState.level,
+        [t("sharedSubmissions.chart.currentState")]: currentState?.level ?? da.currentState.level,
+        [t("sharedSubmissions.chart.desiredState")]: desiredState?.level ?? da.desiredState.level,
         currentStateName,
         desiredStateName,
       };
@@ -115,7 +117,7 @@ export function SubmissionChart({
   if (chartData.length === 0) {
     return (
       <div className="text-center py-10 text-gray-500">
-        No assessment data to display.
+        {t("sharedSubmissions.chart.noData")}
       </div>
     );
   }
@@ -124,27 +126,27 @@ export function SubmissionChart({
     <>
       {assessmentName && (
         <p className="text-xs font-medium text-muted-foreground mb-3">
-          Assessment: <span className="text-foreground font-semibold">{assessmentName}</span>
+          {t("sharedSubmissions.chart.assessment")} <span className="text-foreground font-semibold">{assessmentName}</span>
         </p>
       )}
       <ResponsiveContainer width="100%" height={400}>
-      <BarChart
-        data={chartData}
-        margin={{
-          top: 20,
-          right: 30,
-          left: 20,
-          bottom: 5,
-        }}
-      >
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="dimensionName" />
-        <YAxis />
-        <Tooltip content={<CustomTooltip />} />
-        <Legend />
-        <Bar dataKey="Current State" fill="#8884d8" />
-        <Bar dataKey="Desired State" fill="#82ca9d" />
-      </BarChart>
+        <BarChart
+          data={chartData}
+          margin={{
+            top: 20,
+            right: 30,
+            left: 20,
+            bottom: 5,
+          }}
+        >
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="dimensionName" />
+          <YAxis />
+          <Tooltip content={<CustomTooltip />} />
+          <Legend />
+          <Bar dataKey={t("sharedSubmissions.chart.currentState")} fill="#8884d8" />
+          <Bar dataKey={t("sharedSubmissions.chart.desiredState")} fill="#82ca9d" />
+        </BarChart>
       </ResponsiveContainer>
     </>
   );

@@ -15,6 +15,7 @@ import { useCooperationId } from "@/hooks/cooperations/useCooperationId";
 import { useCooperationIdFromPath } from "@/hooks/cooperations/useCooperationIdFromPath";
 import { useSubmissionsByOrganization } from "@/hooks/submissions/useSubmissionsByOrganization";
 import { useSubmissionsByCooperation } from "@/hooks/submissions/useSubmissionsByCooperation";
+import { useTranslation } from "react-i18next";
 
 interface SelectSubmissionModalProps {
   isOpen: boolean;
@@ -27,6 +28,7 @@ export const SelectSubmissionModal: React.FC<SelectSubmissionModalProps> = ({
   onClose,
   onSelect,
 }) => {
+  const { t } = useTranslation();
   const { user } = useAuth();
 
   const organizationId = useOrganizationId();
@@ -83,17 +85,17 @@ export const SelectSubmissionModal: React.FC<SelectSubmissionModalProps> = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Select a submission</DialogTitle>
+          <DialogTitle>{t("shared.reports.selectSubmission")}</DialogTitle>
           <DialogDescription>
-            Choose a submitted assessment to export a report for.
+            {t("shared.reports.chooseSubmissionDesc")}
           </DialogDescription>
         </DialogHeader>
         <div>
           {isLoading && <LoadingSpinner />}
           {error && (
             <p className="text-sm text-destructive">
-              Failed to load submissions:{" "}
-              {String((error as Error)?.message || "Unknown error")}
+              {t("shared.reports.failedToLoadSubmissions")}{" "}
+              {String((error as Error)?.message || t("shared.reports.unknownError"))}
             </p>
           )}
           {!isLoading && !error && submissions.length > 0 ? (
@@ -109,16 +111,16 @@ export const SelectSubmissionModal: React.FC<SelectSubmissionModalProps> = ({
                     {submission.assessment.document_title}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    Submitted on:{" "}
+                    {t("shared.reports.submittedOn")}{" "}
                     {submission.assessment.completed_at
                       ? new Date(
-                          submission.assessment.completed_at,
-                        ).toLocaleDateString()
+                        submission.assessment.completed_at,
+                      ).toLocaleDateString()
                       : submission.assessment.created_at
                         ? new Date(
-                            submission.assessment.created_at,
-                          ).toLocaleDateString()
-                        : "Unknown date"}
+                          submission.assessment.created_at,
+                        ).toLocaleDateString()
+                        : t("shared.reports.unknownDate")}
                   </p>
                 </button>
               ))}
@@ -127,7 +129,7 @@ export const SelectSubmissionModal: React.FC<SelectSubmissionModalProps> = ({
 
           {!isLoading && !error && submissions.length === 0 && (
             <p className="text-sm text-muted-foreground">
-              No submissions found.
+              {t("shared.reports.noSubmissionsFound")}
             </p>
           )}
         </div>
