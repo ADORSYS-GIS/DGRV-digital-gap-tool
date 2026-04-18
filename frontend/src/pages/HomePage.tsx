@@ -1,7 +1,7 @@
 /**
  * Home page component that serves as the entry point for the application.
  * This page provides:
- * - Welcome information about the Digital Gap Assessment Tool
+ * - Welcome information about the Gap Assessment Tool
  * - Authentication flow for users
  * - Overview of key features and benefits
  * - Information about the tool's purpose and support

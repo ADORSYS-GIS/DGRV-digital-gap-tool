@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { ConsolidatedReport } from "@/openapi-client";
 import { consolidatedReportRepository } from "@/services/consolidated_reports/consolidatedReportRepository";
-import { exportConsolidatedReportAsPDF } from "@/utils/exportConsolidatedReport";
+import { exportConsolidatedReportAsPDF, type ExportTranslations } from "@/utils/exportConsolidatedReport";
 import {
   Card,
   CardContent,
@@ -176,8 +176,71 @@ export function ConsolidatedReportPage() {
   const [error, setError] = useState<string | null>(null);
 
   const handleExportPDF = () => {
-    if (!report) return;
-    exportConsolidatedReportAsPDF(report);
+    if (report) {
+      const translations: ExportTranslations = {
+        title: t("consolidatedReport.title"),
+        digitalGapAnalysis: t("consolidatedReport.digitalGapAnalysis"),
+        totalSubmissions: t("consolidatedReport.metrics.totalSubmissions"),
+        dimensionAnalysis: t("consolidatedReport.dimensions.title"),
+        riskDistributionDesc: t("consolidatedReport.dimensions.subtitle"),
+        table: {
+          dimension: t("consolidatedReport.dimensions.table.dimension"),
+          highRisk: t("consolidatedReport.dimensions.table.highRisk"),
+          mediumRisk: t("consolidatedReport.dimensions.table.mediumRisk"),
+          lowRisk: t("consolidatedReport.dimensions.table.lowRisk"),
+        },
+        attention: {
+          title: t("consolidatedReport.focus.high.title"),
+          avgScore: t("consolidatedReport.focus.avgScore"),
+          recommendations: t("consolidatedReport.focus.high.recTitle"),
+          subtitles: {
+            high: t("consolidatedReport.focus.high.subtitle"),
+            medium: t("consolidatedReport.focus.medium.subtitle"),
+            low: t("consolidatedReport.focus.low.subtitle"),
+          },
+          riskLevels: {
+            high: t("consolidatedReport.focus.highRisk"),
+            medium: t("consolidatedReport.focus.mediumRisk"),
+            low: t("consolidatedReport.focus.lowRisk"),
+          },
+        },
+        chart: {
+          title: t("consolidatedReport.chart.title"),
+          subtitle: t("consolidatedReport.chart.subtitle"),
+        },
+        legend: {
+          highRisk: t("consolidatedReport.chart.highRisk"),
+          mediumRisk: t("consolidatedReport.chart.mediumRisk"),
+          lowRisk: t("consolidatedReport.chart.lowRisk"),
+        },
+        footer: {
+          generatedOn: t("consolidatedReport.footer.generatedOn"),
+          pageOf: t("consolidatedReport.footer.pageOf"),
+        },
+      };
+
+      const highest = report.dimension_summaries.reduce((a, b) =>
+        a.average_risk_level > b.average_risk_level ? a : b,
+      );
+      if (highest.average_risk_level > 2.5) {
+        translations.attention.title = t("consolidatedReport.focus.high.title");
+        translations.attention.recommendations = t(
+          "consolidatedReport.focus.high.recTitle",
+        );
+      } else if (highest.average_risk_level >= 1.5) {
+        translations.attention.title = t("consolidatedReport.focus.medium.title");
+        translations.attention.recommendations = t(
+          "consolidatedReport.focus.medium.recTitle",
+        );
+      } else {
+        translations.attention.title = t("consolidatedReport.focus.low.title");
+        translations.attention.recommendations = t(
+          "consolidatedReport.focus.low.recTitle",
+        );
+      }
+
+      exportConsolidatedReportAsPDF(report, translations);
+    }
   };
 
   const fetchReport = async () => {

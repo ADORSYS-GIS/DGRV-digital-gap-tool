@@ -4,31 +4,77 @@ import type { ConsolidatedReport } from "@/openapi-client/types.gen";
 type RGB = [number, number, number];
 
 const C = {
-  blue:      [30,  64,  175] as RGB,
-  blueMid:   [59,  130, 246] as RGB,
+  blue: [30, 64, 175] as RGB,
+  blueMid: [59, 130, 246] as RGB,
   blueLight: [219, 234, 254] as RGB,
-  high:      [239, 68,  68]  as RGB,  // #ef4444 — matches on-screen chart
-  highBg:    [254, 226, 226] as RGB,
-  medium:    [245, 158, 11]  as RGB,  // #f59e0b — matches on-screen chart
-  mediumBg:  [254, 243, 199] as RGB,
-  low:       [22,  163, 74]  as RGB,  // #16a34a — matches on-screen chart
-  lowBg:     [220, 252, 231] as RGB,
-  black:     [15,  23,  42]  as RGB,
-  gray:      [100, 116, 139] as RGB,
+  high: [239, 68, 68] as RGB,  // #ef4444 — matches on-screen chart
+  highBg: [254, 226, 226] as RGB,
+  medium: [245, 158, 11] as RGB,  // #f59e0b — matches on-screen chart
+  mediumBg: [254, 243, 199] as RGB,
+  low: [22, 163, 74] as RGB,  // #16a34a — matches on-screen chart
+  lowBg: [220, 252, 231] as RGB,
+  black: [15, 23, 42] as RGB,
+  gray: [100, 116, 139] as RGB,
   grayLight: [226, 232, 240] as RGB,
-  bgRow:     [248, 250, 252] as RGB,
-  white:     [255, 255, 255] as RGB,
+  bgRow: [248, 250, 252] as RGB,
+  white: [255, 255, 255] as RGB,
 };
 
-function riskLabel(level: number) {
-  return level < 1.5 ? "Low" : level <= 2.5 ? "Medium" : "High";
+export interface ExportTranslations {
+  title: string;
+  digitalGapAnalysis: string;
+  totalSubmissions: string;
+  dimensionAnalysis: string;
+  riskDistributionDesc: string;
+  table: {
+    dimension: string;
+    highRisk: string;
+    mediumRisk: string;
+    lowRisk: string;
+  };
+  attention: {
+    title: string;
+    avgScore: string;
+    recommendations: string;
+    subtitles: {
+      high: string;
+      medium: string;
+      low: string;
+    };
+    riskLevels: {
+      high: string;
+      medium: string;
+      low: string;
+    };
+  };
+  chart: {
+    title: string;
+    subtitle: string;
+  };
+  legend: {
+    highRisk: string;
+    mediumRisk: string;
+    lowRisk: string;
+  };
+  footer: {
+    generatedOn: string;
+    pageOf: string;
+  };
+}
+
+function riskLabel(level: number, translations: ExportTranslations) {
+  return level < 1.5
+    ? translations.attention.riskLevels.low
+    : level <= 2.5
+      ? translations.attention.riskLevels.medium
+      : translations.attention.riskLevels.high;
 }
 function riskColor(level: number): RGB {
   return level < 1.5 ? C.low : level <= 2.5 ? C.medium : C.high;
 }
 function setColor(doc: jsPDF, color: RGB) { doc.setTextColor(color[0], color[1], color[2]); }
-function setFill(doc: jsPDF, color: RGB)  { doc.setFillColor(color[0], color[1], color[2]); }
-function setDraw(doc: jsPDF, color: RGB)  { doc.setDrawColor(color[0], color[1], color[2]); }
+function setFill(doc: jsPDF, color: RGB) { doc.setFillColor(color[0], color[1], color[2]); }
+function setDraw(doc: jsPDF, color: RGB) { doc.setDrawColor(color[0], color[1], color[2]); }
 
 function sanitize(text: string): string {
   return text
@@ -63,6 +109,7 @@ async function loadImageAsDataUrl(src: string): Promise<string | null> {
 
 export async function exportConsolidatedReportAsPDF(
   report: ConsolidatedReport,
+  translations: ExportTranslations,
   organizationName?: string,
 ): Promise<void> {
   const logoDataUrl = await loadImageAsDataUrl("/dgrv-logo.png");
@@ -74,7 +121,7 @@ export async function exportConsolidatedReportAsPDF(
   const CW = W - M * 2;
   let y = 0;
 
-  const date = new Date().toLocaleDateString("en-US", {
+  const date = new Date().toLocaleDateString(undefined, {
     year: "numeric", month: "long", day: "numeric",
   });
 
@@ -107,12 +154,12 @@ export async function exportConsolidatedReportAsPDF(
   setColor(doc, C.white);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(20);
-  doc.text("Consolidated Report", M + 32, 17);
+  doc.text(translations.title, M + 32, 17);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(9);
   setColor(doc, C.blueLight);
   doc.text(
-    organizationName ? `${organizationName}  ·  ${date}` : `Digital Gap Analysis  ·  ${date}`,
+    organizationName ? `${organizationName}  ·  ${date}` : `${translations.digitalGapAnalysis}  ·  ${date}`,
     M + 32, 25,
   );
 
@@ -126,7 +173,7 @@ export async function exportConsolidatedReportAsPDF(
   setColor(doc, C.gray);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8);
-  doc.text("Total Submissions", M + 4, y + 6);
+  doc.text(translations.totalSubmissions, M + 4, y + 6);
   setColor(doc, C.blue);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(16);
@@ -138,24 +185,29 @@ export async function exportConsolidatedReportAsPDF(
   setColor(doc, C.black);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(12);
-  doc.text("Dimension Analysis", M, y);
+  doc.text(translations.dimensionAnalysis, M, y);
   y += 4;
   setColor(doc, C.gray);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8);
-  doc.text("Risk level distribution across all submissions", M, y);
+  doc.text(translations.riskDistributionDesc, M, y);
   y += 5;
 
   const cols = [CW * 0.38, CW * 0.205, CW * 0.205, CW * 0.21];
-  const xs   = [M, M + cols[0], M + cols[0] + cols[1], M + cols[0] + cols[1] + cols[2]];
-  const rh   = 7.5;
+  const xs = [M, M + cols[0], M + cols[0] + cols[1], M + cols[0] + cols[1] + cols[2]];
+  const rh = 7.5;
 
   setFill(doc, C.blue);
   doc.rect(M, y, CW, rh, "F");
   setColor(doc, C.white);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(8);
-  ["DIMENSION", "HIGH RISK %", "MEDIUM RISK %", "LOW RISK %"].forEach((h, i) => {
+  [
+    translations.table.dimension,
+    translations.table.highRisk,
+    translations.table.mediumRisk,
+    translations.table.lowRisk,
+  ].forEach((h, i) => {
     doc.text(h, xs[i] + 2.5, y + 5);
   });
   y += rh;
@@ -176,9 +228,9 @@ export async function exportConsolidatedReportAsPDF(
       s.risk_level_distribution;
 
     doc.setFont("helvetica", "bold");
-    setColor(doc, C.high);   doc.text(`${h.toFixed(2)}%`, xs[1] + 2.5, y + 5);
+    setColor(doc, C.high); doc.text(`${h.toFixed(2)}%`, xs[1] + 2.5, y + 5);
     setColor(doc, C.medium); doc.text(`${m.toFixed(2)}%`, xs[2] + 2.5, y + 5);
-    setColor(doc, C.low);    doc.text(`${l.toFixed(2)}%`, xs[3] + 2.5, y + 5);
+    setColor(doc, C.low); doc.text(`${l.toFixed(2)}%`, xs[3] + 2.5, y + 5);
     doc.setFont("helvetica", "normal");
     y += rh;
   });
@@ -190,9 +242,9 @@ export async function exportConsolidatedReportAsPDF(
       a.average_risk_level > b.average_risk_level ? a : b,
     );
     const isHigh = highest.average_risk_level > 2.5;
-    const isMed  = highest.average_risk_level >= 1.5;
+    const isMed = highest.average_risk_level >= 1.5;
     const accentColor = isHigh ? C.high : isMed ? C.medium : C.low;
-    const bgColor     = isHigh ? C.highBg : isMed ? C.mediumBg : C.lowBg;
+    const bgColor = isHigh ? C.highBg : isMed ? C.mediumBg : C.lowBg;
 
     const recLines = highest.top_recommendations.flatMap((r) =>
       doc.splitTextToSize(`• ${sanitize(r)}`, CW - 10) as string[],
@@ -208,16 +260,16 @@ export async function exportConsolidatedReportAsPDF(
     setColor(doc, C.black);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(11);
-    doc.text("Dimension Needing Attention & Recommendations", M + 6, y + 7);
+    doc.text(translations.attention.title, M + 6, y + 7);
 
     setColor(doc, C.gray);
     doc.setFont("helvetica", "normal");
     doc.setFontSize(8);
     const subtitle = isHigh
-      ? "Priority focus area requiring immediate attention"
+      ? translations.attention.subtitles.high
       : isMed
-        ? "Moderate gap — worth monitoring and improving"
-        : "All dimensions performing well — most room for growth";
+        ? translations.attention.subtitles.medium
+        : translations.attention.subtitles.low;
     doc.text(subtitle, M + 6, y + 13);
 
     setColor(doc, C.black);
@@ -227,18 +279,18 @@ export async function exportConsolidatedReportAsPDF(
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(8.5);
-    doc.text("Average Risk Score: ", M + 6, y + 26);
-    const lw = doc.getTextWidth("Average Risk Score: ");
+    doc.text(translations.attention.avgScore, M + 6, y + 26);
+    const lw = doc.getTextWidth(translations.attention.avgScore);
     setColor(doc, accentColor);
     doc.setFont("helvetica", "bold");
-    doc.text(riskLabel(highest.average_risk_level), M + 6 + lw, y + 26);
+    doc.text(riskLabel(highest.average_risk_level, translations), M + 6 + lw, y + 26);
 
     y += 30;
     if (recLines.length > 0) {
       setColor(doc, C.black);
       doc.setFont("helvetica", "bold");
       doc.setFontSize(8.5);
-      doc.text("Recommendations:", M + 6, y);
+      doc.text(translations.attention.recommendations, M + 6, y);
       y += 5;
       doc.setFont("helvetica", "normal");
       doc.setFontSize(8);
@@ -256,18 +308,18 @@ export async function exportConsolidatedReportAsPDF(
   setColor(doc, C.black);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(12);
-  doc.text("Dominant Risk Level by Dimension", M, y);
+  doc.text(translations.chart.title, M, y);
   y += 4;
   setColor(doc, C.gray);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8);
-  doc.text("Percentage of dominant risk level per dimension", M, y);
+  doc.text(translations.chart.subtitle, M, y);
   y += 6;
 
   const chartH = 48;
   const n = report.dimension_summaries.length;
   const barW = Math.min(18, (CW - 4) / n - 3);
-  const gap  = (CW - n * barW) / (n + 1);
+  const gap = (CW - n * barW) / (n + 1);
   const chartBottom = y + chartH;
 
   setDraw(doc, C.grayLight);
@@ -308,9 +360,9 @@ export async function exportConsolidatedReportAsPDF(
 
   // Legend
   const legendItems = [
-    { label: "High Risk", color: C.high },
-    { label: "Medium Risk", color: C.medium },
-    { label: "Low Risk", color: C.low },
+    { label: translations.legend.highRisk, color: C.high },
+    { label: translations.legend.mediumRisk, color: C.medium },
+    { label: translations.legend.lowRisk, color: C.low },
   ];
   let lx = M;
   legendItems.forEach(({ label, color }) => {
@@ -332,8 +384,11 @@ export async function exportConsolidatedReportAsPDF(
     setColor(doc, C.blueLight);
     doc.setFont("helvetica", "normal");
     doc.setFontSize(7.5);
-    doc.text(`Generated on ${date}`, M, H - 3);
-    doc.text(`Page ${p} of ${totalPages}`, W - M, H - 3, { align: "right" });
+    doc.text(translations.footer.generatedOn.replace("{{date}}", date), M, H - 3);
+    doc.text(
+      translations.footer.pageOf.replace("{{current}}", String(p)).replace("{{total}}", String(totalPages)),
+      W - M, H - 3, { align: "right" }
+    );
   }
 
   doc.save(`consolidated-report-${new Date().toISOString().slice(0, 10)}.pdf`);

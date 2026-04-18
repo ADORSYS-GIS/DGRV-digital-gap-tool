@@ -1,11 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <title>Digital Gap Analysis Report</title>
+    <title>Gap Assessment Report</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: Arial, sans-serif; padding: 40px; background: white; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            padding: 40px;
+            background: white;
+        }
 
         .header {
             text-align: center;
@@ -13,25 +23,88 @@
             padding-bottom: 20px;
             border-bottom: 3px solid #2563eb;
         }
-        .header h1 { color: #1e40af; font-size: 26px; margin-bottom: 8px; }
-        .header .subtitle { color: #64748b; font-size: 15px; }
 
-        table { width: 100%; border-collapse: collapse; margin-bottom: 40px; }
-        thead { background: #1e40af; color: white; }
-        th { padding: 13px 15px; text-align: left; font-size: 13px; text-transform: uppercase; font-weight: 600; }
-        td { padding: 11px 15px; border-bottom: 1px solid #e2e8f0; font-size: 13px; vertical-align: top; }
-        tbody tr:nth-child(even) { background: #f8fafc; }
+        .header h1 {
+            color: #1e40af;
+            font-size: 26px;
+            margin-bottom: 8px;
+        }
 
-        .gap-high   { color: #991b1b; font-weight: 700; }
-        .gap-medium { color: #854d0e; font-weight: 700; }
-        .gap-low    { color: #166534; font-weight: 700; }
+        .header .subtitle {
+            color: #64748b;
+            font-size: 15px;
+        }
 
-        .rec-list { list-style: none; padding: 0; margin: 0; }
-        .rec-list li { padding: 2px 0; }
-        .rec-list li::before { content: "• "; color: #2563eb; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 40px;
+        }
 
-        .chart-container { margin: 30px 0; }
-        .chart-title { font-size: 17px; font-weight: 600; color: #1e40af; margin-bottom: 16px; }
+        thead {
+            background: #1e40af;
+            color: white;
+        }
+
+        th {
+            padding: 13px 15px;
+            text-align: left;
+            font-size: 13px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 11px 15px;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 13px;
+            vertical-align: top;
+        }
+
+        tbody tr:nth-child(even) {
+            background: #f8fafc;
+        }
+
+        .gap-high {
+            color: #991b1b;
+            font-weight: 700;
+        }
+
+        .gap-medium {
+            color: #854d0e;
+            font-weight: 700;
+        }
+
+        .gap-low {
+            color: #166534;
+            font-weight: 700;
+        }
+
+        .rec-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .rec-list li {
+            padding: 2px 0;
+        }
+
+        .rec-list li::before {
+            content: "• ";
+            color: #2563eb;
+        }
+
+        .chart-container {
+            margin: 30px 0;
+        }
+
+        .chart-title {
+            font-size: 17px;
+            font-weight: 600;
+            color: #1e40af;
+            margin-bottom: 16px;
+        }
 
         .footer {
             margin-top: 40px;
@@ -42,13 +115,18 @@
             font-size: 12px;
         }
 
-        @media print { body { padding: 20px; } }
+        @media print {
+            body {
+                padding: 20px;
+            }
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
+
 <body>
     <div class="header">
-        <h1>Digital Gap Analysis Report</h1>
+        <h1>Gap Assessment Report</h1>
         <p class="subtitle">{{ assessment_title }}</p>
         <p style="color:#94a3b8;font-size:13px;margin-top:4px;">Cooperative: {{ organization_id }}</p>
     </div>
@@ -70,13 +148,13 @@
                 <td>{{ row.result }}</td>
                 <td>
                     {% if row.recommendations | length == 0 %}
-                        <span style="color:#94a3b8;font-style:italic">No action items yet</span>
+                    <span style="color:#94a3b8;font-style:italic">No action items yet</span>
                     {% else %}
-                        <ul class="rec-list">
-                            {% for rec in row.recommendations %}
-                            <li>{{ rec }}</li>
-                            {% endfor %}
-                        </ul>
+                    <ul class="rec-list">
+                        {% for rec in row.recommendations %}
+                        <li>{{ rec }}</li>
+                        {% endfor %}
+                    </ul>
                     {% endif %}
                 </td>
             </tr>
@@ -124,4 +202,5 @@
         <p>Generated: {{ generation_date }}</p>
     </div>
 </body>
+
 </html>

@@ -1,4 +1,4 @@
-# Database ER Diagram - Digital Gap Analysis Tool (DGAT)
+# Database ER Diagram - Gap Assessment Tool (GAT)
 
 ## Entity Relationship Diagram
 
@@ -197,7 +197,7 @@ erDiagram
   - `assessment_id`: Primary identifier
   - `user_id`: Keycloak user identifier from JWT token
   - `organization_id`: Keycloak organization identifier from JWT token
-  - `document_title`: Title from metadata (e.g., "Digital Gap Analysis Matrix DGRV")
+  - `document_title`: Title from metadata (e.g., "Gap Analysis Matrix DGRV")
   - `file_name`: Original file name if imported
   - `status`: Current state (draft, in_progress, completed)
 
@@ -349,4 +349,4 @@ The system relies on JWT tokens from Keycloak containing:
 - No user/organization data is stored locally
 - Assessment data is linked via token-derived identifiers
 
-This ER diagram provides a robust foundation for the DGAT system, supporting the complete assessment workflow from dimension selection through gap analysis to actionable recommendations and reporting, while leveraging Keycloak for user and organization management.
+This ER diagram provides a robust foundation for the GAT system, supporting the complete assessment workflow from dimension selection through gap analysis to actionable recommendations and reporting, while leveraging Keycloak for user and organization management.

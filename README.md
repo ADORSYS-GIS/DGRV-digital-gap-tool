@@ -1,11 +1,11 @@
-# Digital Gap Analysis Tool (DGAT) for Cooperatives
+# Gap Assessment Tool (GAT) for Cooperatives
 
 ![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
 ![Project Status](https://img.shields.io/badge/status-in%20development-orange)
 
 ## 📖 Introduction
 
-This project, initiated by **DGRV (Deutscher Genossenschafts- und Raiffeisenverband e.V.)**, aims to develop a robust Digital Gap Analysis Tool (DGAT) to support cooperatives in Southern Africa. The primary goal is to transform an existing Excel-based tool into an integrated, user-friendly, and secure Progressive Web App (PWA) with full offline functionality.
+This project, initiated by **DGRV (Deutscher Genossenschafts- und Raiffeisenverband e.V.)**, aims to develop a robust Gap Assessment Tool (GAT) to support cooperatives in Southern Africa. The primary goal is to transform an existing Excel-based tool into an integrated, user-friendly, and secure Progressive Web App (PWA) with full offline functionality.
 
 The tool empowers cooperatives to assess their digital maturity, identify critical gaps between their current and desired digital states, and formulate actionable strategies for digital growth and resilience.
 

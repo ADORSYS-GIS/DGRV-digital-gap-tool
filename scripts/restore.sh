@@ -1,6 +1,6 @@
 #!/bin/bash
 # ─────────────────────────────────────────────────────────────
-# Restore script for DGRV Digital Gap Tool
+# Restore script for DGRV Gap Assessment Tool
 # Usage: ./scripts/restore.sh /opt/dgrv-backups/2026-04-07_12-00-00.tar.gz
 # ─────────────────────────────────────────────────────────────
 

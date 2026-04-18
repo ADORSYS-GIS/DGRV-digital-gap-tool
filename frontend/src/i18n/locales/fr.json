@@ -253,7 +253,7 @@
   },
   "onboarding": {
     "welcome": {
-      "title": "Bienvenue dans l'outil de diagnostic numérique",
+      "title": "Bienvenue dans l'outil d'évaluation des écarts",
       "subtitleHello": "Bienvenue, {{name}} ! Configurons votre profil d'évaluation de la digitalisation.",
       "subtitleGuest": "Bienvenue ! Laissez-nous vous guider à travers le processus d'évaluation de la digitalisation."
     },
@@ -275,7 +275,7 @@
       "step1": {
         "title": "Fixez des",
         "titleHighlight": "Objectifs stratégiques",
-        "description": "Définissez où vous voulez aller et établissez des cibles claires pour votre transformation numérique."
+        "description": "Définissez où vous voulez aller et établissez des cibles claires pour votre transformation."
       },
       "step2": {
         "title": "Des conseils",
@@ -288,7 +288,7 @@
     },
     "context": {
       "title": "Pourquoi cet accueil ?",
-      "description": "Cette introduction rapide vous aide à comprendre comment utiliser efficacement l'outil de diagnostic numérique :",
+      "description": "Cette introduction rapide vous aide à comprendre comment utiliser efficacement l'outil d'évaluation des écarts :",
       "list": [
         "Comprendre votre niveau actuel de digitalisation à travers les dimensions",
         "Définir votre futur état souhaité et vos priorités",
@@ -300,7 +300,7 @@
       "description": "Nous n'avons pas pu charger les étapes d'accueil. Veuillez réessayer ou contacter le support."
     },
     "title": "Bienvenue sur Finance Friend",
-    "subtitle": "Configurons votre coopérative pour la transformation numérique.",
+    "subtitle": "Configurons votre coopérative pour la transformation.",
     "completion": {
       "title": "Configuration Terminée !",
       "message": "Votre coopérative est maintenant prête à commencer son parcours d'évaluation numérique.",
@@ -310,7 +310,7 @@
   "userComponents": {
     "assessment": {
       "title": "Évaluation en cours",
-      "description": "Continuez votre analyse des écarts numériques en cours",
+      "description": "Continuez votre analyse des écarts en cours",
       "continue": "Continuer l’évaluation",
       "lastUpdated": "Dernière mise à jour : {{date}}",
       "progressLabel": "Progression"
@@ -470,7 +470,7 @@
         "desc": "Gérer les dimensions d'évaluation"
       },
       "gaps": {
-        "title": "Écarts Numériques",
+        "title": "écarts",
         "desc": "Définir et gérer les types d'écarts de numérisation"
       },
       "recommendations": {
@@ -590,11 +590,11 @@
     "cards": {
       "answer": {
         "title": "Répondre à l'Évaluation",
-        "description": "Complétez votre évaluation des écarts numériques"
+        "description": "Complétez votre évaluation des écarts"
       },
       "actionPlan": {
         "title": "Plan d'Action",
-        "description": "Consultez votre stratégie de numérisation"
+        "description": "Consultez votre stratégie"
       },
       "submissions": {
         "title": "Mes Soumissions",
@@ -633,11 +633,11 @@
       },
       "answerAssessment": {
         "title": "Répondre à l'Évaluation",
-        "description": "Compléter les évaluations des écarts numériques"
+        "description": "Compléter les évaluations des écarts"
       },
       "viewActionPlan": {
         "title": "Plans d'Action",
-        "description": "Réviser votre stratégie de numérisation"
+        "description": "Réviser votre stratégie"
       },
       "viewSubmissions": {
         "title": "Soumissions",
@@ -664,22 +664,22 @@
   },
   "home": {
     "hero": {
-      "title": "Outil d'Analyse des Écarts Numériques",
+      "title": "Outil d'analyse des écarts",
       "subtitle": "Permettre aux coopératives de se transformer numériquement grâce aux données",
-      "description": "Identifiez, mesurez et comblez les écarts numériques au sein de votre coopérative. Obtenez des informations exploitables et des recommandations stratégiques adaptées à votre organisation.",
+      "description": "Identifiez, mesurez et comblez les écarts au sein de votre coopérative. Obtenez des informations exploitables et des recommandations stratégiques adaptées à votre organisation.",
       "getStarted": "Commencer",
       "continueToDashboard": "Aller au Tableau de Bord"
     },
     "features": {
       "title": "Fonctionnalités Clés",
-      "subtitle": "Tout ce dont vous avez besoin pour évaluer et améliorer la maturité numérique de votre coopérative",
+      "subtitle": "Tout ce dont vous avez besoin pour évaluer et améliorer la maturité de votre coopérative",
       "gapAssessment": {
         "title": "Évaluation des Écarts",
         "desc": "Identifiez les écarts à travers plusieurs dimensions de numérisation."
       },
       "strategy": {
         "title": "Planification Stratégique",
-        "desc": "Définissez des objectifs clairs et une feuille de route pour la transformation numérique."
+        "desc": "Définissez des objectifs clairs et une feuille de route pour la transformation."
       },
       "tracking": {
         "title": "Suivi des Progrès",
@@ -695,7 +695,7 @@
       "subtitle": "Conçu spécifiquement pour les coopératives et organisations membres du DGRV",
       "empowerment": {
         "title": "Autonomisation des Membres",
-        "desc": "Donnez à chaque coopérative les données et outils pour maîtriser son parcours numérique."
+        "desc": "Donnez à chaque coopérative les données et outils pour maîtriser son parcours d'évaluation."
       },
       "secure": {
         "title": "Sécurisé et Fiable",
@@ -713,13 +713,13 @@
       "bmz": "Ministère Fédéral de la Coopération Économique et du Développement"
     },
     "cta": {
-      "title": "Prêt à Commencer Votre Transformation Numérique ?",
+      "title": "Prêt à Commencer Votre transformation ?",
       "subtitle": "Rejoignez des centaines de coopératives qui utilisent déjà cet outil pour conduire un changement significatif.",
       "getStartedNow": "Commencer Maintenant",
       "goDashboard": "Aller au Tableau de Bord"
     },
     "footer": {
-      "copyright": "© {{year}} DGRV Outil d'Analyse des Écarts Numériques. Tous droits réservés.",
+      "copyright": "© {{year}} DGRV Outil d'analyse des écarts. Tous droits réservés.",
       "privacy": "Politique de Confidentialité",
       "terms": "Conditions d'Utilisation",
       "contact": "Contact"
@@ -736,14 +736,14 @@
     "signOut": "Se Déconnecter",
     "navigation": "Navigation",
     "account": "Compte",
-    "appDescription": "Outil d'Analyse des Écarts Numériques DGRV",
+    "appDescription": "Outil d'analyse des écarts DGRV",
     "noData": "No Data",
     "noEmail": "No Email",
     "userProfile": "User Profile"
   },
   "consolidatedReport": {
     "title": "Rapport Consolidé",
-    "subtitle": "Aperçu complet de l'analyse des écarts numériques",
+    "subtitle": "Aperçu complet de l'analyse des écarts",
     "exportPDF": "Exporter en PDF",
     "metrics": {
       "totalSubmissions": "Total des soumissions"
@@ -808,6 +808,11 @@
       "title": "Aucune donnée de rapport disponible",
       "desc": "Il n'y a pas de données de rapport consolidé à afficher pour le moment.",
       "refresh": "Actualiser les données"
+    },
+    "digitalGapAnalysis": "Gap Assessment Tool",
+    "footer": {
+      "generatedOn": "Généré le {{date}}",
+      "pageOf": "Page {{current}} sur {{total}}"
     }
   },
   "orgReports": {
@@ -1012,7 +1017,7 @@
       "noCooperations": "Aucune coopérative trouvée",
       "createCooperationFirst": "Veuillez d'abord créer au moins une coopérative avant de créer une évaluation.",
       "title": "Gérer les Évaluations",
-      "subtitle": "Créer et gérer les évaluations d'écarts numériques pour vos coopératives.",
+      "subtitle": "Créer et gérer les évaluations d'écarts pour vos coopératives.",
       "createBtn": "Créer une Évaluation",
       "unableToLoadError": "Impossible de charger les évaluations",
       "noCooperativeDetermined": "Aucune coopérative déterminée",
@@ -1023,7 +1028,7 @@
     "detail": {
       "assessmentIdNotFound": "ID de l'évaluation non trouvé",
       "assessmentNotFound": "Évaluation non trouvée",
-      "digitalGapAssessment": "Évaluation de l'écart numérique",
+      "digitalGapAssessment": "Évaluation de l'écart",
       "failedToFetch": "Échec de la récupération",
       "finishAssessment": "Terminer l'évaluation",
       "intro": "Introduction",
@@ -1042,14 +1047,14 @@
   "adminManageDigitalGaps": {
     "title": "Gérer les Écarts de Numérisation",
     "subtitle": "Définissez et gérez les écarts qui représentent des défis de numérisation.",
-    "addBtn": "Ajouter un Écart de Numérisation",
+    "addBtn": "Ajouter un écart",
     "error": "Erreur lors du chargement des écarts : {{message}}"
   },
   "adminGaps": {
     "title": "Écarts de Numérisation",
-    "addBtn": "Ajouter un écart de numérisation",
+    "addBtn": "Ajouter un écart",
     "list": {
-      "empty": "Aucun écart de numérisation trouvé.",
+      "empty": "Aucun écart trouvé.",
       "actions": "Actions",
       "description": "Description",
       "gapCount": "Gap Count",
@@ -1061,10 +1066,10 @@
       "duplicateGap": "Un écart pour cette dimension et cette gravité existe déjà"
     },
     "form": {
-      "titleAdd": "Ajouter un écart de numérisation",
-      "titleEdit": "Modifier l'écart de numérisation",
-      "descAdd": "Créer une nouvelle définition d'écart de numérisation.",
-      "descEdit": "Mettre à jour les détails de l'écart de numérisation.",
+      "titleAdd": "Ajouter un écart",
+      "titleEdit": "Modifier l'écart",
+      "descAdd": "Créer une nouvelle définition d'écart.",
+      "descEdit": "Mettre à jour les détails de l'écart.",
       "dimension": "Dimension",
       "selectDimension": "Sélectionnez une dimension",
       "severity": "Gravité",
@@ -1073,8 +1078,8 @@
       "descPlaceholder": "Entrez la description détaillée de l'écart",
       "saving": "Enregistrement..."
     },
-    "updateBtn": "Mettre à jour l'écart de numérisation",
-    "createBtn": "Créer l'écart de numérisation",
+    "updateBtn": "Mettre à jour l'écart",
+    "createBtn": "Créer l'écart",
     "delete": {
       "confirm": "Confirm",
       "deleting": "Deleting",
@@ -1141,7 +1146,7 @@
       "dimensions": "Dimensions",
       "recommendations": "Recommandations",
       "actionPlan": "Plan d'Action",
-      "digitalGaps": "Écarts Numériques",
+      "digitalGaps": "écarts",
       "manageUsers": "Gérer les Utilisateurs",
       "viewReports": "Voir les Rapports",
       "consolidatedReport": "Rapport Consolidé"

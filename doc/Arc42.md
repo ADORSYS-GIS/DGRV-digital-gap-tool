@@ -1,6 +1,6 @@
 # Arc42 Architecture Documentation
 
-## Digital Gap Analysis Tool (DGAT) for Cooperatives
+## Gap Assessment Tool (GAT) for Cooperatives
 
 ## Table of Contents
 
@@ -23,7 +23,7 @@
 
 ### 1.1 Requirements Overview
 
-The Digital Gap Analysis Tool (DGAT) is designed to support cooperatives in Southern Africa by providing a comprehensive digital maturity assessment platform. The tool transforms an existing Excel-based assessment into a modern, secure, and user-friendly Progressive Web Application (PWA).
+The Gap Assessment Tool (GAT) is designed to support cooperatives in Southern Africa by providing a comprehensive digital maturity assessment platform. The tool transforms an existing Excel-based assessment into a modern, secure, and user-friendly Progressive Web Application (PWA).
 
 **Key Business Goals:**
 - Enable cooperatives to assess their current digital maturity
@@ -87,7 +87,7 @@ The Digital Gap Analysis Tool (DGAT) is designed to support cooperatives in Sout
 
 ```
 ┌─────────────────┐    ┌──────────────────────┐    ┌─────────────────┐
-│   Cooperatives  │◄──►│       DGAT           │◄──►│   DGRV Staff    │
+│   Cooperatives  │◄──►│       GAT           │◄──►│   DGRV Staff    │
 │   (End Users)   │    │   (System)           │    │   (Admins)      │
 └─────────────────┘    └──────────────────────┘    └─────────────────┘
                                 │
@@ -173,7 +173,7 @@ The system follows a microservices architecture with clear separation of concern
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                        DGAT System                              │
+│                        GAT System                              │
 │                                                                 │
 │  ┌─────────────────────────────────────────────────────────┐   │
 │  │                   Frontend Layer                        │   │
@@ -642,11 +642,11 @@ erDiagram
 
 ### 9.5 Database Schema
 
-The DGAT system uses a PostgreSQL database with the following schema structure:
+The GAT system uses a PostgreSQL database with the following schema structure:
 
 ### 9.6 Dual Storage Architecture
 
-The DGAT system implements a **hybrid storage architecture** that separates structured data from file storage for optimal performance and scalability.
+The GAT system implements a **hybrid storage architecture** that separates structured data from file storage for optimal performance and scalability.
 
 #### 9.6.1 Storage Strategy
 
@@ -749,11 +749,11 @@ pub struct MinioConfig {
 ```
 
 **Environment Variables:**
-- `DGAT_MINIO_ENDPOINT`: MinIO server endpoint
-- `DGAT_MINIO_ACCESS_KEY`: Access key for authentication
-- `DGAT_MINIO_SECRET_KEY`: Secret key for authentication
-- `DGAT_MINIO_BUCKET_NAME`: Default bucket name
-- `DGAT_MINIO_USE_SSL`: Enable SSL/TLS encryption
+- `GAT_MINIO_ENDPOINT`: MinIO server endpoint
+- `GAT_MINIO_ACCESS_KEY`: Access key for authentication
+- `GAT_MINIO_SECRET_KEY`: Secret key for authentication
+- `GAT_MINIO_BUCKET_NAME`: Default bucket name
+- `GAT_MINIO_USE_SSL`: Enable SSL/TLS encryption
 
 #### 9.6.8 ReportService Orchestration
 
@@ -882,7 +882,7 @@ graph TB
 
 | Term | Definition |
 |------|------------|
-| **DGAT** | Digital Gap Analysis Tool - the main system |
+| **GAT** | Gap Assessment Tool - the main system |
 | **DGRV** | Deutscher Genossenschafts- und Raiffeisenverband e.V. - German cooperative organization |
 | **PWA** | Progressive Web App - web application with native app features |
 | **Digital Maturity** | Level of digital adoption and capability within an organization |

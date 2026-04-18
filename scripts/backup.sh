@@ -1,6 +1,6 @@
 #!/bin/bash
 # ─────────────────────────────────────────────────────────────
-# Backup script for DGRV Digital Gap Tool
+# Backup script for DGRV Gap Assessment Tool
 # Backs up: App DB, Keycloak DB, MinIO data, .env
 # Optionally syncs to off-site S3-compatible storage via rclone
 # ─────────────────────────────────────────────────────────────
