@@ -157,7 +157,7 @@ export const SubmissionList = ({
           {submissionData.name}
         </h3>
         <Badge variant={getStatusVariant(submissionData.status)} className="text-xs font-medium px-2 py-0.5">
-          {submissionData.status}
+          {t(`sharedSubmissions.status.${submissionData.status.toLowerCase()}`, { defaultValue: submissionData.status })}
         </Badge>
       </div>
       <p className="text-sm text-muted-foreground">

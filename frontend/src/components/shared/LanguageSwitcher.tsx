@@ -14,7 +14,7 @@ const LANGUAGES = [
 ];
 
 export const LanguageSwitcher: React.FC = () => {
-    const { i18n } = useTranslation();
+    const { t, i18n } = useTranslation();
 
     return (
         <Select
@@ -22,7 +22,7 @@ export const LanguageSwitcher: React.FC = () => {
             onValueChange={(lang) => i18n.changeLanguage(lang)}
         >
             <SelectTrigger className="w-[120px]">
-                <SelectValue placeholder="Language" />
+                <SelectValue placeholder={t("sharedLanguage.placeholder", { defaultValue: "Language" })} />
             </SelectTrigger>
             <SelectContent>
                 {LANGUAGES.map((lang) => (

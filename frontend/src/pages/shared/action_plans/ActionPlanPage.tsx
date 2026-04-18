@@ -1,6 +1,7 @@
 import { KanbanBoard } from "@/components/shared/action_plans/KanbanBoard";
 import { useSubmissions } from "@/hooks/submissions/useSubmissions";
 import { useParams, Link, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 export default function ActionPlanPage() {
   const { assessmentId } = useParams<{ assessmentId: string }>();
@@ -8,9 +9,10 @@ export default function ActionPlanPage() {
   const location = useLocation();
   const basePath = location.pathname.split("/")[1];
 
+  const { t } = useTranslation();
   const assessmentName = assessments?.find((a) => a.id === assessmentId)?.name;
 
-  if (!assessmentId) return <p>Assessment not found.</p>;
+  if (!assessmentId) return <p>{t("sharedPages.actionPlans.assessmentNotFound", { defaultValue: "Assessment not found." })}</p>;
 
   return (
     // h-full fills the layout's scrollable content div
@@ -19,17 +21,17 @@ export default function ActionPlanPage() {
       {/* Header */}
       <div className="flex items-center justify-between gap-3 rounded-xl bg-gradient-to-r from-primary/5 via-primary/10 to-transparent px-5 py-3 border border-primary/10 shrink-0 mb-4">
         <div>
-          <h1 className="text-xl font-bold tracking-tight text-gray-900">Action plan</h1>
+          <h1 className="text-xl font-bold tracking-tight text-gray-900">{t("sharedPages.actionPlans.title", { defaultValue: "Action plan" })}</h1>
           <p className="text-sm text-muted-foreground">
-            Managing actions for{" "}
-            <span className="font-medium">{assessmentName || "Assessment"}</span>
+            {t("sharedPages.actionPlans.managingActionsFor", { defaultValue: "Managing actions for " })}
+            <span className="font-medium">{assessmentName || t("sharedPages.actionPlans.assessment", { defaultValue: "Assessment" })}</span>
           </p>
         </div>
         <Link
           to={`/${basePath}/submissions`}
           className="text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
-          ← Back to submissions
+          ← {t("sharedPages.actionPlans.backToSubmissions", { defaultValue: "Back to submissions" })}
         </Link>
       </div>
 

@@ -56,7 +56,7 @@
       "confirm": "Confirm",
       "deleting": "Deleting",
       "description": "Description",
-      "title": ""
+      "title": "Gestion"
     }
   },
   "adminLevels": {
@@ -214,7 +214,7 @@
     "submissionsForOrg": "Submissions For Org",
     "subtitleAll": "Subtitle All",
     "subtitleOrg": "Subtitle Org",
-    "title": ""
+    "title": "Gestion"
   },
   "assessmentAnswering": {
     "validation": {
@@ -380,7 +380,7 @@
       },
       "form": {
         "ariaLabel": "Formulaire d'ajout d'utilisateur de coopérative",
-        "emailLabel": "Email",
+        "emailLabel": "E-mail",
         "firstNameLabel": "Prénom",
         "firstNamePlaceholder": "Optionnel",
         "lastNameLabel": "Nom",
@@ -404,7 +404,7 @@
     },
     "list": {
       "columns": {
-        "email": "Email",
+        "email": "E-mail",
         "firstName": "Prénom",
         "lastName": "Nom",
         "verified": "Email vérifié",
@@ -429,12 +429,12 @@
       "saving": "Enregistrement..."
     },
     "form": {
-      "submit": "Submit"
+      "submit": "Soumettre"
     }
   },
   "adminDashboard": {
     "title": "Bienvenue, Administrateur",
-    "welcomePrefix": "Bon retour parmi nous ",
+    "welcomePrefix": "Bon retour parmi nous",
     "defaultAdmin": "Administrateur",
     "welcomeSuffix": "",
     "stats": {
@@ -506,16 +506,16 @@
       "cooperative": "Coopérative",
       "actions": "Actions",
       "noUsers": "Aucun utilisateur trouvé.",
-      "firstName": "First Name",
-      "lastName": "Last Name",
+      "firstName": "Prénom",
+      "lastName": "Nom",
       "roles": {
         "orgAdmin": "Org Admin"
       },
       "sectionLabel": "Section",
       "statusLabel": {
-        "active": "Active",
-        "inactive": "Inactive",
-        "pending": "Pending"
+        "active": "Actif",
+        "inactive": "Inactif",
+        "pending": "En attente"
       }
     },
     "status": {
@@ -564,15 +564,15 @@
         "roleRequired": "Role Required"
       },
       "form": {
-        "email": "Email",
-        "emailPlaceholder": "Email Placeholder",
-        "firstName": "First Name",
-        "firstNamePlaceholder": "First Name Placeholder",
+        "email": "E-mail",
+        "emailPlaceholder": "Entrer l'e-mail",
+        "firstName": "Prénom",
+        "firstNamePlaceholder": "Entrer le prénom",
         "inviting": "Inviting",
-        "lastName": "Last Name",
-        "lastNamePlaceholder": "Last Name Placeholder",
-        "role": "Role",
-        "submit": "Submit"
+        "lastName": "Nom",
+        "lastNamePlaceholder": "Entrer le nom",
+        "role": "Rôle",
+        "submit": "Soumettre"
       },
       "toast": {
         "error": "Error",
@@ -736,7 +736,10 @@
     "signOut": "Se Déconnecter",
     "navigation": "Navigation",
     "account": "Compte",
-    "appDescription": "Outil d'Analyse des Écarts Numériques DGRV"
+    "appDescription": "Outil d'Analyse des Écarts Numériques DGRV",
+    "noData": "No Data",
+    "noEmail": "No Email",
+    "userProfile": "User Profile"
   },
   "consolidatedReport": {
     "title": "Rapport Consolidé",
@@ -828,17 +831,17 @@
   },
   "sharedPages": {
     "manageUsers": {
-      "title": "Gérer les Utilisateurs de l'Organisation",
-      "subtitle": "Sélectionnez une organisation pour gérer ses utilisateurs et ses invitations.",
+      "title": "Gérer les Utilisateurs",
+      "subtitle": "Sélectionnez une organisation pour gérer ses utilisateurs.",
       "error": "Erreur lors du chargement des organisations : {{message}}",
       "emptyTitle": "Aucune organisation trouvée",
       "emptyDesc": "Vous devez créer ou être affecté à une organisation pour gérer les utilisateurs."
     },
     "orgUsers": {
       "error": "Error",
-      "inviteUser": "Invite User",
-      "subtitle": "Sub",
-      "title": ""
+      "inviteUser": "Inviter un utilisateur",
+      "subtitle": "Gérer les membres et les invitations pour cette organisation.",
+      "title": "Utilisateurs de l'organisation"
     }
   },
   "viewReports": {
@@ -904,7 +907,7 @@
       "description": "Description",
       "empty": {
         "description": "Description",
-        "title": ""
+        "title": "Gestion"
       },
       "error": {
         "load": "Load",
@@ -914,31 +917,31 @@
         "resolveTitle": "Resolve"
       },
       "sectionLabel": "Section",
-      "title": ""
+      "title": "Gestion"
     },
     "manageCoopUsersPage": {
       "description": "Description",
       "empty": {
         "description": "Description",
-        "title": ""
+        "title": "Gestion"
       },
       "error": "Error",
-      "title": ""
+      "title": "Gestion"
     },
     "manageCoops": {
       "description": "Description",
       "empty": {
         "description": "Description",
-        "title": ""
+        "title": "Gestion"
       },
-      "title": ""
+      "title": "Gestion"
     },
     "submissionsPage": {
       "description": "Description",
       "empty": "Empty",
       "noSubmissions": "No Submissions",
       "submissionCount": "Submission Count",
-      "title": ""
+      "title": "Gestion"
     }
   },
   "sharedSubmissions": {
@@ -976,10 +979,10 @@
       "noDimensionAssessments": "No Dimension Assessments",
       "riskLevel": "Risk Level",
       "riskLevelDesc": "Risk Level Desc",
-      "status": "Status",
+      "status": "Statut",
       "submittedAt": "Submitted At",
-      "subtitle": "Sub",
-      "title": "",
+      "subtitle": "Gérez les détails ici",
+      "title": "Gestion",
       "unavailable": "Unavailable",
       "unknownDimension": "Unknown Dimension",
       "untitledAssessment": "Untitled Assessment"
@@ -993,9 +996,15 @@
       "noValidFound": "No Valid Found",
       "notFound": "Not Found",
       "overallScore": "Overall Score",
-      "submittedOn": "Submitted On",
+      "submittedOn": "Soumis le",
       "thisSubmission": "This Submission",
-      "viewDetails": "View Details"
+      "viewDetails": "Voir les détails"
+    },
+    "status": {
+      "completed": "Terminé",
+      "draft": "Brouillon",
+      "under review": "En cours d'examen",
+      "reviewed": "Examiné"
     }
   },
   "sharedAssessments": {
@@ -1024,7 +1033,7 @@
       "progressOf": "Progress Of",
       "submitError": "Submit Error",
       "submitSuccess": "Submit Success",
-      "subtitle": "Sub",
+      "subtitle": "Gérez les détails ici",
       "unableToLoad": "Unable To Load",
       "welcome": "Welcome",
       "yourProgress": "Your Progress"
@@ -1070,7 +1079,7 @@
       "confirm": "Confirm",
       "deleting": "Deleting",
       "description": "Description",
-      "title": ""
+      "title": "Gestion"
     }
   },
   "answerDimension": {
@@ -1167,15 +1176,15 @@
     }
   },
   "adminManageGapRecs": {
-    "subtitle": "Sub",
-    "title": ""
+    "subtitle": "Gérez les détails ici",
+    "title": "Gestion"
   },
   "adminManageOrgs": {
     "error": "Error",
     "noOrgs": "No Orgs",
     "noOrgsSubtitle": "No Orgs Sub",
-    "subtitle": "Sub",
-    "title": ""
+    "subtitle": "Consultez et gérez les organisations enregistrées.",
+    "title": "Gérer les Organisations"
   },
   "assessmentDetail": {
     "dimensionsSubtitle": "Dimensions Sub",
@@ -1273,13 +1282,13 @@
       "description": "Description",
       "errorDetails": "Error Details",
       "refreshPage": "Refresh Page",
-      "title": "",
+      "title": "Gestion",
       "tryAgain": "Try Again"
     },
     "invitationPending": {
       "description": "Description",
       "logout": "Logout",
-      "title": ""
+      "title": "Gestion"
     },
     "loading": {
       "loadingAria": "Loading Aria"
@@ -1300,5 +1309,17 @@
   },
   "test": {
     "com": "Com"
-  }
+  },
+  "sharedLanguage": {
+    "placeholder": "Placeholder"
+  },
+  "sharedSidebar": {
+    "collapse": "Collapse",
+    "expand": "Expand"
+  },
+  "adminManageUsers": {
+    "title": "Gérer les Utilisateurs",
+    "subtitle": "Gérez les comptes utilisateurs et l'accès au système."
+  },
+  "inviteUser": "Inviter un utilisateur"
 }

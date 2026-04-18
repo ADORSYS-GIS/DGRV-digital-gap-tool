@@ -39,8 +39,8 @@ export const Navbar = () => {
 
   // Helper to get user display name
   const getUserDisplay = () => {
-    if (!user) return "Profile";
-    return user.name || user.preferred_username || user.email || "Profile";
+    if (!user) return t("nav.profile", { defaultValue: "Profile" });
+    return user.name || user.preferred_username || user.email || t("nav.profile", { defaultValue: "Profile" });
   };
 
   // Helper to determine the appropriate home route based on user role
@@ -141,7 +141,7 @@ export const Navbar = () => {
                             {getUserDisplay()}
                           </span>
                           <span className="text-[10px] text-gray-500 font-medium tracking-wide">
-                            {user?.email || "No email"}
+                            {user?.email || t("nav.noEmail", { defaultValue: "No email" })}
                           </span>
                         </div>
                       </Button>
@@ -151,7 +151,7 @@ export const Navbar = () => {
                         <p className="text-sm font-semibold text-gray-900 truncate">
                           {user?.name ||
                             user?.preferred_username ||
-                            "User Profile"}
+                            t("nav.userProfile", { defaultValue: "User Profile" })}
                         </p>
                         <p className="text-xs text-gray-500 truncate">
                           {user?.email}
@@ -279,7 +279,7 @@ export const Navbar = () => {
                             "Profile"}
                         </div>
                         <div className="text-xs text-gray-500">
-                          {user?.email || "No data"}
+                          {user?.email || t("nav.noData", { defaultValue: "No data" })}
                         </div>
                       </div>
                     </div>

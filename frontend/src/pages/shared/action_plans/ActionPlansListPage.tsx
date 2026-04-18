@@ -13,6 +13,7 @@ import { AssessmentSummary } from "@/types/assessment";
 import { Cooperation } from "@/types/cooperation";
 import { SyncStatus } from "@/types/sync";
 import { Building2, ChevronDown, ChevronRight, ClipboardList } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 // ── Coop section (org admin view) ──────────────────────────────────────────
 function CoopActionPlanSection({
@@ -22,6 +23,7 @@ function CoopActionPlanSection({
   cooperation: Cooperation;
   basePath: string;
 }) {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -65,7 +67,7 @@ function CoopActionPlanSection({
         </div>
         {isOpen && !isLoading && (
           <Badge variant="secondary" className="shrink-0">
-            {completed.length} plan{completed.length !== 1 ? "s" : ""}
+            {completed.length} {completed.length !== 1 ? t("sharedPages.actionPlans.list.plans", { defaultValue: "plans" }) : t("sharedPages.actionPlans.list.plan", { defaultValue: "plan" })}
           </Badge>
         )}
         {isOpen
@@ -80,7 +82,7 @@ function CoopActionPlanSection({
             <div className="flex justify-center py-6"><LoadingSpinner /></div>
           ) : completed.length === 0 ? (
             <p className="text-sm text-muted-foreground px-5 py-4">
-              No completed submissions for this cooperative yet.
+              {t("sharedPages.actionPlans.list.noCompletedSubmissions", { defaultValue: "No completed submissions for this cooperative yet." })}
             </p>
           ) : (
             <ul className="divide-y divide-border">
@@ -98,7 +100,7 @@ function CoopActionPlanSection({
                       </p>
                       {s.assessment.completed_at && (
                         <p className="text-xs text-muted-foreground">
-                          Submitted {new Date(s.assessment.completed_at).toLocaleDateString()}
+                          {t("sharedPages.actionPlans.list.submitted", { defaultValue: "Submitted" })} {new Date(s.assessment.completed_at).toLocaleDateString()}
                         </p>
                       )}
                     </div>
@@ -123,6 +125,7 @@ function CoopUserActionPlans({
   basePath: string;
 }) {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { data: submissions = [], isLoading } = useSubmissionsByCooperation(cooperationId);
 
   const mapped: AssessmentSummary[] = submissions.map((s) => ({
@@ -147,7 +150,7 @@ function CoopUserActionPlans({
   if (completed.length === 0) {
     return (
       <div className="flex min-h-[180px] items-center justify-center rounded-xl border border-dashed border-muted-foreground/30 bg-muted/40 text-sm text-muted-foreground">
-        No completed submissions yet.
+        {t("sharedPages.actionPlans.list.noCompletedSubmissions", { defaultValue: "No completed submissions yet." })}
       </div>
     );
   }
@@ -169,7 +172,7 @@ function CoopUserActionPlans({
                 </p>
                 {s.assessment.completed_at && (
                   <p className="text-xs text-muted-foreground">
-                    Submitted {new Date(s.assessment.completed_at).toLocaleDateString()}
+                    {t("sharedPages.actionPlans.list.submitted", { defaultValue: "Submitted" })} {new Date(s.assessment.completed_at).toLocaleDateString()}
                   </p>
                 )}
               </div>
@@ -185,6 +188,7 @@ function CoopUserActionPlans({
 // ── Main page ──────────────────────────────────────────────────────────────
 export default function ActionPlansListPage() {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const organizationId = useOrganizationId();
   const cooperationIdFromRoute = useCooperationId();
   const { cooperationId: cooperationIdFromPath, isLoading: isLoadingCoopFromPath } =
@@ -206,7 +210,7 @@ export default function ActionPlansListPage() {
   if (!isOrgAdmin && !isCoopUser) {
     return (
       <div className="rounded-xl border-l-4 border-destructive bg-destructive/10 px-4 py-3 text-sm font-medium text-destructive">
-        You don't have permission to view action plans.
+        {t("sharedPages.actionPlans.list.noPermission", { defaultValue: "You don't have permission to view action plans." })}
       </div>
     );
   }
@@ -214,11 +218,11 @@ export default function ActionPlansListPage() {
   return (
     <div className="space-y-6 overflow-y-auto h-full">
       <div className="rounded-xl bg-gradient-to-r from-primary/5 via-primary/10 to-transparent px-6 py-5 border border-primary/10">
-        <h1 className="text-2xl font-bold tracking-tight text-gray-900">Action plans</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-gray-900">{t("sharedPages.actionPlans.list.title", { defaultValue: "Action plans" })}</h1>
         <p className="text-sm text-muted-foreground mt-1">
           {isOrgAdmin
-            ? "Expand a cooperative to view and manage its action plans."
-            : "Select a completed submission to view its action plan."}
+            ? t("sharedPages.actionPlans.list.expandCoopDesc", { defaultValue: "Expand a cooperative to view and manage its action plans." })
+            : t("sharedPages.actionPlans.list.selectSubmissionDesc", { defaultValue: "Select a completed submission to view its action plan." })}
         </p>
       </div>
 
@@ -228,7 +232,7 @@ export default function ActionPlansListPage() {
           {isLoadingCoops && <LoadingSpinner />}
           {!isLoadingCoops && cooperations.length === 0 && (
             <p className="text-sm text-muted-foreground text-center py-8">
-              No cooperatives found.
+              {t("sharedPages.actionPlans.list.noCoops", { defaultValue: "No cooperatives found." })}
             </p>
           )}
           <div className="space-y-3">
@@ -245,7 +249,7 @@ export default function ActionPlansListPage() {
           {isLoadingCoopFromPath && <LoadingSpinner />}
           {!isLoadingCoopFromPath && !cooperationId && (
             <p className="text-sm text-destructive">
-              No cooperative found for your account. Contact your administrator.
+              {t("sharedPages.actionPlans.list.noCoopForAccount", { defaultValue: "No cooperative found for your account. Contact your administrator." })}
             </p>
           )}
           {cooperationId && (

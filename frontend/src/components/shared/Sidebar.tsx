@@ -8,6 +8,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Button } from "../ui/button";
+import { useTranslation } from "react-i18next";
 
 interface NavLink {
   to: string;
@@ -28,6 +29,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   panelAbbreviation,
   infoText,
 }) => {
+  const { t } = useTranslation();
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(true);
 
@@ -76,7 +78,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <button
           onClick={() => setIsOpen(!isOpen)}
           className="absolute -right-3 top-1/2 -translate-y-1/2 bg-slate-800 hover:bg-slate-700 text-white rounded-full p-1"
-          title={isOpen ? "Collapse sidebar" : "Expand sidebar"}
+          title={isOpen ? t("sharedSidebar.collapse", { defaultValue: "Collapse sidebar" }) : t("sharedSidebar.expand", { defaultValue: "Expand sidebar" })}
         >
           <ChevronLeft
             className={cn(

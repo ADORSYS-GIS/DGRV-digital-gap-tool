@@ -56,7 +56,7 @@
       "confirm": "Confirm",
       "deleting": "Deleting",
       "description": "Description",
-      "title": ""
+      "title": "Management"
     }
   },
   "adminLevels": {
@@ -214,7 +214,7 @@
     "submissionsForOrg": "Submissions For Org",
     "subtitleAll": "Subtitle All",
     "subtitleOrg": "Subtitle Org",
-    "title": ""
+    "title": "Management"
   },
   "assessmentAnswering": {
     "validation": {
@@ -295,17 +295,17 @@
       "ready": "Ready",
       "step0": {
         "description": "Description",
-        "title": "",
+        "title": "Management",
         "titleHighlight": "Title Highlight"
       },
       "step1": {
         "description": "Description",
-        "title": "",
+        "title": "Management",
         "titleHighlight": "Title Highlight"
       },
       "step2": {
         "description": "Description",
-        "title": "",
+        "title": "Management",
         "titleHighlight": "Title Highlight"
       }
     },
@@ -329,11 +329,11 @@
     "context": {
       "description": "Description",
       "list": "List",
-      "title": ""
+      "title": "Management"
     },
     "error": {
       "description": "Description",
-      "title": ""
+      "title": "Management"
     }
   },
   "context": {
@@ -754,7 +754,10 @@
     "signOut": "Sign Out",
     "navigation": "Navigation",
     "account": "Account",
-    "appDescription": "DGRV Digital Gap Analysis Tool"
+    "appDescription": "DGRV Digital Gap Analysis Tool",
+    "noData": "No Data",
+    "noEmail": "No Email",
+    "userProfile": "User Profile"
   },
   "consolidatedReport": {
     "title": "Consolidated Report",
@@ -846,8 +849,8 @@
   },
   "sharedPages": {
     "manageUsers": {
-      "title": "Manage Organization Users",
-      "subtitle": "Select an organization to manage its users and invitations.",
+      "title": "Manage Users",
+      "subtitle": "Select an organization to manage its users.",
       "error": "Error loading organizations: {{message}}",
       "emptyTitle": "No organizations found",
       "emptyDesc": "You must create or be assigned to an organization to manage users."
@@ -855,8 +858,8 @@
     "orgUsers": {
       "error": "Error",
       "inviteUser": "Invite User",
-      "subtitle": "Sub",
-      "title": ""
+      "subtitle": "Manage members and invitations for this organization.",
+      "title": "Organization Users"
     }
   },
   "viewReports": {
@@ -922,7 +925,7 @@
       "description": "Description",
       "empty": {
         "description": "Description",
-        "title": ""
+        "title": "Management"
       },
       "error": {
         "load": "Load",
@@ -932,31 +935,31 @@
         "resolveTitle": "Resolve"
       },
       "sectionLabel": "Section",
-      "title": ""
+      "title": "Management"
     },
     "manageCoopUsersPage": {
       "description": "Description",
       "empty": {
         "description": "Description",
-        "title": ""
+        "title": "Management"
       },
       "error": "Error",
-      "title": ""
+      "title": "Management"
     },
     "manageCoops": {
       "description": "Description",
       "empty": {
         "description": "Description",
-        "title": ""
+        "title": "Management"
       },
-      "title": ""
+      "title": "Management"
     },
     "submissionsPage": {
       "description": "Description",
       "empty": "Empty",
       "noSubmissions": "No Submissions",
       "submissionCount": "Submission Count",
-      "title": ""
+      "title": "Management"
     }
   },
   "sharedSubmissions": {
@@ -996,8 +999,8 @@
       "riskLevelDesc": "Risk Level Desc",
       "status": "Status",
       "submittedAt": "Submitted At",
-      "subtitle": "Sub",
-      "title": "",
+      "subtitle": "Manage details here",
+      "title": "Management",
       "unavailable": "Unavailable",
       "unknownDimension": "Unknown Dimension",
       "untitledAssessment": "Untitled Assessment"
@@ -1014,6 +1017,12 @@
       "submittedOn": "Submitted On",
       "thisSubmission": "This Submission",
       "viewDetails": "View Details"
+    },
+    "status": {
+      "completed": "Completed",
+      "draft": "Draft",
+      "under review": "Under review",
+      "reviewed": "Reviewed"
     }
   },
   "sharedAssessments": {
@@ -1075,7 +1084,7 @@
       "progressOf": "Progress Of",
       "submitError": "Submit Error",
       "submitSuccess": "Submit Success",
-      "subtitle": "Sub",
+      "subtitle": "Manage details here",
       "unableToLoad": "Unable To Load",
       "welcome": "Welcome",
       "yourProgress": "Your Progress"
@@ -1186,7 +1195,7 @@
       "confirm": "Confirm",
       "deleting": "Deleting",
       "description": "Description",
-      "title": ""
+      "title": "Management"
     },
     "form": {
       "descAdd": "Desc Add",
@@ -1215,15 +1224,15 @@
     }
   },
   "adminManageGapRecs": {
-    "subtitle": "Sub",
-    "title": ""
+    "subtitle": "Manage details here",
+    "title": "Management"
   },
   "adminManageOrgs": {
     "error": "Error",
     "noOrgs": "No Orgs",
     "noOrgsSubtitle": "No Orgs Sub",
-    "subtitle": "Sub",
-    "title": ""
+    "subtitle": "View and manage registered organizations.",
+    "title": "Manage Organizations"
   },
   "assessmentDetail": {
     "dimensionsSubtitle": "Dimensions Sub",
@@ -1321,13 +1330,13 @@
       "description": "Description",
       "errorDetails": "Error Details",
       "refreshPage": "Refresh Page",
-      "title": "",
+      "title": "Management",
       "tryAgain": "Try Again"
     },
     "invitationPending": {
       "description": "Description",
       "logout": "Logout",
-      "title": ""
+      "title": "Management"
     },
     "loading": {
       "loadingAria": "Loading Aria"
@@ -1348,5 +1357,17 @@
   },
   "test": {
     "com": "Com"
-  }
+  },
+  "sharedLanguage": {
+    "placeholder": "Placeholder"
+  },
+  "sharedSidebar": {
+    "collapse": "Collapse",
+    "expand": "Expand"
+  },
+  "adminManageUsers": {
+    "title": "Manage Users",
+    "subtitle": "Manage user accounts and system access."
+  },
+  "inviteUser": "Invite User"
 }
