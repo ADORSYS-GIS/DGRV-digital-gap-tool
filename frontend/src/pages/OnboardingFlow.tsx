@@ -196,10 +196,10 @@ export default function EnhancedOnboardingFlow() {
                     key={index}
                     aria-hidden="true"
                     className={`h-1.5 w-6 rounded-full transition-all duration-300 ${index === currentStep
-                        ? step.color.replace("text-", "bg-")
-                        : index < currentStep
-                          ? "bg-emerald-500"
-                          : "bg-muted"
+                      ? step.color.replace("text-", "bg-")
+                      : index < currentStep
+                        ? "bg-emerald-500"
+                        : "bg-muted"
                       }`}
                   />
                 ))}
@@ -216,12 +216,13 @@ export default function EnhancedOnboardingFlow() {
               {t("onboarding.context.description")}
             </p>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              {(t('onboarding.context.list', { returnObjects: true }) as string[]).map((item, index) => (
-                <li key={index} className="flex gap-2">
-                  <span className="mt-1 h-1.5 w-1.5 rounded-full bg-blue-500" />
-                  {item}
-                </li>
-              ))}
+              {Array.isArray(t('onboarding.context.list', { returnObjects: true })) &&
+                (t('onboarding.context.list', { returnObjects: true }) as string[]).map((item, index) => (
+                  <li key={index} className="flex gap-2">
+                    <span className="mt-1 h-1.5 w-1.5 rounded-full bg-blue-500" />
+                    {item}
+                  </li>
+                ))}
             </ul>
           </aside>
         </section>

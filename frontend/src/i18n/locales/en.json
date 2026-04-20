@@ -334,23 +334,18 @@
             "cta": "Go to Dashboard"
         },
         "context": {
-            "description": "Description",
-            "list": "List",
-            "title": "Management"
+            "title": "Why this onboarding?",
+            "description": "This quick introduction helps you understand how to use the Gap Assessment Tool effectively:",
+            "list": [
+                "Understand your current digitalization level across dimensions",
+                "Define your desired future state and priorities",
+                "Receive data-driven recommendations and actionable next steps"
+            ]
         },
         "error": {
-            "description": "Description",
-            "title": "Management"
+            "title": "Onboarding Error",
+            "description": "We couldn't load the onboarding steps. Please try again or contact support."
         }
-    },
-    "context": {
-        "title": "Why this onboarding?",
-        "description": "This quick introduction helps you understand how to use the Gap Assessment Tool effectively:",
-        "list": [
-            "Understand your current digitalization level across dimensions",
-            "Define your desired future state and priorities",
-            "Receive data-driven recommendations and actionable next steps"
-        ]
     },
     "secondAdminCooperations": {
         "add": {
