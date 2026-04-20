@@ -56,6 +56,9 @@ export default defineConfig(({ mode }) => ({
         // Increase the limit for pre-cached files (Vite chunks can be large)
         maximumFileSizeToCacheInBytes: 4000000,
       },
+      devOptions: {
+        enabled: true,
+      },
     }),
     mode === "development" && componentTagger(),
   ].filter(Boolean),
