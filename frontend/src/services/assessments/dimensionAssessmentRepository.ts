@@ -182,7 +182,7 @@ export const dimensionAssessmentRepository = {
             response.data as unknown as DimensionWithStatesResponse,
           );
 
-          // Only store the basic dimension info in the dimensions table
+          // Cache the basic dimension info
           const dbDimension = {
             id: dimension.id,
             name: dimension.name,
@@ -193,21 +193,31 @@ export const dimensionAssessmentRepository = {
 
           try {
             await db.dimensions.put(dbDimension);
+            // Also cache the FULL dimension data (with states) for offline use
+            await db.dimensionWithStates.put(dimension);
           } catch (dbError) {
             console.error("Error storing dimension in IndexedDB:", dbError);
-            // Continue even if storing in IndexedDB fails
           }
 
           return dimension;
         }
       }
 
-      // Fall back to local DB if offline or API call fails
+      // Offline or API returned no data — serve from cache
+      const cached = await db.dimensionWithStates.get(dimensionId);
+      if (cached) return cached;
+
+      // Last-resort: basic dimension info only (no states)
       const localDimension = await db.dimensions.get(dimensionId);
-      if (!localDimension) {
-        throw new Error(`Dimension ${dimensionId} not found in local database`);
+      if (localDimension) {
+        return {
+          ...localDimension,
+          current_states: [],
+          desired_states: [],
+        } as IDimensionWithStates;
       }
-      return localDimension;
+
+      throw new Error(`Dimension ${dimensionId} not found in local database. Please go online to load this dimension.`);
     } catch (error) {
       console.error(`Error fetching dimension ${dimensionId}:`, error);
       throw error;

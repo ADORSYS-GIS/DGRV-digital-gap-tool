@@ -1,4 +1,17 @@
 import { createRoot } from "react-dom/client";
+
+// Handle Vite chunk load failures after new deployments.
+// When a new build is deployed, old chunk hash URLs no longer exist on the
+// server. Vite fires "vite:preloadError" when a dynamic import 404s.
+// We reload once to pick up the new index.html and fresh chunks.
+window.addEventListener("vite:preloadError", () => {
+  const RELOAD_KEY = "__vite_reload_attempted__";
+  if (!sessionStorage.getItem(RELOAD_KEY)) {
+    sessionStorage.setItem(RELOAD_KEY, "1");
+    window.location.reload();
+  }
+});
+
 import { QueryClientProvider } from "@tanstack/react-query";
 import App from "./App";
 import "./index.css";
