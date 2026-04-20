@@ -23,7 +23,7 @@ interface DimensionAssessmentAnswerProps {
     desiredLevel: number,
     currentStateId: string,
     desiredStateId: string,
-  ) => void;
+  ) => Promise<void> | void;
   /** Additional class name for the component */
   className?: string;
   /** Optional error message from parent component */
@@ -75,9 +75,13 @@ export function DimensionAssessmentAnswer({
       null,
   );
   const [localError, setLocalError] = useState<string | null>(null);
+  const [isLocalSubmitting, setIsLocalSubmitting] = useState(false);
 
   // Use local error state if no error prop is provided
   const error = localError;
+
+  // The effective submitting state — use isSubmitting from parent OR local state
+  const effectiveIsSubmitting = isSubmitting || isLocalSubmitting;
 
   // Update state when existingAssessment changes (e.g., when it loads from API)
   useEffect(() => {
@@ -96,7 +100,7 @@ export function DimensionAssessmentAnswer({
     setLocalError(null);
   }, [currentLevel, desiredLevel]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLocalError(null);
 
@@ -117,12 +121,15 @@ export function DimensionAssessmentAnswer({
       return;
     }
 
+    setIsLocalSubmitting(true);
     try {
-      onSubmit(currentLevel, desiredLevel, currentState.id, desiredState.id);
+      await onSubmit(currentLevel, desiredLevel, currentState.id, desiredState.id);
     } catch (err) {
       setLocalError(
         err instanceof Error ? err.message : t("assessmentAnswering.validation.unexpectedError"),
       );
+    } finally {
+      setIsLocalSubmitting(false);
     }
   };
 
@@ -168,7 +175,7 @@ export function DimensionAssessmentAnswer({
             level={currentLevel}
             onChange={setCurrentLevel}
             availableLevels={currentAvailableLevels}
-            disabled={readOnly || isSubmitting || currentAvailableLevels.length === 0}
+            disabled={readOnly || effectiveIsSubmitting || currentAvailableLevels.length === 0}
           />
 
           <LevelSelector
@@ -180,17 +187,17 @@ export function DimensionAssessmentAnswer({
             level={desiredLevel}
             onChange={setDesiredLevel}
             availableLevels={desiredAvailableLevels}
-            disabled={readOnly || isSubmitting || desiredAvailableLevels.length === 0}
+            disabled={readOnly || effectiveIsSubmitting || desiredAvailableLevels.length === 0}
           />
 
           {!readOnly && (
             <div className="flex justify-end space-x-3">
               <Button
                 type="submit"
-                disabled={isSubmitting || !isFormValid}
+                disabled={effectiveIsSubmitting || !isFormValid}
                 className="min-w-[150px]"
               >
-                {isSubmitting ? (
+                {effectiveIsSubmitting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     {t("assessmentAnswering.form.submitting")}

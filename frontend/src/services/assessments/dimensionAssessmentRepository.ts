@@ -108,43 +108,43 @@ const mapToDimensionAssessment = (
 
   const currentState: IDimensionState = data.current_state
     ? {
-        id: data.current_state.id,
-        dimensionId: data.current_state.dimension_id,
-        level: data.current_state.level,
-        name: "",
-        description: data.current_state.description,
-        createdAt: data.current_state.created_at,
-        updatedAt: data.current_state.updated_at,
-      }
+      id: data.current_state.id,
+      dimensionId: data.current_state.dimension_id,
+      level: data.current_state.level,
+      name: "",
+      description: data.current_state.description,
+      createdAt: data.current_state.created_at,
+      updatedAt: data.current_state.updated_at,
+    }
     : {
-        id: data.currentState?.id || `temp-${uuidv4()}`,
-        dimensionId: dimensionId,
-        level: currentLevel,
-        name: "",
-        description: `Level ${currentLevel}`,
-        createdAt: data.currentState?.createdAt || new Date().toISOString(),
-        updatedAt: data.currentState?.updatedAt || new Date().toISOString(),
-      };
+      id: data.currentState?.id || `temp-${uuidv4()}`,
+      dimensionId: dimensionId,
+      level: currentLevel,
+      name: "",
+      description: `Level ${currentLevel}`,
+      createdAt: data.currentState?.createdAt || new Date().toISOString(),
+      updatedAt: data.currentState?.updatedAt || new Date().toISOString(),
+    };
 
   const desiredState: IDimensionState = data.desired_state
     ? {
-        id: data.desired_state.id,
-        dimensionId: data.desired_state.dimension_id,
-        level: data.desired_state.level,
-        name: "",
-        description: data.desired_state.description,
-        createdAt: data.desired_state.created_at,
-        updatedAt: data.desired_state.updated_at,
-      }
+      id: data.desired_state.id,
+      dimensionId: data.desired_state.dimension_id,
+      level: data.desired_state.level,
+      name: "",
+      description: data.desired_state.description,
+      createdAt: data.desired_state.created_at,
+      updatedAt: data.desired_state.updated_at,
+    }
     : {
-        id: data.desiredState?.id || `temp-${uuidv4()}`,
-        dimensionId: dimensionId,
-        level: desiredLevel,
-        name: "",
-        description: `Level ${desiredLevel}`,
-        createdAt: data.desiredState?.createdAt || new Date().toISOString(),
-        updatedAt: data.desiredState?.updatedAt || new Date().toISOString(),
-      };
+      id: data.desiredState?.id || `temp-${uuidv4()}`,
+      dimensionId: dimensionId,
+      level: desiredLevel,
+      name: "",
+      description: `Level ${desiredLevel}`,
+      createdAt: data.desiredState?.createdAt || new Date().toISOString(),
+      updatedAt: data.desiredState?.updatedAt || new Date().toISOString(),
+    };
 
   const assessment: IDimensionAssessment = {
     id,
@@ -242,11 +242,12 @@ export const dimensionAssessmentRepository = {
         payload.assessmentId,
       );
 
-    // If we already have a synced record and we're not forcing creation, try to update
+    // If we already have a synced record and we're online and not forcing creation, try to update
     if (
       existingAssessment &&
       existingAssessment.syncStatus === SyncStatus.SYNCED &&
-      !forceCreate
+      !forceCreate &&
+      navigator.onLine  // Skip API update when offline — fall through to local save
     ) {
       try {
         return await dimensionAssessmentRepository.updateAssessment(
@@ -593,7 +594,7 @@ export const dimensionAssessmentRepository = {
               da.current_state_id,
             );
             if (currentLevel) {
-              assessment.currentState.level = currentLevel.level ?? currentLevel.state;
+              assessment.currentState.level = Number(currentLevel.level ?? currentLevel.state ?? 0);
               assessment.currentState.name = currentLevel.title;
               assessment.currentState.description =
                 currentLevel.description || "";
@@ -603,7 +604,7 @@ export const dimensionAssessmentRepository = {
               da.desired_state_id,
             );
             if (desiredLevel) {
-              assessment.desiredState.level = desiredLevel.level ?? desiredLevel.state;
+              assessment.desiredState.level = Number(desiredLevel.level ?? desiredLevel.state ?? 0);
               assessment.desiredState.name = desiredLevel.title;
               assessment.desiredState.description =
                 desiredLevel.description || "";
@@ -624,12 +625,12 @@ export const dimensionAssessmentRepository = {
                     (s) => s.desired_state_id === da.desired_state_id,
                   );
                   if (cs) {
-                    assessment.currentState.level = cs.level ?? cs.score ?? 0;
+                    assessment.currentState.level = cs.score ?? 0;
                     assessment.currentState.name = cs.title;
                     assessment.currentState.description = cs.description ?? "";
                   }
                   if (ds) {
-                    assessment.desiredState.level = ds.level ?? ds.score ?? 0;
+                    assessment.desiredState.level = ds.score ?? 0;
                     assessment.desiredState.name = ds.title;
                     assessment.desiredState.description = ds.description ?? "";
                   }

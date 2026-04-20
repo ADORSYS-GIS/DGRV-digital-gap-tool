@@ -284,24 +284,57 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
           userRoles,
         };
 
+        // If offline: save locally and treat as success immediately
+        if (!navigator.onLine) {
+          await submitDimensionAssessment(payload, {
+            onSuccess: handleSuccess,
+            onError: () => {
+              // Offline — the repository already saved locally, treat as success
+              handleSuccess({
+                id: "",
+                dimensionId: dimensionId || "",
+                assessmentId: assessmentId || "",
+                currentState: {
+                  id: payload.currentStateId,
+                  dimensionId: dimensionId || "",
+                  level: currentLevel,
+                  name: currentState.name,
+                  description: currentState.description,
+                  createdAt: "",
+                  updatedAt: "",
+                },
+                desiredState: {
+                  id: payload.desiredStateId,
+                  dimensionId: dimensionId || "",
+                  level: desiredLevel,
+                  name: desiredState.name,
+                  description: desiredState.description,
+                  createdAt: "",
+                  updatedAt: "",
+                },
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+                syncStatus: "PENDING",
+                lastError: "",
+              } as import("@/types/dimension").IDimensionAssessment);
+            },
+          });
+          // If mutateAsync threw (very unlikely offline scenario), still treat as success
+          return;
+        }
+
+        // Online path: normal submit
         await submitDimensionAssessment(payload, {
           onSuccess: handleSuccess,
-          onError: (err) => {
-            // When offline the repository saves locally — treat as success
-            if (!navigator.onLine) {
-              handleSuccess({ id: "", dimensionId: dimensionId || "", assessmentId: assessmentId || "", currentState: { id: payload.currentStateId, dimensionId: dimensionId || "", level: currentLevel, name: "", description: "", createdAt: "", updatedAt: "" }, desiredState: { id: payload.desiredStateId, dimensionId: dimensionId || "", level: desiredLevel, name: "", description: "", createdAt: "", updatedAt: "" }, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), syncStatus: "PENDING", lastError: "" } as import("@/types/dimension").IDimensionAssessment);
-            } else {
-              handleError(err);
-            }
-          },
+          onError: handleError,
         });
       } catch (error) {
+        // Don't re-throw — let the form recover cleanly
         handleError(
           error instanceof Error
             ? error
             : new Error("An unknown error occurred"),
         );
-        throw error; // Re-throw to allow the form to handle the error
       }
     },
     [
