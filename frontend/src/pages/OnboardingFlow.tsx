@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import OnboardingStep from "@/components/onboarding/OnboardingStep";
 import OnboardingCompletion from "@/components/onboarding/OnboardingCompletion";
-import ProgressIndicators from "@/components/onboarding/ProgressIndicators";
 import { ROLES } from "@/constants/roles";
 import { useTranslation } from "react-i18next";
 

@@ -15,6 +15,7 @@ export const useSubmitDimensionAssessment = () => {
   >({
     mutationFn: (payload: ISubmitDimensionAssessmentRequest) =>
       dimensionAssessmentRepository.submitAssessment(payload),
+    networkMode: "always",
     onSuccess: (data, variables) => {
       // Invalidate the dimension assessments list so AssessmentDetailPage
       // immediately reflects the completed state on the dimension cards

@@ -200,7 +200,9 @@ export function DimensionAssessmentAnswer({
                 {effectiveIsSubmitting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    {t("assessmentAnswering.form.submitting")}
+                    {navigator.onLine
+                      ? t("assessmentAnswering.form.submitting")
+                      : t("offline.savingLocally", { defaultValue: "Saving locally..." })}
                   </>
                 ) : (
                   t("assessmentAnswering.form.submit")

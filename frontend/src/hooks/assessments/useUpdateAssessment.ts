@@ -6,6 +6,7 @@ export function useUpdateAssessment() {
   const queryClient = useQueryClient();
 
   return useMutation({
+    networkMode: "always",
     mutationFn: ({
       id,
       assessment,

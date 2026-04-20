@@ -15,6 +15,7 @@ export function useSubmitAssessment() {
   const queryClient = useQueryClient();
 
   return useMutation({
+    networkMode: "always",
     mutationFn: async (assessmentId: string) => {
       if (!navigator.onLine) {
         // Queue for later sync
