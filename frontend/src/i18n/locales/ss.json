@@ -1,0 +1,1386 @@
+{
+    "common": {
+        "cancel": "Khansela",
+        "save": "Seva",
+        "edit": "Hlela",
+        "delete": "Susa",
+        "saving": "Iyaseva...",
+        "deleting": "Iyasesa...",
+        "noTitle": "Ate sihloko",
+        "noDescription": "Ate inchazelo lekhona.",
+        "back": "Buyela emuva",
+        "next": "Landzela",
+        "submit": "Thumela",
+        "form": "Ifomu",
+        "status": "Simo",
+        "loading": "Iyalayisha...",
+        "actions": "Tento",
+        "emptySearch": "Awekho emaphumela lavumelana nalesicelo sakho.",
+        "emptyAction": "Chofoza {{action}} kutfola lokuqalisa.",
+        "errorOccurred": "Kwenteke liphutsa",
+        "unknownError": "Liphutsa lelingatiwa"
+    },
+    "offline": {
+        "banner": "Uphumile. Imiphendvulo yakho isevwe ku-local futsi itawuhlanganiswa nawubuyela online.",
+        "assessmentBanner": "Uphumile. Imiphendvulo yakho isevwe ku-local futsi itawuhlanganiswa ngokuzenzakalelayo nawubuyela online.",
+        "syncStart": "Buye online – kuhlanganisa idatha leseviwe…",
+        "syncDone": "Yonke idatha ihlanganiswe ngempumelelo.",
+        "offlineNotice": "Uphumile. Umsebenti wakho utawusevwa ku-local futsi uhlanjiswe nawubuyela online."
+    },
+    "adminDimensions": {
+        "title": "Tinhlaka",
+        "addBtn": "Ngetela Inhlaka",
+        "updateBtn": "Buyeketa Inhlaka",
+        "form": {
+            "titleAdd": "Ngetela Inhlaka Lensha",
+            "titleEdit": "Hlela Inhlaka",
+            "name": "Ligama Le nhlaka",
+            "description": "Inchazelo",
+            "saving": "Iyaseva...",
+            "updating": "Ibuyeketa...",
+            "namePlaceholder": "Faka ligama lenhlaka",
+            "descPlaceholder": "Faka inchazelo yenhleka"
+        },
+        "validation": {
+            "nameRequired": "Ligama liyadzingeka",
+            "descRequired": "Inchazelo iyadzingeka"
+        },
+        "list": {
+            "empty": "Awekho tinhlaka letifunyiwe.",
+            "emptyDescription": "Inchazelo Lengenalutfo",
+            "emptyTitle": "Lingenalutfo"
+        },
+        "card": {
+            "delete": "Susa",
+            "manageLevels": "Phatsa emaLevel"
+        },
+        "createBtn": "Yakha",
+        "delete": {
+            "confirm": "Qinisekisa",
+            "deleting": "Iyasesa",
+            "description": "Inchazelo",
+            "title": "Kuphatsa"
+        }
+    },
+    "adminLevels": {
+        "title": "Emalevel e-Digitalization",
+        "addBtn": "Ngetela Level",
+        "updateBtn": "Buyeketa Level",
+        "form": {
+            "titleAddCurrent": "Ngetela Level Lamuhla",
+            "titleAddDesired": "Ngetela Level Lafunwa",
+            "titleEdit": "Hlela Level",
+            "levelId": "ID yeLevel",
+            "levelName": "Ligama leLevel",
+            "description": "Inchazelo",
+            "saving": "Iyaseva...",
+            "updating": "Ibuyeketa..."
+        },
+        "validation": {
+            "titleRequired": "Sihloko siyadzingeka",
+            "descRequired": "Inchazelo iyadzingeka",
+            "stateRequired": "Sicela ukhetse simo",
+            "idRequired": "ID yeLevel iyadzingeka",
+            "stateExists": "Le ID yeLevel seyikhona",
+            "stateNumber": "Simo kufanele sibe yinamba"
+        },
+        "card": {
+            "delete": "Susa"
+        },
+        "delete": {
+            "title": "Ucinisekile?",
+            "description": "Lento ngeke ibuyiselwe. Level itawususwa unomphelo.",
+            "confirm": "Chubeka",
+            "deleting": "Iyasesa..."
+        },
+        "list": {
+            "emptyCurrent": "Awekho emalevel latfolakale kulesi simo."
+        },
+        "selectState": {
+            "title": "Phatsa emaLevel e-Digitalization",
+            "description": "Khetha simo losifuna kulungisa.",
+            "currentTitle": "Simo Samuhla",
+            "currentDesc": "Chaza emalevel lamuhla.",
+            "desiredTitle": "Simo Lesifunwa",
+            "desiredDesc": "Misa emalevel etinhloso."
+        }
+    },
+    "adminOrgs": {
+        "form": {
+            "titleAdd": "Ngetela Inhlangano Lensha",
+            "titleEdit": "Hlela Inhlangano",
+            "descAdd": "Faka imininingwane yekwakha i-cooperative lensha.",
+            "descEdit": "Buyeketa imininingwane yenhlangano.",
+            "name": "Ligama Le nhlangano",
+            "domain": "Domain",
+            "description": "Inchazelo",
+            "namePlaceholder": "e.g. GreenValleyCoop",
+            "domainPlaceholder": "e.g. greenvalley.com",
+            "descPlaceholder": "Inchazelo lemfishane yenhlagano",
+            "saving": "Iyengeza...",
+            "updating": "Ibuyeketa..."
+        },
+        "validation": {
+            "nameRequired": "Ligama lenhlangano liyadzingeka",
+            "nameNoSpaces": "Tikhala ativunyelwe egameni",
+            "domainRequired": "Domain iyadzingeka",
+            "nameMin": "Ligama kufanele libe nemabhizinisi langu-2.",
+            "domainMin": "Domain kufanele ibe nemabhizinisi langu-2."
+        },
+        "card": {
+            "domain": "Domain",
+            "description": "Inchazelo",
+            "manageUsers": "Phatsa Basebentisi",
+            "dimensions": "Tinhlaka",
+            "edit": "Hlela",
+            "delete": "Susa",
+            "assignDimensions": "Nika Inhlaka",
+            "assignDimensionsDesc": "Nika tinhlaka kule nhlangano"
+        },
+        "list": {
+            "title": "Tinhlangano",
+            "emptyTitle": "Awekho tinhlangano letifunyiwe",
+            "emptyDesc": "Qala ngekungeza inhlangano yakho yekucala."
+        },
+        "delete": {
+            "title": "Ucinisekile?",
+            "description": "Lento ngeke ibuyiselwe. Inhlangano itawususwa unomphelo kanye nedatha yayo.",
+            "confirm": "Chubeka",
+            "deleting": "Iyasesa..."
+        },
+        "addBtn": "Ngetela Inhlangano",
+        "createBtn": "Yakha Inhlangano",
+        "updateBtn": "Buyeketa Inhlangano",
+        "assignDimensions": "Nika Tinhlaka"
+    },
+    "adminRecommendations": {
+        "title": "Tiphakamiso",
+        "addBtn": "Ngetela Siphakamiso",
+        "updateBtn": "Buyeketa Siphakamiso",
+        "form": {
+            "titleAdd": "Ngetela Siphakamiso Lesisha",
+            "titleEdit": "Hlela Siphakamiso",
+            "descAdd": "Gcwalisa imininingwane ngephansi kute wakhe siphakamiso lesisha.",
+            "descEdit": "Buyeketa imininingwane yesiphakamiso.",
+            "dimension": "Inhlaka",
+            "priority": "Kubaluleka",
+            "description": "Inchazelo",
+            "dimPlaceholder": "Khetha inhlaka",
+            "prioPlaceholder": "Khetha kubaluleka",
+            "descPlaceholder": "Faka inchazelo lebanzi",
+            "adding": "Iyengeza...",
+            "updating": "Ibuyeketa..."
+        },
+        "validation": {
+            "dimensionRequired": "Inhlaka iyadzingeka",
+            "priorityRequired": "Kubaluleka kuyadzingeka",
+            "descriptionRequired": "Inchazelo iyadzingeka",
+            "alreadyExists": "Siphakamiso salesi sibaluleki sikhona kakade kule nhlaka."
+        },
+        "list": {
+            "empty": "Awekho tiphakamiso letifunyiwe.",
+            "emptyDesc": "Chofoza \"Ngetela Siphakamiso\" kute wakhe.",
+            "summary": "{{total}} tiphakamiso sekwonke ku {{dimCount}} tinhlaka",
+            "recommendation": "siphakamiso",
+            "recommendations": "tiphakamiso"
+        },
+        "card": {
+            "synced": "Ihlanganisiwe",
+            "pending": "Kulindile",
+            "edit": "Hlela",
+            "delete": "Susa",
+            "deleting": "Iyasesa...",
+            "confirmDelete": "Ucinisekile kutfuna kususa lesi siphakamiso?"
+        },
+        "priorities": {
+            "low": "Phansi",
+            "medium": "Maphakathi",
+            "high": "Phezulu"
+        }
+    },
+    "adminReports": {
+        "submissions": {
+            "title": "Tethulo Temhlati",
+            "empty": "Awekho tethulo temhlati letifunyenwe kule nhlangano.",
+            "submittedOn": "Kuthunyelwe ngemhla",
+            "exportReport": "Hambisa Umbiko",
+            "viewActionPlan": "Buka i-Action Plan",
+            "exportSuccess": "Umbiko ulayishiwe ngempumelelo!",
+            "exportError": "Kwehlulekile kulayisha umbiko: {{error}}"
+        },
+        "organizations": {
+            "title": "Imibiko Yetinhlangano",
+            "errorLoading": "Liphutsa ekulayisheni tinhlangano: {{error}}"
+        },
+        "backToOrgs": "Buyela ku Tinhlangano",
+        "selectOrg": "Khetha Inhlangano",
+        "submissionsForOrg": "Tethulo TeNhlangano",
+        "subtitleAll": "Subtitle All",
+        "subtitleOrg": "Subtitle Org",
+        "title": "Kuphatsa"
+    },
+    "assessmentAnswering": {
+        "validation": {
+            "selectLevels": "Sicela ukhetse womabili emalevel lamuhla nalafunwa",
+            "unexpectedError": "Kwenteke liphutsa lelingalindelekile"
+        },
+        "errors": {
+            "notConfigured": "Le nhlaka ayikaciniswa ngeinchazelo yemalevel. Sicela uxhumane nomphatsi.",
+            "loadGapError": "Kwehlulekile kulayisha inchazelo yegap.",
+            "noGapFound": "Ate inchazelo yegap lefunyenwe."
+        },
+        "dimension": {
+            "currentLevel": "Level Lamuhla",
+            "desiredLevel": "Level Lafunwa",
+            "selectCurrent": "Khetha level lakho lamuhla kule nhlaka",
+            "selectDesired": "Khetha level lakho lafunwa kule nhlaka",
+            "yourCurrent": "Level Lakho Lamuhla",
+            "yourDesired": "Level Lakho Lafunwa"
+        },
+        "form": {
+            "submitting": "Ithumela...",
+            "submit": "Thumela Umhlati",
+            "analyzing": "Ihlaziya igap lakho...",
+            "analysis": "Kuhlaziywa Komhlati",
+            "gapAnalysis": "Kuhlaziywa kweGap yeDigitalisation",
+            "severity": "Bucayi",
+            "risk": "RISCO",
+            "noDescription": "Ate inchazelo lekhona"
+        },
+        "selector": {
+            "levelRange": "Level {{current}} we {{total}}: {{name}}",
+            "prev": "Level langaphambilini",
+            "next": "Level lelandzelako",
+            "ariaLabel": "Level {{level}}"
+        }
+    },
+    "userComponents": {
+        "assessment": {
+            "title": "Umhlati Wamanje",
+            "description": "Chubeka neGap Analysis yakho lehambile",
+            "continue": "Chubeka neMhlati",
+            "lastUpdated": "Last updated: {{date}}",
+            "progressLabel": "Inchubekela phambili"
+        },
+        "actions": {
+            "title": "Tento Letisheshayo",
+            "description": "Qala umhlati lomusha nobe buka imiphumela",
+            "startNew": "Qala Umhlati Lomusha",
+            "viewReports": "Buka Imibiko"
+        },
+        "stats": {
+            "total": "Emamhlati Onkhe",
+            "completion": "Izinga Lokuqedza",
+            "average": "Average Score"
+        }
+    },
+    "onboarding": {
+        "welcome": {
+            "title": "Wamukelekile ku Finance Friend",
+            "subtitle": "Asilungise i-cooperative yakho yekuguquka kwedijithali.",
+            "subtitleGuest": "Subtitle Guest",
+            "subtitleHello": "Subtitle Hello"
+        },
+        "stepProgress": "Step {{current}} we {{total}}",
+        "stepDescription": "Qedza letinyatselo letisheshayo kute wente umhlati wakho ube ngowakho.",
+        "steps": {
+            "prev": "Langaphambilini",
+            "next": "Landzela",
+            "finish": "Qedza",
+            "titleHighlight": "Inchubekela phambili yeDijithali",
+            "description": "Buka inchubekela phambili ye-cooperative yakho etinhlakini letinyenti tetidijithali.",
+            "basics": "Basics",
+            "dimensions": "Tinhlaka",
+            "completion": "Kucedza",
+            "back": "Buyela emuva",
+            "begin": "Qala",
+            "completionDesc": "Completion Desc",
+            "ready": "Ready",
+            "step0": {
+                "description": "Inchazelo",
+                "title": "Kuphatsa",
+                "titleHighlight": "Title Highlight"
+            },
+            "step1": {
+                "description": "Inchazelo",
+                "title": "Kuphatsa",
+                "titleHighlight": "Title Highlight"
+            },
+            "step2": {
+                "description": "Inchazelo",
+                "title": "Kuphatsa",
+                "titleHighlight": "Title Highlight"
+            }
+        },
+        "step1": {
+            "title": "Misa",
+            "titleHighlight": "Tinhloso Leticacile",
+            "description": "Chaza lapho ufuna kuya khona bese umisa tinhloso leticacile tekuguquka kwedijithali."
+        },
+        "step2": {
+            "title": "Tiphakamiso",
+            "titleHighlight": "Letisebentekayo",
+            "description": "Yamukela tincomo leticondzene nalesimo sakho samanje netinhloso."
+        },
+        "title": "Wamukelekile ku Finance Friend",
+        "subtitle": "Asilungise i-cooperative yakho yekuguquka kwedijithali.",
+        "completion": {
+            "title": "Kusetha Sekuphelile!",
+            "message": "I-cooperative yakho seyilungele kucala uhambo lwayo lwekuhlola lwedijithali.",
+            "cta": "Hamba e-Dashboard"
+        },
+        "context": {
+            "description": "Inchazelo",
+            "list": "Luhlu",
+            "title": "Kuphatsa"
+        },
+        "error": {
+            "description": "Inchazelo",
+            "title": "Kuphatsa"
+        }
+    },
+    "context": {
+        "title": "Yini lena onboarding?",
+        "description": "Lesingeniso lesisheshayo sikusita wetewusebentisa i-Gap Assessment Tool kahle:",
+        "list": [
+            "Yati level yakho yamanje yedijithali etinhlakini",
+            "Misa simo sakho lesifutsa nesibaluleki",
+            "Yamukela tiphakamiso letisebentekayo netinyatselo letilandzelwa"
+        ]
+    },
+    "secondAdminCooperations": {
+        "add": {
+            "title": "Ngetela i-cooperative lensha",
+            "description": "Yakha iphrofayili lensha yecooperative kute ucale kulandzela emamhlati netinhlelo.",
+            "triggerLabel": "Ngetela i-cooperative",
+            "loadingLabel": "Iseva i-cooperative…",
+            "ariaLabel": "Ifomu yekwakha i-cooperative",
+            "nameLabel": "Ligama",
+            "namePlaceholder": "e.g. Green Valley Cooperative",
+            "nameHelper": "Sebentisa ligama lelisemthethweni lelatiwa ngemaphatsi nelilunga.",
+            "descriptionLabel": "Inchazelo",
+            "descriptionPlaceholder": "Chaza kafisha i-cooperative, umgomo wayo nelilunga.",
+            "descriptionHelper": "Lokusita baphatsi labanye batfole kutsi yini le-cooperative.",
+            "cancel": "Khansela",
+            "submit": "Yakha i-cooperative",
+            "saving": "Iyaseva…"
+        },
+        "edit": {
+            "title": "Hlela i-cooperative",
+            "description": "Buyeketa imininingwane yephrofayili yecooperative.",
+            "triggerLabel": "Hlela",
+            "ariaLabel": "Ifomu yekuhlela i-cooperative",
+            "submit": "Seva tinguquko"
+        },
+        "delete": {
+            "triggerLabel": "Susa",
+            "title": "Ucinisekile?",
+            "description": "Lento ngeke ibuyiselwe. I-cooperative itawususwa unomphelo.",
+            "cancel": "Khansela",
+            "confirm": "Chubeka"
+        },
+        "card": {
+            "srCooperative": "Cooperative",
+            "profileLabel": "Iphrofayili ye-cooperative",
+            "noDescription": "Ate inchazelo leniketwe kule cooperative."
+        },
+        "simpleCard": {
+            "srCooperation": "Cooperation"
+        },
+        "assign": {
+            "trigger": "Nika Tinhlaka"
+        }
+    },
+    "secondAdminCooperationUsers": {
+        "add": {
+            "title": "Ngetela umsebenti lomusha",
+            "description": "Mema umphatsi lomusha nobe lilunga kule cooperative.",
+            "triggerLabel": {
+                "inviting": "Imema umsebenti...",
+                "add": "Ngetela umsebenti"
+            },
+            "form": {
+                "ariaLabel": "Ifomu yekungetela umsebenti we-cooperative",
+                "emailLabel": "I-imeyili",
+                "firstNameLabel": "Libito",
+                "firstNamePlaceholder": "Kungaba",
+                "lastNameLabel": "Sibongo",
+                "lastNamePlaceholder": "Kungaba",
+                "dimensionsLabel": "Tinhlaka umsebenti lotawuphendvula",
+                "dimensionsDescription": "Khetha tinhlaka umsebenti we-cooperative lotawuvunyelwa kutiphendvula.",
+                "noDimensions": "Awekho tinhlaka letikhona kule nhlangano.",
+                "roleLabel": "Indima",
+                "roleCoopAdmin": "Umphatsi we-Cooperative",
+                "roleCoopUser": "Umsebenti we-Cooperative",
+                "noRole": "Ate indima letawuniketwa",
+                "cancel": "Khansela",
+                "submit": "Thumela simemo",
+                "submitting": "Iyengeza...",
+                "adding": "Iyengeza"
+            },
+            "toast": {
+                "success": "Umsebenti umenywe ngempumelelo.",
+                "error": "Kwehlulekile kumema umsebenti."
+            }
+        },
+        "list": {
+            "columns": {
+                "email": "I-imeyili",
+                "firstName": "Libito",
+                "lastName": "Sibongo",
+                "verified": "I-imeyili icinisekisiwe",
+                "actions": "Tento"
+            },
+            "status": {
+                "verified": "Icinisekisiwe",
+                "pending": "Kulindile"
+            },
+            "actions": {
+                "delete": "Susa"
+            }
+        },
+        "edit": {
+            "title": "Hlela tinhlaka tumsebenti",
+            "description": "Buyeketa tinhlaka umsebenti lotawuvunyelwa kutiphendvula.",
+            "triggerLabel": "Hlela",
+            "toast": {
+                "success": "Tinhlaka tumsebenti tibuyeketwe ngempumelelo.",
+                "error": "Kwehlulekile kubuyeketa tinhlaka."
+            },
+            "saving": "Iyaseva..."
+        },
+        "form": {
+            "submit": "Thumela"
+        }
+    },
+    "adminDashboard": {
+        "title": "Wamukelekile, Umphatsi",
+        "welcomePrefix": "Wamukeleke kabusha ",
+        "defaultAdmin": "Umphatsi",
+        "welcomeSuffix": "",
+        "stats": {
+            "orgs": {
+                "title": "Tinhlangano",
+                "desc": "Tinhlangano letisebentako"
+            },
+            "users": {
+                "title": "Basebentisi",
+                "desc": "Basebentisi bonkhe labasebentako"
+            },
+            "assessments": {
+                "title": "Emamhlati",
+                "desc": "Tethulo letemukelekile"
+            },
+            "dimensions": {
+                "title": "Tinhlaka",
+                "desc": "Tinhlaka temhlati letisebentako"
+            }
+        },
+        "tools": {
+            "title": "Amathuluzi Ekuphatsa",
+            "orgs": {
+                "title": "Tinhlangano",
+                "desc": "Phatsa tinhlangano nemetadata yato"
+            },
+            "users": {
+                "title": "Phatsa Basebentisi",
+                "desc": "Mema uphatse baphatsi besistimu"
+            },
+            "dimensions": {
+                "title": "Tinhlaka",
+                "desc": "Phatsa tinhlaka temhlati"
+            },
+            "gaps": {
+                "title": "Emagap",
+                "desc": "Chaza uphatse emagap edijithali"
+            },
+            "recommendations": {
+                "title": "Tiphakamiso",
+                "desc": "Lungisa tiphakamiso temhlati wedijithali"
+            },
+            "actionPlans": {
+                "title": "Tinhlelo Tento",
+                "desc": "Buka uphinde ubuyekete emathempuleti etinhlelo"
+            },
+            "reports": {
+                "title": "Buka Imibiko",
+                "desc": "Buka uphinde uhambise imibiko lebanzi"
+            },
+            "consolidated": {
+                "title": "Umbiko Lohlangene",
+                "desc": "Buka kuhlaziywa kwesistimu yonkhe"
+            }
+        },
+        "recent": {
+            "title": "Tento Letisandza Kwenteka",
+            "desc": "Tethulo temhlati letisandza kwenteka",
+            "viewAll": "Buka Konkhe",
+            "error": "Kwehlulekile kulayisha tento letisandza kwenteka: {{message}}"
+        }
+    },
+    "sharedUsers": {
+        "table": {
+            "name": "Ligama",
+            "email": "I-imeyili",
+            "role": "Indima",
+            "status": "Simo",
+            "cooperative": "Cooperative",
+            "actions": "Tento",
+            "noUsers": "Awekho basebentisi labafunyenwe.",
+            "firstName": "Libito",
+            "lastName": "Sibongo",
+            "roles": {
+                "orgAdmin": "Umphatsi WeNhlangano"
+            },
+            "sectionLabel": "Sigaba",
+            "statusLabel": {
+                "active": "Iyasebenta",
+                "inactive": "Ayisebenti",
+                "pending": "Kulindile"
+            }
+        },
+        "status": {
+            "active": "Iyasebenta",
+            "inactive": "Ayisebenti",
+            "pending": "Kulindile",
+            "invited": "Umenyiwe"
+        },
+        "roles": {
+            "admin": "Umphatsi",
+            "user": "Umsebenti",
+            "coop_admin": "Umphatsi we-Cooperative",
+            "coop_user": "Umsebenti we-Cooperative",
+            "org_admin": "Umphatsi weNhlangano"
+        },
+        "delete": {
+            "title": "Susa Umsebenti",
+            "description": "Ucinisekile kutfuna kususa lomsebenti?",
+            "confirm": "Susa",
+            "cancel": "Khansela",
+            "success": "Umsebenti ususiwe ngempumelelo",
+            "error": "Kwehlulekile kususa umsebenti",
+            "deleting": "Iyasesa"
+        },
+        "invite": {
+            "title": "Mema Umsebenti Lomusha",
+            "description": "Thumela simemo kumsebenti lomusha.",
+            "name": "Ligama Lonkhulu",
+            "email": "Ikheli le-imeyili",
+            "role": "Indima Yesistimu",
+            "cooperative": "Nika i-Cooperative",
+            "selectRole": "Khetha indima",
+            "selectCoop": "Khetha i-cooperative",
+            "cancel": "Khansela",
+            "submit": "Thumela Simemo",
+            "sending": "Ithumela...",
+            "success": "Simemo sithunyelwe ngempumelelo",
+            "error": "Kwehlulekile kuthumela simemo",
+            "validation": {
+                "name": "Ligama liyadzingeka",
+                "email": "I-imeyili ayilungile",
+                "role": "Indima iyadzingeka",
+                "firstNameRequired": "Libito liyadzingeka",
+                "invalidEmail": "I-imeyili ayilungile",
+                "lastNameRequired": "Sibongo siyadzingeka",
+                "roleRequired": "Indima iyadzingeka"
+            },
+            "form": {
+                "email": "I-imeyili",
+                "emailPlaceholder": "Email Placeholder",
+                "firstName": "Libito",
+                "firstNamePlaceholder": "First Name Placeholder",
+                "inviting": "Imema",
+                "lastName": "Sibongo",
+                "lastNamePlaceholder": "Last Name Placeholder",
+                "role": "Indima",
+                "submit": "Thumela"
+            },
+            "toast": {
+                "error": "Liphutsa",
+                "success": "Impumelelo"
+            }
+        }
+    },
+    "userDashboard": {
+        "header": {
+            "panel": "Iphaneli ye-Cooperative",
+            "title": "Dashboard",
+            "welcome": "Wamukeleke kabusha <1>{{name}}</1>. Buka emamhlati akho lakamuva nenchubekela phambili.",
+            "defaultUser": "Umsebenti"
+        },
+        "cards": {
+            "answer": {
+                "title": "Phendvula Umhlati",
+                "description": "Qedza i-Gap Assessment yakho"
+            },
+            "actionPlan": {
+                "title": "I-Action Plan",
+                "description": "Buka i-strategy yakho yedijithali"
+            },
+            "submissions": {
+                "title": "Tethulo Tami",
+                "description": "Buka emamhlati akho langaphambilini"
+            }
+        },
+        "reports": {
+            "export": {
+                "title": "Hambisa Imibiko",
+                "description": "Downloda imiphumela yemhlati wakho"
+            },
+            "recent": {
+                "title": "Tento Letisandza Kwenteka",
+                "description": "Tethulo takho temhlati letisandza kwenteka",
+                "viewAll": "Buka Konkhe",
+                "error": "Kwehlulekile kulayisha tethulo letisandza kwenteka",
+                "empty": "Awekho tethulo letisandza kwenteka"
+            }
+        },
+        "chart": {
+            "title": "Iphrofayili yeDijithali ye-Cooperative",
+            "description": "Umbono wemiphumela yakho yekucala yemhlati"
+        }
+    },
+    "thirdAdmin": {
+        "header": {
+            "defaultType": "Iphaneli ye-Cooperative",
+            "title": "I-Dashboard Yemphatsi we-Cooperative",
+            "welcome": "Wamukeleke kabusha <1>{{name}}</1>. Sebentisa lamathuluzi kute ugcine emamhlati, basebentisi netinhlelo takho tihamba kahle.",
+            "defaultUser": "Umphatsi"
+        },
+        "cards": {
+            "manageUsers": {
+                "title": "Phatsa Basebentisi",
+                "description": "Mema uphatse basebenti be-cooperative"
+            },
+            "answerAssessment": {
+                "title": "Phendvula Umhlati",
+                "description": "Qedza emaGap Assessments"
+            },
+            "viewActionPlan": {
+                "title": "Tinhlelo Tento",
+                "description": "Buka i-strategy yakho yedijithali"
+            },
+            "viewSubmissions": {
+                "title": "Tethulo",
+                "description": "Landzela kucedvwa kwemamhlati"
+            }
+        },
+        "reports": {
+            "export": {
+                "title": "Hambisa Imibiko",
+                "description": "Downloda imiphumela yemamhlati"
+            },
+            "recent": {
+                "title": "Tento Letisandza Kwenteka",
+                "description": "Tethulo temhlati letisandza kwenteka",
+                "viewAll": "Buka Konkhe",
+                "error": "Kwehlulekile kulayisha tethulo letisandza kwenteka",
+                "empty": "Awekho tethulo letisandza kwenteka"
+            }
+        },
+        "chart": {
+            "title": "Iphrofayili yeDijithali ye-Cooperative",
+            "description": "Umbono wemiphumela yekucala yemhlati"
+        }
+    },
+    "home": {
+        "hero": {
+            "title": "Ithuluzi le-Gap Assessment",
+            "subtitle": "Sinika emandla ema-cooperative ngeguquko yedijithali lesekelwe edilitheni",
+            "description": "Tfola, kala bese uvala emaGap e-cooperative yakho. Yamukela imibono lesebentekayo netiphakamiso letihambisana nenhlagano yakho.",
+            "getStarted": "Qala Manje",
+            "continueToDashboard": "Hamba e-Dashboard"
+        },
+        "features": {
+            "title": "Tinto Letibalulekile",
+            "subtitle": "Konke lokudingekile kute uhlole uphinde uthuthukise i-digital maturity ye-cooperative yakho",
+            "gapAssessment": {
+                "title": "Gap Assessment",
+                "desc": "Tfola emagap etinhlakini letinyenti tetidijithali."
+            },
+            "strategy": {
+                "title": "Kuhlela Kwelisu",
+                "desc": "Misa tinhloso leticacile nemgudu wekuguquka kwedijithali."
+            },
+            "tracking": {
+                "title": "Kulandzela Inchubekela phambili",
+                "desc": "Buka uhambo lwedijithali lwenhlangano yakho ngesikhatsi."
+            }
+        },
+        "header": {
+            "logoText": "D.G. MEMBER INSTITUTION",
+            "login": "Ngena"
+        },
+        "benefits": {
+            "title": "Yini lesenta sisebentise leli thuluzi?",
+            "subtitle": "Lakhiwe ngekwetinhloso tema-cooperative ema-DGRV",
+            "empowerment": {
+                "title": "Kunika Emandla Emalunga",
+                "desc": "Nike bonkhe ema-cooperative idatha nemathuluzi kute atsathe umtshwalo weluhambo lwawo lwedijithali."
+            },
+            "secure": {
+                "title": "Iphephile Futi Yetembekile",
+                "desc": "I-security yemazinga ephezulu lecinisekisa kutsi idatha yakho ivikelekile."
+            },
+            "accessible": {
+                "title": "Ifinyeleleka Emhlabeni Wonkhe",
+                "desc": "Sebentisa leli thuluzi noma kuphi, ngetilwimi letinyenti."
+            }
+        },
+        "partners": {
+            "title": "Sisekelwa Ngu",
+            "subtitle": "Leli thuluzi lakhiwe futhi ligcinwa ngekubambisana netinhlangano letiholayo",
+            "dgrv": "German Cooperative and Raiffeisen Confederation",
+            "bmz": "Federal Ministry for Economic Cooperation and Development"
+        },
+        "cta": {
+            "title": "Uselungele kucala i-Digital Transformation yakho?",
+            "subtitle": "Hlanganyela nemakhulu ema-cooperative lasebentisa leli thuluzi kute enze izinguquko letibalulekile.",
+            "getStartedNow": "Qala Manje",
+            "goDashboard": "Hamba e-Dashboard"
+        },
+        "footer": {
+            "copyright": "© {{year}} DGRV Gap Assessment Tool. Onke emalungelo agcinwe.",
+            "privacy": "Umgomo Wekuvikeleka",
+            "terms": "Imigomo Yesevisi",
+            "contact": "Xhumana Nathi"
+        }
+    },
+    "nav": {
+        "home": "Ekhaya",
+        "dashboard": "Dashboard",
+        "login": "Ngena",
+        "logout": "Phuma",
+        "settings": "Tinhlelo",
+        "profile": "Iphrofayili",
+        "signIn": "Ngena",
+        "signOut": "Phuma",
+        "navigation": "Kuhamba",
+        "account": "Akhawunti",
+        "appDescription": "DGRV Gap Assessment Tool",
+        "noData": "Awekho Idatha",
+        "noEmail": "Awekho I-imeyili",
+        "userProfile": "Iphrofayili Yomsebenti"
+    },
+    "consolidatedReport": {
+        "title": "Umbiko Lohlangene",
+        "subtitle": "Umbono lophelele weGap Analysis",
+        "exportPDF": "Hambisa PDF",
+        "metrics": {
+            "totalSubmissions": "Tethulo Tonkhe"
+        },
+        "dimensions": {
+            "title": "Kuhlaziywa kweTinhlaka",
+            "subtitle": "Kwehlukaniswa lokujulile kwemazinga ebungozi nemaphuzu egap ngenhlaka ngalinye",
+            "popoverTitle": "Mayelana neKuhlaziywa kweTinhlaka",
+            "popoverDesc": "Letafula linikeza imininingwane lebanzi yekwabiwa kwebungozi kule nhlaka ngayinye.",
+            "highRiskDesc": "Ipesenti yetethulo lapho inhlaka yahlolwa njengebungozi lobuphezulu.",
+            "mediumRiskDesc": "Ipesenti yetethulo lapho inhlaka yahlolwa njengebungozi lobuphakathi.",
+            "lowRiskDesc": "Ipesenti yetethulo lapho inhlaka yahlolwa njengebungozi lobuphansi.",
+            "table": {
+                "dimension": "Inhlaka",
+                "highRisk": "Bungozi Lobuphezulu %",
+                "mediumRisk": "Bungozi Lobuphakathi %",
+                "lowRisk": "Bungozi Lobuphansi %"
+            }
+        },
+        "focus": {
+            "high": {
+                "title": "Inhlaka Yebungozi Lobuphezulu & Tiphakamiso",
+                "subtitle": "Indawo lefuna kunakekelwa masinyane",
+                "popover": "Le nhlaka inephuzu leliphezulu kakhulu lebungozi.",
+                "recTitle": "Tiphakamiso Letibalulekile Kakhulu"
+            },
+            "medium": {
+                "title": "Inhlaka Lefuna Kunakekelwa & Tiphakamiso",
+                "subtitle": "Le nhlaka inegap lelingaphakathi — kufanele ibukwe futhi ithuthukiswe",
+                "popover": "Le nhlaka inephuzu lelingaphakathi lebungozi.",
+                "recTitle": "Tiphakamiso Tekuthuthukisa Le Nhlaka"
+            },
+            "low": {
+                "title": "Inhlaka Lenebala Lenkulu Yekuthuthuka",
+                "subtitle": "Tonke tinhlaka tisebenta kahle. Le inebala lelikhulu kakhulu lekukhula",
+                "popover": "Tonke tinhlaka tisebenta kahle. Le inephuzu leliphezulu kakhulu.",
+                "recTitle": "Tiphakamiso Tekucinisa Le Nhlaka"
+            },
+            "aboutTitle": "Mayelana Nalesigaba",
+            "aboutDesc": "Tiphakamiso ngephansi titawuhlanganiswa ne-action plan yakho.",
+            "avgScore": "Average Risk Score:",
+            "lowRisk": "Phansi",
+            "mediumRisk": "Maphakathi",
+            "highRisk": "Phezulu"
+        },
+        "chart": {
+            "title": "Level Lebungozi Lobudlondlobala Ngenhlaka",
+            "subtitle": "Ipesenti yelevel lebungozi lobudlondlobala ngenhlaka ngalinye",
+            "aboutTitle": "Mayelana Nebungozi Lobudlondlobala",
+            "aboutDesc1": "Leli bar chart libonisa level lebungozi lebudlondlobala kule nhlaka ngayinye.",
+            "aboutDesc2": "Likusita kubona masinyane tinhlaka letihlale tisebenta ngebungozi lobuphezulu.",
+            "lowRisk": "Bungozi Lobuphansi",
+            "mediumRisk": "Bungozi Lobuphakathi",
+            "highRisk": "Bungozi Lobuphezulu"
+        },
+        "errors": {
+            "fetch": "Kwehlulekile kulanda umbiko lohlangene",
+            "loadTitle": "Liphutsa ekulayisheni Umbiko",
+            "tryAgain": "Zama Futhi"
+        },
+        "empty": {
+            "title": "Awekho Idatha Yembiko",
+            "desc": "Awekho idatha yembiko lohlangene lokungaboniswa manje.",
+            "refresh": "Vuselela Idatha"
+        },
+        "digitalGapAnalysis": "Ithuluzi le-Gap Assessment",
+        "footer": {
+            "generatedOn": "Yakhiwe ngemhla {{date}}",
+            "pageOf": "Ikhasi {{current}} we {{total}}"
+        }
+    },
+    "orgReports": {
+        "loadingError": "Liphutsa ekulayisheni imibiko: {{message}}",
+        "backToOrgs": "Buyela ku Tinhlangano",
+        "title": "Imibiko Yetinhlangano",
+        "subtitle": "Buka tethulo teNhlangano {{name}}",
+        "selectSubmission": "Khetha i-submission",
+        "noSubmissions": "Awekho tethulo letifunyenwe kule nhlangano."
+    },
+    "exportReport": {
+        "missingId": "Kute ID ye-submission",
+        "loadingError": "Liphutsa ekulayisheni umbiko: {{message}}",
+        "notFound": "Umbiko awutfolakali",
+        "back": "Buyela ku Tethulo",
+        "title": "Hambisa Umbiko",
+        "subtitle": "Yakha uphinde downloda i-PDF lembiko lehlelekile yekuhlola i-gap yedijithali",
+        "generating": "Iyenta i-PDF...",
+        "generateBtn": "Yakha i-PDF",
+        "details": "Imininingwane ye-Submission"
+    },
+    "sharedPages": {
+        "manageUsers": {
+            "title": "Phatsa Basebentisi",
+            "subtitle": "Khetha inhlangano lotawuphatsa basebentisi bayo.",
+            "error": "Liphutsa ekulayisheni tinhlangano: {{message}}",
+            "emptyTitle": "Awekho tinhlangano letifunyenwe",
+            "emptyDesc": "Kufanele wakhe nobe unikezwe inhlangano kute uphatse basebentisi."
+        },
+        "orgUsers": {
+            "error": "Liphutsa",
+            "inviteUser": "Mema Umsebenti",
+            "subtitle": "Phatsa emalunga nememo kule nhlangano.",
+            "title": "Basebentisi beNhlangano"
+        }
+    },
+    "viewReports": {
+        "loadingError": "Liphutsa ekulayisheni imibiko: {{message}}",
+        "title": "Buka Imibiko",
+        "subtitle": "Buka uphinde uhambise imibiko lebanzi yetinhlangano",
+        "selectOrg": "Khetha Inhlangano",
+        "noOrgs": "Awekho tinhlangano letifunyenwe."
+    },
+    "secondAdmin": {
+        "header": {
+            "title": "I-Dashboard Yekuphatsa i-Cooperative",
+            "welcome": "Wamukeleke kabusha <1>{{name}}</1>. Sebentisa lamathuluzi kuphatsa ema-cooperative, basebentisi, emamhlati netinhlelo.",
+            "defaultUser": "Umphatsi"
+        },
+        "cards": {
+            "manageCoops": {
+                "title": "Phatsa Ema-Cooperative",
+                "description": "Buka uphatse ema-profiles ema-cooperative"
+            },
+            "manageUsers": {
+                "title": "Basebentisi be-Cooperative",
+                "description": "Mema uphatse basebenti be-cooperative"
+            },
+            "createAssessment": {
+                "title": "Yakha Umhlati",
+                "description": "Nika emamhlati lamasha ema-cooperative"
+            },
+            "viewActionPlan": {
+                "title": "Tinhlelo Tento",
+                "description": "Buka uphinde ubuyekete emasu edijithali"
+            },
+            "viewSubmissions": {
+                "title": "Tethulo",
+                "description": "Landzela inchubekela phambili yemamhlati"
+            },
+            "consolidatedReport": {
+                "title": "Umbiko Lohlangene",
+                "description": "Hlaziya emagap edijithali onkhe"
+            }
+        },
+        "reports": {
+            "export": {
+                "title": "Hambisa Imibiko",
+                "description": "Yakha imibiko ye-PDF yenhlangano yakho"
+            },
+            "recent": {
+                "title": "Tethulo Letisandza Kwenteka",
+                "description": "Tento temhlati letisandza kwenteka",
+                "viewAll": "Buka Konkhe",
+                "error": "Kwehlulekile kulayisha tethulo letisandza kwenteka",
+                "empty": "Awekho tethulo letisandza kwenteka"
+            }
+        },
+        "chart": {
+            "title": "Iphrofayili yeDijithali yeNhlangano",
+            "description": "Umbono wemiphumela yekucala yemhlati"
+        },
+        "consolidatedReportPage": {
+            "orgIdNotFound": "ID yenhlagano ayitfolakali"
+        },
+        "manageCoopUsers": {
+            "description": "Inchazelo",
+            "empty": {
+                "description": "Inchazelo",
+                "title": "Kuphatsa"
+            },
+            "error": {
+                "load": "Layisha",
+                "noCoopDescription": "Ate Inchazelo yeCoop",
+                "noCoopTitle": "Ate Coop",
+                "resolveDescription": "Resolve Description",
+                "resolveTitle": "Resolve"
+            },
+            "sectionLabel": "Sigaba",
+            "title": "Kuphatsa"
+        },
+        "manageCoopUsersPage": {
+            "description": "Inchazelo",
+            "empty": {
+                "description": "Inchazelo",
+                "title": "Kuphatsa"
+            },
+            "error": "Liphutsa",
+            "title": "Kuphatsa"
+        },
+        "manageCoops": {
+            "description": "Inchazelo",
+            "empty": {
+                "description": "Inchazelo",
+                "title": "Kuphatsa"
+            },
+            "title": "Kuphatsa"
+        },
+        "submissionsPage": {
+            "description": "Inchazelo",
+            "empty": "Lingenalutfo",
+            "noSubmissions": "Awekho Tethulo",
+            "submissionCount": "Inani Letethulo",
+            "title": "Kuphatsa"
+        }
+    },
+    "sharedSubmissions": {
+        "manage": {
+            "accessDenied": "Awekho Imvume",
+            "accessDeniedDesc": "Awenayo imvume yekubuka lelikhasi.",
+            "titleSubDetails": "Imininingwane ye-Submission",
+            "titleMySubmissions": "Tethulo Tami",
+            "descSubDetails": "Buka imininingwane ne-gap analysis yale submission.",
+            "descMySubmissions": "Landzela ubuke emaGap Assessments akho edijithali.",
+            "errorLoading": "Liphutsa ekulayisheni tethulo",
+            "retry": "Zama Futhi",
+            "noCooperative": "Awekho cooperative lechaziwe kumsebenti wakho.",
+            "noSubmissionsForAssessment": "Awekho tethulo letifunyenwe kule assessment.",
+            "noSubmissionsForOrg": "Awekho tethulo letifunyenwe enhlanganweni yakho.",
+            "noSubmissionsForCoop": "Awekho tethulo letifunyenwe kule cooperative yakho.",
+            "noSubmissions": "Awekho tethulo letifunyenwe."
+        },
+        "chart": {
+            "assessment": "Umhlati",
+            "currentState": "Simo Samuhla",
+            "desiredState": "Simo Lesifunwa",
+            "noData": "Awekho Idatha"
+        },
+        "detail": {
+            "currentLevel": "Level Lamuhla",
+            "description": "Inchazelo",
+            "descriptionNotFound": "Inchazelo ayitfolakali",
+            "desiredLevel": "Level Lafunwa",
+            "dimensionAssessments": "Tinhlaziyo Tinhlaka",
+            "dimensionAssessmentsDesc": "Umbono wekusebenta etinhlakini temhlati",
+            "errorLoad": "Kwehlulekile kulayisha imininingwane",
+            "errorLoading": "Liphutsa ekulayisheni",
+            "exportPdf": "Hambisa Pdf",
+            "noDimensionAssessments": "Awekho Tinhlaziyo Tinhlaka",
+            "riskLevel": "Level Lebungozi",
+            "riskLevelDesc": "Igap lelikhona emkhatsini welevel lamuhla nalafunwa lihlaziywa kute litfole level lebungozi.",
+            "status": "Simo",
+            "submittedAt": "Kuthunyelwe Ngesikhatsi",
+            "subtitle": "Phatsa imininingwane lapha",
+            "title": "Kuphatsa",
+            "unavailable": "Akatfolakali",
+            "unknownDimension": "Inhlaka Lengatiwa",
+            "untitledAssessment": "Umhlati Longenasihloko"
+        },
+        "list": {
+            "deleteAction": "Susa Tento",
+            "deleteDescription": "Susa Inchazelo",
+            "deleteTitle": "Susa",
+            "deleteWarning": "Delete Warning",
+            "deleting": "Iyasesa",
+            "noValidFound": "Awekho Lokusebentako",
+            "notFound": "Akutfolakali",
+            "overallScore": "Overall Score",
+            "submittedOn": "Kuthunyelwe Ngemhla",
+            "thisSubmission": "Le Submission",
+            "viewDetails": "Buka Imininingwane"
+        },
+        "status": {
+            "completed": "Kuphelile",
+            "draft": "Draft",
+            "under review": "Kuyabukwa",
+            "reviewed": "Kubukiwe"
+        }
+    },
+    "sharedAssessments": {
+        "manage": {
+            "noCooperations": "Awekho ema-cooperative latfolakale",
+            "createCooperationFirst": "Sicela wakhe i-cooperative yinye kucala ungena umhlati.",
+            "title": "Phatsa Emamhlati",
+            "subtitle": "Yakha uphatse emaGap Assessments ema-cooperative akho.",
+            "createBtn": "Yakha Umhlati",
+            "unableToLoadError": "Akukhonakali kulayisha emamhlati",
+            "noCooperativeDetermined": "Awekho cooperative lechaziwe",
+            "resolveCooperativeError": "Asikwati kutfola i-cooperative yakho.",
+            "noDraftsTitle": "Awekho emamhlati eluhlaka",
+            "noDraftsSubtitle": "Qala ngekudala umhlati wakho wekucala we-cooperative."
+        },
+        "adminManageDigitalGaps": {
+            "title": "Phatsa EmaGap e-Digitalisation",
+            "subtitle": "Chaza uphatse emagap labonisa tinselelo tedijithali.",
+            "addBtn": "Ngetela Gap yeDigitalisation",
+            "error": "Liphutsa ekulayisheni emagap edijithali: {{message}}"
+        },
+        "adminGaps": {
+            "title": "EmaGap e-Digitalisation",
+            "addBtn": "Ngetela Gap yeDigitalisation",
+            "list": {
+                "empty": "Awekho emagap edijithali latfolakale."
+            },
+            "validation": {
+                "dimensionRequired": "Inhlaka iyadzingeka",
+                "descriptionRequired": "Inchazelo iyadzingeka",
+                "duplicateGap": "Gap lefanayo kule nhlaka kanye ne-severity seyikhona"
+            },
+            "form": {
+                "titleAdd": "Ngetela Gap yeDigitalisation",
+                "titleEdit": "Hlela Gap yeDigitalisation",
+                "descAdd": "Yakha inchazelo lensha yegap yedijithali.",
+                "descEdit": "Buyeketa imininingwane yegap yedijithali.",
+                "dimension": "Inhlaka",
+                "selectDimension": "Khetha inhlaka",
+                "severity": "Bucayi",
+                "selectSeverity": "Khetha bucayi",
+                "description": "Inchazelo",
+                "descPlaceholder": "Faka inchazelo lebanzi yegap",
+                "saving": "Iyaseva..."
+            },
+            "updateBtn": "Buyeketa Gap yeDigitalisation",
+            "createBtn": "Yakha Gap yeDigitalisation"
+        },
+        "detail": {
+            "assessmentIdNotFound": "ID yemhlati ayitfolakali",
+            "assessmentNotFound": "Umhlati awutfolakali",
+            "digitalGapAssessment": "Gap Assessment",
+            "failedToFetch": "Kwehlulekile kulanda",
+            "finishAssessment": "Qedza Umhlati",
+            "intro": "Singeniso",
+            "loading": "Iyalayisha",
+            "noDimensionsAssigned": "Awekho Tinhlaka Letinikiwe",
+            "noDimensionsConfigured": "Awekho Tinhlaka Letilungisiwe",
+            "progressOf": "Inchubekela phambili ya",
+            "submitError": "Liphutsa ekuhambiseni",
+            "submitSuccess": "Ithunyelwe Ngempumelelo",
+            "subtitle": "Phatsa imininingwane lapha",
+            "unableToLoad": "Akukhonakali kulayisha",
+            "welcome": "Wamukelekile",
+            "yourProgress": "Inchubekela phambili yakho"
+        }
+    },
+    "answerDimension": {
+        "loadingAssessment": "Iyalayisha umhlati…",
+        "failedToLoad": "Kwehlulekile kulayisha imininingwane yenhleka.",
+        "tryAgainLater": "Sicela uzame futsi ngesikhatsi.",
+        "backToAssessment": "Buyela kumhlati",
+        "notAllowed": "Awuvunyelwe kuphendvula le nhlaka.",
+        "notAssigned": "Le nhlaka yemhlati ayinikwanga ku-akhawunti yakho.",
+        "dimensionAssessment": "Umhlati we {{name}}",
+        "lockedBanner": "Le nhlaka inikezwe umsebenti we-cooperative. Ungabuka imiphendvulo kodvwa ungeke uyihlele.",
+        "dismiss": "Vala",
+        "previous": "Langaphambilini",
+        "goBack": "Buyela Emuva",
+        "next": "Landzela"
+    },
+    "adminManageDimensions": {
+        "title": "Phatsa Tinhlaka",
+        "subtitle": "Yakha uphatse tinhlaka tetidijithali letisetjentiswa emamhlatini.",
+        "addBtn": "Ngetela Inhlaka",
+        "error": "Liphutsa ekulayisheni tinhlaka: {{message}}"
+    },
+    "adminManageDigitalLevels": {
+        "titleCurrent": "Phatsa EmaLevel e-Digitalisation Lamuhla",
+        "titleDesired": "Phatsa EmaLevel e-Digitalisation Lafunwa",
+        "selectType": "Sicela ukhetse luhlobo lwelevel.",
+        "cardTitle": "EmaLevel e-Digitalisation",
+        "cardSubtitle": "Kuphatsa emalevel esimo {{type}}",
+        "addBtn": "Ngetela Level"
+    },
+    "adminManageRecs": {
+        "title": "Phatsa Tiphakamiso",
+        "subtitle": "Yakha uphatse tiphakamiso telisu kule nhlaka ngayinye yedijithali.",
+        "addBtn": "Ngetela Siphakamiso",
+        "errorLoading": "Liphutsa ekulayisheni tiphakamiso",
+        "retryBtn": "Zama Futhi",
+        "noRecs": "Atekho tiphakamiso okwamanje",
+        "noRecsSubtitle": "Qala ngekungeza siphakamiso sakho sekucala."
+    },
+    "adminActionPlans": {
+        "title": "Tinhlelo Tento",
+        "subtitle": "Buka uphatse tinhlelo tento tetidijithali tetinhlangano.",
+        "selectOrg": "Khetha Inhlangano",
+        "backToOrgs": "Buyela ku tinhlangano",
+        "selectSubmission": "Khetha i-Submission"
+    },
+    "adminManageActionPlan": {
+        "title": "Kusetha kwe-Action Plan",
+        "subtitle": "Phatsa ulungise imiseto ye-action plan.",
+        "configSettings": "Imiseto Yekusetha",
+        "underDevelopment": "Leli ciko lisebenta okwamanje. Sicela ubuye ngesikhatsi."
+    },
+    "adminManageDigitalGaps": {
+        "title": "Phatsa EmaGap e-Digitalisation",
+        "subtitle": "Chaza uphatse emagap labonisa tinselelo tedijithali.",
+        "addBtn": "Ngetela Gap yeDigitalisation",
+        "error": "Liphutsa ekulayisheni emagap edijithali: {{message}}"
+    },
+    "sidebar": {
+        "admin": {
+            "panelName": "Iphaneli Yemphatsi",
+            "infoText": "Iphaneli yemphatsi wekusetha lonkhe luhlelo, kufaka ekhatsi tinhlangano, tinhlaka netiphakamiso.",
+            "dashboard": "Dashboard",
+            "organizations": "Tinhlangano",
+            "dimensions": "Tinhlaka",
+            "recommendations": "Tiphakamiso",
+            "actionPlan": "Action Plan",
+            "digitalGaps": "EmaGap",
+            "manageUsers": "Phatsa Basebentisi",
+            "viewReports": "Buka Imibiko",
+            "consolidatedReport": "Umbiko Lohlangene"
+        },
+        "secondAdmin": {
+            "panelName": "Umphatsi WeNhlangano",
+            "infoText": "Iphaneli yemaphatsi enhlangano kuphatsa ema-cooperative, basebentisi nemamhlati.",
+            "dashboard": "Dashboard",
+            "cooperatives": "Ema-Cooperative",
+            "manageUsers": "Phatsa Basebentisi",
+            "createAssessment": "Yakha Umhlati",
+            "actionPlan": "Action Plan",
+            "submissions": "Tethulo",
+            "consolidatedReport": "Umbiko Lohlangene"
+        },
+        "thirdAdmin": {
+            "panelName": "Umphatsi we-Cooperative",
+            "infoText": "Iphaneli yemaphatsi we-cooperative kuphatsa basebentisi baphendvule emamhlati.",
+            "dashboard": "Dashboard",
+            "manageUsers": "Phatsa Basebentisi",
+            "answerAssessment": "Phendvula Umhlati",
+            "actionPlan": "Buka i-Action Plan",
+            "viewSubmissions": "Buka Tethulo"
+        },
+        "user": {
+            "panelName": "Umsebenti we-Cooperative",
+            "infoText": "Iphaneli yemasebenti we-cooperative yakha emamhlati abuke ema-action plan.",
+            "dashboard": "Dashboard",
+            "answerAssessment": "Phendvula Umhlati",
+            "actionPlan": "Action Plan",
+            "submissions": "Tethulo"
+        }
+    },
+    "adminGaps": {
+        "createBtn": "Yakha",
+        "delete": {
+            "confirm": "Qinisekisa",
+            "deleting": "Iyasesa",
+            "description": "Inchazelo",
+            "title": "Kuphatsa"
+        },
+        "form": {
+            "descAdd": "Desc Add",
+            "descEdit": "Desc Edit",
+            "descPlaceholder": "Desc Placeholder",
+            "description": "Inchazelo",
+            "dimension": "Inhlaka",
+            "saving": "Iyaseva",
+            "selectDimension": "Khetha Inhlaka",
+            "selectSeverity": "Khetha Bucayi",
+            "severity": "Bucayi",
+            "titleAdd": "Title Add",
+            "titleEdit": "Title Edit"
+        },
+        "list": {
+            "actions": "Tento",
+            "description": "Inchazelo",
+            "gapCount": "Inani Lemagap",
+            "severity": "Bucayi"
+        },
+        "updateBtn": "Update Btn",
+        "validation": {
+            "descriptionRequired": "Inchazelo iyadzingeka",
+            "dimensionRequired": "Inhlaka iyadzingeka",
+            "duplicateGap": "Duplicate Gap"
+        }
+    },
+    "adminManageGapRecs": {
+        "subtitle": "Phatsa imininingwane lapha",
+        "title": "Kuphatsa"
+    },
+    "adminManageOrgs": {
+        "error": "Liphutsa",
+        "noOrgs": "Awekho Tinhlangano",
+        "noOrgsSubtitle": "No Orgs Sub",
+        "subtitle": "Buka uphatse tinhlangano letibhalisiwe.",
+        "title": "Phatsa Tinhlangano"
+    },
+    "assessmentDetail": {
+        "dimensionsSubtitle": "Dimensions Sub",
+        "errorFetch": "Error Fetch",
+        "errorNotFound": "Error Not Found"
+    },
+    "shared": {
+        "actionPlans": {
+            "actionItem": "Into Yento",
+            "addBtn": "Ngetela tento",
+            "addNewActionItem": "Ngetela Into Yento Lensha",
+            "adding": "Iyengeza",
+            "approved": "Ivunyiwe",
+            "cancel": "Khansela",
+            "createFailed": "Kwehlulekile Kwakha",
+            "createSuccess": "Kwakhiwe Ngempumelelo",
+            "createdOn": "Yakhiwe Ngemhla",
+            "delete": "Susa",
+            "deleteAction": "Susa tento",
+            "deleteActionItemTitle": "Susa Into Yento",
+            "deleteDesc": "Delete Desc",
+            "deleting": "Iyasesa",
+            "descPlaceholder": "Desc Placeholder",
+            "description": "Inchazelo",
+            "dimension": "Inhlaka",
+            "done": "Kuphelile",
+            "editAction": "Hlela tento",
+            "editActionItemTitle": "Hlela Into Yento",
+            "error": "Liphutsa",
+            "errorLoading": "Liphutsa ekulayisheni",
+            "failedUpdateStatus": "Kwehlulekile kubuyeketa simo",
+            "inProgress": "Kusebenteni",
+            "moveToNext": "Yisa kuluhlu lolulandzelako",
+            "moveToPrev": "Yisa kuluhlu lwangaphambilini",
+            "movedTo": "Yiswe Ku",
+            "noActionPlan": "Ate i-Action Plan",
+            "noActionPlans": "Awekho Tinhlelo Tento",
+            "noActionPlansDesc": "No Action Plans Desc",
+            "noItemsApproved": "Awekho items letevunyiwe",
+            "noItemsCompleted": "Awekho items leticedvwe",
+            "noItemsInProgress": "Awekho items latasebenteni",
+            "noItemsTodo": "Awekho items latofanele tentwe",
+            "planDescription": "Inchazelo Yephulani",
+            "priority": "Kubaluleka",
+            "priorityHigh": "PHETSE",
+            "priorityLow": "PHANSI",
+            "priorityMedium": "MAPHAKATHI",
+            "priorityWord": "KUBALULEKA",
+            "selectDimError": "Select Dim Error",
+            "selectDimension": "Khetha Inhlaka",
+            "selectPriority": "Khetha Kubaluleka",
+            "statusApproved": "IVUNYIWE",
+            "statusCompleted": "ICIPHILE",
+            "statusInProgress": "KUSEBENTENI",
+            "statusNotStarted": "AKAKACALI",
+            "todo": "Kufanele Kwenteke",
+            "unknownAssessment": "Umhlati Longatiwa",
+            "unknownDimension": "Inhlaka Lengatiwa",
+            "updateBtn": "Update Btn",
+            "updating": "Ibuyeketa",
+            "viewPlan": "Buka Iphulani"
+        },
+        "assessments": {
+            "answer": "Phendvula",
+            "assessmentName": "Ligama Lemhlati",
+            "assignedTo": "Nikwe Ku",
+            "cancel": "Khansela",
+            "continue": "Chubeka",
+            "cooperative": "Cooperative",
+            "createBtn": "Yakha Umhlati",
+            "createDesc": "Chaza ligama lemhlati, khetha i-cooperative letawuthola umhlati, bese ukhetha tinhlaka lotawuhlola.",
+            "createTitle": "Yakha Umhlati Lomusha",
+            "creating": "Iyakha...",
+            "deleteAria": "Delete Aria",
+            "deleteDesc": "Delete Desc",
+            "deleteTitle": "Susa",
+            "dimensions": "Tinhlaka",
+            "draftAssessment": "Umhlati Weluhlaka",
+            "loadingDimensions": "Iyalayisha Tinhlaka",
+            "namePlaceholder": "Faka ligama lemhlati...",
+            "noDimensionsDesc": "No Dimensions Desc",
+            "noDimensionsTitle": "Awekho Tinhlaka",
+            "ok": "Kulungile",
+            "selectCoop": "Khetha i-Cooperative",
+            "selectDims": "Khetha Tinhlaka"
+        },
+        "dimensionCard": {
+            "assigned": "Inikiwe",
+            "assignedToCoopUser": "Inikiwe Kumsebenti weCoop",
+            "completed": "Kuphelile",
+            "modify": "Shintja",
+            "start": "Qala"
+        },
+        "errorBoundary": {
+            "description": "Inchazelo",
+            "errorDetails": "Imininingwane Yeliphutsa",
+            "refreshPage": "Vuselela Ikhasi",
+            "title": "Kuphatsa",
+            "tryAgain": "Zama Futhi"
+        },
+        "invitationPending": {
+            "description": "Inchazelo",
+            "logout": "Phuma",
+            "title": "Kuphatsa"
+        },
+        "loading": {
+            "loadingAria": "Loading Aria"
+        },
+        "reports": {
+            "chooseSubmissionDesc": "Choose Submission Desc",
+            "failedToLoadSubmissions": "Kwehlulekile kulayisha tethulo",
+            "generatePdf": "Yakha Pdf",
+            "generating": "Iyenta",
+            "generationFailed": "Kwehlulekile Kwakha",
+            "noSubmissionsFound": "Awekho Tethulo Letifunyenwe",
+            "selectSubmission": "Khetha i-Submission",
+            "selectSubmissionInfo": "Select Submission Info",
+            "submittedOn": "Kuthunyelwe Ngemhla",
+            "unknownDate": "Lusuku Lolungatiwa",
+            "unknownError": "Liphutsa Lolungatiwa"
+        },
+        "gap_severity": {
+            "LOW": "PHANSI",
+            "MEDIUM": "MAPHAKATHI",
+            "HIGH": "PHETSE"
+        }
+    },
+    "test": {
+        "com": "Com"
+    },
+    "sharedLanguage": {
+        "placeholder": "Placeholder"
+    },
+    "sharedSidebar": {
+        "collapse": "Vala",
+        "expand": "Vula"
+    },
+    "adminManageUsers": {
+        "title": "Phatsa Basebentisi",
+        "subtitle": "Phatsa ema-akhawunti ebasebentisi nemvume yesistimu."
+    },
+    "inviteUser": "Mema Umsebenti"
+}

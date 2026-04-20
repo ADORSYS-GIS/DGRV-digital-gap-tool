@@ -1,0 +1,1390 @@
+{
+    "common": {
+        "cancel": "Cancelar",
+        "save": "Salvar",
+        "edit": "Editar",
+        "delete": "Eliminar",
+        "saving": "A guardar...",
+        "deleting": "A eliminar...",
+        "noTitle": "Sem Título",
+        "noDescription": "Nenhuma descrição disponível.",
+        "back": "Voltar",
+        "next": "Seguinte",
+        "submit": "Submeter",
+        "form": "Formulário",
+        "status": "Estado",
+        "loading": "A carregar...",
+        "actions": "Ações",
+        "emptySearch": "Nenhum resultado corresponde à sua pesquisa.",
+        "emptyAction": "Clique em {{action}} para começar.",
+        "errorOccurred": "Ocorreu um erro",
+        "unknownError": "Erro desconhecido"
+    },
+    "offline": {
+        "banner": "Você está offline. As suas respostas estão guardadas localmente e serão sincronizadas quando voltar a ficar online.",
+        "assessmentBanner": "Você está offline. As suas respostas estão a ser guardadas localmente e serão sincronizadas automaticamente quando voltar a ficar online.",
+        "syncStart": "Online novamente – a sincronizar dados guardados…",
+        "syncDone": "Todos os dados foram sincronizados com sucesso.",
+        "offlineNotice": "Você está offline. O seu trabalho será guardado localmente e sincronizado quando voltar a ficar online."
+    },
+    "adminDimensions": {
+        "title": "Dimensões",
+        "addBtn": "Adicionar Dimensão",
+        "updateBtn": "Atualizar Dimensão",
+        "form": {
+            "titleAdd": "Adicionar Nova Dimensão",
+            "titleEdit": "Editar Dimensão",
+            "name": "Nome da Dimensão",
+            "description": "Descrição",
+            "saving": "A guardar...",
+            "updating": "A atualizar...",
+            "namePlaceholder": "Introduza o nome da dimensão",
+            "descPlaceholder": "Introduza a descrição da dimensão",
+            "descAdd": "Desc Add",
+            "descEdit": "Desc Edit",
+            "descPlaceholderAdd": "Desc Placeholder Add",
+            "namePlaceholderAdd": "Name Placeholder Add"
+        },
+        "validation": {
+            "nameRequired": "O nome é obrigatório",
+            "descRequired": "A descrição é obrigatória"
+        },
+        "list": {
+            "empty": "Nenhuma dimensão encontrada.",
+            "emptyDescription": "Descrição Vazia",
+            "emptyTitle": "Vazio"
+        },
+        "card": {
+            "delete": "Eliminar",
+            "manageLevels": "Gerir Níveis"
+        },
+        "createBtn": "Criar",
+        "delete": {
+            "confirm": "Confirmar",
+            "deleting": "A eliminar",
+            "description": "Descrição",
+            "title": "Gestão"
+        }
+    },
+    "adminLevels": {
+        "title": "Níveis de Digitalização",
+        "addBtn": "Adicionar Nível",
+        "updateBtn": "Atualizar Nível",
+        "form": {
+            "titleAddCurrent": "Adicionar Nível Atual",
+            "titleAddDesired": "Adicionar Nível Desejado",
+            "titleEdit": "Editar Nível",
+            "levelId": "ID do Nível",
+            "levelName": "Nome do Nível",
+            "description": "Descrição",
+            "saving": "A guardar...",
+            "updating": "A atualizar..."
+        },
+        "validation": {
+            "titleRequired": "O título é obrigatório",
+            "descRequired": "A descrição é obrigatória",
+            "stateRequired": "Por favor, selecione um estado",
+            "idRequired": "O ID do Nível é obrigatório",
+            "stateExists": "Este ID de Nível já existe",
+            "stateNumber": "O estado deve ser um número"
+        },
+        "card": {
+            "delete": "Eliminar"
+        },
+        "delete": {
+            "title": "Tem a certeza?",
+            "description": "Esta ação não pode ser desfeita. O nível será eliminado permanentemente.",
+            "confirm": "Continuar",
+            "deleting": "A eliminar..."
+        },
+        "list": {
+            "emptyCurrent": "Nenhum nível encontrado para este estado."
+        },
+        "selectState": {
+            "title": "Gerir Níveis de Digitalização",
+            "description": "Escolha o estado que deseja configurar.",
+            "currentTitle": "Estado Atual",
+            "currentDesc": "Defina os níveis atuais.",
+            "desiredTitle": "Estado Desejado",
+            "desiredDesc": "Defina os níveis alvo."
+        }
+    },
+    "adminOrgs": {
+        "form": {
+            "titleAdd": "Adicionar Nova Organização",
+            "titleEdit": "Editar Organização",
+            "descAdd": "Introduza os detalhes para criar uma nova cooperativa.",
+            "descEdit": "Atualize as informações da organização.",
+            "name": "Nome da Organização",
+            "domain": "Domínio",
+            "description": "Descrição",
+            "namePlaceholder": "ex.: GreenValleyCoop",
+            "domainPlaceholder": "ex.: greenvalley.com",
+            "descPlaceholder": "Breve descrição da organização",
+            "saving": "A adicionar...",
+            "updating": "A atualizar..."
+        },
+        "validation": {
+            "nameRequired": "O nome da organização é obrigatório",
+            "nameNoSpaces": "Não são permitidos espaços no nome",
+            "domainRequired": "O domínio é obrigatório",
+            "nameMin": "O nome deve ter pelo menos 2 caracteres.",
+            "domainMin": "O domínio deve ter pelo menos 2 caracteres."
+        },
+        "card": {
+            "domain": "Domínio",
+            "description": "Descrição",
+            "manageUsers": "Gerir Utilizadores",
+            "dimensions": "Dimensões",
+            "edit": "Editar",
+            "delete": "Eliminar",
+            "assignDimensions": "Atribuir Dimensão",
+            "assignDimensionsDesc": "Atribuir dimensões a esta organização"
+        },
+        "list": {
+            "title": "Organizações",
+            "emptyTitle": "Nenhuma organização encontrada",
+            "emptyDesc": "Comece adicionando a sua primeira organização."
+        },
+        "delete": {
+            "title": "Tem a certeza?",
+            "description": "Esta ação não pode ser desfeita. A organização e todos os seus dados serão eliminados permanentemente dos nossos servidores.",
+            "confirm": "Continuar",
+            "deleting": "A eliminar..."
+        },
+        "addBtn": "Adicionar Organização",
+        "createBtn": "Criar Organização",
+        "updateBtn": "Atualizar Organização",
+        "assignDimensions": "Atribuir Dimensões"
+    },
+    "adminRecommendations": {
+        "title": "Recomendações",
+        "addBtn": "Adicionar Recomendação",
+        "updateBtn": "Atualizar Recomendação",
+        "form": {
+            "titleAdd": "Adicionar Nova Recomendação",
+            "titleEdit": "Editar Recomendação",
+            "descAdd": "Preencha os detalhes abaixo para criar uma nova recomendação.",
+            "descEdit": "Atualize os detalhes da recomendação abaixo.",
+            "dimension": "Dimensão",
+            "priority": "Prioridade",
+            "description": "Descrição",
+            "dimPlaceholder": "Selecione uma dimensão",
+            "prioPlaceholder": "Selecione a prioridade",
+            "descPlaceholder": "Introduza uma descrição detalhada",
+            "adding": "A adicionar...",
+            "updating": "A atualizar..."
+        },
+        "validation": {
+            "dimensionRequired": "A dimensão é obrigatória",
+            "priorityRequired": "A prioridade é obrigatória",
+            "descriptionRequired": "A descrição é obrigatória",
+            "alreadyExists": "Já existe uma recomendação com esta prioridade para a dimensão selecionada."
+        },
+        "list": {
+            "empty": "Nenhuma recomendação encontrada.",
+            "emptyDesc": "Clique em \"Adicionar Recomendação\" para criar uma.",
+            "summary": "{{total}} recomendações no total em {{dimCount}} dimensões",
+            "recommendation": "recomendação",
+            "recommendations": "recomendações"
+        },
+        "card": {
+            "synced": "Sincronizado",
+            "pending": "Pendente",
+            "edit": "Editar",
+            "delete": "Eliminar",
+            "deleting": "A eliminar...",
+            "confirmDelete": "Tem a certeza de que deseja eliminar esta recomendação?"
+        },
+        "priorities": {
+            "low": "Baixa",
+            "medium": "Média",
+            "high": "Alta"
+        }
+    },
+    "adminReports": {
+        "submissions": {
+            "title": "Submissões de Avaliações",
+            "empty": "Nenhuma submissão de avaliação encontrada para esta organização.",
+            "submittedOn": "Submetido em",
+            "exportReport": "Exportar Relatório",
+            "viewActionPlan": "Ver Plano de Ação",
+            "exportSuccess": "Relatório descarregado com sucesso!",
+            "exportError": "Falha ao descarregar o relatório: {{error}}"
+        },
+        "organizations": {
+            "title": "Relatórios de Organizações",
+            "errorLoading": "Erro ao carregar organizações: {{error}}"
+        },
+        "backToOrgs": "Voltar às Organizações",
+        "selectOrg": "Selecionar Org",
+        "submissionsForOrg": "Submissões da Organização",
+        "subtitleAll": "Subtitle All",
+        "subtitleOrg": "Subtitle Org",
+        "title": "Gestão"
+    },
+    "assessmentAnswering": {
+        "validation": {
+            "selectLevels": "Por favor, selecione tanto o nível atual como o desejado",
+            "unexpectedError": "Ocorreu um erro inesperado"
+        },
+        "errors": {
+            "notConfigured": "Esta dimensão ainda não foi totalmente configurada com descrições de níveis. Por favor, contacte o administrador.",
+            "loadGapError": "Falha ao carregar a descrição da lacuna.",
+            "noGapFound": "Nenhuma descrição de lacuna encontrada."
+        },
+        "dimension": {
+            "currentLevel": "Nível Atual",
+            "desiredLevel": "Nível Desejado",
+            "selectCurrent": "Selecione o seu nível atual para esta dimensão",
+            "selectDesired": "Selecione o seu nível desejado para esta dimensão",
+            "yourCurrent": "O Seu Nível Atual",
+            "yourDesired": "O Seu Nível Desejado"
+        },
+        "form": {
+            "submitting": "A submeter...",
+            "submit": "Submeter Avaliação",
+            "analyzing": "A analisar a sua lacuna...",
+            "analysis": "Análise da Avaliação",
+            "gapAnalysis": "Análise da Lacuna de Digitalização",
+            "severity": "Gravidade",
+            "risk": "RISCO",
+            "noDescription": "Nenhuma descrição disponível"
+        },
+        "selector": {
+            "levelRange": "Nível {{current}} de {{total}}: {{name}}",
+            "prev": "Nível anterior",
+            "next": "Próximo nível",
+            "ariaLabel": "Nível {{level}}"
+        }
+    },
+    "userComponents": {
+        "assessment": {
+            "title": "Avaliação Atual",
+            "description": "Continue a sua Análise de Lacunas em curso",
+            "continue": "Continuar Avaliação",
+            "lastUpdated": "Última atualização: {{date}}",
+            "progressLabel": "Progresso"
+        },
+        "actions": {
+            "title": "Ações Rápidas",
+            "description": "Iniciar uma nova avaliação ou ver resultados",
+            "startNew": "Iniciar Nova Avaliação",
+            "viewReports": "Ver Relatórios"
+        },
+        "stats": {
+            "total": "Total de Avaliações",
+            "completion": "Taxa de Conclusão",
+            "average": "Pontuação Média"
+        }
+    },
+    "onboarding": {
+        "welcome": {
+            "title": "Bem-vindo ao Finance Friend",
+            "subtitle": "Vamos configurar a sua cooperativa para a transformação digital.",
+            "subtitleGuest": "Subtitle Guest",
+            "subtitleHello": "Subtitle Hello"
+        },
+        "stepProgress": "Passo {{current}} de {{total}}",
+        "stepDescription": "Complete estes passos rápidos para personalizar a sua experiência de avaliação.",
+        "steps": {
+            "prev": "Anterior",
+            "next": "Seguinte",
+            "finish": "Concluir",
+            "titleHighlight": "Progresso Digital",
+            "description": "Monitore a evolução da sua cooperativa em várias dimensões de digitalização com métricas intuitivas.",
+            "basics": "Básicos",
+            "dimensions": "Dimensões",
+            "completion": "Conclusão",
+            "back": "Voltar",
+            "begin": "Começar",
+            "completionDesc": "Completion Desc",
+            "ready": "Pronto",
+            "step0": {
+                "description": "Descrição",
+                "title": "Gestão",
+                "titleHighlight": "Title Highlight"
+            },
+            "step1": {
+                "description": "Descrição",
+                "title": "Gestão",
+                "titleHighlight": "Title Highlight"
+            },
+            "step2": {
+                "description": "Descrição",
+                "title": "Gestão",
+                "titleHighlight": "Title Highlight"
+            }
+        },
+        "step1": {
+            "title": "Definir Metas",
+            "titleHighlight": "Estratégicas Claras",
+            "description": "Defina para onde quer ir e estabeleça metas claras para a sua transformação digital."
+        },
+        "step2": {
+            "title": "Recomendações",
+            "titleHighlight": "Acionáveis",
+            "description": "Receba conselhos específicos e baseados em dados adaptados ao estado atual e objetivos da sua cooperativa."
+        },
+        "title": "Bem-vindo ao Finance Friend",
+        "subtitle": "Vamos configurar a sua cooperativa para a transformação digital.",
+        "completion": {
+            "title": "Configuração Concluída!",
+            "message": "A sua cooperativa está agora pronta para iniciar a sua jornada de avaliação digital.",
+            "cta": "Ir para o Painel"
+        },
+        "context": {
+            "description": "Descrição",
+            "list": "Lista",
+            "title": "Gestão"
+        },
+        "error": {
+            "description": "Descrição",
+            "title": "Gestão"
+        }
+    },
+    "context": {
+        "title": "Por que este onboarding?",
+        "description": "Esta introdução rápida ajuda-o a entender como usar a Ferramenta de Avaliação de Lacunas de forma eficaz:",
+        "list": [
+            "Entenda o seu nível atual de digitalização em várias dimensões",
+            "Defina o seu estado futuro desejado e prioridades",
+            "Receba recomendações baseadas em dados e próximos passos acionáveis"
+        ]
+    },
+    "secondAdminCooperations": {
+        "add": {
+            "title": "Adicionar nova cooperativa",
+            "description": "Crie um novo perfil de cooperativa para começar a acompanhar avaliações e planos de ação.",
+            "triggerLabel": "Adicionar cooperativa",
+            "loadingLabel": "A guardar cooperativa…",
+            "ariaLabel": "Formulário de criação de cooperativa",
+            "nameLabel": "Nome",
+            "namePlaceholder": "ex.: Green Valley Cooperative",
+            "nameHelper": "Use o nome oficial reconhecido pelos administradores e membros.",
+            "descriptionLabel": "Descrição",
+            "descriptionPlaceholder": "Descreva brevemente a cooperativa, o seu foco e membros.",
+            "descriptionHelper": "Isto ajuda outros administradores a entenderem rapidamente o que é esta cooperativa.",
+            "cancel": "Cancelar",
+            "submit": "Criar cooperativa",
+            "saving": "A guardar…"
+        },
+        "edit": {
+            "title": "Editar cooperativa",
+            "description": "Atualize as informações do perfil da cooperativa. As alterações são aplicadas imediatamente após guardar.",
+            "triggerLabel": "Editar",
+            "ariaLabel": "Formulário de edição de cooperativa",
+            "submit": "Guardar alterações"
+        },
+        "delete": {
+            "triggerLabel": "Eliminar",
+            "title": "Tem a certeza?",
+            "description": "Esta ação não pode ser desfeita. A cooperativa e todos os seus dados serão eliminados permanentemente.",
+            "cancel": "Cancelar",
+            "confirm": "Continuar"
+        },
+        "card": {
+            "srCooperative": "Cooperativa",
+            "profileLabel": "Perfil da cooperativa",
+            "noDescription": "Ainda não foi fornecida nenhuma descrição para esta cooperativa."
+        },
+        "simpleCard": {
+            "srCooperation": "Cooperação"
+        },
+        "assign": {
+            "trigger": "Atribuir Dimensões"
+        }
+    },
+    "secondAdminCooperationUsers": {
+        "add": {
+            "title": "Adicionar novo utilizador",
+            "description": "Convide um novo administrador ou membro para esta cooperativa. Eles receberão um e-mail com os detalhes de acesso após a criação da conta.",
+            "triggerLabel": {
+                "inviting": "A convidar utilizador...",
+                "add": "Adicionar utilizador"
+            },
+            "form": {
+                "ariaLabel": "Formulário de adição de utilizador da cooperativa",
+                "emailLabel": "E-mail",
+                "firstNameLabel": "Nome próprio",
+                "firstNamePlaceholder": "Opcional",
+                "lastNameLabel": "Apelido",
+                "lastNamePlaceholder": "Opcional",
+                "dimensionsLabel": "Dimensões que este utilizador pode responder",
+                "dimensionsDescription": "Selecione as dimensões de avaliação que este utilizador da Cooperativa tem permissão para responder. Ele só verá e responderá a estas dimensões nas avaliações atribuídas.",
+                "noDimensions": "Nenhuma dimensão disponível para esta organização.",
+                "roleLabel": "Função",
+                "roleCoopAdmin": "Administrador da Cooperativa",
+                "roleCoopUser": "Utilizador da Cooperativa",
+                "noRole": "Nenhuma função será atribuída com as suas permissões atuais",
+                "cancel": "Cancelar",
+                "submit": "Enviar convite",
+                "submitting": "A adicionar...",
+                "adding": "A adicionar"
+            },
+            "toast": {
+                "success": "Utilizador convidado com sucesso.",
+                "error": "Falha ao convidar o utilizador."
+            }
+        },
+        "list": {
+            "columns": {
+                "email": "E-mail",
+                "firstName": "Nome próprio",
+                "lastName": "Apelido",
+                "verified": "E-mail verificado",
+                "actions": "Ações"
+            },
+            "status": {
+                "verified": "Verificado",
+                "pending": "Pendente"
+            },
+            "actions": {
+                "delete": "Eliminar"
+            }
+        },
+        "edit": {
+            "title": "Editar dimensões do utilizador",
+            "description": "Atualize as dimensões que este utilizador tem permissão para responder.",
+            "triggerLabel": "Editar",
+            "toast": {
+                "success": "Dimensões do utilizador atualizadas com sucesso.",
+                "error": "Falha ao atualizar as dimensões do utilizador."
+            },
+            "saving": "A guardar..."
+        },
+        "form": {
+            "submit": "Submeter"
+        }
+    },
+    "adminDashboard": {
+        "title": "Bem-vindo, Administrador",
+        "welcomePrefix": "Bem-vindo de volta ",
+        "defaultAdmin": "Administrador",
+        "welcomeSuffix": "",
+        "stats": {
+            "orgs": {
+                "title": "Organizações",
+                "desc": "Total de organizações ativas"
+            },
+            "users": {
+                "title": "Utilizadores",
+                "desc": "Total de utilizadores ativos em todas as organizações"
+            },
+            "assessments": {
+                "title": "Avaliações",
+                "desc": "Total de submissões recebidas"
+            },
+            "dimensions": {
+                "title": "Dimensões",
+                "desc": "Dimensões de avaliação ativas"
+            }
+        },
+        "tools": {
+            "title": "Ferramentas de Gestão",
+            "orgs": {
+                "title": "Organizações",
+                "desc": "Gerir organizações e seus metadados"
+            },
+            "users": {
+                "title": "Gerir Utilizadores",
+                "desc": "Convidar e gerir administradores do sistema"
+            },
+            "dimensions": {
+                "title": "Dimensões",
+                "desc": "Gerir dimensões de avaliação"
+            },
+            "gaps": {
+                "title": "Lacunas",
+                "desc": "Definir e gerir tipos de lacunas de digitalização"
+            },
+            "recommendations": {
+                "title": "Recomendações",
+                "desc": "Configurar recomendações de avaliação digital"
+            },
+            "actionPlans": {
+                "title": "Planos de Ação",
+                "desc": "Rever e atualizar modelos de planos de ação"
+            },
+            "reports": {
+                "title": "Ver Relatórios",
+                "desc": "Rever e exportar relatórios abrangentes"
+            },
+            "consolidated": {
+                "title": "Relatório Consolidado",
+                "desc": "Ver análise geral de todo o sistema"
+            }
+        },
+        "recent": {
+            "title": "Atividade Recente",
+            "desc": "Últimas submissões de avaliações no sistema",
+            "viewAll": "Ver Todas",
+            "error": "Falha ao carregar atividade recente: {{message}}"
+        }
+    },
+    "sharedUsers": {
+        "table": {
+            "name": "Nome",
+            "email": "E-mail",
+            "role": "Função",
+            "status": "Estado",
+            "cooperative": "Cooperativa",
+            "actions": "Ações",
+            "noUsers": "Nenhum utilizador encontrado.",
+            "firstName": "Nome Próprio",
+            "lastName": "Apelido",
+            "roles": {
+                "orgAdmin": "Admin da Org"
+            },
+            "sectionLabel": "Secção",
+            "statusLabel": {
+                "active": "Ativo",
+                "inactive": "Inativo",
+                "pending": "Pendente"
+            }
+        },
+        "status": {
+            "active": "Ativo",
+            "inactive": "Inativo",
+            "pending": "Pendente",
+            "invited": "Convidado"
+        },
+        "roles": {
+            "admin": "Administrador",
+            "user": "Utilizador",
+            "coop_admin": "Administrador da Cooperativa",
+            "coop_user": "Utilizador da Cooperativa",
+            "org_admin": "Administrador da Organização"
+        },
+        "delete": {
+            "title": "Eliminar Utilizador",
+            "description": "Tem a certeza de que deseja eliminar este utilizador? Esta ação não pode ser desfeita.",
+            "confirm": "Eliminar",
+            "cancel": "Cancelar",
+            "success": "Utilizador eliminado com sucesso",
+            "error": "Falha ao eliminar o utilizador",
+            "deleting": "A eliminar"
+        },
+        "invite": {
+            "title": "Convidar Novo Utilizador",
+            "description": "Enviar um convite a um novo utilizador para se juntar ao sistema.",
+            "name": "Nome Completo",
+            "email": "Endereço de E-mail",
+            "role": "Função no Sistema",
+            "cooperative": "Atribuir a Cooperativa",
+            "selectRole": "Selecione uma função",
+            "selectCoop": "Selecione uma cooperativa",
+            "cancel": "Cancelar",
+            "submit": "Enviar Convite",
+            "sending": "A enviar...",
+            "success": "Convite enviado com sucesso",
+            "error": "Falha ao enviar o convite",
+            "validation": {
+                "name": "O nome é obrigatório",
+                "email": "Endereço de e-mail inválido",
+                "role": "A função é obrigatória",
+                "firstNameRequired": "Nome Próprio Obrigatório",
+                "invalidEmail": "E-mail Inválido",
+                "lastNameRequired": "Apelido Obrigatório",
+                "roleRequired": "Função Obrigatória"
+            },
+            "form": {
+                "email": "E-mail",
+                "emailPlaceholder": "Email Placeholder",
+                "firstName": "Nome Próprio",
+                "firstNamePlaceholder": "First Name Placeholder",
+                "inviting": "A convidar",
+                "lastName": "Apelido",
+                "lastNamePlaceholder": "Last Name Placeholder",
+                "role": "Função",
+                "submit": "Submeter"
+            },
+            "toast": {
+                "error": "Erro",
+                "success": "Sucesso"
+            }
+        }
+    },
+    "userDashboard": {
+        "header": {
+            "panel": "Painel da Cooperativa",
+            "title": "Painel",
+            "welcome": "Bem-vindo de volta <1>{{name}}</1>. Reveja as suas últimas avaliações e progresso.",
+            "defaultUser": "Utilizador"
+        },
+        "cards": {
+            "answer": {
+                "title": "Responder à Avaliação",
+                "description": "Complete a sua Avaliação de Lacunas"
+            },
+            "actionPlan": {
+                "title": "Plano de Ação",
+                "description": "Ver a sua estratégia de digitalização"
+            },
+            "submissions": {
+                "title": "As Minhas Submissões",
+                "description": "Reveja as suas avaliações anteriores"
+            }
+        },
+        "reports": {
+            "export": {
+                "title": "Exportar Relatórios",
+                "description": "Descarregue os resultados das suas avaliações"
+            },
+            "recent": {
+                "title": "Atividade Recente",
+                "description": "As suas últimas submissões de avaliações",
+                "viewAll": "Ver Todas",
+                "error": "Falha ao carregar submissões recentes",
+                "empty": "Nenhuma submissão recente encontrada"
+            }
+        },
+        "chart": {
+            "title": "Perfil Digital da Cooperativa",
+            "description": "Visão geral dos resultados da sua última avaliação"
+        }
+    },
+    "thirdAdmin": {
+        "header": {
+            "defaultType": "Painel da Cooperativa",
+            "title": "Painel do Administrador da Cooperativa",
+            "welcome": "Bem-vindo de volta <1>{{name}}</1>. Use estas ferramentas para manter as avaliações, utilizadores e planos de ação da sua cooperativa em dia.",
+            "defaultUser": "Administrador"
+        },
+        "cards": {
+            "manageUsers": {
+                "title": "Gerir Utilizadores",
+                "description": "Convidar e gerir funcionários da cooperativa"
+            },
+            "answerAssessment": {
+                "title": "Responder à Avaliação",
+                "description": "Completar Avaliações de Lacunas"
+            },
+            "viewActionPlan": {
+                "title": "Planos de Ação",
+                "description": "Rever a sua estratégia de digitalização"
+            },
+            "viewSubmissions": {
+                "title": "Submissões",
+                "description": "Acompanhar a conclusão das avaliações"
+            }
+        },
+        "reports": {
+            "export": {
+                "title": "Exportar Relatórios",
+                "description": "Descarregar resultados das avaliações"
+            },
+            "recent": {
+                "title": "Atividade Recente",
+                "description": "Últimas submissões de avaliações",
+                "viewAll": "Ver Todas",
+                "error": "Falha ao carregar submissões recentes",
+                "empty": "Nenhuma submissão recente encontrada"
+            }
+        },
+        "chart": {
+            "title": "Perfil Digital da Cooperativa",
+            "description": "Visão geral dos resultados da última avaliação"
+        }
+    },
+    "home": {
+        "hero": {
+            "title": "Ferramenta de Avaliação de Lacunas",
+            "subtitle": "Capacitar cooperativas com transformação digital baseada em dados",
+            "description": "Identifique, meça e preencha as Lacunas na sua cooperativa. Obtenha insights acionáveis e recomendações estratégicas adaptadas à sua organização.",
+            "getStarted": "Começar Agora",
+            "continueToDashboard": "Ir para o Painel"
+        },
+        "features": {
+            "title": "Principais Funcionalidades",
+            "subtitle": "Tudo o que precisa para avaliar e melhorar a maturidade digital da sua cooperativa",
+            "gapAssessment": {
+                "title": "Avaliação de Lacunas",
+                "desc": "Identifique lacunas em várias dimensões de digitalização."
+            },
+            "strategy": {
+                "title": "Planeamento Estratégico",
+                "desc": "Defina metas claras e um roteiro para a transformação digital."
+            },
+            "tracking": {
+                "title": "Acompanhamento de Progresso",
+                "desc": "Monitore a jornada de digitalização da sua organização ao longo do tempo."
+            }
+        },
+        "header": {
+            "logoText": "D.G. MEMBER INSTITUTION",
+            "login": "Iniciar Sessão"
+        },
+        "benefits": {
+            "title": "Por que Escolher Esta Ferramenta?",
+            "subtitle": "Desenvolvida especificamente para cooperativas e organizações membros da DGRV",
+            "empowerment": {
+                "title": "Capacitação dos Membros",
+                "desc": "Dê a cada cooperativa os dados e ferramentas para assumir o controlo da sua jornada digital."
+            },
+            "secure": {
+                "title": "Segura e Confiável",
+                "desc": "Segurança de nível empresarial que garante a proteção dos seus dados."
+            },
+            "accessible": {
+                "title": "Acessível Globalmente",
+                "desc": "Use a ferramenta de qualquer lugar, em vários idiomas."
+            }
+        },
+        "partners": {
+            "title": "Apoiado Por",
+            "subtitle": "Esta ferramenta é desenvolvida e mantida em colaboração com organizações líderes",
+            "dgrv": "Confederação Alemã de Cooperativas e Raiffeisen",
+            "bmz": "Ministério Federal da Cooperação Económica e Desenvolvimento"
+        },
+        "cta": {
+            "title": "Pronto para Iniciar a Sua Transformação Digital?",
+            "subtitle": "Junte-se a centenas de cooperativas que já usam esta ferramenta para gerar mudanças significativas.",
+            "getStartedNow": "Começar Agora",
+            "goDashboard": "Ir para o Painel"
+        },
+        "footer": {
+            "copyright": "© {{year}} Ferramenta de Avaliação de Lacunas DGRV. Todos os direitos reservados.",
+            "privacy": "Política de Privacidade",
+            "terms": "Termos de Serviço",
+            "contact": "Contacto"
+        }
+    },
+    "nav": {
+        "home": "Início",
+        "dashboard": "Painel",
+        "login": "Iniciar Sessão",
+        "logout": "Terminar Sessão",
+        "settings": "Definições",
+        "profile": "Perfil",
+        "signIn": "Iniciar Sessão",
+        "signOut": "Terminar Sessão",
+        "navigation": "Navegação",
+        "account": "Conta",
+        "appDescription": "Ferramenta de Avaliação de Lacunas DGRV",
+        "noData": "Sem Dados",
+        "noEmail": "Sem E-mail",
+        "userProfile": "Perfil do Utilizador"
+    },
+    "consolidatedReport": {
+        "title": "Relatório Consolidado",
+        "subtitle": "Visão geral abrangente da Análise de Lacunas",
+        "exportPDF": "Exportar PDF",
+        "metrics": {
+            "totalSubmissions": "Total de Submissões"
+        },
+        "dimensions": {
+            "title": "Análise por Dimensão",
+            "subtitle": "Detalhe da distribuição de risco e pontuações de lacuna por dimensão",
+            "popoverTitle": "Sobre a Análise por Dimensão",
+            "popoverDesc": "Esta tabela fornece uma análise detalhada da distribuição de risco para cada dimensão em todas as submissões. Ajuda a identificar quais as áreas da sua organização mais expostas a riscos digitais.",
+            "highRiskDesc": "Percentagem de submissões em que a dimensão foi avaliada como alto risco. Áreas de alto risco requerem atenção imediata.",
+            "mediumRiskDesc": "Percentagem de submissões em que a dimensão foi avaliada como risco médio. Estas áreas devem ser monitorizadas.",
+            "lowRiskDesc": "Percentagem de submissões em que a dimensão foi avaliada como baixo risco. Estas são áreas de força.",
+            "table": {
+                "dimension": "Dimensão",
+                "highRisk": "Risco Alto %",
+                "mediumRisk": "Risco Médio %",
+                "lowRisk": "Risco Baixo %"
+            }
+        },
+        "focus": {
+            "high": {
+                "title": "Dimensão de Maior Risco & Recomendações",
+                "subtitle": "Área prioritária que requer atenção imediata",
+                "popover": "Esta dimensão tem a maior pontuação média de risco em todas as submissões. Representa a área mais crítica que requer ação imediata.",
+                "recTitle": "Principais Recomendações de Alta Prioridade"
+            },
+            "medium": {
+                "title": "Dimensão que Necessita de Atenção & Recomendações",
+                "subtitle": "Esta dimensão tem uma lacuna moderada — vale a pena monitorizar e melhorar",
+                "popover": "Esta dimensão tem uma pontuação média de risco moderada. Não é crítica, mas deve ser monitorizada e melhorada ao longo do tempo.",
+                "recTitle": "Recomendações para Melhorar Esta Dimensão"
+            },
+            "low": {
+                "title": "Dimensão com Maior Potencial de Melhoria",
+                "subtitle": "Todas as dimensões estão a ter bom desempenho. Esta tem o maior potencial de crescimento adicional",
+                "popover": "Todas as dimensões estão em baixo risco. Esta dimensão tem a pontuação mais alta entre elas, o que significa que tem mais espaço para melhoria adicional.",
+                "recTitle": "Sugestões para Fortalecer Ainda Mais Esta Dimensão"
+            },
+            "aboutTitle": "Sobre Esta Secção",
+            "aboutDesc": "As recomendações abaixo são adaptadas a esta dimensão e podem ser incorporadas no seu plano de ação.",
+            "avgScore": "Pontuação Média de Risco:",
+            "lowRisk": "Baixo",
+            "mediumRisk": "Médio",
+            "highRisk": "Alto"
+        },
+        "chart": {
+            "title": "Nível de Risco Dominante por Dimensão",
+            "subtitle": "Percentagem do nível de risco dominante por dimensão",
+            "aboutTitle": "Sobre Risco Dominante",
+            "aboutDesc1": "Este gráfico de barras visualiza o nível de risco dominante (Alto, Médio ou Baixo) para cada dimensão. O risco dominante é o nível de risco com a maior percentagem de submissões para essa dimensão.",
+            "aboutDesc2": "Isto fornece uma visão rápida do perfil geral de risco de cada dimensão, ajudando a identificar facilmente quais dimensões são consistentemente classificadas como de alto risco.",
+            "lowRisk": "Baixo Risco",
+            "mediumRisk": "Risco Médio",
+            "highRisk": "Alto Risco"
+        },
+        "errors": {
+            "fetch": "Falha ao obter relatório consolidado",
+            "loadTitle": "Erro ao Carregar Relatório",
+            "tryAgain": "Tentar Novamente"
+        },
+        "empty": {
+            "title": "Nenhum Dado de Relatório Disponível",
+            "desc": "Não existem dados de relatório consolidado para mostrar neste momento.",
+            "refresh": "Atualizar Dados"
+        },
+        "digitalGapAnalysis": "Ferramenta de Avaliação de Lacunas",
+        "footer": {
+            "generatedOn": "Gerado em {{date}}",
+            "pageOf": "Página {{current}} de {{total}}"
+        }
+    },
+    "orgReports": {
+        "loadingError": "Erro ao carregar relatórios: {{message}}",
+        "backToOrgs": "Voltar às Organizações",
+        "title": "Relatórios da Organização",
+        "subtitle": "Ver submissões da Organização {{name}}",
+        "selectSubmission": "Selecionar uma submissão",
+        "noSubmissions": "Nenhuma submissão encontrada para esta organização."
+    },
+    "exportReport": {
+        "missingId": "ID da submissão em falta",
+        "loadingError": "Erro ao carregar relatório: {{message}}",
+        "notFound": "Relatório não encontrado",
+        "back": "Voltar às Submissões",
+        "title": "Exportar Relatório",
+        "subtitle": "Gerar e descarregar um relatório PDF profissional da avaliação de lacunas de digitalização",
+        "generating": "A gerar PDF...",
+        "generateBtn": "Gerar PDF",
+        "details": "Detalhes da Submissão"
+    },
+    "sharedPages": {
+        "manageUsers": {
+            "title": "Gerir Utilizadores",
+            "subtitle": "Selecione uma organização para gerir os seus utilizadores.",
+            "error": "Erro ao carregar organizações: {{message}}",
+            "emptyTitle": "Nenhuma organização encontrada",
+            "emptyDesc": "É necessário criar ou ser atribuído a uma organização para gerir utilizadores."
+        },
+        "orgUsers": {
+            "error": "Erro",
+            "inviteUser": "Convidar Utilizador",
+            "subtitle": "Gerir membros e convites para esta organização.",
+            "title": "Utilizadores da Organização"
+        }
+    },
+    "viewReports": {
+        "loadingError": "Erro ao carregar relatórios: {{message}}",
+        "title": "Ver Relatórios",
+        "subtitle": "Rever e exportar relatórios abrangentes para organizações",
+        "selectOrg": "Selecionar uma Organização",
+        "noOrgs": "Nenhuma organização encontrada."
+    },
+    "secondAdmin": {
+        "header": {
+            "title": "Painel de Gestão da Cooperativa",
+            "welcome": "Bem-vindo de volta <1>{{name}}</1>. Use estas ferramentas para gerir cooperativas, utilizadores, avaliações e planos de ação.",
+            "defaultUser": "Administrador"
+        },
+        "cards": {
+            "manageCoops": {
+                "title": "Gerir Cooperativas",
+                "description": "Ver e gerir perfis de cooperativas"
+            },
+            "manageUsers": {
+                "title": "Utilizadores da Cooperativa",
+                "description": "Convidar e gerir funcionários da cooperativa"
+            },
+            "createAssessment": {
+                "title": "Criar Avaliação",
+                "description": "Atribuir novas avaliações às cooperativas"
+            },
+            "viewActionPlan": {
+                "title": "Planos de Ação",
+                "description": "Rever e atualizar estratégias de digitalização"
+            },
+            "viewSubmissions": {
+                "title": "Submissões",
+                "description": "Acompanhar o progresso da conclusão das avaliações"
+            },
+            "consolidatedReport": {
+                "title": "Relatório Consolidado",
+                "description": "Analisar lacunas gerais de digitalização"
+            }
+        },
+        "reports": {
+            "export": {
+                "title": "Exportar Relatórios",
+                "description": "Gerar relatórios PDF para a sua organização"
+            },
+            "recent": {
+                "title": "Submissões Recentes",
+                "description": "Últimas atividades de avaliação",
+                "viewAll": "Ver Todas",
+                "error": "Falha ao carregar submissões recentes",
+                "empty": "Nenhuma submissão recente encontrada"
+            }
+        },
+        "chart": {
+            "title": "Perfil Digital da Organização",
+            "description": "Visão geral dos resultados da última avaliação"
+        },
+        "consolidatedReportPage": {
+            "orgIdNotFound": "ID da Organização não encontrado"
+        },
+        "manageCoopUsers": {
+            "description": "Descrição",
+            "empty": {
+                "description": "Descrição",
+                "title": "Gestão"
+            },
+            "error": {
+                "load": "Carregar",
+                "noCoopDescription": "Sem Descrição da Coop",
+                "noCoopTitle": "Sem Coop",
+                "resolveDescription": "Resolve Description",
+                "resolveTitle": "Resolve"
+            },
+            "sectionLabel": "Secção",
+            "title": "Gestão"
+        },
+        "manageCoopUsersPage": {
+            "description": "Descrição",
+            "empty": {
+                "description": "Descrição",
+                "title": "Gestão"
+            },
+            "error": "Erro",
+            "title": "Gestão"
+        },
+        "manageCoops": {
+            "description": "Descrição",
+            "empty": {
+                "description": "Descrição",
+                "title": "Gestão"
+            },
+            "title": "Gestão"
+        },
+        "submissionsPage": {
+            "description": "Descrição",
+            "empty": "Vazio",
+            "noSubmissions": "Sem Submissões",
+            "submissionCount": "Submission Count",
+            "title": "Gestão"
+        }
+    },
+    "sharedSubmissions": {
+        "manage": {
+            "accessDenied": "Acesso Negado",
+            "accessDeniedDesc": "Não tem as permissões necessárias para ver esta página.",
+            "titleSubDetails": "Detalhes da Submissão",
+            "titleMySubmissions": "As Minhas Submissões",
+            "descSubDetails": "Ver os detalhes e análise de lacunas desta submissão.",
+            "descMySubmissions": "Acompanhe e reveja as suas avaliações de lacunas de digitalização.",
+            "errorLoading": "Erro ao carregar submissões",
+            "retry": "Tentar Novamente",
+            "noCooperative": "Nenhuma cooperativa definida para o seu utilizador.",
+            "noSubmissionsForAssessment": "Nenhuma submissão encontrada para esta avaliação.",
+            "noSubmissionsForOrg": "Nenhuma submissão encontrada para a sua organização.",
+            "noSubmissionsForCoop": "Nenhuma submissão encontrada para a sua cooperativa.",
+            "noSubmissions": "Nenhuma submissão encontrada."
+        },
+        "chart": {
+            "assessment": "Avaliação",
+            "currentState": "Estado Atual",
+            "desiredState": "Estado Desejado",
+            "noData": "Sem Dados"
+        },
+        "detail": {
+            "currentLevel": "Nível Atual",
+            "description": "Descrição",
+            "descriptionNotFound": "Descrição não encontrada",
+            "desiredLevel": "Nível Desejado",
+            "dimensionAssessments": "Avaliações por Dimensão",
+            "dimensionAssessmentsDesc": "Visão geral do desempenho nas dimensões de avaliação",
+            "errorLoad": "Falha ao carregar detalhes",
+            "errorLoading": "Erro ao Carregar",
+            "exportPdf": "Exportar Pdf",
+            "noDimensionAssessments": "Sem Avaliações por Dimensão",
+            "riskLevel": "Nível de Risco",
+            "riskLevelDesc": "A lacuna entre o seu nível atual e o desejado é analisada para determinar um nível de risco, indicando a urgência e importância de abordar esta área.",
+            "status": "Estado",
+            "submittedAt": "Submetido Em",
+            "subtitle": "Gerir detalhes aqui",
+            "title": "Gestão",
+            "unavailable": "Indisponível",
+            "unknownDimension": "Dimensão Desconhecida",
+            "untitledAssessment": "Avaliação Sem Título"
+        },
+        "list": {
+            "deleteAction": "Eliminar Ação",
+            "deleteDescription": "Eliminar Descrição",
+            "deleteTitle": "Eliminar",
+            "deleteWarning": "Delete Warning",
+            "deleting": "A eliminar",
+            "noValidFound": "No Valid Found",
+            "notFound": "Não Encontrado",
+            "overallScore": "Pontuação Geral",
+            "submittedOn": "Submetido Em",
+            "thisSubmission": "Esta Submissão",
+            "viewDetails": "Ver Detalhes"
+        },
+        "status": {
+            "completed": "Concluído",
+            "draft": "Rascunho",
+            "under review": "Em Revisão",
+            "reviewed": "Revisado"
+        }
+    },
+    "sharedAssessments": {
+        "manage": {
+            "noCooperations": "Nenhuma cooperativa encontrada",
+            "createCooperationFirst": "Por favor, crie pelo menos uma cooperativa antes de criar uma avaliação.",
+            "title": "Gerir Avaliações",
+            "subtitle": "Crie e gerencie Avaliações de Lacunas para as suas cooperativas.",
+            "createBtn": "Criar Avaliação",
+            "unableToLoadError": "Não foi possível carregar as avaliações",
+            "noCooperativeDetermined": "Nenhuma cooperativa determinada",
+            "resolveCooperativeError": "Não conseguimos determinar a que cooperativa você pertence.",
+            "noDraftsTitle": "Nenhuma avaliação em rascunho",
+            "noDraftsSubtitle": "Comece criando a sua primeira avaliação para uma cooperativa."
+        },
+        "adminManageDigitalGaps": {
+            "title": "Gerir Lacunas de Digitalização",
+            "subtitle": "Defina e gerencie as lacunas que representam desafios de digitalização.",
+            "addBtn": "Adicionar Lacuna de Digitalização",
+            "error": "Erro ao carregar lacunas de digitalização: {{message}}"
+        },
+        "adminGaps": {
+            "title": "Lacunas de Digitalização",
+            "addBtn": "Adicionar Lacuna de Digitalização",
+            "list": {
+                "empty": "Nenhuma lacuna de digitalização encontrada."
+            },
+            "validation": {
+                "dimensionRequired": "A dimensão é obrigatória",
+                "descriptionRequired": "A descrição é obrigatória",
+                "duplicateGap": "Já existe uma lacuna para esta dimensão e gravidade"
+            },
+            "form": {
+                "titleAdd": "Adicionar Lacuna de Digitalização",
+                "titleEdit": "Editar Lacuna de Digitalização",
+                "descAdd": "Criar uma nova definição de lacuna de digitalização.",
+                "descEdit": "Atualize os detalhes da lacuna de digitalização.",
+                "dimension": "Dimensão",
+                "selectDimension": "Selecione uma dimensão",
+                "severity": "Gravidade",
+                "selectSeverity": "Selecione a gravidade",
+                "description": "Descrição",
+                "descPlaceholder": "Introduza uma descrição detalhada da lacuna",
+                "saving": "A guardar..."
+            },
+            "updateBtn": "Atualizar Lacuna de Digitalização",
+            "createBtn": "Criar Lacuna de Digitalização"
+        },
+        "detail": {
+            "assessmentIdNotFound": "ID da Avaliação Não Encontrado",
+            "assessmentNotFound": "Avaliação Não Encontrada",
+            "digitalGapAssessment": "Avaliação de Lacunas",
+            "failedToFetch": "Falha ao Obter",
+            "finishAssessment": "Concluir Avaliação",
+            "intro": "Introdução",
+            "loading": "A carregar",
+            "noDimensionsAssigned": "Nenhuma Dimensão Atribuída",
+            "noDimensionsConfigured": "Nenhuma Dimensão Configurada",
+            "progressOf": "Progresso De",
+            "submitError": "Erro ao Submeter",
+            "submitSuccess": "Submetido com Sucesso",
+            "subtitle": "Gerir detalhes aqui",
+            "unableToLoad": "Não Foi Possível Carregar",
+            "welcome": "Bem-vindo",
+            "yourProgress": "O Seu Progresso"
+        }
+    },
+    "answerDimension": {
+        "loadingAssessment": "A carregar avaliação…",
+        "failedToLoad": "Falha ao carregar detalhes da dimensão.",
+        "tryAgainLater": "Por favor, tente novamente mais tarde.",
+        "backToAssessment": "Voltar à avaliação",
+        "notAllowed": "Não tem permissão para responder a esta dimensão.",
+        "notAssigned": "Esta dimensão de avaliação não está atribuída à sua conta.",
+        "dimensionAssessment": "Avaliação de {{name}}",
+        "lockedBanner": "Esta dimensão está atribuída a um utilizador da cooperativa. Pode ver as respostas mas não pode editá-las.",
+        "dismiss": "Fechar",
+        "previous": "Anterior",
+        "goBack": "Voltar",
+        "next": "Seguinte"
+    },
+    "adminManageDimensions": {
+        "title": "Gerir Dimensões",
+        "subtitle": "Crie e gerencie as dimensões de digitalização usadas nas avaliações.",
+        "addBtn": "Adicionar Dimensão",
+        "error": "Erro ao carregar dimensões: {{message}}"
+    },
+    "adminManageDigitalLevels": {
+        "titleCurrent": "Gerir Níveis Atuais de Digitalização",
+        "titleDesired": "Gerir Níveis Desejados de Digitalização",
+        "selectType": "Por favor, selecione um tipo de nível.",
+        "cardTitle": "Níveis de Digitalização",
+        "cardSubtitle": "A gerir níveis do estado {{type}}",
+        "addBtn": "Adicionar Nível"
+    },
+    "adminManageRecs": {
+        "title": "Gerir Recomendações",
+        "subtitle": "Crie e gerencie recomendações estratégicas para cada dimensão de digitalização.",
+        "addBtn": "Adicionar Recomendação",
+        "errorLoading": "Erro ao carregar recomendações",
+        "retryBtn": "Tentar novamente",
+        "noRecs": "Ainda não existem recomendações",
+        "noRecsSubtitle": "Comece adicionando a sua primeira recomendação."
+    },
+    "adminActionPlans": {
+        "title": "Planos de Ação",
+        "subtitle": "Ver e gerir planos de ação de digitalização para organizações.",
+        "selectOrg": "Selecionar uma Organização",
+        "backToOrgs": "Voltar às organizações",
+        "selectSubmission": "Selecionar uma Submissão"
+    },
+    "adminManageActionPlan": {
+        "title": "Configuração do Plano de Ação",
+        "subtitle": "Gerir e configurar definições do plano de ação.",
+        "configSettings": "Definições de Configuração",
+        "underDevelopment": "Esta funcionalidade está atualmente em desenvolvimento. Por favor, volte mais tarde."
+    },
+    "adminManageDigitalGaps": {
+        "title": "Gerir Lacunas de Digitalização",
+        "subtitle": "Defina e gerencie as lacunas que representam desafios de digitalização.",
+        "addBtn": "Adicionar Lacuna de Digitalização",
+        "error": "Erro ao carregar lacunas de digitalização: {{message}}"
+    },
+    "sidebar": {
+        "admin": {
+            "panelName": "Painel de Administração",
+            "infoText": "Painel de administrador para gerir todo o sistema, incluindo organizações, dimensões e recomendações.",
+            "dashboard": "Painel",
+            "organizations": "Organizações",
+            "dimensions": "Dimensões",
+            "recommendations": "Recomendações",
+            "actionPlan": "Plano de Ação",
+            "digitalGaps": "Lacunas",
+            "manageUsers": "Gerir Utilizadores",
+            "viewReports": "Ver Relatórios",
+            "consolidatedReport": "Relatório Consolidado"
+        },
+        "secondAdmin": {
+            "panelName": "Administrador da Organização",
+            "infoText": "Painel para administradores de organização gerirem as suas cooperativas, utilizadores e avaliações.",
+            "dashboard": "Painel",
+            "cooperatives": "Cooperativas",
+            "manageUsers": "Gerir Utilizadores",
+            "createAssessment": "Criar Avaliação",
+            "actionPlan": "Plano de Ação",
+            "submissions": "Submissões",
+            "consolidatedReport": "Relatório Consolidado"
+        },
+        "thirdAdmin": {
+            "panelName": "Administrador da Cooperativa",
+            "infoText": "Painel para administradores de cooperativa gerirem utilizadores e responderem a avaliações da sua cooperativa.",
+            "dashboard": "Painel",
+            "manageUsers": "Gerir Utilizadores",
+            "answerAssessment": "Responder à Avaliação",
+            "actionPlan": "Ver Plano de Ação",
+            "viewSubmissions": "Ver Submissões"
+        },
+        "user": {
+            "panelName": "Utilizador da Cooperativa",
+            "infoText": "Painel para utilizadores da cooperativa criarem avaliações e verem planos de ação.",
+            "dashboard": "Painel",
+            "answerAssessment": "Responder à Avaliação",
+            "actionPlan": "Plano de Ação",
+            "submissions": "Submissões"
+        }
+    },
+    "adminGaps": {
+        "createBtn": "Criar",
+        "delete": {
+            "confirm": "Confirmar",
+            "deleting": "A eliminar",
+            "description": "Descrição",
+            "title": "Gestão"
+        },
+        "form": {
+            "descAdd": "Desc Add",
+            "descEdit": "Desc Edit",
+            "descPlaceholder": "Desc Placeholder",
+            "description": "Descrição",
+            "dimension": "Dimensão",
+            "saving": "A guardar",
+            "selectDimension": "Selecionar Dimensão",
+            "selectSeverity": "Selecionar Gravidade",
+            "severity": "Gravidade",
+            "titleAdd": "Title Add",
+            "titleEdit": "Title Edit"
+        },
+        "list": {
+            "actions": "Ações",
+            "description": "Descrição",
+            "gapCount": "Quantidade de Lacunas",
+            "severity": "Gravidade"
+        },
+        "updateBtn": "Update Btn",
+        "validation": {
+            "descriptionRequired": "Description Required",
+            "dimensionRequired": "Dimension Required",
+            "duplicateGap": "Duplicate Gap"
+        }
+    },
+    "adminManageGapRecs": {
+        "subtitle": "Gerir detalhes aqui",
+        "title": "Gestão"
+    },
+    "adminManageOrgs": {
+        "error": "Erro",
+        "noOrgs": "Sem Organizações",
+        "noOrgsSubtitle": "No Orgs Sub",
+        "subtitle": "Ver e gerir organizações registadas.",
+        "title": "Gerir Organizações"
+    },
+    "assessmentDetail": {
+        "dimensionsSubtitle": "Dimensions Sub",
+        "errorFetch": "Error Fetch",
+        "errorNotFound": "Error Not Found"
+    },
+    "shared": {
+        "actionPlans": {
+            "actionItem": "Item de Ação",
+            "addBtn": "Adicionar ação",
+            "addNewActionItem": "Adicionar Novo Item de Ação",
+            "adding": "A adicionar",
+            "approved": "Aprovado",
+            "cancel": "Cancelar",
+            "createFailed": "Falha ao Criar",
+            "createSuccess": "Criado com Sucesso",
+            "createdOn": "Criado Em",
+            "delete": "Eliminar",
+            "deleteAction": "Eliminar ação",
+            "deleteActionItemTitle": "Eliminar Item de Ação",
+            "deleteDesc": "Delete Desc",
+            "deleting": "A eliminar",
+            "descPlaceholder": "Desc Placeholder",
+            "description": "Descrição",
+            "dimension": "Dimensão",
+            "done": "Concluído",
+            "editAction": "Editar ação",
+            "editActionItemTitle": "Editar Item de Ação",
+            "error": "Erro",
+            "errorLoading": "Erro ao Carregar",
+            "failedUpdateStatus": "Falha ao Atualizar Estado",
+            "inProgress": "Em Progresso",
+            "moveToNext": "Mover para a coluna seguinte",
+            "moveToPrev": "Mover para a coluna anterior",
+            "movedTo": "Movido Para",
+            "noActionPlan": "Sem Plano de Ação",
+            "noActionPlans": "Sem Planos de Ação",
+            "noActionPlansDesc": "No Action Plans Desc",
+            "noItemsApproved": "Nenhum item aprovado",
+            "noItemsCompleted": "Nenhum item concluído",
+            "noItemsInProgress": "Nenhum item em progresso",
+            "noItemsTodo": "Nenhum item para fazer",
+            "planDescription": "Descrição do Plano",
+            "priority": "Prioridade",
+            "priorityHigh": "ALTA",
+            "priorityLow": "BAIXA",
+            "priorityMedium": "MÉDIA",
+            "priorityWord": "PRIORIDADE",
+            "selectDimError": "Select Dim Error",
+            "selectDimension": "Selecionar Dimensão",
+            "selectPriority": "Selecionar Prioridade",
+            "statusApproved": "APROVADO",
+            "statusCompleted": "CONCLUÍDO",
+            "statusInProgress": "EM PROGRESSO",
+            "statusNotStarted": "NÃO INICIADO",
+            "todo": "Para Fazer",
+            "unknownAssessment": "Avaliação Desconhecida",
+            "unknownDimension": "Dimensão Desconhecida",
+            "updateBtn": "Update Btn",
+            "updating": "A atualizar",
+            "viewPlan": "Ver Plano"
+        },
+        "assessments": {
+            "answer": "Responder",
+            "assessmentName": "Nome da Avaliação",
+            "assignedTo": "Atribuído A",
+            "cancel": "Cancelar",
+            "continue": "Continuar",
+            "cooperative": "Cooperativa",
+            "createBtn": "Criar Avaliação",
+            "createDesc": "Defina o nome da avaliação, selecione a cooperativa alvo e escolha as dimensões que deseja avaliar.",
+            "createTitle": "Criar Nova Avaliação",
+            "creating": "A criar...",
+            "deleteAria": "Delete Aria",
+            "deleteDesc": "Delete Desc",
+            "deleteTitle": "Eliminar",
+            "dimensions": "Dimensões",
+            "draftAssessment": "Avaliação em Rascunho",
+            "loadingDimensions": "A carregar Dimensões",
+            "namePlaceholder": "Introduza o nome da avaliação...",
+            "noDimensionsDesc": "No Dimensions Desc",
+            "noDimensionsTitle": "Sem Dimensões",
+            "ok": "Ok",
+            "selectCoop": "Selecionar Cooperativa",
+            "selectDims": "Selecionar Dimensões"
+        },
+        "dimensionCard": {
+            "assigned": "Atribuído",
+            "assignedToCoopUser": "Atribuído a Utilizador da Coop",
+            "completed": "Concluído",
+            "modify": "Modificar",
+            "start": "Iniciar"
+        },
+        "errorBoundary": {
+            "description": "Descrição",
+            "errorDetails": "Detalhes do Erro",
+            "refreshPage": "Atualizar Página",
+            "title": "Gestão",
+            "tryAgain": "Tentar Novamente"
+        },
+        "invitationPending": {
+            "description": "Descrição",
+            "logout": "Terminar Sessão",
+            "title": "Gestão"
+        },
+        "loading": {
+            "loadingAria": "Loading Aria"
+        },
+        "reports": {
+            "chooseSubmissionDesc": "Choose Submission Desc",
+            "failedToLoadSubmissions": "Falha ao Carregar Submissões",
+            "generatePdf": "Gerar Pdf",
+            "generating": "A gerar",
+            "generationFailed": "Geração Falhou",
+            "noSubmissionsFound": "Nenhuma Submissão Encontrada",
+            "selectSubmission": "Selecionar Submissão",
+            "selectSubmissionInfo": "Select Submission Info",
+            "submittedOn": "Submetido Em",
+            "unknownDate": "Data Desconhecida",
+            "unknownError": "Erro Desconhecido"
+        },
+        "gap_severity": {
+            "LOW": "BAIXO",
+            "MEDIUM": "MÉDIO",
+            "HIGH": "ALTO"
+        }
+    },
+    "test": {
+        "com": "Com"
+    },
+    "sharedLanguage": {
+        "placeholder": "Placeholder"
+    },
+    "sharedSidebar": {
+        "collapse": "Colapsar",
+        "expand": "Expandir"
+    },
+    "adminManageUsers": {
+        "title": "Gerir Utilizadores",
+        "subtitle": "Gerir contas de utilizadores e acesso ao sistema."
+    },
+    "inviteUser": "Convidar Utilizador"
+}
