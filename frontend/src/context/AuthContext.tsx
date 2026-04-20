@@ -78,6 +78,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       updateAuthState();
     };
     keycloak.onTokenExpired = () => {
+      if (!navigator.onLine) {
+        // Offline — keep the expired token in memory so IndexedDB reads still work.
+        // It will be refreshed automatically once we're back online.
+        console.warn("Token expired while offline — keeping cached token.");
+        return;
+      }
       keycloak.updateToken(30).catch(() => {
         authService.clearStoredTokens();
         keycloak.clearToken();

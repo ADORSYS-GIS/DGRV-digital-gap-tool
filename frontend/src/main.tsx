@@ -2,7 +2,22 @@ import { createRoot } from "react-dom/client";
 import { registerSW } from "virtual:pwa-register";
 
 // Register Service Worker for PWA support
-registerSW({ immediate: true });
+// Register Service Worker for PWA support with logging
+registerSW({
+  immediate: true,
+  onNeedRefresh() {
+    console.log("PWA: New content available, please refresh.");
+  },
+  onOfflineReady() {
+    console.log("PWA: App ready to work offline.");
+  },
+  onRegistered(r) {
+    console.log("PWA: Service Worker registered:", r);
+  },
+  onRegisterError(error) {
+    console.error("PWA: Service Worker registration failed:", error);
+  }
+});
 
 // Handle Vite chunk load failures after new deployments.
 // When a new build is deployed, old chunk hash URLs no longer exist on the
@@ -98,22 +113,24 @@ const initializeAuth = async () => {
     }
     if (keycloak.onReady) keycloak.onReady(authenticated);
   } catch (error) {
-    console.error("Keycloak initialization error (likely offline):", error);
+    console.error("Keycloak initialization error (likely offline or server unreachable):", error);
 
-    // If we are offline and have cached tokens, we try to proceed as "authenticated"
-    // even if Keycloak server couldn't confirm it.
-    if (!navigator.onLine && cachedTokens?.accessToken) {
-      console.log("Offline and have cached tokens — proceeding as authenticated.");
-      // Manually populating Keycloak instance properties
+    // If we have cached tokens, proceed as authenticated regardless of whether
+    // the browser thinks it's online — the Keycloak server may simply be unreachable.
+    if (cachedTokens?.accessToken) {
+      console.log("Keycloak unreachable — proceeding with cached tokens.");
       (keycloak as any).token = cachedTokens.accessToken;
       (keycloak as any).refreshToken = cachedTokens.refreshToken;
       (keycloak as any).idToken = cachedTokens.idToken;
       (keycloak as any).authenticated = true;
-      (keycloak as any).tokenParsed = JSON.parse(atob(cachedTokens.accessToken.split('.')[1]));
-
+      try {
+        (keycloak as any).tokenParsed = JSON.parse(atob(cachedTokens.accessToken.split('.')[1]));
+      } catch {
+        console.warn("Could not parse cached token payload.");
+      }
       if (keycloak.onReady) keycloak.onReady(true);
     } else {
-      // Fallback to unauthenticated state
+      // No cached tokens at all — user has never logged in on this device
       if (keycloak.onReady) keycloak.onReady(false);
     }
   }

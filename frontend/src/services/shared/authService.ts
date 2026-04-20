@@ -76,6 +76,12 @@ export const authService = {
       const timeUntilExpiry = keycloak.tokenParsed.exp - now;
 
       if (timeUntilExpiry <= 30) {
+        // Don't attempt refresh (and never clear tokens) when offline —
+        // the cached token is the best we have and IndexedDB reads still work.
+        if (!navigator.onLine) {
+          console.warn("Offline — skipping token refresh, using cached token.");
+          return keycloak.token;
+        }
         try {
           const refreshed = await keycloak.updateToken(30);
           if (refreshed) {
@@ -83,10 +89,13 @@ export const authService = {
           }
         } catch (error) {
           console.error("Failed to refresh token:", error);
-          // Clear tokens on refresh failure to force re-authentication
-          await this.clearStoredTokens();
-          keycloak.clearToken();
-          return null;
+          // Only clear tokens when we're actually online and the refresh failed
+          // (e.g. session revoked). Offline failures must not wipe the cache.
+          if (navigator.onLine) {
+            await this.clearStoredTokens();
+            keycloak.clearToken();
+            return null;
+          }
         }
       }
 

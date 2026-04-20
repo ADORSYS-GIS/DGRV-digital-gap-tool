@@ -86,7 +86,6 @@ export const syncManager = {
     try {
       console.log("Starting proactive pre-caching...");
 
-      // We import these on demand to avoid potential circular dependencies or early loading issues
       const { assessmentRepository } = await import("../assessments/assessmentRepository");
       const { submissionRepository } = await import("../assessments/submissionRepository");
       const { organizationRepository } = await import("../organizations/organizationRepository");
@@ -94,11 +93,11 @@ export const syncManager = {
       const { actionPlanRepository } = await import("../action_plans/actionPlanRepository");
       const { listAssessmentsByOrganization, listAssessmentsByCooperation } = await import("@/openapi-client");
 
-      // 1. Pre-cache organization list
+      // Always pre-cache organization list (needed by all roles)
       await organizationRepository.getAll();
 
       if (organizationId) {
-        // 2. Pre-cache assessments list for the organization
+        // Pre-cache assessments for this organization
         const assessments = await assessmentRepository.syncAssessments(
           async () => {
             const resp = await listAssessmentsByOrganization({ organizationId });
@@ -108,34 +107,30 @@ export const syncManager = {
           organizationId
         );
 
-        // 3. Pre-cache submissions list for the organization
         await submissionRepository.listByOrganization(organizationId);
-
-        // 4. Pre-cache users list
         await userRepository.getMembers(organizationId);
 
-        // 5. Deep pre-cache for each assessment (Dimensions + Action Plans)
-        // We do this in parallel but limit it to avoid overwhelming the browser/network
         if (assessments && assessments.length > 0) {
           Promise.all(
             assessments.map(async (a) => {
-              // getById triggers dimension pre-caching internally
               await assessmentRepository.getById(a.id);
-              // also pre-cache action plan
               await actionPlanRepository.getActionPlanByAssessmentId(a.id);
             })
           ).catch(err => console.error("Error during deep pre-caching:", err));
         }
       }
 
-      // 6. Also try to pre-cache cooperation data if applicable
+      // Pre-cache cooperation data for coop_admin, coop_user, second_admin, third_admin
       const userProfile = authService.getUserProfile();
-      const isCoopUser = userProfile?.roles?.some(r =>
-        r.toLowerCase().includes("coop_admin") || r.toLowerCase().includes("coop_user")
+      const roles = (userProfile?.roles || []).map(r => r.toLowerCase());
+      const isCoopRelated = roles.some(r =>
+        r.includes("coop_admin") || r.includes("coop_user") ||
+        r.includes("second_admin") || r.includes("third_admin")
       );
 
-      if (isCoopUser) {
-        const cooperationId = userProfile?.organization; // In this app, organization field often holds coop ID for coop users
+      if (isCoopRelated) {
+        // For coop roles the cooperation ID lives in the organization field
+        const cooperationId = userProfile?.organization;
         if (cooperationId) {
           const coopAssessments = await assessmentRepository.syncAssessments(
             async () => {
@@ -147,7 +142,6 @@ export const syncManager = {
           );
           await submissionRepository.listByCooperation(cooperationId);
 
-          // Deep pre-cache for cooperation assessments
           if (coopAssessments && coopAssessments.length > 0) {
             Promise.all(
               coopAssessments.map(async (a) => {

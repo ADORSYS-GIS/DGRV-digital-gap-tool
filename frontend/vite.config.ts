@@ -25,12 +25,12 @@ export default defineConfig(({ mode }) => ({
     },
     appType: "spa",
   },
+  base: "/",
   plugins: [
     react(),
     tsconfigPaths(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["favicon.ico", "apple-touch-icon.png", "mask-icon.svg"],
       manifest: {
         name: "Gap Assessment Tool",
         short_name: "GAT",
@@ -51,10 +51,43 @@ export default defineConfig(({ mode }) => ({
       },
       workbox: {
         globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
-        // Ensure index.html is always fresh but available offline
         navigateFallback: "index.html",
-        // Increase the limit for pre-cached files (Vite chunks can be large)
+        // Don't intercept API, backend, or Keycloak requests with the SW
+        navigateFallbackDenylist: [/^\/api\//, /^\/backend\//, /^\/keycloak\//],
         maximumFileSizeToCacheInBytes: 4000000,
+        runtimeCaching: [
+          {
+            // Cache backend API responses so they're readable offline
+            urlPattern: /^https:\/\/158\.220\.84\.249\/backend\/.*/i,
+            handler: "NetworkFirst",
+            options: {
+              cacheName: "api-cache",
+              networkTimeoutSeconds: 10,
+              expiration: {
+                maxEntries: 200,
+                maxAgeSeconds: 7 * 24 * 60 * 60, // 7 days
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
+          {
+            // Cache Keycloak's OIDC discovery/config endpoint
+            urlPattern: /^https:\/\/158\.220\.84\.249\/keycloak\/.*(openid-configuration|certs).*/i,
+            handler: "StaleWhileRevalidate",
+            options: {
+              cacheName: "keycloak-config-cache",
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 24 * 60 * 60,
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
+        ],
       },
       devOptions: {
         enabled: true,

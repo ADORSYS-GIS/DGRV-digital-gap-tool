@@ -13,6 +13,7 @@ import { LoadingSpinner } from "../components/shared/LoadingSpinner";
 import React from "react";
 import { ROLES } from "@/constants/roles";
 import { authService } from "@/services/shared/authService";
+import { get } from "idb-keyval";
 
 interface ProtectedRouteProps {
   allowedRoles?: string[];
@@ -41,6 +42,14 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 }) => {
   const { isAuthenticated, user, loading } = useAuth();
   const location = useLocation();
+  // Track whether we have cached tokens in IndexedDB (for offline use)
+  const [hasCachedTokens, setHasCachedTokens] = React.useState<boolean | null>(null);
+
+  React.useEffect(() => {
+    get("auth_tokens").then((tokens: any) => {
+      setHasCachedTokens(!!(tokens?.accessToken));
+    }).catch(() => setHasCachedTokens(false));
+  }, []);
 
   const userRoles = React.useMemo(() => {
     if (!user) return [];
@@ -54,12 +63,22 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return allowedRoles.some((role) => userRoles.includes(role.toLowerCase()));
   }, [userRoles, allowedRoles]);
 
-  if (loading) {
+  // Still resolving auth state or checking cached tokens — show spinner, never redirect
+  if (loading || hasCachedTokens === null) {
     return <LoadingSpinner />;
   }
 
-  if (!isAuthenticated) {
+  // Not authenticated AND no cached tokens → only then redirect to home
+  // If we have cached tokens but isAuthenticated is still false (e.g. Keycloak
+  // server unreachable), we wait — main.tsx will resolve this via the offline
+  // fallback path and call onReady(true), which updates AuthContext.
+  if (!isAuthenticated && !hasCachedTokens) {
     return <Navigate to="/" replace state={{ from: location }} />;
+  }
+
+  // Have cached tokens but auth hasn't resolved yet (offline Keycloak init in progress)
+  if (!isAuthenticated && hasCachedTokens) {
+    return <LoadingSpinner />;
   }
 
   const isAdmin = userRoles.includes(ROLES.ADMIN.toLowerCase());
