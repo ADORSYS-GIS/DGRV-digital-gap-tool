@@ -66,7 +66,7 @@ export default defineConfig(({ mode }) => ({
         runtimeCaching: [
           {
             // Cache backend API responses so they're readable offline
-            urlPattern: /^https:\/\/158\.220\.84\.249\/backend\/.*/i,
+            urlPattern: /^https:\/\/app\.decidel\.app\/backend\/.*/i,
             handler: "NetworkFirst",
             options: {
               cacheName: "api-cache",
@@ -82,7 +82,7 @@ export default defineConfig(({ mode }) => ({
           },
           {
             // Cache Keycloak's OIDC discovery/config endpoint
-            urlPattern: /^https:\/\/158\.220\.84\.249\/keycloak\/.*(openid-configuration|certs).*/i,
+            urlPattern: /^https:\/\/app\.decidel\.app\/keycloak\/.*(openid-configuration|certs).*/i,
             handler: "StaleWhileRevalidate",
             options: {
               cacheName: "keycloak-config-cache",
