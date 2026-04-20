@@ -24,6 +24,8 @@ import { ArrowLeft, Lock } from "lucide-react";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useOnlineStatus } from "@/hooks/useOnlineStatus";
+import { WifiOff } from "lucide-react";
 
 interface RouteParams extends Record<string, string | undefined> {
   assessmentId: string;
@@ -45,6 +47,7 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
   const { assessmentId, dimensionId } = useParams<RouteParams>();
   const navigate = useNavigate();
   const location = useLocation();
+  const { isOffline } = useOnlineStatus();
 
   // Get user info and IDs
   const { user } = useAuth();
@@ -283,7 +286,14 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
 
         await submitDimensionAssessment(payload, {
           onSuccess: handleSuccess,
-          onError: handleError,
+          onError: (err) => {
+            // When offline the repository saves locally — treat as success
+            if (!navigator.onLine) {
+              handleSuccess({ id: "", dimensionId: dimensionId || "", assessmentId: assessmentId || "", currentState: { id: payload.currentStateId, dimensionId: dimensionId || "", level: currentLevel, name: "", description: "", createdAt: "", updatedAt: "" }, desiredState: { id: payload.desiredStateId, dimensionId: dimensionId || "", level: desiredLevel, name: "", description: "", createdAt: "", updatedAt: "" }, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), syncStatus: "PENDING", lastError: "" } as import("@/types/dimension").IDimensionAssessment);
+            } else {
+              handleError(err);
+            }
+          },
         });
       } catch (error) {
         handleError(
@@ -457,6 +467,18 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
           </Button>
         </div>
 
+        {/* Offline notice */}
+        {isOffline && (
+          <div className="flex items-center gap-2 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+            <WifiOff className="h-4 w-4 shrink-0" />
+            <span>
+              {t("offline.assessmentBanner", {
+                defaultValue:
+                  "You are offline. Your answers are saved locally and will sync automatically when you reconnect.",
+              })}
+            </span>
+          </div>
+        )}
         {/* Header */}
         <header className="flex flex-col items-center gap-3 text-center">
           <div className={`flex h-14 w-14 items-center justify-center rounded-full ${isLockedForCoopAdmin ? "bg-muted text-muted-foreground" : "bg-primary/10 text-primary"}`}>

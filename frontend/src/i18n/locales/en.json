@@ -20,6 +20,13 @@
         "errorOccurred": "An error occurred",
         "unknownError": "Unknown error"
     },
+    "offline": {
+        "banner": "You are offline. Your answers are saved locally and will sync when you reconnect.",
+        "assessmentBanner": "You are offline. Your answers are being saved locally and will sync automatically when you reconnect.",
+        "syncStart": "Back online – syncing saved data…",
+        "syncDone": "All data synced successfully.",
+        "offlineNotice": "You are offline. Your work will be saved locally and synced when you reconnect."
+    },
     "adminDimensions": {
         "title": "Dimensions",
         "addBtn": "Add Dimension",

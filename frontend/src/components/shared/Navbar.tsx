@@ -16,17 +16,19 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ROLES } from "@/constants/roles";
 import { useAuth } from "@/context/AuthContext";
-import { Home, LogOut, Menu, User, X } from "lucide-react";
+import { Home, LogOut, Menu, User, WifiOff, X } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { LanguageSwitcher } from "./LanguageSwitcher";
+import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 
 export const Navbar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { isAuthenticated, user, login, logout } = useAuth();
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { isOffline } = useOnlineStatus();
 
   const roles =
     isAuthenticated && user
@@ -81,7 +83,14 @@ export const Navbar = () => {
 
   return (
     <>
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200/50 shadow-sm transition-all duration-300">
+      {/* Offline indicator banner */}
+      {isOffline && (
+        <div className="fixed top-0 left-0 right-0 z-[60] flex items-center justify-center gap-2 bg-amber-500 px-4 py-1.5 text-xs font-medium text-white">
+          <WifiOff className="h-3.5 w-3.5" />
+          <span>{t("offline.banner", { defaultValue: "You are offline. Your answers are saved and will sync when you reconnect." })}</span>
+        </div>
+      )}
+      <nav className={`fixed ${isOffline ? "top-8" : "top-0"} left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200/50 shadow-sm transition-all duration-300`}>
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
