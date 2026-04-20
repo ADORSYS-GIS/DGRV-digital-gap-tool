@@ -17,6 +17,8 @@ export interface IDigitalisationGap {
   dimensionId: string;
   gap_severity: Gap;
   description: string;
+  currentLevel?: number;
+  desiredLevel?: number;
   createdAt?: string;
   updatedAt?: string;
   isDeleted?: boolean;

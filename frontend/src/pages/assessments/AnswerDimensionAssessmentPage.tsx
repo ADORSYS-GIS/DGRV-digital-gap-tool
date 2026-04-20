@@ -571,7 +571,7 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
           existingAssessment={existingAssessment || null}
           readOnly={isLockedForCoopAdmin}
         />
-        {((showResult && gapId && submittedData) ||
+        {((showResult && submittedData) ||
           (existingAssessment?.gap_id &&
             existingAssessment.currentState.level > 0 &&
             existingAssessment.desiredState.level > 0)) && (

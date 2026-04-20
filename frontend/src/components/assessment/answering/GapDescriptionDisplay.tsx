@@ -27,9 +27,22 @@ export const GapDescriptionDisplay: React.FC<GapDescriptionDisplayProps> = ({
   desiredLevelTitle,
 }) => {
   const { t } = useTranslation();
-  const { data: gap, isLoading, error } = useDigitalisationGap(gapId);
+  const { data: gap, isLoading, error } = useDigitalisationGap(gapId || "missing-id");
 
   const renderGapContent = () => {
+    if (!gapId || gapId === "missing-id") {
+      return (
+        <div className="flex flex-col items-center justify-center p-4 text-amber-600 bg-amber-50 rounded-md border border-amber-200">
+          <AlertCircle className="h-6 w-6 mb-2" />
+          <p className="text-sm font-medium text-center">
+            {t("offline.gapAnalysisPending", {
+              defaultValue: "Detailed gap analysis will be available once you are back online and the assessment is synced."
+            })}
+          </p>
+        </div>
+      );
+    }
+
     if (isLoading) {
       return (
         <div className="flex items-center justify-center p-4">
@@ -100,8 +113,8 @@ export const GapDescriptionDisplay: React.FC<GapDescriptionDisplayProps> = ({
             <CardHeader className="text-center pb-3">
               <CardTitle
                 className={`text-lg font-semibold mb-2 ${currentLevel < desiredLevel
-                    ? "text-red-800"
-                    : "text-green-800"
+                  ? "text-red-800"
+                  : "text-green-800"
                   }`}
               >
                 {t("assessmentAnswering.dimension.yourCurrent")}
@@ -113,8 +126,8 @@ export const GapDescriptionDisplay: React.FC<GapDescriptionDisplayProps> = ({
               )}
               <p
                 className={`text-5xl font-bold ${currentLevel < desiredLevel
-                    ? "text-red-600"
-                    : "text-green-600"
+                  ? "text-red-600"
+                  : "text-green-600"
                   }`}
               >
                 {currentLevel}
@@ -133,8 +146,8 @@ export const GapDescriptionDisplay: React.FC<GapDescriptionDisplayProps> = ({
             <CardHeader className="text-center pb-3">
               <CardTitle
                 className={`text-lg font-semibold mb-2 ${desiredLevel > currentLevel
-                    ? "text-green-800"
-                    : "text-red-800"
+                  ? "text-green-800"
+                  : "text-red-800"
                   }`}
               >
                 {t("assessmentAnswering.dimension.yourDesired")}
@@ -146,8 +159,8 @@ export const GapDescriptionDisplay: React.FC<GapDescriptionDisplayProps> = ({
               )}
               <p
                 className={`text-5xl font-bold ${desiredLevel > currentLevel
-                    ? "text-green-600"
-                    : "text-red-600"
+                  ? "text-green-600"
+                  : "text-red-600"
                   }`}
               >
                 {desiredLevel}

@@ -8,6 +8,7 @@ import { digitalisationGapSyncService } from "./digitalisationGapSyncService";
 import { recommendationSyncService } from "./recommendationSyncService";
 import { userSyncService } from "./userSyncService";
 import { assessmentSubmissionSyncService } from "./assessmentSubmissionSyncService";
+import { dimensionAssessmentSyncService } from "./dimensionAssessmentSyncService";
 import { queryClient } from "@/lib/queryClient";
 import { toast } from "sonner";
 
@@ -46,6 +47,10 @@ export const syncManager = {
       await digitalisationGapSyncService.sync();
       await recommendationSyncService.sync();
       await userSyncService.sync();
+
+      // Sync individual dimension answers BEFORE the final assessment submission
+      await dimensionAssessmentSyncService.sync();
+
       if (organizationId) {
         await cooperationSyncService.sync(organizationId);
         await organizationDimensionSyncService.syncPendingAssignments();

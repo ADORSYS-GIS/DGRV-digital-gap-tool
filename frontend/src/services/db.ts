@@ -53,6 +53,9 @@ export class AppDB extends Dexie {
     this.version(11).stores({
       dimensionWithStates: "id",
     });
+    this.version(12).stores({
+      digitalisationGaps: "id, dimensionId, [dimensionId+currentLevel+desiredLevel]",
+    });
   }
 }
 
