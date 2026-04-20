@@ -15,7 +15,7 @@ services:
       DGAT_DATABASE_URL: "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}"
       DGAT_PORT: 3001
       DGAT_KEYCLOAK_URL: "${DGAT_KEYCLOAK_URL:-http://keycloak:8080/keycloak}"
-      DGAT_KEYCLOAK_PUBLIC_URL: "${DGAT_KEYCLOAK_PUBLIC_URL:-https://158.220.84.249/keycloak}"
+      DGAT_KEYCLOAK_PUBLIC_URL: "${DGAT_KEYCLOAK_PUBLIC_URL:-https://app.decidel.app/keycloak}"
       DGAT_KEYCLOAK_REALM: "digital-gap"
       DGAT_KEYCLOAK_CLIENT_ID: "dgat-admin-client"
       DGAT_KEYCLOAK_CLIENT_SECRET: "${DGAT_KEYCLOAK_CLIENT_SECRET}"
@@ -124,12 +124,12 @@ services:
       KEYCLOAK_ADMIN: "${KEYCLOAK_ADMIN:-admin}"
       KEYCLOAK_ADMIN_PASSWORD: "${KEYCLOAK_ADMIN_PASSWORD:-admin123}"
       KEYCLOAK_REALM: "dgrv-realm"
-      KEYCLOAK_FRONTEND_URL: "${VITE_KEYCLOAK_URL:-https://158.220.84.249/keycloak}"
-      KEYCLOAK_SERVER: "${KEYCLOAK_SERVER:-https://158.220.84.249/keycloak}"
+      KEYCLOAK_FRONTEND_URL: "${VITE_KEYCLOAK_URL:-https://app.decidel.app/keycloak}"
+      KEYCLOAK_SERVER: "${KEYCLOAK_SERVER:-https://app.decidel.app/keycloak}"
       KC_PROXY_HEADERS: "xforwarded"
       KC_FEATURES: "preview,organization"
-      KC_HOSTNAME: "https://158.220.84.249/keycloak"
-      KC_HOSTNAME_ADMIN: "https://158.220.84.249/keycloak"
+      KC_HOSTNAME: "https://app.decidel.app/keycloak"
+      KC_HOSTNAME_ADMIN: "https://app.decidel.app/keycloak"
       KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "false"
       KC_HTTP_ENABLED: "true"
       KC_HOSTNAME_STRICT: "false"
@@ -181,11 +181,11 @@ services:
       context: .
       dockerfile: ./infrastructure/Dockerfile.frontend
       args:
-        VITE_KEYCLOAK_URL: "${VITE_KEYCLOAK_URL:-https://158.220.84.249/keycloak}"
+        VITE_KEYCLOAK_URL: "${VITE_KEYCLOAK_URL:-https://app.decidel.app/keycloak}"
         VITE_KEYCLOAK_REALM: "${VITE_KEYCLOAK_REALM:-digital-gap}"
         VITE_KEYCLOAK_CLIENT_ID: "${VITE_KEYCLOAK_CLIENT_ID:-dgat-client}"
-        VITE_API_BASE_URL: "${VITE_API_BASE_URL:-https://158.220.84.249/keycloak/backend}"
-        VITE_APP_PUBLIC_URL: "${VITE_APP_PUBLIC_URL:-https://158.220.84.249}"
+        VITE_API_BASE_URL: "${VITE_API_BASE_URL:-https://app.decidel.app/keycloak/backend}"
+        VITE_APP_PUBLIC_URL: "${VITE_APP_PUBLIC_URL:-https://app.decidel.app}"
     image: ${FRONTEND_IMAGE:-dgrv-digital-gap-tool-frontend:latest}
     container_name: dgrv-digital-gap-tool-frontend
     depends_on:

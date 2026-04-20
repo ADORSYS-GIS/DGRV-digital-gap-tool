@@ -938,15 +938,15 @@
       "clientId": "dgat-client",
       "name": "",
       "description": "",
-      "rootUrl": "https://158.220.84.249/",
-      "adminUrl": "https://158.220.84.249/",
-      "baseUrl": "https://158.220.84.249/",
+      "rootUrl": "https://app.decidel.app/",
+      "adminUrl": "https://app.decidel.app/",
+      "baseUrl": "https://app.decidel.app/",
       "surrogateAuthRequired": false,
       "enabled": true,
       "alwaysDisplayInConsole": true,
       "clientAuthenticatorType": "client-secret",
       "redirectUris": [
-        "https://158.220.84.249/*"
+        "https://app.decidel.app/*"
       ],
       "webOrigins": [
         "+"
@@ -967,7 +967,7 @@
         "client.secret.creation.time": "1763470162",
         "backchannel.logout.session.required": "true",
         "standard.token.exchange.enabled": "false",
-        "post.logout.redirect.uris": "https://158.220.84.249/*",
+        "post.logout.redirect.uris": "https://app.decidel.app/*",
         "frontchannel.logout.session.required": "true",
         "oauth2.device.authorization.grant.enabled": "false",
         "display.on.consent.screen": "false",

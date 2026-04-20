@@ -10,7 +10,7 @@
     },
     "servers": [
         {
-            "url": "https://158.220.84.249/api",
+            "url": "https://app.decidel.app/api",
             "description": "DGAT Backend Server"
         }
     ],
