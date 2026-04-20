@@ -37,6 +37,17 @@ export const assessmentRepository = {
           };
           await db.assessments.put(syncedAssessment);
           localAssessment = syncedAssessment;
+
+          // Proactively cache all dimensions for this assessment for offline use
+          if (localAssessment?.dimensionIds) {
+            const { dimensionAssessmentRepository } = await import("./dimensionAssessmentRepository");
+            Promise.all(
+              localAssessment.dimensionIds.map(dimId =>
+                dimensionAssessmentRepository.getDimensionWithStates(dimId)
+                  .catch(err => console.error(`Error pre-caching dimension ${dimId}:`, err))
+              )
+            );
+          }
         }
       }
     } catch (error) {

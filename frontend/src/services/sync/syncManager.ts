@@ -41,6 +41,10 @@ export const syncManager = {
   },
 
   async syncAll(organizationId: string | null) {
+    if (!navigator.onLine) {
+      console.log("No internet connection — skipping syncAll.");
+      return;
+    }
     try {
       await dimensionSyncService.sync();
       await digitalisationLevelSyncService.sync();

@@ -14,6 +14,7 @@ import { useOrganizationId } from "@/hooks/organizations/useOrganizationId";
 import { useSubmitAssessment } from "@/hooks/submissions/useSubmitAssessment";
 import { syncManager } from "@/services/sync/syncManager";
 import { ROLES } from "@/constants/roles";
+import { dimensionAssessmentRepository } from "@/services/assessments/dimensionAssessmentRepository";
 import {
   IDimensionAssessment,
   IDimensionState,
@@ -193,13 +194,6 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
     };
   }, [allowedDimensionIds, assessment?.dimensionIds, dimensionId]);
 
-  const allDimensionsCompleted = useMemo(() => {
-    const allDimensionIds = assessment?.dimensionIds || [];
-    const answeredDimensionIds =
-      dimensionAssessments?.map((da) => da.dimensionId) || [];
-    return allDimensionIds.every((id) => answeredDimensionIds.includes(id));
-  }, [assessment?.dimensionIds, dimensionAssessments]);
-
   useEffect(() => {
     // Reset state when dimension changes
     setShowResult(false);
@@ -207,7 +201,19 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
     setGapId(null);
     setSubmittedData(null);
     setIsSubmitting(false);
-  }, [dimensionId]);
+
+    // Proactively pre-fetch the NEXT dimension while we are still online
+    // to ensure it's available in the cache if the user goes offline later
+    if (navigator.onLine && assessment && dimensionId) {
+      const list = (allowedDimensionIds.length ? allowedDimensionIds : assessment.dimensionIds || []) as string[];
+      const currentIndex = list.indexOf(dimensionId as string);
+      if (currentIndex !== -1 && currentIndex < list.length - 1) {
+        const nextDimensionId = list[currentIndex + 1] as string;
+        dimensionAssessmentRepository.getDimensionWithStates(nextDimensionId)
+          .catch((err: unknown) => console.error(`Failed to pre-fetch next dimension ${nextDimensionId}:`, err));
+      }
+    }
+  }, [dimensionId, assessment, allowedDimensionIds]);
 
   const { mutateAsync: submitDimensionAssessment } =
     useSubmitDimensionAssessment();
