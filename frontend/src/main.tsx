@@ -6,7 +6,8 @@ import { registerSW } from "virtual:pwa-register";
 registerSW({
   immediate: true,
   onNeedRefresh() {
-    console.log("PWA: New content available, please refresh.");
+    // New SW waiting — reload to activate it so the cache is always fresh
+    window.location.reload();
   },
   onOfflineReady() {
     console.log("PWA: App ready to work offline.");

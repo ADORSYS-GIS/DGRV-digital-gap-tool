@@ -31,11 +31,15 @@ export default defineConfig(({ mode }) => ({
     tsconfigPaths(),
     VitePWA({
       registerType: "autoUpdate",
+      injectRegister: "auto",
       manifest: {
         name: "Gap Assessment Tool",
         short_name: "GAT",
         description: "Cooperative Digital Transformation Tool",
         theme_color: "#ffffff",
+        start_url: "/",
+        scope: "/",
+        display: "standalone",
         icons: [
           {
             src: "dgat-192-192.png",
@@ -51,10 +55,14 @@ export default defineConfig(({ mode }) => ({
       },
       workbox: {
         globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
-        navigateFallback: "index.html",
+        // Full path so Workbox resolves it correctly regardless of SW scope
+        navigateFallback: "/index.html",
         // Don't intercept API, backend, or Keycloak requests with the SW
         navigateFallbackDenylist: [/^\/api\//, /^\/backend\//, /^\/keycloak\//],
         maximumFileSizeToCacheInBytes: 4000000,
+        // Ensure the SW claims all clients immediately on first install
+        clientsClaim: true,
+        skipWaiting: true,
         runtimeCaching: [
           {
             // Cache backend API responses so they're readable offline
