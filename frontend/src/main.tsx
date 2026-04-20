@@ -1,4 +1,8 @@
 import { createRoot } from "react-dom/client";
+import { registerSW } from "virtual:pwa-register";
+
+// Register Service Worker for PWA support
+registerSW({ immediate: true });
 
 // Handle Vite chunk load failures after new deployments.
 // When a new build is deployed, old chunk hash URLs no longer exist on the
@@ -65,23 +69,55 @@ root.render(
   </QueryClientProvider>,
 );
 
+import { get } from "idb-keyval";
+
 // Single Keycloak init — AuthContext does NOT call init again.
-keycloak
-  .init(keycloakInitOptions)
-  .then(async (authenticated) => {
+const initializeAuth = async () => {
+  let cachedTokens: any = null;
+  try {
+    cachedTokens = await get("auth_tokens");
+  } catch (e) {
+    console.warn("Failed to load cached tokens:", e);
+  }
+
+  const initOptions: any = {
+    ...keycloakInitOptions,
+  };
+
+  if (cachedTokens?.accessToken) {
+    initOptions.token = cachedTokens.accessToken;
+    initOptions.refreshToken = cachedTokens.refreshToken;
+    initOptions.idToken = cachedTokens.idToken;
+  }
+
+  try {
+    const authenticated = await keycloak.init(initOptions);
+    console.log(`Keycloak initialized — user authenticated: ${authenticated}`);
     if (authenticated) {
       await authService.storeTokens();
-      console.log("Keycloak initialized — user authenticated");
-    } else {
-      console.log("Keycloak initialized — user not authenticated");
     }
-    // Notify AuthContext that Keycloak is ready by firing onAuthSuccess/onReady.
-    // keycloak.onReady fires after init regardless of auth state.
     if (keycloak.onReady) keycloak.onReady(authenticated);
-    syncManager.initialize();
-  })
-  .catch((error) => {
-    console.error("Failed to initialize Keycloak:", error);
-    // Fire onReady with false so AuthContext stops loading even on error.
-    if (keycloak.onReady) keycloak.onReady(false);
-  });
+  } catch (error) {
+    console.error("Keycloak initialization error (likely offline):", error);
+
+    // If we are offline and have cached tokens, we try to proceed as "authenticated"
+    // even if Keycloak server couldn't confirm it.
+    if (!navigator.onLine && cachedTokens?.accessToken) {
+      console.log("Offline and have cached tokens — proceeding as authenticated.");
+      // Manually populating Keycloak instance properties
+      (keycloak as any).token = cachedTokens.accessToken;
+      (keycloak as any).refreshToken = cachedTokens.refreshToken;
+      (keycloak as any).idToken = cachedTokens.idToken;
+      (keycloak as any).authenticated = true;
+      (keycloak as any).tokenParsed = JSON.parse(atob(cachedTokens.accessToken.split('.')[1]));
+
+      if (keycloak.onReady) keycloak.onReady(true);
+    } else {
+      // Fallback to unauthenticated state
+      if (keycloak.onReady) keycloak.onReady(false);
+    }
+  }
+  syncManager.initialize();
+};
+
+initializeAuth();

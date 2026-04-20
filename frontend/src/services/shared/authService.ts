@@ -250,6 +250,12 @@ export const authService = {
       };
 
       await set("auth_tokens", tokens);
+
+      // Cache profile for offline use after refresh
+      const profile = this.getUserProfile();
+      if (profile) {
+        await set("auth_profile", profile);
+      }
     } catch (error) {
       console.error("Failed to store tokens:", error);
     }
@@ -261,6 +267,7 @@ export const authService = {
   async clearStoredTokens(): Promise<void> {
     try {
       await del("auth_tokens");
+      await del("auth_profile");
     } catch (error) {
       console.error("Failed to clear stored tokens:", error);
     }

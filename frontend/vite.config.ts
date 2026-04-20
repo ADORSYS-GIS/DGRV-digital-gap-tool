@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import tsconfigPaths from "vite-tsconfig-paths";
 import { componentTagger } from "lovable-tagger";
+import { VitePWA } from "vite-plugin-pwa";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
@@ -27,6 +28,35 @@ export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
     tsconfigPaths(),
+    VitePWA({
+      registerType: "autoUpdate",
+      includeAssets: ["favicon.ico", "apple-touch-icon.png", "mask-icon.svg"],
+      manifest: {
+        name: "Gap Assessment Tool",
+        short_name: "GAT",
+        description: "Cooperative Digital Transformation Tool",
+        theme_color: "#ffffff",
+        icons: [
+          {
+            src: "pwa-192x192.png",
+            sizes: "192x192",
+            type: "image/png",
+          },
+          {
+            src: "pwa-512x512.png",
+            sizes: "512x512",
+            type: "image/png",
+          },
+        ],
+      },
+      workbox: {
+        globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
+        // Ensure index.html is always fresh but available offline
+        navigateFallback: "index.html",
+        // Increase the limit for pre-cached files (Vite chunks can be large)
+        maximumFileSizeToCacheInBytes: 4000000,
+      },
+    }),
     mode === "development" && componentTagger(),
   ].filter(Boolean),
 }));

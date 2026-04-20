@@ -16,6 +16,13 @@ export const syncManager = {
   initialize() {
     window.addEventListener("online", this.handleOnline.bind(this));
     window.addEventListener("offline", this.handleOffline.bind(this));
+
+    // Perform initial sync and pre-cache if online
+    if (navigator.onLine) {
+      const organizationId = authService.getOrganizationId();
+      this.syncAll(organizationId);
+      this.precacheAll(organizationId);
+    }
   },
 
   destroy() {
@@ -70,6 +77,91 @@ export const syncManager = {
       queryClient.invalidateQueries({ queryKey: ["digitalisationLevels"] });
       queryClient.invalidateQueries({ queryKey: ["recommendations"] });
       queryClient.invalidateQueries({ queryKey: ["digitalisationGaps"] });
+    }
+  },
+
+  async precacheAll(organizationId: string | null) {
+    if (!navigator.onLine) return;
+
+    try {
+      console.log("Starting proactive pre-caching...");
+
+      // We import these on demand to avoid potential circular dependencies or early loading issues
+      const { assessmentRepository } = await import("../assessments/assessmentRepository");
+      const { submissionRepository } = await import("../assessments/submissionRepository");
+      const { organizationRepository } = await import("../organizations/organizationRepository");
+      const { userRepository } = await import("../users/userRepository");
+      const { actionPlanRepository } = await import("../action_plans/actionPlanRepository");
+      const { listAssessmentsByOrganization, listAssessmentsByCooperation } = await import("@/openapi-client");
+
+      // 1. Pre-cache organization list
+      await organizationRepository.getAll();
+
+      if (organizationId) {
+        // 2. Pre-cache assessments list for the organization
+        const assessments = await assessmentRepository.syncAssessments(
+          async () => {
+            const resp = await listAssessmentsByOrganization({ organizationId });
+            return { data: { assessments: resp.data?.assessments ?? [] } };
+          },
+          "organization_id",
+          organizationId
+        );
+
+        // 3. Pre-cache submissions list for the organization
+        await submissionRepository.listByOrganization(organizationId);
+
+        // 4. Pre-cache users list
+        await userRepository.getMembers(organizationId);
+
+        // 5. Deep pre-cache for each assessment (Dimensions + Action Plans)
+        // We do this in parallel but limit it to avoid overwhelming the browser/network
+        if (assessments && assessments.length > 0) {
+          Promise.all(
+            assessments.map(async (a) => {
+              // getById triggers dimension pre-caching internally
+              await assessmentRepository.getById(a.id);
+              // also pre-cache action plan
+              await actionPlanRepository.getActionPlanByAssessmentId(a.id);
+            })
+          ).catch(err => console.error("Error during deep pre-caching:", err));
+        }
+      }
+
+      // 6. Also try to pre-cache cooperation data if applicable
+      const userProfile = authService.getUserProfile();
+      const isCoopUser = userProfile?.roles?.some(r =>
+        r.toLowerCase().includes("coop_admin") || r.toLowerCase().includes("coop_user")
+      );
+
+      if (isCoopUser) {
+        const cooperationId = userProfile?.organization; // In this app, organization field often holds coop ID for coop users
+        if (cooperationId) {
+          const coopAssessments = await assessmentRepository.syncAssessments(
+            async () => {
+              const resp = await listAssessmentsByCooperation({ cooperationId });
+              return { data: { assessments: resp.data?.assessments ?? [] } };
+            },
+            "cooperation_id",
+            cooperationId
+          );
+          await submissionRepository.listByCooperation(cooperationId);
+
+          // Deep pre-cache for cooperation assessments
+          if (coopAssessments && coopAssessments.length > 0) {
+            Promise.all(
+              coopAssessments.map(async (a) => {
+                await assessmentRepository.getById(a.id);
+                await actionPlanRepository.getActionPlanByAssessmentId(a.id);
+              })
+            ).catch(err => console.error("Error during deep pre-caching (coop):", err));
+          }
+        }
+      }
+
+      console.log("Proactive pre-caching completed.");
+    } catch (error) {
+      console.error("Proactive pre-caching failed:", error);
     }
   },
 };

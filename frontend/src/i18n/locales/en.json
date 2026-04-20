@@ -280,10 +280,9 @@
     },
     "onboarding": {
         "welcome": {
-            "title": "Welcome to Finance Friend",
-            "subtitle": "Let's get your cooperative set up for digital transformation.",
-            "subtitleGuest": "Subtitle Guest",
-            "subtitleHello": "Subtitle Hello"
+            "title": "Welcome to the Gap Assessment Tool",
+            "subtitleHello": "Welcome, {{name}}! Let's set up your digital transformation assessment profile.",
+            "subtitleGuest": "Welcome! Let us guide you through the digital assessment process."
         },
         "stepProgress": "Step {{current}} of {{total}}",
         "stepDescription": "Complete these quick steps to customize your assessment experience.",
@@ -291,47 +290,28 @@
             "prev": "Previous",
             "next": "Next",
             "finish": "Finish",
-            "titleHighlight": "Digital Progress",
-            "description": "Monitor your cooperative's evolution across multiple digitalization dimensions with intuitive metrics.",
-            "basics": "Basics",
-            "dimensions": "Dimensions",
-            "completion": "Completion",
-            "back": "Back",
-            "begin": "Begin",
-            "completionDesc": "Completion Desc",
-            "ready": "Ready",
+            "back": "Back to steps",
+            "ready": "You are ready to begin!",
+            "begin": "Start your journey",
+            "completionDesc": "Your digitalization journey starts now. Let's transform your cooperative with data-driven insights and strategic planning.",
             "step0": {
-                "description": "Description",
-                "title": "Management",
-                "titleHighlight": "Title Highlight"
+                "title": "Track your",
+                "titleHighlight": "Digital Progress",
+                "description": "Monitor your cooperative's evolution across multiple digitalization dimensions with intuitive metrics."
             },
             "step1": {
-                "description": "Description",
-                "title": "Management",
-                "titleHighlight": "Title Highlight"
+                "title": "Set clear",
+                "titleHighlight": "Strategic Goals",
+                "description": "Define where you want to go and establish clear targets for your transformation."
             },
             "step2": {
-                "description": "Description",
-                "title": "Management",
-                "titleHighlight": "Title Highlight"
-            }
-        },
-        "step1": {
-            "title": "Set Clear",
-            "titleHighlight": "Strategic Goals",
-            "description": "Define where you want to go and establish clear targets for your digital transformation."
-        },
-        "step2": {
-            "title": "Actionable",
-            "titleHighlight": "Recommendations",
-            "description": "Receive specific, data-driven advice tailored to your cooperative's current state and goals."
-        },
-        "title": "Welcome to Finance Friend",
-        "subtitle": "Let's get your cooperative set up for digital transformation.",
-        "completion": {
-            "title": "Setup Complete!",
-            "message": "Your cooperative is now ready to begin its digital assessment journey.",
-            "cta": "Go to Dashboard"
+                "title": "Actionable",
+                "titleHighlight": "Insights",
+                "description": "Receive specific data-driven advice tailored to your cooperative's current state and goals."
+            },
+            "basics": "Basics",
+            "dimensions": "Dimensions",
+            "completion": "Completion"
         },
         "context": {
             "title": "Why this onboarding?",
@@ -345,6 +325,11 @@
         "error": {
             "title": "Onboarding Error",
             "description": "We couldn't load the onboarding steps. Please try again or contact support."
+        },
+        "completion": {
+            "title": "Setup Complete!",
+            "message": "Your cooperative is now ready to begin its digital assessment journey.",
+            "cta": "Go to Dashboard"
         }
     },
     "secondAdminCooperations": {
