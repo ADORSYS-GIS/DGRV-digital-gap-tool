@@ -4,6 +4,24 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DGAT GAP ANALYSIS</title>
+
+    <!-- Unregister stale service workers from old deploys before anything else loads.
+         Without this, old SWs block the new one from installing and offline breaks. -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function(registrations) {
+          // Keep only the most recently installed SW, unregister the rest
+          var active = registrations.filter(function(r) { return r.active; });
+          var waiting = registrations.filter(function(r) { return r.waiting && !r.active; });
+          // Unregister all purely-waiting (stuck) registrations
+          waiting.forEach(function(r) { r.unregister(); });
+          // If more than one active, unregister all but the newest
+          if (active.length > 1) {
+            active.slice(0, active.length - 1).forEach(function(r) { r.unregister(); });
+          }
+        });
+      }
+    </script>
     <meta
       name="description"
       content="Empower your cooperative with DGAT GAP ANALYSISs. Built for cooperatives in Southern Africa."

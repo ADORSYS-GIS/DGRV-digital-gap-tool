@@ -1,8 +1,27 @@
 import { createRoot } from "react-dom/client";
 import { registerSW } from "virtual:pwa-register";
 
+// On first load after a new deploy, unregister all old service workers so the
+// new one can install cleanly. We track this with a version key in localStorage.
+const SW_VERSION_KEY = "sw_version";
+const CURRENT_SW_VERSION = "v4"; // bump this with each deploy that changes the SW
+if (localStorage.getItem(SW_VERSION_KEY) !== CURRENT_SW_VERSION) {
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      registrations.forEach((r) => r.unregister());
+      // Clear all SW caches so the new SW starts fresh
+      caches.keys().then((keys) => keys.forEach((k) => caches.delete(k)));
+    }).then(() => {
+      localStorage.setItem(SW_VERSION_KEY, CURRENT_SW_VERSION);
+      // Reload once so the new SW registers cleanly
+      window.location.reload();
+    });
+  } else {
+    localStorage.setItem(SW_VERSION_KEY, CURRENT_SW_VERSION);
+  }
+}
+
 // Register Service Worker for PWA support
-// Register Service Worker for PWA support with logging
 registerSW({
   immediate: true,
   onNeedRefresh() {
