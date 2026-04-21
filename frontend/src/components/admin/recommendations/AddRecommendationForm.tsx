@@ -51,6 +51,7 @@ const createFormSchema = (
   existingRecommendations: Array<{
     dimension_key: string;
     priority: RecommendationPriority;
+    language: string;
   }>,
   t: TFunction,
 ) => {
@@ -63,10 +64,12 @@ const createFormSchema = (
     })
     .refine(
       (data) => {
+        // Block only if same dimension_key + priority + language already exists
         const exists = existingRecommendations.some(
           (rec) =>
             rec.dimension_key === data.dimension_key &&
-            rec.priority === data.priority,
+            rec.priority === data.priority &&
+            rec.language === data.language,
         );
         return !exists;
       },
@@ -91,7 +94,7 @@ export function AddRecommendationForm({
   const { data: logicalDimensions = [] } = useLogicalDimensions();
   const { data: existingRecommendations = [] } = useRecommendations();
 
-  // Get existing dimension_key-priority pairs for validation
+  // Get existing dimension_key-priority-language triples for validation
   const existingDimensionPriorities = existingRecommendations
     .filter(
       (rec): rec is IRecommendation =>
@@ -100,6 +103,7 @@ export function AddRecommendationForm({
     .map((rec) => ({
       dimension_key: (rec as any).dimension_key ?? rec.dimension_id,
       priority: rec.priority as RecommendationPriority,
+      language: (rec as any).language ?? "en",
     }));
 
   const formSchema = createFormSchema(existingDimensionPriorities, t);

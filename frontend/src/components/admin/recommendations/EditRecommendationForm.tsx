@@ -52,9 +52,10 @@ type FormValues = {
 
 const createFormSchema = (
   existingRecommendations: Array<{
-    dimension_id: string;
+    dimension_key: string;
     priority: RecommendationPriority;
-    id?: string; // For excluding the current recommendation when editing
+    language: string;
+    id?: string;
   }>,
   t: TFunction,
   currentRecommendationId?: string,
@@ -68,13 +69,12 @@ const createFormSchema = (
     })
     .refine(
       (data) => {
-        // Check if there's already a recommendation with the same dimension and priority
-        // but exclude the current recommendation being edited
         const exists = existingRecommendations.some(
           (rec) =>
             rec.id !== currentRecommendationId &&
-            rec.dimension_id === data.dimension_id &&
-            rec.priority === data.priority,
+            rec.dimension_key === data.dimension_id &&
+            rec.priority === data.priority &&
+            rec.language === data.language,
         );
         return !exists;
       },
@@ -101,7 +101,7 @@ export function EditRecommendationForm({
   const { data: dimensions = [] } = useDimensions();
   const { data: existingRecommendations = [] } = useRecommendations();
 
-  // Get existing dimension-priority pairs for validation, excluding the current recommendation
+  // Get existing dimension-priority-language triples for validation
   const existingDimensionPriorities = existingRecommendations
     .filter(
       (rec): rec is IRecommendation =>
@@ -109,8 +109,9 @@ export function EditRecommendationForm({
     )
     .map((rec) => ({
       id: rec.id,
-      dimension_id: rec.dimension_id,
+      dimension_key: (rec as any).dimension_key ?? rec.dimension_id,
       priority: rec.priority as RecommendationPriority,
+      language: (rec as any).language ?? "en",
     }));
 
   const formSchema = createFormSchema(
