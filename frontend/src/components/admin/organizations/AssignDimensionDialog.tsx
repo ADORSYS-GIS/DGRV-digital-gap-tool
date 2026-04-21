@@ -8,12 +8,12 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useLogicalDimensions } from "@/hooks/dimensions/useLogicalDimensions";
-import { useOrganizationDimensions } from "@/hooks/organization_dimensions/useOrganizationDimensions";
 import { useSetAssignedDimensions } from "@/hooks/organization_dimensions/useSetAssignedDimensions";
 import { Organization } from "@/types/organization";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useTranslation } from "react-i18next";
+import { getOrganizationDimensions } from "@/openapi-client/services.gen";
 
 interface AssignDimensionDialogProps {
   organization: Organization | null;
@@ -27,24 +27,27 @@ export const AssignDimensionDialog: React.FC<AssignDimensionDialogProps> = ({
   onClose,
 }) => {
   const { t } = useTranslation();
-  // Always use logical dimensions (one per dimension_key, English label)
   const { data: logicalDimensions, isLoading: isLoadingDimensions } =
     useLogicalDimensions();
-  const { data: assignedDimensionIds, isLoading: isLoadingAssigned } =
-    useOrganizationDimensions(organization?.id || "");
-
   const { mutate: setAssignedDimensions, isPending } = useSetAssignedDimensions(
     organization?.id || "",
   );
 
   const [selectedDimensions, setSelectedDimensions] = useState<string[]>([]);
+  const [isLoadingAssigned, setIsLoadingAssigned] = useState(false);
 
+  // Fetch assigned dimension_key values directly from API when dialog opens
   useEffect(() => {
-    if (assignedDimensionIds) {
-      // assignedDimensionIds now contains dimension_key values from the backend
-      setSelectedDimensions(assignedDimensionIds);
-    }
-  }, [assignedDimensionIds]);
+    if (!isOpen || !organization?.id) return;
+    setIsLoadingAssigned(true);
+    getOrganizationDimensions({ orgId: organization.id })
+      .then((res) => {
+        // res is string[] of dimension_key UUIDs
+        setSelectedDimensions((res as any) ?? []);
+      })
+      .catch(() => setSelectedDimensions([]))
+      .finally(() => setIsLoadingAssigned(false));
+  }, [isOpen, organization?.id]);
 
   const handleSave = () => {
     if (organization) {
