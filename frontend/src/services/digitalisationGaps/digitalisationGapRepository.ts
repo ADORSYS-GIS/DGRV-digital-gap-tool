@@ -56,8 +56,10 @@ export const digitalisationGapRepository = {
               return {
                 id: d.gap_id,
                 dimensionId: d.dimension_id,
+                dimension_key: d.dimension_key,
                 gap_severity: d.gap_severity as Gap,
                 description: d.gap_description || "",
+                language: d.language ?? "en",
                 syncStatus: SyncStatus.SYNCED,
                 lastError: "",
                 createdAt: d.created_at,
@@ -142,6 +144,32 @@ export const digitalisationGapRepository = {
   add: async (
     payload: AddDigitalisationGapPayload,
   ): Promise<IDigitalisationGap> => {
+    if (navigator.onLine) {
+      const { adminCreateGap } = await import("@/openapi-client/services.gen");
+      const response = await adminCreateGap({
+        requestBody: {
+          dimension_key: (payload as any).dimensionKey ?? (payload as any).dimension_key ?? payload.dimensionId,
+          dimension_id: payload.dimensionId ?? null,
+          gap_description: payload.description,
+          gap_severity: payload.gap_severity as any,
+          language: (payload as any).language ?? "en",
+        },
+      });
+      const data: any = response.data;
+      const serverId: string = data?.gap_id ?? data?.data?.gap_id ?? uuidv4();
+      const synced: IDigitalisationGap = {
+        ...payload,
+        id: serverId,
+        syncStatus: SyncStatus.SYNCED,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        isDeleted: false,
+      };
+      await db.digitalisationGaps.put(synced);
+      return synced;
+    }
+
+    // Offline fallback
     const newGap: IDigitalisationGap = {
       ...payload,
       id: uuidv4(),

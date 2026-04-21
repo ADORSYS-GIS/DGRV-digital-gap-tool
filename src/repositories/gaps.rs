@@ -146,6 +146,22 @@ impl GapsRepository {
         active_model.update(db).await.map_err(AppError::from)
     }
 
+    /// Find gap by dimension_key + severity + language (for duplicate check)
+    pub async fn find_by_dimension_key_and_severity_and_language(
+        db: &DbConn,
+        dimension_key: Uuid,
+        severity: crate::entities::gaps::GapSeverity,
+        language: &str,
+    ) -> Result<Option<gaps::Model>, AppError> {
+        Gaps::find()
+            .filter(gaps::Column::DimensionKey.eq(dimension_key))
+            .filter(gaps::Column::GapSeverity.eq(severity.to_value()))
+            .filter(gaps::Column::Language.eq(language))
+            .one(db)
+            .await
+            .map_err(AppError::from)
+    }
+
     /// Find gaps by assessment ID through dimension assessments
     pub async fn find_by_assessment(
         db: &DbConn,

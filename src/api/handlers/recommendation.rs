@@ -21,6 +21,7 @@ fn to_recommendation_response(model: recommendations::Model) -> RecommendationRe
     RecommendationResponse {
         recommendation_id: model.recommendation_id,
         dimension_id: model.dimension_id,
+        dimension_key: model.dimension_key,
         priority: model.priority.into(),
         description: model.description,
         language: model.language,
@@ -70,6 +71,31 @@ pub async fn create_recommendation(
         })?;
         dim.dimension_id
     };
+
+    // Check for duplicate: same dimension_key + priority + language
+    let priority_for_check = payload.priority.clone().into();
+    if RecommendationsRepository::find_by_dimension_key_and_priority_and_language(
+        db,
+        payload.dimension_key,
+        &match &priority_for_check {
+            crate::entities::recommendations::RecommendationPriority::Low => "Low",
+            crate::entities::recommendations::RecommendationPriority::Medium => "Medium",
+            crate::entities::recommendations::RecommendationPriority::High => "High",
+        },
+        &payload.language,
+    )
+    .await
+    .map_err(|e| {
+        let error_response = serde_json::json!({"status": "error", "message": format!("DB error: {}", e)});
+        (StatusCode::INTERNAL_SERVER_ERROR, Json(error_response))
+    })?
+    .is_some() {
+        let error_response = serde_json::json!({
+            "status": "error",
+            "message": "A recommendation with this priority for this dimension in this language already exists"
+        });
+        return Err((StatusCode::CONFLICT, Json(error_response)));
+    }
 
     let recommendation = recommendations::ActiveModel {
         recommendation_id: Set(Uuid::new_v4()),

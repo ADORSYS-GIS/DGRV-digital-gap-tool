@@ -5,7 +5,6 @@ import {
 import {
   ICreateRecommendationRequest,
   IRecommendation,
-  IRecommendationResponse,
   IUpdateRecommendationRequest,
 } from "@/types/recommendation";
 import { SyncStatus } from "@/types/sync";
@@ -70,8 +69,10 @@ export const recommendationRepository = {
                 id: recommendationId,
                 recommendation_id: recommendationId,
                 dimension_id: item.dimension_id,
+                dimension_key: item.dimension_key,
                 priority: item.priority ?? "MEDIUM",
                 description: item.description,
+                language: item.language ?? "en",
                 syncStatus: SyncStatus.SYNCED,
                 lastError: "",
                 created_at: item.created_at || new Date().toISOString(),
@@ -117,12 +118,14 @@ export const recommendationRepository = {
       if (navigator.onLine) {
         const response = await getRecommendation({ id });
         if (response.data) {
-          const data = response.data as IRecommendationResponse;
+          const data = response.data as any;
           const syncedRecommendation: IRecommendation = {
             id: data.recommendation_id,
             recommendation_id: data.recommendation_id,
             dimension_id: data.dimension_id,
+            dimension_key: data.dimension_key,
             description: data.description,
+            language: data.language ?? "en",
             // Only include optional fields if they have values
             ...(data.title && { title: data.title }),
             ...(data.category && { category: data.category }),
@@ -178,7 +181,7 @@ export const recommendationRepository = {
       const response = await createRecommendation({
         requestBody: {
           dimension_key: recommendation.dimension_key!,
-          dimension_id: recommendation.dimension_id ?? undefined,
+          dimension_id: recommendation.dimension_id ?? null,
           priority: recommendation.priority,
           description: recommendation.description,
           language: (recommendation as any).language ?? "en",

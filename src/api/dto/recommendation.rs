@@ -45,9 +45,12 @@ pub struct RecommendationResponse {
     #[schema(example = "550e8400-e29b-41d4-a716-446655440000")]
     pub recommendation_id: Uuid,
 
-    /// Reference to the dimension
+    /// Language-specific dimension row ID
     #[schema(example = "550e8400-e29b-41d4-a716-446655440002")]
     pub dimension_id: Uuid,
+
+    /// Stable cross-language dimension identifier
+    pub dimension_key: Uuid,
 
     /// Priority level of the recommendation
     pub priority: RecommendationPriority,

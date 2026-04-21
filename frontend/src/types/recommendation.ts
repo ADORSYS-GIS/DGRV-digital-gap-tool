@@ -6,10 +6,12 @@ export interface IRecommendation {
   id: string;
   recommendation_id?: string;
   dimension_id: string;
+  dimension_key?: string;
   title?: string;
   description: string;
   category?: string;
   priority?: RecommendationPriority;
+  language?: string;
   effort?: string;
   cost?: number;
   impact?: number;

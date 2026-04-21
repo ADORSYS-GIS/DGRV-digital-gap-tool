@@ -39,7 +39,7 @@ export function RecommendationList({
   const groupedRecommendations = useMemo(() => {
     return recommendations.reduce(
       (acc, rec) => {
-        const dimKey = (rec as any).dimension_key ?? rec.dimension_id;
+        const dimKey = rec.dimension_key ?? rec.dimension_id;
         const dimension = logicalDimensions.find((d) => d.dimension_key === dimKey);
         const dimensionName = dimension?.name || t("common.noTitle");
 

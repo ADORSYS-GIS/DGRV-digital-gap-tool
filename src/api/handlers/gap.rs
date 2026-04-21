@@ -65,8 +65,25 @@ pub async fn admin_create_gap(
     Json(request): Json<AdminCreateGapRequest>,
 ) -> Result<Json<ApiResponse<GapResponse>>, (StatusCode, Json<serde_json::Value>)> {
     let db = &state.db;
-    let severity = request.gap_severity.into();
+    let severity: crate::entities::gaps::GapSeverity = request.gap_severity.clone().into();
     let description = request.gap_description;
+
+    // Check for duplicate: same dimension_key + severity + language
+    if GapsRepository::find_by_dimension_key_and_severity_and_language(
+        db.as_ref(),
+        request.dimension_key,
+        severity.clone(),
+        &request.language,
+    )
+    .await
+    .map_err(crate::api::handlers::common::handle_error)?
+    .is_some() {
+        return Err(crate::api::handlers::common::handle_error(
+            crate::error::AppError::Conflict(
+                "A gap with this severity for this dimension in this language already exists".to_string()
+            )
+        ));
+    }
 
     // Resolve dimension_id from dimension_key + language
     let dimension_id = if let Some(id) = request.dimension_id {
@@ -99,7 +116,6 @@ pub async fn admin_create_gap(
         calculated_at: Set(chrono::Utc::now()),
         ..Default::default()
     };
-
     let created = GapsRepository::create(db.as_ref(), active)
         .await
         .map_err(crate::api::handlers::common::handle_error)?;

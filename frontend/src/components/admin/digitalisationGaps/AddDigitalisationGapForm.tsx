@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -14,7 +13,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -69,10 +67,12 @@ export function AddDigitalisationGapForm({
           if (digitalisationGap) {
             return true;
           }
+          // Prevent duplicate: same dimension_key + severity + language
           const existingGap = digitalisationGaps?.find(
             (gap) =>
-              (gap as any).dimension_key === data.dimensionKey &&
-              gap.gap_severity === data.gap_severity,
+              ((gap as any).dimension_key ?? gap.dimensionId) === data.dimensionKey &&
+              gap.gap_severity === data.gap_severity &&
+              ((gap as any).language ?? "en") === data.language,
           );
           return !existingGap;
         },
