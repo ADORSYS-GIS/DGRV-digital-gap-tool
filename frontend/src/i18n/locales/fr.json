@@ -1064,7 +1064,7 @@
       "empty": "Aucun écart trouvé.",
       "actions": "Actions",
       "description": "Description",
-      "gapCount": "Gap Count",
+      "gapCount": "{{count}} gap(s)",
       "severity": "Severity"
     },
     "validation": {

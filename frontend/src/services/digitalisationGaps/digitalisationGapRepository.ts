@@ -146,27 +146,39 @@ export const digitalisationGapRepository = {
   ): Promise<IDigitalisationGap> => {
     if (navigator.onLine) {
       const { adminCreateGap } = await import("@/openapi-client/services.gen");
-      const response = await adminCreateGap({
-        requestBody: {
-          dimension_key: (payload as any).dimensionKey ?? (payload as any).dimension_key ?? payload.dimensionId,
-          dimension_id: payload.dimensionId ?? null,
-          gap_description: payload.description,
-          gap_severity: payload.gap_severity as any,
-          language: (payload as any).language ?? "en",
-        },
-      });
-      const data: any = response.data;
-      const serverId: string = data?.gap_id ?? data?.data?.gap_id ?? uuidv4();
-      const synced: IDigitalisationGap = {
-        ...payload,
-        id: serverId,
-        syncStatus: SyncStatus.SYNCED,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        isDeleted: false,
-      };
-      await db.digitalisationGaps.put(synced);
-      return synced;
+      try {
+        const response = await adminCreateGap({
+          requestBody: {
+            dimension_key: (payload as any).dimensionKey ?? (payload as any).dimension_key ?? payload.dimensionId,
+            dimension_id: payload.dimensionId ?? null,
+            gap_description: payload.description,
+            gap_severity: payload.gap_severity as any,
+            language: (payload as any).language ?? "en",
+          },
+        });
+        const data: any = response.data;
+        const serverId: string = data?.gap_id ?? data?.data?.gap_id ?? uuidv4();
+        const synced: IDigitalisationGap = {
+          ...payload,
+          id: serverId,
+          syncStatus: SyncStatus.SYNCED,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          isDeleted: false,
+        };
+        await db.digitalisationGaps.put(synced);
+        return synced;
+      } catch (err: any) {
+        const status = err?.status ?? err?.response?.status;
+        const body = err?.body ?? err?.response?.data ?? {};
+        if (status === 409) {
+          throw new Error(
+            body?.message ??
+            "A gap with this severity for this dimension in this language already exists."
+          );
+        }
+        throw new Error(body?.message ?? err?.message ?? "Failed to create gap");
+      }
     }
 
     // Offline fallback

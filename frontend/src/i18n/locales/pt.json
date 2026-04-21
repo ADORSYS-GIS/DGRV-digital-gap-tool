@@ -1225,7 +1225,7 @@
         "list": {
             "actions": "Ações",
             "description": "Descrição",
-            "gapCount": "Quantidade de Lacunas",
+            "gapCount": "{{count}} lacuna(s)",
             "severity": "Gravidade"
         },
         "updateBtn": "Update Btn",

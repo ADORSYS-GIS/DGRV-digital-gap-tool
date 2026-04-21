@@ -1221,7 +1221,7 @@
         "list": {
             "actions": "Tento",
             "description": "Inchazelo",
-            "gapCount": "Inani Lemagap",
+            "gapCount": "{{count}} gap(s)",
             "severity": "Bucayi"
         },
         "updateBtn": "Update Btn",

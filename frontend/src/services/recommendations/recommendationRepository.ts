@@ -176,22 +176,34 @@ export const recommendationRepository = {
     };
 
     if (navigator.onLine) {
-      // Call API directly when online
       const { createRecommendation } = await import("@/openapi-client/services.gen");
-      const response = await createRecommendation({
-        requestBody: {
-          dimension_key: recommendation.dimension_key!,
-          dimension_id: recommendation.dimension_id ?? null,
-          priority: recommendation.priority,
-          description: recommendation.description,
-          language: (recommendation as any).language ?? "en",
-        },
-      });
-      const responseData: any = response.data as any;
-      const serverId: string = responseData?.recommendation_id ?? responseData?.data?.recommendation_id ?? newId;
-      const synced: IRecommendation = { ...newRecommendation, id: serverId, recommendation_id: serverId, syncStatus: SyncStatus.SYNCED };
-      await db.recommendations.add(synced);
-      return synced;
+      try {
+        const response = await createRecommendation({
+          requestBody: {
+            dimension_key: recommendation.dimension_key!,
+            dimension_id: recommendation.dimension_id ?? null,
+            priority: recommendation.priority,
+            description: recommendation.description,
+            language: (recommendation as any).language ?? "en",
+          },
+        });
+        const responseData: any = response.data as any;
+        const serverId: string = responseData?.recommendation_id ?? responseData?.data?.recommendation_id ?? newId;
+        const synced: IRecommendation = { ...newRecommendation, id: serverId, recommendation_id: serverId, syncStatus: SyncStatus.SYNCED };
+        await db.recommendations.add(synced);
+        return synced;
+      } catch (err: any) {
+        // Extract a meaningful message from the API error response
+        const status = err?.status ?? err?.response?.status;
+        const body = err?.body ?? err?.response?.data ?? {};
+        if (status === 409) {
+          throw new Error(
+            body?.message ??
+            "A recommendation with this priority for this dimension in this language already exists."
+          );
+        }
+        throw new Error(body?.message ?? err?.message ?? "Failed to create recommendation");
+      }
     }
 
     await db.recommendations.add(newRecommendation);

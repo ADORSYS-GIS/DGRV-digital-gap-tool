@@ -1205,7 +1205,7 @@
         "list": {
             "actions": "Actions",
             "description": "Description",
-            "gapCount": "Gap Count",
+            "gapCount": "{{count}} gap(s)",
             "severity": "Severity"
         },
         "updateBtn": "Update Btn",

@@ -92,30 +92,39 @@ export const dimensionRepository = {
   },
   add: async (dimension: ICreateDimensionRequest): Promise<IDimension> => {
     if (navigator.onLine) {
-      // Call API directly — ensures language and dimension_key are sent correctly
       const { createDimension } = await import("@/openapi-client/services.gen");
-      const response = await createDimension({
-        requestBody: {
-          name: dimension.name,
-          description: dimension.description ?? null,
-          category: dimension.category ?? null,
-          weight: dimension.weight ?? null,
-          language: (dimension as any).language ?? "en",
-          // Pass dimension_key if provided (linking a translation to an existing dimension)
-          dimension_key: (dimension as any).dimension_key ?? undefined,
-        },
-      });
-      const data = response.data;
-      if (!data) throw new Error("Failed to create dimension");
-      const synced: IDimension = {
-        ...dimension,
-        id: data.dimension_id,
-        syncStatus: SyncStatus.SYNCED,
-        // Store dimension_key for future use
-        ...(data.dimension_key && { dimension_key: data.dimension_key } as any),
-      };
-      await db.dimensions.put(synced);
-      return synced;
+      try {
+        const response = await createDimension({
+          requestBody: {
+            name: dimension.name,
+            description: dimension.description ?? null,
+            category: dimension.category ?? null,
+            weight: dimension.weight ?? null,
+            language: (dimension as any).language ?? "en",
+            dimension_key: (dimension as any).dimension_key ?? undefined,
+          },
+        });
+        const data = response.data;
+        if (!data) throw new Error("Failed to create dimension");
+        const synced: IDimension = {
+          ...dimension,
+          id: data.dimension_id,
+          syncStatus: SyncStatus.SYNCED,
+          ...(data.dimension_key && { dimension_key: data.dimension_key } as any),
+        };
+        await db.dimensions.put(synced);
+        return synced;
+      } catch (err: any) {
+        const status = err?.status ?? err?.response?.status;
+        const body = err?.body ?? err?.response?.data ?? {};
+        if (status === 409) {
+          throw new Error(
+            body?.message ??
+            "A translation for this dimension in this language already exists."
+          );
+        }
+        throw new Error(body?.message ?? err?.message ?? "Failed to create dimension");
+      }
     }
 
     // Offline: queue for later sync
