@@ -63,9 +63,12 @@ export function AddAssessmentForm({ isOpen, onClose }: AddAssessmentFormProps) {
     useCooperations(organizationId || undefined);
   const { mutate: addAssessment, isPending: isAdding } = useAddAssessment();
 
-  // Filter to only dimensions assigned to this org (by dimension_key)
+  // Filter to only dimensions assigned to this org (by dimension_key or dimension_id for backward compat)
   const assignedDimensions =
-    logicalDimensions?.filter((d) => assignedDimensionKeys?.includes(d.dimension_key)) || [];
+    logicalDimensions?.filter((d) =>
+      assignedDimensionKeys?.includes(d.dimension_key) ||
+      assignedDimensionKeys?.some((k) => k === d.dimension_key)
+    ) || [];
 
   const form = useForm<AddAssessmentFormValues>({
     resolver: zodResolver(formSchema),

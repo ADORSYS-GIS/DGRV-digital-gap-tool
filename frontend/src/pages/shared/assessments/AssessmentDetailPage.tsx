@@ -115,10 +115,14 @@ const AssessmentDetailPage: React.FC = () => {
   const filteredDimensions = useMemo(() => {
     if (!isCoopUserRestricted) return dimensions;
     if (!assignedDimensionIds.length) return [];
-    return dimensions.filter((d) => assignedDimensionIds.includes(d.id));
+    // assignedDimensionIds are dimension_key values — match against dimension_key
+    return dimensions.filter((d) =>
+      assignedDimensionIds.includes((d as any).dimension_key ?? d.id)
+    );
   }, [dimensions, assignedDimensionIds, isCoopUserRestricted]);
 
   const submittedDimensionIds = useMemo(() => {
+    // Build a set of dimension_key values that have been submitted
     return new Set(
       (dimensionAssessments || [])
         .filter((da) =>
@@ -126,17 +130,25 @@ const AssessmentDetailPage: React.FC = () => {
             ? true
             : assignedDimensionIds.includes(da.dimensionId),
         )
-        .map((da) => da.dimensionId),
+        .map((da) => {
+          // Find the dimension_key for this dimensionId
+          const dim = dimensions.find((d) => d.id === da.dimensionId);
+          return dim ? ((dim as any).dimension_key ?? da.dimensionId) : da.dimensionId;
+        }),
     );
-  }, [dimensionAssessments, assignedDimensionIds, isCoopUserRestricted]);
+  }, [dimensionAssessments, assignedDimensionIds, isCoopUserRestricted, dimensions]);
 
   const completedPerspectives = submittedDimensionIds.size;
 
   const handleStartDimensionAssessment = (dimensionId: string) => {
     if (assessmentId) {
       const basePath = location.pathname.split("/")[1];
+      // Always navigate using dimension_key (stable cross-language identifier)
+      // so the answering page can resolve the correct language version
+      const dim = dimensions.find((d) => d.id === dimensionId);
+      const stableId = dim ? ((dim as any).dimension_key ?? dimensionId) : dimensionId;
       navigate(
-        `/${basePath}/assessment/${assessmentId}/dimension/${dimensionId}`,
+        `/${basePath}/assessment/${assessmentId}/dimension/${stableId}`,
       );
     } else {
       toast.error(t("sharedAssessments.detail.assessmentIdNotFound"));
@@ -249,7 +261,7 @@ const AssessmentDetailPage: React.FC = () => {
                   key={dimension.id}
                   dimension={dimension}
                   onClick={handleStartDimensionAssessment}
-                  isSubmitted={submittedDimensionIds.has(dimension.id)}
+                  isSubmitted={submittedDimensionIds.has((dimension as any).dimension_key ?? dimension.id)}
                   isLocked={isCoopAdmin && dimensionsAssignedToUsers.has(dimension.id)}
                 />
               ))}

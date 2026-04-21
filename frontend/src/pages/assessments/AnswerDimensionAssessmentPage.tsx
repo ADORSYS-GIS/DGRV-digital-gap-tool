@@ -127,8 +127,17 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
   );
 
   const existingAssessment = useMemo(() => {
+    // dimensionId in URL is now dimension_key — match against dimension_key or dimensionId
     const rawAssessment = dimensionAssessments?.find(
-      (da) => da.dimensionId === dimensionId,
+      (da) => {
+        // Direct match (old assessments where dimensionId = dimension_key)
+        if (da.dimensionId === dimensionId) return true;
+        // Match via dimension_key stored on the assessment
+        if ((da as any).dimension_key === dimensionId) return true;
+        // Match via the resolved dimension row
+        if (dimension && da.dimensionId === dimension.id) return true;
+        return false;
+      }
     );
 
     // If we have an existing assessment and dimension data, enrich it with actual levels
@@ -209,8 +218,7 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
       const currentIndex = list.indexOf(dimensionId as string);
       if (currentIndex !== -1 && currentIndex < list.length - 1) {
         const nextDimensionId = list[currentIndex + 1] as string;
-        dimensionAssessmentRepository.getDimensionWithStates(nextDimensionId, i18n.language)
-          .catch((err: unknown) => console.error(`Failed to pre-fetch next dimension ${nextDimensionId}:`, err));
+        dimensionAssessmentRepository.getDimensionWithStates(nextDimensionId, i18n.language)          .catch((err: unknown) => console.error(`Failed to pre-fetch next dimension ${nextDimensionId}:`, err));
       }
     }
   }, [dimensionId, assessment, allowedDimensionIds]);
@@ -279,7 +287,9 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
 
         const payload = {
           assessmentId,
-          dimensionId,
+          // Use the resolved dimension.id (language-specific) if available,
+          // otherwise fall back to dimensionId (dimension_key from URL)
+          dimensionId: dimension?.id ?? dimensionId,
           currentStateId: currentState.id,
           desiredStateId: desiredState.id,
           gapScore: calculateGapScore(currentLevel, desiredLevel),

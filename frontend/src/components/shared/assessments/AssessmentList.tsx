@@ -111,7 +111,10 @@ export function AssessmentList({
                     <Badge variant="outline">{t("shared.assessments.loadingDimensions")}</Badge>
                   ) : (
                     assessment.dimensionIds?.map((id) => {
-                      const dimension = dimensions?.find((d) => d.id === id);
+                      // id may be dimension_key or dimension_id — match both
+                      const dimension = dimensions?.find(
+                        (d) => d.id === id || (d as any).dimension_key === id
+                      );
                       if (!dimension) return null;
                       return (
                         <Badge
