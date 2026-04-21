@@ -43,7 +43,7 @@ export const assessmentRepository = {
             const { dimensionAssessmentRepository } = await import("./dimensionAssessmentRepository");
             Promise.all(
               localAssessment.dimensionIds.map(dimId =>
-                dimensionAssessmentRepository.getDimensionWithStates(dimId)
+                dimensionAssessmentRepository.getDimensionWithStates(dimId, "en")
                   .catch(err => console.error(`Error pre-caching dimension ${dimId}:`, err))
               )
             );

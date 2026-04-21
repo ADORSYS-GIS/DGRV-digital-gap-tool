@@ -146,33 +146,47 @@ pub async fn get_dimension_with_states(
     let db = &state.db;
     let lang = &lang_params.lang;
 
-    let dimension = DimensionsRepository::find_by_id(db.as_ref(), dimension_id)
+    // Try to find by dimension_id first, then fall back to dimension_key
+    let dimension = match DimensionsRepository::find_by_id(db.as_ref(), dimension_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?
-        .ok_or_else(|| {
-            crate::api::handlers::common::handle_error(AppError::NotFound(
-                "Dimension not found".to_string(),
-            ))
-        })?;
+    {
+        Some(d) => d,
+        None => {
+            // Try as dimension_key — find the row matching key + language
+            let target_lang = if lang == "all" { "en" } else { lang.as_str() };
+            DimensionsRepository::find_by_key_and_language(db.as_ref(), dimension_id, target_lang)
+                .await
+                .map_err(crate::api::handlers::common::handle_error)?
+                .or_else(|| None)
+                .ok_or_else(|| {
+                    crate::api::handlers::common::handle_error(AppError::NotFound(
+                        "Dimension not found".to_string(),
+                    ))
+                })?
+        }
+    };
+
+    let resolved_dimension_id = dimension.dimension_id;
 
     // Get current states filtered by language
     let current_states = if lang == "all" {
-        CurrentStatesRepository::find_by_dimension(db.as_ref(), dimension_id)
+        CurrentStatesRepository::find_by_dimension(db.as_ref(), resolved_dimension_id)
             .await
             .map_err(crate::api::handlers::common::handle_error)?
     } else {
-        CurrentStatesRepository::find_by_dimension_and_language(db.as_ref(), dimension_id, lang)
+        CurrentStatesRepository::find_by_dimension_and_language(db.as_ref(), resolved_dimension_id, lang)
             .await
             .map_err(crate::api::handlers::common::handle_error)?
     };
 
     // Get desired states filtered by language
     let desired_states = if lang == "all" {
-        DesiredStatesRepository::find_by_dimension(db.as_ref(), dimension_id)
+        DesiredStatesRepository::find_by_dimension(db.as_ref(), resolved_dimension_id)
             .await
             .map_err(crate::api::handlers::common::handle_error)?
     } else {
-        DesiredStatesRepository::find_by_dimension_and_language(db.as_ref(), dimension_id, lang)
+        DesiredStatesRepository::find_by_dimension_and_language(db.as_ref(), resolved_dimension_id, lang)
             .await
             .map_err(crate::api::handlers::common::handle_error)?
     };

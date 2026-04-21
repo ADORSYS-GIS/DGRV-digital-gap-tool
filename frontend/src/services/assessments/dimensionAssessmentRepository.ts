@@ -176,6 +176,7 @@ export const dimensionAssessmentRepository = {
   ): Promise<IDimensionWithStates> => {
     try {
       if (navigator.onLine) {
+        // The backend now handles both dimension_id and dimension_key as the path param
         const response = await getDimensionWithStatesApi({ id: dimensionId, lang });
         if (response.data) {
           // Map the API response to our domain model
