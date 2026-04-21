@@ -7,9 +7,12 @@ pub struct Model {
     #[sea_orm(primary_key, auto_generate = false)]
     pub gap_id: Uuid,
     pub dimension_id: Uuid,
+    /// Stable cross-language key — same as the parent dimension's dimension_key
+    pub dimension_key: Uuid,
     pub gap_size: i32,
     pub gap_severity: GapSeverity,
     pub gap_description: Option<String>,
+    pub language: String,
     pub calculated_at: DateTimeUtc,
     pub created_at: DateTimeUtc,
     pub updated_at: DateTimeUtc,

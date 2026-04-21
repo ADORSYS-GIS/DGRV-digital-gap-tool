@@ -28,11 +28,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useDimensions } from "@/hooks/dimensions/useDimensions";
+import { useLogicalDimensions } from "@/hooks/dimensions/useLogicalDimensions";
 import { useRecommendations } from "@/hooks/recommendations/useRecommendations";
 import { IRecommendation } from "@/types/recommendation";
 import { useTranslation } from "react-i18next";
 import { TFunction } from "i18next";
+import { ContentLanguageSelector } from "@/components/shared/ContentLanguageSelector";
 
 // Define the form schema with Zod
 const PriorityEnum = z.enum(["LOW", "MEDIUM", "HIGH"]);
@@ -40,30 +41,31 @@ const PriorityEnum = z.enum(["LOW", "MEDIUM", "HIGH"]);
 type RecommendationPriority = z.infer<typeof PriorityEnum>;
 
 type FormValues = {
-  dimension_id: string;
+  dimension_key: string;
   priority: RecommendationPriority;
   description: string;
+  language: string;
 };
 
 const createFormSchema = (
   existingRecommendations: Array<{
-    dimension_id: string;
+    dimension_key: string;
     priority: RecommendationPriority;
   }>,
   t: TFunction,
 ) => {
   return z
     .object({
-      dimension_id: z.string().min(1, t("adminRecommendations.validation.dimensionRequired")),
+      dimension_key: z.string().min(1, t("adminRecommendations.validation.dimensionRequired")),
       priority: PriorityEnum,
       description: z.string().min(1, t("adminRecommendations.validation.descriptionRequired")),
+      language: z.string().min(1),
     })
     .refine(
       (data) => {
-        // Check if there's already a recommendation with the same dimension and priority
         const exists = existingRecommendations.some(
           (rec) =>
-            rec.dimension_id === data.dimension_id &&
+            rec.dimension_key === data.dimension_key &&
             rec.priority === data.priority,
         );
         return !exists;
@@ -86,17 +88,17 @@ export function AddRecommendationForm({
 }: AddRecommendationFormProps) {
   const { t } = useTranslation();
   const addRecommendation = useAddRecommendation();
-  const { data: dimensions = [] } = useDimensions();
+  const { data: logicalDimensions = [] } = useLogicalDimensions();
   const { data: existingRecommendations = [] } = useRecommendations();
 
-  // Get existing dimension-priority pairs for validation
+  // Get existing dimension_key-priority pairs for validation
   const existingDimensionPriorities = existingRecommendations
     .filter(
       (rec): rec is IRecommendation =>
         rec.dimension_id !== undefined && rec.priority !== undefined,
     )
     .map((rec) => ({
-      dimension_id: rec.dimension_id,
+      dimension_key: (rec as any).dimension_key ?? rec.dimension_id,
       priority: rec.priority as RecommendationPriority,
     }));
 
@@ -105,9 +107,10 @@ export function AddRecommendationForm({
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      dimension_id: "",
+      dimension_key: "",
       priority: "MEDIUM",
       description: "",
+      language: "en",
     },
     mode: "onChange",
   });
@@ -116,9 +119,10 @@ export function AddRecommendationForm({
   React.useEffect(() => {
     if (isOpen) {
       form.reset({
-        dimension_id: "",
+        dimension_key: "",
         priority: "MEDIUM",
         description: "",
+        language: "en",
       });
     }
   }, [isOpen, form]);
@@ -126,9 +130,10 @@ export function AddRecommendationForm({
   const onSubmit = async (data: FormValues) => {
     try {
       await addRecommendation.mutateAsync({
-        dimension_id: data.dimension_id,
+        dimension_key: data.dimension_key,
         priority: data.priority,
         description: data.description,
+        language: data.language,
       });
       form.reset();
       onClose();
@@ -162,7 +167,7 @@ export function AddRecommendationForm({
               <div className="grid gap-5">
                 <FormField
                   control={form.control}
-                  name="dimension_id"
+                  name="dimension_key"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-gray-700">
@@ -181,9 +186,9 @@ export function AddRecommendationForm({
                           </div>
                         </FormControl>
                         <SelectContent>
-                          {dimensions.map((dimension) => (
-                            <SelectItem key={dimension.id} value={dimension.id}>
-                              {dimension.name}
+                          {logicalDimensions.map((dim) => (
+                            <SelectItem key={dim.dimension_key} value={dim.dimension_key}>
+                              {dim.name}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -246,6 +251,15 @@ export function AddRecommendationForm({
                     </FormItem>
                   )}
                 />
+
+                <FormItem>
+                  <FormLabel className="text-gray-700">Language *</FormLabel>
+                  <ContentLanguageSelector
+                    value={form.watch("language")}
+                    onChange={(lang) => form.setValue("language", lang)}
+                    disabled={addRecommendation.isPending}
+                  />
+                </FormItem>
               </div>
 
               <div className="pt-2 flex gap-3">

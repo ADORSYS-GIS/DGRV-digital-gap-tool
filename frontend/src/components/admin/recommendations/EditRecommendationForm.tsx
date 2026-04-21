@@ -36,6 +36,7 @@ import { useDimensions } from "@/hooks/dimensions/useDimensions";
 import { useRecommendations } from "@/hooks/recommendations/useRecommendations";
 import { useTranslation } from "react-i18next";
 import { TFunction } from "i18next";
+import { ContentLanguageSelector } from "@/components/shared/ContentLanguageSelector";
 
 // Define the form schema with Zod
 const PriorityEnum = z.enum(["LOW", "MEDIUM", "HIGH"]);
@@ -46,6 +47,7 @@ type FormValues = {
   dimension_id: string;
   priority: RecommendationPriority;
   description: string;
+  language: string;
 };
 
 const createFormSchema = (
@@ -62,6 +64,7 @@ const createFormSchema = (
       dimension_id: z.string().min(1, t("adminRecommendations.validation.dimensionRequired")),
       priority: PriorityEnum,
       description: z.string().min(1, t("adminRecommendations.validation.descriptionRequired")),
+      language: z.string().min(1),
     })
     .refine(
       (data) => {
@@ -120,9 +123,9 @@ export function EditRecommendationForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       dimension_id: recommendation?.dimension_id || "",
-      priority:
-        (recommendation?.priority as RecommendationPriority) || "MEDIUM",
+      priority: (recommendation?.priority as RecommendationPriority) || "MEDIUM",
       description: recommendation?.description || "",
+      language: (recommendation as any)?.language || "en",
     },
     mode: "onChange",
   });
@@ -134,6 +137,7 @@ export function EditRecommendationForm({
         dimension_id: recommendation.dimension_id,
         priority: recommendation.priority as RecommendationPriority,
         description: recommendation.description,
+        language: (recommendation as any).language || "en",
       });
     }
   }, [recommendation, form, isOpen]);
@@ -145,7 +149,6 @@ export function EditRecommendationForm({
       id: recommendation.id,
       ...data,
     };
-
     try {
       await updateRecommendation.mutateAsync(updateData);
       onClose();
@@ -219,7 +222,7 @@ export function EditRecommendationForm({
                       <FormLabel className="text-gray-700">
                         {t("adminRecommendations.form.priority")} *
                       </FormLabel>
-                      drum                      <Select
+                      <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
                         disabled={updateRecommendation.isPending}
@@ -266,6 +269,15 @@ export function EditRecommendationForm({
                     </FormItem>
                   )}
                 />
+
+                <FormItem>
+                  <FormLabel className="text-gray-700">Language *</FormLabel>
+                  <ContentLanguageSelector
+                    value={form.watch("language")}
+                    onChange={(lang) => form.setValue("language", lang)}
+                    disabled={updateRecommendation.isPending}
+                  />
+                </FormItem>
               </div>
 
               <div className="pt-2 flex gap-3">

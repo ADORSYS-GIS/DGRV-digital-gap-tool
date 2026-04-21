@@ -11,6 +11,17 @@ impl GapsRepository {
         Gaps::find().all(db).await.map_err(AppError::from)
     }
 
+    pub async fn find_all_by_language(
+        db: &DbConn,
+        language: &str,
+    ) -> Result<Vec<gaps::Model>, AppError> {
+        Gaps::find()
+            .filter(gaps::Column::Language.eq(language))
+            .all(db)
+            .await
+            .map_err(AppError::from)
+    }
+
     pub async fn find_by_id(db: &DbConn, gap_id: Uuid) -> Result<Option<gaps::Model>, AppError> {
         Gaps::find_by_id(gap_id)
             .one(db)
@@ -46,6 +57,9 @@ impl GapsRepository {
         }
         if let ActiveValue::Set(gap_description) = gap_data.gap_description {
             active_model.gap_description = Set(gap_description);
+        }
+        if let ActiveValue::Set(language) = gap_data.language {
+            active_model.language = Set(language);
         }
 
         active_model.updated_at = Set(chrono::Utc::now());

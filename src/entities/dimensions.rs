@@ -6,12 +6,15 @@ use serde::{Deserialize, Serialize};
 pub struct Model {
     #[sea_orm(primary_key, auto_generate = false)]
     pub dimension_id: Uuid,
-    #[sea_orm(unique)]
+    /// Stable cross-language identifier — all language versions of the same
+    /// logical dimension share the same dimension_key.
+    pub dimension_key: Uuid,
     pub name: String,
     pub description: Option<String>,
     pub weight: Option<i32>,
     pub category: Option<String>,
     pub is_active: Option<bool>,
+    pub language: String,
     pub created_at: DateTime,
     pub updated_at: DateTime,
 }

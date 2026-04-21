@@ -6,12 +6,12 @@ import { db } from "../db";
 import { syncService } from "../sync/syncService"; // Import syncService
 
 export const dimensionRepository = {
-  getAll: async (): Promise<IDimension[]> => {
+  getAll: async (lang = 'en'): Promise<IDimension[]> => {
     // Always try to fetch from backend first if online, then update local DB
     try {
       // Check if online (a simple check, can be more sophisticated)
       if (navigator.onLine) {
-        const backendDimensions = await listDimensions({});
+        const backendDimensions = await listDimensions({ lang });
         if (backendDimensions.data) {
           const localDimensions = await db.dimensions.toArray();
           const localDimensionsMap = new Map(

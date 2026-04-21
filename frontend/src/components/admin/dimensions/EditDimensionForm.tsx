@@ -16,11 +16,13 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useUpdateDimension } from "@/hooks/dimensions/useUpdateDimension";
 import { IDimension } from "@/types/dimension";
+import { ContentLanguageSelector } from "@/components/shared/ContentLanguageSelector";
 
 const formSchema = (t: any) =>
   z.object({
     name: z.string().min(1, t("adminDimensions.validation.nameRequired")),
     description: z.string().optional(),
+    language: z.string().min(1),
   });
 
 type EditDimensionFormProps = {
@@ -38,6 +40,7 @@ export const EditDimensionForm = ({ dimension }: EditDimensionFormProps) => {
     defaultValues: {
       name: dimension.name,
       description: dimension.description ?? "",
+      language: (dimension as any).language ?? "en",
     },
   });
 
@@ -46,6 +49,7 @@ export const EditDimensionForm = ({ dimension }: EditDimensionFormProps) => {
       form.reset({
         name: dimension.name,
         description: dimension.description ?? "",
+        language: (dimension as any).language ?? "en",
       });
       setIsSubmitting(false);
     }
@@ -56,7 +60,8 @@ export const EditDimensionForm = ({ dimension }: EditDimensionFormProps) => {
     const dimensionToUpdate: Partial<IDimension> = {
       name: values.name,
       description: values.description ?? null,
-    };
+      language: values.language,
+    } as any;
     updateDimension(
       { id: dimension.id, dimension: dimensionToUpdate },
       {
@@ -136,6 +141,16 @@ export const EditDimensionForm = ({ dimension }: EditDimensionFormProps) => {
                   {form.formState.errors.description.message}
                 </p>
               )}
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium leading-none text-gray-700">
+                Language
+              </label>
+              <ContentLanguageSelector
+                value={form.watch("language")}
+                onChange={(lang) => form.setValue("language", lang)}
+                disabled={isSubmitting}
+              />
             </div>
             <div className="pt-2">
               <Button

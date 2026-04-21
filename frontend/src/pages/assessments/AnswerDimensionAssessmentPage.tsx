@@ -44,7 +44,7 @@ interface DimensionWithStates extends IDimensionWithStates {
 }
 
 export const AnswerDimensionAssessmentPage: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { assessmentId, dimensionId } = useParams<RouteParams>();
   const navigate = useNavigate();
   const location = useLocation();
@@ -209,7 +209,7 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
       const currentIndex = list.indexOf(dimensionId as string);
       if (currentIndex !== -1 && currentIndex < list.length - 1) {
         const nextDimensionId = list[currentIndex + 1] as string;
-        dimensionAssessmentRepository.getDimensionWithStates(nextDimensionId)
+        dimensionAssessmentRepository.getDimensionWithStates(nextDimensionId, i18n.language)
           .catch((err: unknown) => console.error(`Failed to pre-fetch next dimension ${nextDimensionId}:`, err));
       }
     }

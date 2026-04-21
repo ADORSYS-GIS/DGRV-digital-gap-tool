@@ -49,6 +49,9 @@ pub struct GapResponse {
     #[schema(example = "Significant gap in digital transformation")]
     pub gap_description: Option<String>,
 
+    /// Language code for this content entry
+    pub language: String,
+
     /// When the gap was calculated
     #[schema(example = "2023-01-01T00:00:00Z")]
     pub calculated_at: chrono::DateTime<chrono::Utc>,
@@ -123,14 +126,19 @@ pub struct DescriptionConfig {
   "gap_severity": "HIGH"
 }))]
 pub struct AdminCreateGapRequest {
-    /// Target dimension to create the gap for
+    /// Language-specific dimension ID (resolved by backend from dimension_key + language)
+    pub dimension_id: Option<Uuid>,
+    /// Stable cross-language dimension identifier
     #[schema(example = "3fa85f64-5717-4562-b3fc-2c963f66afa6")]
-    pub dimension_id: Uuid,
+    pub dimension_key: Uuid,
     /// explicit description to override
     #[schema(example = "Significant gap")]
     pub gap_description: String,
     /// explicit severity to override rule-based calculation.
     pub gap_severity: GapSeverity,
+    /// Language code for this content entry (e.g. "en", "fr", "pt", "ss")
+    #[serde(default = "default_language")]
+    pub language: String,
 }
 
 /// Update gap request
@@ -142,4 +150,10 @@ pub struct UpdateGapRequest {
     pub gap_description: Option<String>,
     /// Optional: explicit severity to override rule-based calculation.
     pub gap_severity: Option<GapSeverity>,
+    /// New language code (optional)
+    pub language: Option<String>,
+}
+
+fn default_language() -> String {
+    "en".to_string()
 }

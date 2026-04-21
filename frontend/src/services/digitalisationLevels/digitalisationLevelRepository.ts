@@ -14,10 +14,11 @@ import { syncService } from "../sync/syncService";
 export const digitalisationLevelRepository = {
   getByDimensionId: async (
     dimensionId: string,
+    lang = 'en',
   ): Promise<IDigitalisationLevel[]> => {
     try {
       if (navigator.onLine) {
-        await digitalisationLevelRepository.syncByDimensionId(dimensionId);
+        await digitalisationLevelRepository.syncByDimensionId(dimensionId, lang);
       }
     } catch (error) {
       console.error(
@@ -28,7 +29,7 @@ export const digitalisationLevelRepository = {
     return db.digitalisationLevels.where({ dimensionId }).toArray();
   },
 
-  syncByDimensionId: async (dimensionId: string): Promise<void> => {
+  syncByDimensionId: async (dimensionId: string, lang = 'en'): Promise<void> => {
     const pendingDeletes = await db.sync_queue
       .where({ action: "DELETE" })
       .filter((item) => {
@@ -44,7 +45,7 @@ export const digitalisationLevelRepository = {
       pendingDeletes.map((item) => item.entityId),
     );
 
-    const backendData = await getDimensionWithStates({ id: dimensionId });
+    const backendData = await getDimensionWithStates({ id: dimensionId, lang });
     const localLevels = await db.digitalisationLevels
       .where({ dimensionId })
       .toArray();

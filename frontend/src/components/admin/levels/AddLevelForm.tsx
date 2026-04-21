@@ -20,6 +20,7 @@ import { useEffect } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import * as z from "zod";
 import { useTranslation } from "react-i18next";
+import { ContentLanguageSelector } from "@/components/shared/ContentLanguageSelector";
 
 const formSchema = (t: any) =>
   z.object({
@@ -29,6 +30,7 @@ const formSchema = (t: any) =>
       .number()
       .min(1, t("adminLevels.validation.stateRequired"))
       .refine((state) => state !== 0, t("adminLevels.validation.idRequired")),
+    language: z.string().min(1),
   });
 
 type FormValues = z.infer<ReturnType<typeof formSchema>>;
@@ -57,6 +59,8 @@ export const AddLevelForm = ({
     reset,
     control,
     setError,
+    watch,
+    setValue,
   } = useForm<FormValues>({
     resolver: zodResolver(formSchema(t)),
     defaultValues: {
@@ -66,6 +70,7 @@ export const AddLevelForm = ({
           : 1,
       title: "",
       description: "",
+      language: "en",
     },
   });
 
@@ -95,6 +100,7 @@ export const AddLevelForm = ({
       score: data.state as LevelState,
       title: data.title,
       description: data.description,
+      language: data.language,
       level: data.title,
       levelType: levelType,
       dimensionId: dimensionId,
@@ -112,8 +118,7 @@ export const AddLevelForm = ({
             queryKey: ["digitalisationLevels", dimensionId],
           });
           onClose();
-        },
-      },
+        },      },
     );
   };
 
@@ -190,6 +195,16 @@ export const AddLevelForm = ({
                 {errors.description.message}
               </p>
             )}
+          </div>
+          <div>
+            <label className="text-sm font-medium text-gray-700 mb-1 block">
+              Language
+            </label>
+            <ContentLanguageSelector
+              value={watch("language")}
+              onChange={(lang) => setValue("language", lang)}
+              disabled={addLevelMutation.isPending}
+            />
           </div>
           <DialogFooter>
             <Button type="submit" disabled={addLevelMutation.isPending}>

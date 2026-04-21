@@ -11,6 +11,12 @@ pub struct CreateDimensionRequest {
     pub weight: Option<i32>,
     pub category: Option<String>,
     pub is_active: Option<bool>,
+    /// Language code for this content entry (e.g. "en", "fr", "pt", "ss")
+    #[serde(default = "default_language")]
+    pub language: String,
+    /// Optional — provide to link this as a translation of an existing logical dimension.
+    /// If omitted, a new dimension_key is generated.
+    pub dimension_key: Option<Uuid>,
 }
 
 /// Dimension update request
@@ -21,17 +27,20 @@ pub struct UpdateDimensionRequest {
     pub weight: Option<i32>,
     pub category: Option<String>,
     pub is_active: Option<bool>,
+    pub language: Option<String>,
 }
 
 /// Dimension response
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct DimensionResponse {
     pub dimension_id: Uuid,
+    pub dimension_key: Uuid,
     pub name: String,
     pub description: Option<String>,
     pub weight: Option<i32>,
     pub category: Option<String>,
     pub is_active: Option<bool>,
+    pub language: String,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
@@ -43,6 +52,9 @@ pub struct CreateCurrentStateRequest {
     pub title: String,
     pub description: String,
     pub score: i32,
+    /// Language code for this content entry (e.g. "en", "fr", "pt", "ss")
+    #[serde(default = "default_language")]
+    pub language: String,
 }
 
 /// Current state update request
@@ -51,6 +63,7 @@ pub struct UpdateCurrentStateRequest {
     pub title: Option<String>,
     pub description: Option<String>,
     pub score: Option<i32>,
+    pub language: Option<String>,
 }
 
 /// Current state response
@@ -61,6 +74,7 @@ pub struct CurrentStateResponse {
     pub title: String,
     pub description: String,
     pub score: i32,
+    pub language: String,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
@@ -72,6 +86,9 @@ pub struct CreateDesiredStateRequest {
     pub title: String,
     pub description: String,
     pub score: i32,
+    /// Language code for this content entry (e.g. "en", "fr", "pt", "ss")
+    #[serde(default = "default_language")]
+    pub language: String,
 }
 
 /// Desired state update request
@@ -80,6 +97,7 @@ pub struct UpdateDesiredStateRequest {
     pub title: Option<String>,
     pub description: Option<String>,
     pub score: Option<i32>,
+    pub language: Option<String>,
 }
 
 /// Desired state response
@@ -90,8 +108,13 @@ pub struct DesiredStateResponse {
     pub title: String,
     pub description: String,
     pub score: i32,
+    pub language: String,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
+}
+
+fn default_language() -> String {
+    "en".to_string()
 }
 
 /// Dimension with states response

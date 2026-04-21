@@ -64,6 +64,9 @@ impl DimensionsRepository {
         if dimension_data.is_active.is_set() {
             active_model.is_active = dimension_data.is_active;
         }
+        if dimension_data.language.is_set() {
+            active_model.language = dimension_data.language;
+        }
 
         active_model.updated_at = Set(chrono::Local::now().naive_local());
 
@@ -77,6 +80,31 @@ impl DimensionsRepository {
             .map_err(AppError::from)?;
 
         Ok(result.rows_affected > 0)
+    }
+
+    pub async fn find_all_by_language(
+        db: &DbConn,
+        language: &str,
+    ) -> Result<Vec<dimensions::Model>, AppError> {
+        Dimensions::find()
+            .filter(dimensions::Column::Language.eq(language))
+            .all(db)
+            .await
+            .map_err(AppError::from)
+    }
+
+    /// Find a specific language version of a logical dimension by its dimension_key + language
+    pub async fn find_by_key_and_language(
+        db: &DbConn,
+        dimension_key: Uuid,
+        language: &str,
+    ) -> Result<Option<dimensions::Model>, AppError> {
+        Dimensions::find()
+            .filter(dimensions::Column::DimensionKey.eq(dimension_key))
+            .filter(dimensions::Column::Language.eq(language))
+            .one(db)
+            .await
+            .map_err(AppError::from)
     }
 
     pub async fn find_by_name(

@@ -107,6 +107,9 @@ export function RecommendationList({
                         <TableHead className="h-12 font-medium text-gray-600">
                           {t("adminRecommendations.form.description")}
                         </TableHead>
+                        <TableHead className="h-12 font-medium text-gray-600 w-[80px]">
+                          Lang
+                        </TableHead>
                         <TableHead className="pr-6 h-12 font-medium text-gray-600 w-[120px] text-right">
                           {t("common.actions")}
                         </TableHead>
@@ -146,6 +149,11 @@ export function RecommendationList({
                             <div className="max-w-[600px] text-gray-700 leading-relaxed">
                               {recommendation.description}
                             </div>
+                          </TableCell>
+                          <TableCell className="py-4">
+                            <span className="text-xs font-medium text-gray-500">
+                              {({ en: "🇬🇧", fr: "🇫🇷", pt: "🇧🇷", ss: "🇸🇿" } as Record<string, string>)[(recommendation as any).language] ?? ""}
+                            </span>
                           </TableCell>
                           <TableCell className="pr-6 py-4">
                             <div className="flex justify-end gap-1">

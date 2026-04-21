@@ -12,7 +12,11 @@ use uuid::Uuid;
 pub struct CreateRecommendationRequest {
     /// Unique identifier of the dimension this recommendation is for
     #[schema(example = "550e8400-e29b-41d4-a716-446655440000")]
-    pub dimension_id: Uuid,
+    pub dimension_id: Option<Uuid>,
+
+    /// Stable cross-language dimension identifier
+    #[schema(example = "550e8400-e29b-41d4-a716-446655440000")]
+    pub dimension_key: Uuid,
 
     /// Priority level of the recommendation
     #[schema(example = "HIGH")]
@@ -21,6 +25,10 @@ pub struct CreateRecommendationRequest {
     /// Detailed description of the recommendation
     #[schema(example = "Implement automated testing for critical components")]
     pub description: String,
+
+    /// Language code for this content entry (e.g. "en", "fr", "pt", "ss")
+    #[serde(default = "default_language")]
+    pub language: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
@@ -47,6 +55,9 @@ pub struct RecommendationResponse {
     /// Detailed description of the recommendation
     #[schema(example = "Implement automated testing for critical components")]
     pub description: String,
+
+    /// Language code for this content entry
+    pub language: String,
 
     /// When the recommendation was created
     #[schema(example = "2023-01-01T00:00:00Z")]
@@ -98,4 +109,11 @@ pub struct UpdateRecommendationRequest {
     /// New description (optional)
     #[schema(example = "Updated recommendation with more details")]
     pub description: Option<String>,
+
+    /// New language code (optional)
+    pub language: Option<String>,
+}
+
+fn default_language() -> String {
+    "en".to_string()
 }

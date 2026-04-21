@@ -43,12 +43,22 @@ impl ActionPlanService {
                         AppError::NotFound("Dimension assessment not found".to_string())
                     })?;
 
+            // Look up dimension_key from the dimension
+            let dimension = crate::repositories::dimensions::DimensionsRepository::find_by_id(
+                self.db.as_ref(),
+                dimension_assessment.dimension_id,
+            )
+            .await?
+            .ok_or_else(|| AppError::NotFound("Dimension not found".to_string()))?;
+
             let new_recommendation = recommendations::ActiveModel {
                 recommendation_id: Set(Uuid::new_v4()),
                 dimension_id: Set(dimension_assessment.dimension_id),
+                dimension_key: Set(dimension.dimension_key),
                 priority: Set(recommendations::RecommendationPriority::Medium),
                 description: Set(description),
                 source: Set("action_plan".to_string()),
+                language: Set("en".to_string()),
                 created_at: Set(chrono::Utc::now()),
                 updated_at: Set(chrono::Utc::now()),
             };
@@ -109,9 +119,11 @@ impl ActionPlanService {
                 let new_rec = recommendations::ActiveModel {
                     recommendation_id: Set(Uuid::new_v4()),
                     dimension_id: Set(current_rec.dimension_id),
+                    dimension_key: Set(current_rec.dimension_key),
                     priority: Set(current_rec.priority),
                     description: Set(d),
                     source: Set("action_plan".to_string()),
+                    language: Set(current_rec.language.clone()),
                     created_at: Set(chrono::Utc::now()),
                     updated_at: Set(chrono::Utc::now()),
                 };
@@ -135,9 +147,11 @@ impl ActionPlanService {
                 let new_rec = recommendations::ActiveModel {
                     recommendation_id: Set(Uuid::new_v4()),
                     dimension_id: Set(current_rec.dimension_id),
+                    dimension_key: Set(current_rec.dimension_key),
                     priority: Set(current_rec.priority),
                     description: Set(t),
                     source: Set("action_plan".to_string()),
+                    language: Set(current_rec.language.clone()),
                     created_at: Set(chrono::Utc::now()),
                     updated_at: Set(chrono::Utc::now()),
                 };

@@ -9,7 +9,7 @@ use sea_orm::ActiveModelTrait;
 use uuid::Uuid;
 
 use crate::api::dto::{
-    common::{ApiResponse, PaginatedResponse, PaginationParams},
+    common::{ApiResponse, LangParams, PaginatedResponse, PaginationParams},
     dimension::*,
 };
 use crate::api::handlers::common::{
@@ -37,11 +37,13 @@ pub async fn create_dimension(
     let db = &state.db;
     let active_model = crate::entities::dimensions::ActiveModel {
         dimension_id: sea_orm::Set(Uuid::new_v4()),
+        dimension_key: sea_orm::Set(request.dimension_key.unwrap_or_else(Uuid::new_v4)),
         name: sea_orm::Set(request.name),
         description: sea_orm::Set(request.description),
         weight: sea_orm::Set(Some(request.weight.unwrap_or(1))),
         category: sea_orm::Set(request.category),
         is_active: sea_orm::Set(Some(request.is_active.unwrap_or(true))),
+        language: sea_orm::Set(request.language),
         ..Default::default()
     };
 
@@ -51,11 +53,13 @@ pub async fn create_dimension(
 
     let response = DimensionResponse {
         dimension_id: dimension.dimension_id,
+        dimension_key: dimension.dimension_key,
         name: dimension.name,
         description: dimension.description,
         weight: dimension.weight,
         category: dimension.category,
         is_active: dimension.is_active,
+        language: dimension.language,
         created_at: DateTime::from_naive_utc_and_offset(dimension.created_at, Utc),
         updated_at: DateTime::from_naive_utc_and_offset(dimension.updated_at, Utc),
     };
@@ -92,11 +96,13 @@ pub async fn get_dimension(
 
     let response = DimensionResponse {
         dimension_id: dimension.dimension_id,
+        dimension_key: dimension.dimension_key,
         name: dimension.name,
         description: dimension.description,
         weight: dimension.weight,
         category: dimension.category,
         is_active: dimension.is_active,
+        language: dimension.language,
         created_at: DateTime::from_naive_utc_and_offset(dimension.created_at, Utc),
         updated_at: DateTime::from_naive_utc_and_offset(dimension.updated_at, Utc),
     };
@@ -117,9 +123,11 @@ pub async fn get_dimension(
 pub async fn get_dimension_with_states(
     State(state): State<AppState>,
     Path(dimension_id): Path<Uuid>,
+    Query(lang_params): Query<LangParams>,
 ) -> Result<Json<ApiResponse<DimensionWithStatesResponse>>, (StatusCode, Json<serde_json::Value>)> {
     let db = &state.db;
-    // Get dimension
+    let lang = &lang_params.lang;
+
     let dimension = DimensionsRepository::find_by_id(db.as_ref(), dimension_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?
@@ -129,23 +137,37 @@ pub async fn get_dimension_with_states(
             ))
         })?;
 
-    // Get current states
-    let current_states = CurrentStatesRepository::find_by_dimension(db.as_ref(), dimension_id)
-        .await
-        .map_err(crate::api::handlers::common::handle_error)?;
+    // Get current states filtered by language
+    let current_states = if lang == "all" {
+        CurrentStatesRepository::find_by_dimension(db.as_ref(), dimension_id)
+            .await
+            .map_err(crate::api::handlers::common::handle_error)?
+    } else {
+        CurrentStatesRepository::find_by_dimension_and_language(db.as_ref(), dimension_id, lang)
+            .await
+            .map_err(crate::api::handlers::common::handle_error)?
+    };
 
-    // Get desired states
-    let desired_states = DesiredStatesRepository::find_by_dimension(db.as_ref(), dimension_id)
-        .await
-        .map_err(crate::api::handlers::common::handle_error)?;
+    // Get desired states filtered by language
+    let desired_states = if lang == "all" {
+        DesiredStatesRepository::find_by_dimension(db.as_ref(), dimension_id)
+            .await
+            .map_err(crate::api::handlers::common::handle_error)?
+    } else {
+        DesiredStatesRepository::find_by_dimension_and_language(db.as_ref(), dimension_id, lang)
+            .await
+            .map_err(crate::api::handlers::common::handle_error)?
+    };
 
     let dimension_response = DimensionResponse {
         dimension_id: dimension.dimension_id,
+        dimension_key: dimension.dimension_key,
         name: dimension.name,
         description: dimension.description,
         weight: dimension.weight,
         category: dimension.category,
         is_active: dimension.is_active,
+        language: dimension.language,
         created_at: DateTime::from_naive_utc_and_offset(dimension.created_at, Utc),
         updated_at: DateTime::from_naive_utc_and_offset(dimension.updated_at, Utc),
     };
@@ -179,6 +201,7 @@ pub async fn get_dimension_with_states(
 pub async fn list_dimensions(
     State(state): State<AppState>,
     Query(params): Query<PaginationParams>,
+    Query(lang_params): Query<LangParams>,
 ) -> Result<
     Json<ApiResponse<PaginatedResponse<DimensionResponse>>>,
     (StatusCode, Json<serde_json::Value>),
@@ -187,9 +210,15 @@ pub async fn list_dimensions(
     let offset = ((page - 1) * limit) as u64;
 
     let db = &state.db;
-    let dimensions = DimensionsRepository::find_all(db.as_ref())
-        .await
-        .map_err(crate::api::handlers::common::handle_error)?;
+    let dimensions = if lang_params.lang == "all" {
+        DimensionsRepository::find_all(db.as_ref())
+            .await
+            .map_err(crate::api::handlers::common::handle_error)?
+    } else {
+        DimensionsRepository::find_all_by_language(db.as_ref(), &lang_params.lang)
+            .await
+            .map_err(crate::api::handlers::common::handle_error)?
+    };
 
     let total = dimensions.len() as u64;
     let paginated_dimensions: Vec<DimensionResponse> = dimensions
@@ -198,11 +227,13 @@ pub async fn list_dimensions(
         .take(limit as usize)
         .map(|dimension| DimensionResponse {
             dimension_id: dimension.dimension_id,
+            dimension_key: dimension.dimension_key,
             name: dimension.name,
             description: dimension.description,
             weight: dimension.weight,
             category: dimension.category,
             is_active: dimension.is_active,
+            language: dimension.language,
             created_at: DateTime::from_naive_utc_and_offset(dimension.created_at, Utc),
             updated_at: DateTime::from_naive_utc_and_offset(dimension.updated_at, Utc),
         })
@@ -257,6 +288,9 @@ pub async fn update_dimension(
     if let Some(is_active) = request.is_active {
         active_model.is_active = sea_orm::Set(Some(is_active));
     }
+    if let Some(language) = request.language.clone() {
+        active_model.language = sea_orm::Set(language);
+    }
 
     let updated_dimension = DimensionsRepository::update(db.as_ref(), dimension_id, active_model)
         .await
@@ -264,11 +298,13 @@ pub async fn update_dimension(
 
     let response = DimensionResponse {
         dimension_id: updated_dimension.dimension_id,
+        dimension_key: updated_dimension.dimension_key,
         name: updated_dimension.name,
         description: updated_dimension.description,
         weight: updated_dimension.weight,
         category: updated_dimension.category,
         is_active: updated_dimension.is_active,
+        language: updated_dimension.language,
         created_at: DateTime::from_naive_utc_and_offset(updated_dimension.created_at, Utc),
         updated_at: DateTime::from_naive_utc_and_offset(updated_dimension.updated_at, Utc),
     };
@@ -320,8 +356,8 @@ pub async fn create_current_state(
     Json(request): Json<CreateCurrentStateRequest>,
 ) -> Result<Json<ApiResponse<CurrentStateResponse>>, (StatusCode, Json<serde_json::Value>)> {
     let db = &state.db;
-    // Verify dimension exists
-    DimensionsRepository::find_by_id(db.as_ref(), dimension_id)
+    // Verify dimension exists and capture it for dimension_key
+    let dimension = DimensionsRepository::find_by_id(db.as_ref(), dimension_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?
         .ok_or_else(|| {
@@ -363,9 +399,11 @@ pub async fn create_current_state(
     let active_model = crate::entities::current_states::ActiveModel {
         current_state_id: sea_orm::Set(Uuid::new_v4()),
         dimension_id: sea_orm::Set(dimension_id),
+        dimension_key: sea_orm::Set(dimension.dimension_key),
         title: sea_orm::Set(request.title),
         description: sea_orm::Set(request.description),
         score: sea_orm::Set(request.score),
+        language: sea_orm::Set(request.language),
         ..Default::default()
     };
 
@@ -379,6 +417,7 @@ pub async fn create_current_state(
         title: current_state.title,
         description: current_state.description,
         score: current_state.score,
+        language: current_state.language,
         created_at: current_state.created_at,
         updated_at: current_state.updated_at,
     };
@@ -432,6 +471,9 @@ pub async fn update_current_state(
     if let Some(score) = request.score {
         active_model.score = sea_orm::Set(score);
     }
+    if let Some(language) = request.language {
+        active_model.language = sea_orm::Set(language);
+    }
 
     let updated_current_state =
         CurrentStatesRepository::update(db.as_ref(), current_state_id, active_model)
@@ -444,6 +486,7 @@ pub async fn update_current_state(
         title: updated_current_state.title,
         description: updated_current_state.description,
         score: updated_current_state.score,
+        language: updated_current_state.language,
         created_at: updated_current_state.created_at,
         updated_at: updated_current_state.updated_at,
     };
@@ -472,7 +515,7 @@ pub async fn create_desired_state(
 ) -> Result<Json<ApiResponse<DesiredStateResponse>>, (StatusCode, Json<serde_json::Value>)> {
     let db = &state.db;
     // Verify dimension exists
-    DimensionsRepository::find_by_id(db.as_ref(), dimension_id)
+    let dimension = DimensionsRepository::find_by_id(db.as_ref(), dimension_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?
         .ok_or_else(|| {
@@ -514,9 +557,11 @@ pub async fn create_desired_state(
     let active_model = crate::entities::desired_states::ActiveModel {
         desired_state_id: sea_orm::Set(Uuid::new_v4()),
         dimension_id: sea_orm::Set(dimension_id),
+        dimension_key: sea_orm::Set(dimension.dimension_key),
         title: sea_orm::Set(request.title),
         description: sea_orm::Set(request.description),
         score: sea_orm::Set(request.score),
+        language: sea_orm::Set(request.language),
         ..Default::default()
     };
 
@@ -530,6 +575,7 @@ pub async fn create_desired_state(
         title: desired_state.title,
         description: desired_state.description,
         score: desired_state.score,
+        language: desired_state.language,
         created_at: desired_state.created_at,
         updated_at: desired_state.updated_at,
     };
@@ -585,6 +631,9 @@ pub async fn update_desired_state(
     if let Some(description) = request.description {
         desired_state.description = description;
     }
+    if let Some(language) = request.language.clone() {
+        desired_state.language = language;
+    }
     if let Some(score) = request.score {
         if let Some(existing_desired_state) =
             DesiredStatesRepository::find_by_dimension_id_and_score(
@@ -610,9 +659,11 @@ pub async fn update_desired_state(
     let active_model = crate::entities::desired_states::ActiveModel {
         desired_state_id: sea_orm::Set(desired_state.desired_state_id),
         dimension_id: sea_orm::Set(desired_state.dimension_id),
+        dimension_key: sea_orm::Set(desired_state.dimension_key),
         title: sea_orm::Set(desired_state.title.clone()),
         description: sea_orm::Set(desired_state.description.clone()),
         score: sea_orm::Set(desired_state.score),
+        language: sea_orm::Set(desired_state.language.clone()),
         created_at: sea_orm::Set(desired_state.created_at),
         updated_at: sea_orm::Set(chrono::Utc::now()),
     };
@@ -628,6 +679,7 @@ pub async fn update_desired_state(
         title: updated_desired_state.title,
         description: updated_desired_state.description,
         score: updated_desired_state.score,
+        language: updated_desired_state.language,
         created_at: updated_desired_state.created_at,
         updated_at: updated_desired_state.updated_at,
     };
@@ -736,6 +788,7 @@ impl From<crate::entities::current_states::Model> for CurrentStateResponse {
             title: model.title,
             description: model.description,
             score: model.score,
+            language: model.language,
             created_at: model.created_at,
             updated_at: model.updated_at,
         }
@@ -750,6 +803,7 @@ impl From<crate::entities::desired_states::Model> for DesiredStateResponse {
             title: model.title,
             description: model.description,
             score: model.score,
+            language: model.language,
             created_at: model.created_at,
             updated_at: model.updated_at,
         }

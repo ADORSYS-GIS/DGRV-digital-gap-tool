@@ -52,6 +52,9 @@ impl CurrentStatesRepository {
         if let ActiveValue::Set(score) = current_state_data.score {
             active_model.score = Set(score);
         }
+        if let ActiveValue::Set(language) = current_state_data.language {
+            active_model.language = Set(language);
+        }
 
         active_model.updated_at = Set(chrono::Utc::now());
 
@@ -73,6 +76,19 @@ impl CurrentStatesRepository {
     ) -> Result<Vec<current_states::Model>, AppError> {
         CurrentStates::find()
             .filter(current_states::Column::DimensionId.eq(dimension_id))
+            .all(db)
+            .await
+            .map_err(AppError::from)
+    }
+
+    pub async fn find_by_dimension_and_language(
+        db: &DbConn,
+        dimension_id: Uuid,
+        language: &str,
+    ) -> Result<Vec<current_states::Model>, AppError> {
+        CurrentStates::find()
+            .filter(current_states::Column::DimensionId.eq(dimension_id))
+            .filter(current_states::Column::Language.eq(language))
             .all(db)
             .await
             .map_err(AppError::from)

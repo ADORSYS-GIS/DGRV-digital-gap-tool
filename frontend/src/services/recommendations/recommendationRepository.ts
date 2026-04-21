@@ -14,7 +14,7 @@ import { db } from "../db";
 import { syncService } from "../sync/syncService";
 
 export const recommendationRepository = {
-  getAll: async (): Promise<IRecommendation[]> => {
+  getAll: async (lang = 'en'): Promise<IRecommendation[]> => {
     // Always try to fetch from backend first if online, then update local DB
     try {
       if (navigator.onLine) {
@@ -27,6 +27,7 @@ export const recommendationRepository = {
           const response = await listRecommendations({
             page: currentPage,
             pageSize: 100,
+            lang,
           });
           if (response.data) {
             const responseData: any = response.data as any;

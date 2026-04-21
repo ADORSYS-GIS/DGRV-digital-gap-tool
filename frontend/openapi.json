@@ -1749,6 +1749,16 @@
                             "nullable": true,
                             "minimum": 0
                         }
+                    },
+                    {
+                        "name": "lang",
+                        "in": "query",
+                        "description": "Language code to filter content (e.g. en, fr, pt, ss). Defaults to en.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "en"
+                        }
                     }
                 ],
                 "responses": {
@@ -2246,6 +2256,16 @@
                             "type": "string",
                             "format": "uuid"
                         }
+                    },
+                    {
+                        "name": "lang",
+                        "in": "query",
+                        "description": "Language code to filter states (e.g. en, fr, pt, ss). Defaults to en.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "en"
+                        }
                     }
                 ],
                 "responses": {
@@ -2294,6 +2314,16 @@
                             "type": "integer",
                             "format": "int64",
                             "nullable": true
+                        }
+                    },
+                    {
+                        "name": "lang",
+                        "in": "query",
+                        "description": "Language code to filter content (e.g. en, fr, pt, ss). Defaults to en.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "en"
                         }
                     }
                 ],
@@ -2488,6 +2518,16 @@
                             "type": "integer",
                             "format": "int64",
                             "nullable": true
+                        }
+                    },
+                    {
+                        "name": "lang",
+                        "in": "query",
+                        "description": "Language code to filter content (e.g. en, fr, pt, ss). Defaults to en.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "en"
                         }
                     }
                 ],
@@ -3119,7 +3159,7 @@
             "AdminCreateGapRequest": {
                 "type": "object",
                 "required": [
-                    "dimension_id",
+                    "dimension_key",
                     "gap_description",
                     "gap_severity"
                 ],
@@ -3127,7 +3167,13 @@
                     "dimension_id": {
                         "type": "string",
                         "format": "uuid",
-                        "description": "Target dimension to create the gap for",
+                        "description": "Language-specific dimension ID (resolved by backend from dimension_key + language)",
+                        "nullable": true
+                    },
+                    "dimension_key": {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Stable cross-language dimension identifier",
                         "example": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
                     },
                     "gap_description": {
@@ -3137,12 +3183,18 @@
                     },
                     "gap_severity": {
                         "$ref": "#/components/schemas/GapSeverity"
+                    },
+                    "language": {
+                        "type": "string",
+                        "description": "Language code for this content entry (e.g. en, fr, pt, ss)",
+                        "default": "en"
                     }
                 },
                 "example": {
-                    "dimension_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                    "dimension_key": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
                     "gap_description": "A significant gap in the marketing dimension.",
-                    "gap_severity": "HIGH"
+                    "gap_severity": "HIGH",
+                    "language": "en"
                 }
             },
             "ApiResponseActionItemResponse": {
@@ -3611,45 +3663,7 @@
                     "data": {
                         "allOf": [
                             {
-                                "type": "object",
-                                "description": "Current state response",
-                                "required": [
-                                    "current_state_id",
-                                    "dimension_id",
-                                    "title",
-                                    "description",
-                                    "score",
-                                    "created_at",
-                                    "updated_at"
-                                ],
-                                "properties": {
-                                    "created_at": {
-                                        "type": "string",
-                                        "format": "date-time"
-                                    },
-                                    "current_state_id": {
-                                        "type": "string",
-                                        "format": "uuid"
-                                    },
-                                    "description": {
-                                        "type": "string"
-                                    },
-                                    "dimension_id": {
-                                        "type": "string",
-                                        "format": "uuid"
-                                    },
-                                    "score": {
-                                        "type": "integer",
-                                        "format": "int32"
-                                    },
-                                    "title": {
-                                        "type": "string"
-                                    },
-                                    "updated_at": {
-                                        "type": "string",
-                                        "format": "date-time"
-                                    }
-                                }
+                                "$ref": "#/components/schemas/CurrentStateResponse"
                             }
                         ],
                         "nullable": true
@@ -3677,45 +3691,7 @@
                     "data": {
                         "allOf": [
                             {
-                                "type": "object",
-                                "description": "Desired state response",
-                                "required": [
-                                    "desired_state_id",
-                                    "dimension_id",
-                                    "title",
-                                    "description",
-                                    "score",
-                                    "created_at",
-                                    "updated_at"
-                                ],
-                                "properties": {
-                                    "created_at": {
-                                        "type": "string",
-                                        "format": "date-time"
-                                    },
-                                    "description": {
-                                        "type": "string"
-                                    },
-                                    "desired_state_id": {
-                                        "type": "string",
-                                        "format": "uuid"
-                                    },
-                                    "dimension_id": {
-                                        "type": "string",
-                                        "format": "uuid"
-                                    },
-                                    "score": {
-                                        "type": "integer",
-                                        "format": "int32"
-                                    },
-                                    "title": {
-                                        "type": "string"
-                                    },
-                                    "updated_at": {
-                                        "type": "string",
-                                        "format": "date-time"
-                                    }
-                                }
+                                "$ref": "#/components/schemas/DesiredStateResponse"
                             }
                         ],
                         "nullable": true
@@ -3869,48 +3845,7 @@
                     "data": {
                         "allOf": [
                             {
-                                "type": "object",
-                                "description": "Dimension response",
-                                "required": [
-                                    "dimension_id",
-                                    "name",
-                                    "created_at",
-                                    "updated_at"
-                                ],
-                                "properties": {
-                                    "category": {
-                                        "type": "string",
-                                        "nullable": true
-                                    },
-                                    "created_at": {
-                                        "type": "string",
-                                        "format": "date-time"
-                                    },
-                                    "description": {
-                                        "type": "string",
-                                        "nullable": true
-                                    },
-                                    "dimension_id": {
-                                        "type": "string",
-                                        "format": "uuid"
-                                    },
-                                    "is_active": {
-                                        "type": "boolean",
-                                        "nullable": true
-                                    },
-                                    "name": {
-                                        "type": "string"
-                                    },
-                                    "updated_at": {
-                                        "type": "string",
-                                        "format": "date-time"
-                                    },
-                                    "weight": {
-                                        "type": "integer",
-                                        "format": "int32",
-                                        "nullable": true
-                                    }
-                                }
+                                "$ref": "#/components/schemas/DimensionResponse"
                             }
                         ],
                         "nullable": true
@@ -4785,57 +4720,7 @@
                     "data": {
                         "allOf": [
                             {
-                                "type": "object",
-                                "required": [
-                                    "recommendation_id",
-                                    "dimension_id",
-                                    "priority",
-                                    "description",
-                                    "created_at",
-                                    "updated_at"
-                                ],
-                                "properties": {
-                                    "created_at": {
-                                        "type": "string",
-                                        "format": "date-time",
-                                        "description": "When the recommendation was created",
-                                        "example": "2023-01-01T00:00:00Z"
-                                    },
-                                    "description": {
-                                        "type": "string",
-                                        "description": "Detailed description of the recommendation",
-                                        "example": "Implement automated testing for critical components"
-                                    },
-                                    "dimension_id": {
-                                        "type": "string",
-                                        "format": "uuid",
-                                        "description": "Reference to the dimension",
-                                        "example": "550e8400-e29b-41d4-a716-446655440002"
-                                    },
-                                    "priority": {
-                                        "$ref": "#/components/schemas/RecommendationPriority"
-                                    },
-                                    "recommendation_id": {
-                                        "type": "string",
-                                        "format": "uuid",
-                                        "description": "Unique identifier for the recommendation",
-                                        "example": "550e8400-e29b-41d4-a716-446655440000"
-                                    },
-                                    "updated_at": {
-                                        "type": "string",
-                                        "format": "date-time",
-                                        "description": "When the recommendation was last updated",
-                                        "example": "2023-01-01T00:00:00Z"
-                                    }
-                                },
-                                "example": {
-                                    "recommendation_id": "550e8400-e29b-41d4-a716-446655440000",
-                                    "dimension_id": "550e8400-e29b-41d4-a716-446655440002",
-                                    "priority": "HIGH",
-                                    "description": "Implement automated testing for critical components",
-                                    "created_at": "2023-01-01T00:00:00Z",
-                                    "updated_at": "2023-01-01T00:00:00Z"
-                                }
+                                "$ref": "#/components/schemas/RecommendationResponse"
                             }
                         ],
                         "nullable": true
@@ -5329,6 +5214,11 @@
                         "type": "string",
                         "format": "uuid"
                     },
+                    "language": {
+                        "type": "string",
+                        "description": "Language code for this content entry (e.g. en, fr, pt, ss)",
+                        "default": "en"
+                    },
                     "score": {
                         "type": "integer",
                         "format": "int32"
@@ -5354,6 +5244,11 @@
                     "dimension_id": {
                         "type": "string",
                         "format": "uuid"
+                    },
+                    "language": {
+                        "type": "string",
+                        "description": "Language code for this content entry (e.g. en, fr, pt, ss)",
+                        "default": "en"
                     },
                     "score": {
                         "type": "integer",
@@ -5415,9 +5310,20 @@
                         "type": "string",
                         "nullable": true
                     },
+                    "dimension_key": {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Optional — provide to link this as a translation of an existing logical dimension. If omitted, a new dimension_key is generated.",
+                        "nullable": true
+                    },
                     "is_active": {
                         "type": "boolean",
                         "nullable": true
+                    },
+                    "language": {
+                        "type": "string",
+                        "description": "Language code for this content entry (e.g. en, fr, pt, ss)",
+                        "default": "en"
                     },
                     "name": {
                         "type": "string"
@@ -5464,7 +5370,7 @@
             "CreateRecommendationRequest": {
                 "type": "object",
                 "required": [
-                    "dimension_id",
+                    "dimension_key",
                     "priority",
                     "description"
                 ],
@@ -5477,17 +5383,29 @@
                     "dimension_id": {
                         "type": "string",
                         "format": "uuid",
-                        "description": "Unique identifier of the dimension this recommendation is for",
+                        "description": "Language-specific dimension ID (resolved by backend from dimension_key + language)",
+                        "nullable": true
+                    },
+                    "dimension_key": {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Stable cross-language dimension identifier",
                         "example": "550e8400-e29b-41d4-a716-446655440000"
+                    },
+                    "language": {
+                        "type": "string",
+                        "description": "Language code for this content entry (e.g. en, fr, pt, ss)",
+                        "default": "en"
                     },
                     "priority": {
                         "$ref": "#/components/schemas/RecommendationPriority"
                     }
                 },
                 "example": {
-                    "dimension_id": "550e8400-e29b-41d4-a716-446655440000",
+                    "dimension_key": "550e8400-e29b-41d4-a716-446655440000",
                     "priority": "HIGH",
-                    "description": "Implement automated testing for critical components"
+                    "description": "Implement automated testing for critical components",
+                    "language": "en"
                 }
             },
             "CurrentStateResponse": {
@@ -5499,6 +5417,7 @@
                     "title",
                     "description",
                     "score",
+                    "language",
                     "created_at",
                     "updated_at"
                 ],
@@ -5517,6 +5436,11 @@
                     "dimension_id": {
                         "type": "string",
                         "format": "uuid"
+                    },
+                    "language": {
+                        "type": "string",
+                        "description": "Language code for this content entry",
+                        "example": "en"
                     },
                     "score": {
                         "type": "integer",
@@ -5559,6 +5483,7 @@
                     "title",
                     "description",
                     "score",
+                    "language",
                     "created_at",
                     "updated_at"
                 ],
@@ -5577,6 +5502,11 @@
                     "dimension_id": {
                         "type": "string",
                         "format": "uuid"
+                    },
+                    "language": {
+                        "type": "string",
+                        "description": "Language code for this content entry",
+                        "example": "en"
                     },
                     "score": {
                         "type": "integer",
@@ -5711,7 +5641,9 @@
                 "description": "Dimension response",
                 "required": [
                     "dimension_id",
+                    "dimension_key",
                     "name",
+                    "language",
                     "created_at",
                     "updated_at"
                 ],
@@ -5732,9 +5664,19 @@
                         "type": "string",
                         "format": "uuid"
                     },
+                    "dimension_key": {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Stable cross-language identifier shared by all language versions of the same logical dimension"
+                    },
                     "is_active": {
                         "type": "boolean",
                         "nullable": true
+                    },
+                    "language": {
+                        "type": "string",
+                        "description": "Language code for this content entry",
+                        "example": "en"
                     },
                     "name": {
                         "type": "string"
@@ -5820,8 +5762,10 @@
                 "required": [
                     "gap_id",
                     "dimension_id",
+                    "dimension_key",
                     "gap_size",
                     "gap_severity",
+                    "language",
                     "calculated_at",
                     "created_at",
                     "updated_at"
@@ -5842,8 +5786,12 @@
                     "dimension_id": {
                         "type": "string",
                         "format": "uuid",
-                        "description": "Reference to the dimension",
-                        "example": "550e8400-e29b-41d4-a716-446655440002"
+                        "description": "Language-specific dimension row ID"
+                    },
+                    "dimension_key": {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Stable cross-language dimension identifier"
                     },
                     "gap_description": {
                         "type": "string",
@@ -5866,22 +5814,17 @@
                         "description": "Numeric size of the gap",
                         "example": 3
                     },
+                    "language": {
+                        "type": "string",
+                        "description": "Language code for this content entry",
+                        "example": "en"
+                    },
                     "updated_at": {
                         "type": "string",
                         "format": "date-time",
                         "description": "When the gap was last updated",
                         "example": "2023-01-01T00:00:00Z"
                     }
-                },
-                "example": {
-                    "gap_id": "550e8400-e29b-41d4-a716-446655440000",
-                    "dimension_id": "550e8400-e29b-41d4-a716-446655440002",
-                    "gap_size": 3,
-                    "gap_severity": "HIGH",
-                    "gap_description": "Significant gap in digital transformation",
-                    "calculated_at": "2023-01-01T00:00:00Z",
-                    "created_at": "2023-01-01T00:00:00Z",
-                    "updated_at": "2023-01-01T00:00:00Z"
                 }
             },
             "GapSeverity": {
@@ -6765,8 +6708,10 @@
                 "required": [
                     "recommendation_id",
                     "dimension_id",
+                    "dimension_key",
                     "priority",
                     "description",
+                    "language",
                     "created_at",
                     "updated_at"
                 ],
@@ -6785,8 +6730,17 @@
                     "dimension_id": {
                         "type": "string",
                         "format": "uuid",
-                        "description": "Reference to the dimension",
-                        "example": "550e8400-e29b-41d4-a716-446655440002"
+                        "description": "Language-specific dimension row ID"
+                    },
+                    "dimension_key": {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Stable cross-language dimension identifier"
+                    },
+                    "language": {
+                        "type": "string",
+                        "description": "Language code for this content entry",
+                        "example": "en"
                     },
                     "priority": {
                         "$ref": "#/components/schemas/RecommendationPriority"
@@ -6803,14 +6757,6 @@
                         "description": "When the recommendation was last updated",
                         "example": "2023-01-01T00:00:00Z"
                     }
-                },
-                "example": {
-                    "recommendation_id": "550e8400-e29b-41d4-a716-446655440000",
-                    "dimension_id": "550e8400-e29b-41d4-a716-446655440002",
-                    "priority": "HIGH",
-                    "description": "Implement automated testing for critical components",
-                    "created_at": "2023-01-01T00:00:00Z",
-                    "updated_at": "2023-01-01T00:00:00Z"
                 }
             },
             "ReportDownloadResponse": {
@@ -7140,6 +7086,11 @@
                         "type": "string",
                         "nullable": true
                     },
+                    "language": {
+                        "type": "string",
+                        "description": "Language code for this content entry (e.g. en, fr, pt, ss)",
+                        "nullable": true
+                    },
                     "score": {
                         "type": "integer",
                         "format": "int32",
@@ -7157,6 +7108,11 @@
                 "properties": {
                     "description": {
                         "type": "string",
+                        "nullable": true
+                    },
+                    "language": {
+                        "type": "string",
+                        "description": "Language code for this content entry (e.g. en, fr, pt, ss)",
                         "nullable": true
                     },
                     "score": {
@@ -7214,6 +7170,11 @@
                         "type": "boolean",
                         "nullable": true
                     },
+                    "language": {
+                        "type": "string",
+                        "description": "Language code for this content entry (e.g. en, fr, pt, ss)",
+                        "nullable": true
+                    },
                     "name": {
                         "type": "string",
                         "nullable": true
@@ -7247,6 +7208,11 @@
                         "format": "int32",
                         "description": "New gap size; if provided, severity will be recalculated",
                         "nullable": true
+                    },
+                    "language": {
+                        "type": "string",
+                        "description": "Language code for this content entry (e.g. en, fr, pt, ss)",
+                        "nullable": true
                     }
                 }
             },
@@ -7272,6 +7238,11 @@
                         "type": "string",
                         "description": "New description (optional)",
                         "example": "Updated recommendation with more details",
+                        "nullable": true
+                    },
+                    "language": {
+                        "type": "string",
+                        "description": "Language code for this content entry (e.g. en, fr, pt, ss)",
                         "nullable": true
                     },
                     "priority": {

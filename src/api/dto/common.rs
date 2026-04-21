@@ -227,3 +227,15 @@ impl FromStr for Priority {
         }
     }
 }
+
+/// Language query parameter — used to filter content by language.
+/// Defaults to "en" when not provided.
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+pub struct LangParams {
+    #[serde(default = "default_lang")]
+    pub lang: String,
+}
+
+fn default_lang() -> String {
+    "en".to_string()
+}

@@ -63,6 +63,11 @@ export const DimensionCard = ({ dimension }: DimensionCardProps) => {
               <CardTitle className="text-xl font-bold text-gray-900 group-hover/card:text-primary transition-colors duration-200">
                 {dimension.name}
               </CardTitle>
+              {(dimension as any).language && (
+                <span className="inline-flex items-center mt-1 px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                  {({ en: "🇬🇧 EN", fr: "🇫🇷 FR", pt: "🇧🇷 PT", ss: "🇸🇿 SS" } as Record<string, string>)[(dimension as any).language] ?? (dimension as any).language}
+                </span>
+              )}
             </div>
           </div>
         </CardHeader>

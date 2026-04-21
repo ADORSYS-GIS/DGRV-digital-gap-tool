@@ -15,6 +15,8 @@ import {
 import { LevelsList } from "@/components/admin/levels/LevelsList";
 import { LevelType } from "@/types/digitalisationLevel";
 import { useTranslation } from "react-i18next";
+import { AdminLangFilterBar } from "@/components/shared/AdminLangFilterBar";
+import { useAdminLangFilter } from "@/hooks/useAdminLangFilter";
 
 export default function ManageDigitalisationLevels() {
   const { t } = useTranslation();
@@ -22,12 +24,13 @@ export default function ManageDigitalisationLevels() {
   const [searchParams] = useSearchParams();
   const levelType = searchParams.get("levelType") as LevelType | null;
   const [isAddLevelDialogOpen, setAddLevelDialogOpen] = useState(false);
+  const { lang, setLang } = useAdminLangFilter();
 
   const {
     data: levels,
     isLoading,
     error,
-  } = useDigitalisationLevels(dimensionId!);
+  } = useDigitalisationLevels(dimensionId!, lang);
 
   const filteredLevels = useMemo(() => {
     if (!levels || !levelType) return [];
@@ -48,10 +51,12 @@ export default function ManageDigitalisationLevels() {
     levelType === "current" ? t("adminManageDigitalLevels.titleCurrent") : t("adminManageDigitalLevels.titleDesired");
 
   return (
-    <div className="container mx-auto p-4 md:p-6 lg:p-8">
-      <div className="flex items-center justify-between mb-6">
+    <div className="container mx-auto p-4 md:p-6 lg:p-8 space-y-6">
+      <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold tracking-tight">{title}</h1>
       </div>
+
+      <AdminLangFilterBar value={lang} onChange={setLang} />
 
       <Card className="shadow-lg border-gray-200 dark:border-gray-700">
         <CardHeader className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 p-6">

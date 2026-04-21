@@ -1,26 +1,28 @@
 import { useQueries } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { digitalisationGapRepository } from "@/services/digitalisationGaps/digitalisationGapRepository";
 import { dimensionRepository } from "@/services/dimensions/dimensionRepository";
 import { IDigitalisationGap } from "@/types/digitalisationGap";
 import { IDimension } from "@/types/dimension";
 
-export const useDigitalisationGaps = () => {
+export const useDigitalisationGaps = (langOverride?: string) => {
+  const { i18n } = useTranslation();
+  const lang = langOverride ?? i18n.language;
+
   const results = useQueries({
     queries: [
       {
-        queryKey: ["digitalisationGaps"],
-        queryFn: digitalisationGapRepository.getAll,
+        queryKey: ["digitalisationGaps", lang],
+        queryFn: () => digitalisationGapRepository.getAll(lang),
       },
       {
-        queryKey: ["dimensions"],
-        queryFn: dimensionRepository.getAll,
+        queryKey: ["dimensions", lang],
+        queryFn: () => dimensionRepository.getAll(lang),
       },
     ],
   });
 
-  const digitalisationGaps = results[0].data as
-    | IDigitalisationGap[]
-    | undefined;
+  const digitalisationGaps = results[0].data as IDigitalisationGap[] | undefined;
   const dimensions = results[1].data as IDimension[] | undefined;
 
   const isLoading = results.some((query) => query.isLoading);

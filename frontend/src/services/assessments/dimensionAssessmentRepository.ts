@@ -172,10 +172,11 @@ export const dimensionAssessmentRepository = {
    */
   getDimensionWithStates: async (
     dimensionId: string,
+    lang = 'en',
   ): Promise<IDimensionWithStates> => {
     try {
       if (navigator.onLine) {
-        const response = await getDimensionWithStatesApi({ id: dimensionId });
+        const response = await getDimensionWithStatesApi({ id: dimensionId, lang });
         if (response.data) {
           // Map the API response to our domain model
           const dimension = mapToDimensionWithStates(
@@ -626,7 +627,7 @@ export const dimensionAssessmentRepository = {
                 const { getDimensionWithStates } = await import(
                   "../../openapi-client/services.gen"
                 );
-                const dimData = await getDimensionWithStates({ id: da.dimension_id });
+                const dimData = await getDimensionWithStates({ id: da.dimension_id, lang: 'en' });
                 if (dimData.data) {
                   const cs = dimData.data.current_states?.find(
                     (s) => s.current_state_id === da.current_state_id,

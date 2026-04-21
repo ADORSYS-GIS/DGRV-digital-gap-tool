@@ -12,7 +12,7 @@ import { db } from "../db";
 import { syncService } from "../sync/syncService";
 
 export const digitalisationGapRepository = {
-  getAll: async (): Promise<IDigitalisationGapWithDimension[]> => {
+  getAll: async (lang = 'en'): Promise<IDigitalisationGapWithDimension[]> => {
     try {
       if (navigator.onLine) {
         // Fetch ALL pages from backend to avoid losing items beyond page 1
@@ -24,6 +24,7 @@ export const digitalisationGapRepository = {
           const backendGapsResponse = await listGaps({
             page: currentPage,
             limit: 100,
+            lang,
           });
           if (backendGapsResponse.data) {
             const responseData: any = backendGapsResponse.data as any;

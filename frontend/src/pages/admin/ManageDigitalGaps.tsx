@@ -6,15 +6,18 @@ import { AddDigitalisationGapForm } from "@/components/admin/digitalisationGaps/
 import { DigitalisationGapList } from "@/components/admin/digitalisationGaps/DigitalisationGapList";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { useTranslation } from "react-i18next";
+import { AdminLangFilterBar } from "@/components/shared/AdminLangFilterBar";
+import { useAdminLangFilter } from "@/hooks/useAdminLangFilter";
 
 export default function ManageDigitalGaps() {
   const { t } = useTranslation();
   const [isAddDialogOpen, setAddDialogOpen] = useState(false);
+  const { lang, setLang } = useAdminLangFilter();
   const {
     data: digitalisationGaps,
     isLoading,
     error,
-  } = useDigitalisationGaps();
+  } = useDigitalisationGaps(lang);
 
   return (
     <div className="space-y-8 max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -37,6 +40,8 @@ export default function ManageDigitalGaps() {
           </Button>
         </div>
       </div>
+
+      <AdminLangFilterBar value={lang} onChange={setLang} />
 
       {isLoading && <LoadingSpinner />}
       {error && (

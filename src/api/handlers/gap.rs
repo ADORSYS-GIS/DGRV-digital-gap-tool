@@ -8,7 +8,7 @@ use sea_orm::Set;
 use uuid::Uuid;
 
 use crate::api::dto::{
-    common::{ApiResponse, EmptyResponse, PaginatedResponse, PaginationParams},
+    common::{ApiResponse, EmptyResponse, LangParams, PaginatedResponse, PaginationParams},
     gap::{AdminCreateGapRequest, GapResponse, GapSeverity, UpdateGapRequest},
 };
 use crate::api::handlers::common::{
@@ -25,6 +25,7 @@ fn to_gap_response(model: gaps::Model) -> GapResponse {
         gap_size: model.gap_size,
         gap_severity: GapSeverity::from(model.gap_severity),
         gap_description: model.gap_description,
+        language: model.language,
         calculated_at: model.calculated_at,
         created_at: model.created_at,
         updated_at: model.updated_at,
@@ -64,16 +65,37 @@ pub async fn admin_create_gap(
     Json(request): Json<AdminCreateGapRequest>,
 ) -> Result<Json<ApiResponse<GapResponse>>, (StatusCode, Json<serde_json::Value>)> {
     let db = &state.db;
-    let dimension_id = request.dimension_id;
     let severity = request.gap_severity.into();
     let description = request.gap_description;
+
+    // Resolve dimension_id from dimension_key + language
+    let dimension_id = if let Some(id) = request.dimension_id {
+        id
+    } else {
+        let dim = crate::repositories::dimensions::DimensionsRepository::find_by_key_and_language(
+            db.as_ref(),
+            request.dimension_key,
+            &request.language,
+        )
+        .await
+        .map_err(crate::api::handlers::common::handle_error)?
+        .ok_or_else(|| crate::api::handlers::common::handle_error(
+            crate::error::AppError::NotFound(format!(
+                "No dimension found for key {} and language {}",
+                request.dimension_key, request.language
+            ))
+        ))?;
+        dim.dimension_id
+    };
 
     let active = gaps::ActiveModel {
         gap_id: Set(Uuid::new_v4()),
         dimension_id: Set(dimension_id),
-        gap_size: Set(0), // gap_size is no longer used but the field still exists
+        dimension_key: Set(request.dimension_key),
+        gap_size: Set(0),
         gap_severity: Set(severity),
         gap_description: Set(Some(description)),
+        language: Set(request.language),
         calculated_at: Set(chrono::Utc::now()),
         ..Default::default()
     };
@@ -169,6 +191,9 @@ pub async fn update_gap(
     if let Some(severity) = req.gap_severity {
         active.gap_severity = Set(severity.into());
     }
+    if let Some(language) = req.language {
+        active.language = Set(language);
+    }
 
     let updated = GapsRepository::update(db.as_ref(), gap_id, active)
         .await
@@ -230,15 +255,22 @@ pub async fn delete_gap(
 pub async fn list_gaps(
     State(state): State<AppState>,
     Query(params): Query<PaginationParams>,
+    Query(lang_params): Query<LangParams>,
 ) -> Result<Json<ApiResponse<PaginatedResponse<GapResponse>>>, (StatusCode, Json<serde_json::Value>)>
 {
     let (page, limit, _sort_by, _sort_order) = extract_pagination(Query(params));
     let offset = ((page - 1) * limit) as u64;
 
     let db = &state.db;
-    let gaps = GapsRepository::find_all(db.as_ref())
-        .await
-        .map_err(crate::api::handlers::common::handle_error)?;
+    let gaps = if lang_params.lang == "all" {
+        GapsRepository::find_all(db.as_ref())
+            .await
+            .map_err(crate::api::handlers::common::handle_error)?
+    } else {
+        GapsRepository::find_all_by_language(db.as_ref(), &lang_params.lang)
+            .await
+            .map_err(crate::api::handlers::common::handle_error)?
+    };
 
     let total = gaps.len() as u64;
     let items: Vec<GapResponse> = gaps

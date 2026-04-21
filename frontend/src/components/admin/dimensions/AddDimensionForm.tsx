@@ -14,11 +14,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { useAddDimension } from "@/hooks/dimensions/useAddDimension";
 import { Layers, Type, FileText } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { ContentLanguageSelector } from "@/components/shared/ContentLanguageSelector";
 
 const formSchema = (t: any) =>
   z.object({
     name: z.string().min(1, t("adminDimensions.validation.nameRequired")),
     description: z.string().optional(),
+    language: z.string().min(1),
   });
 
 type FormValues = z.infer<ReturnType<typeof formSchema>>;
@@ -38,8 +40,11 @@ export const AddDimensionForm = ({
     handleSubmit,
     formState: { errors },
     reset,
+    setValue,
+    watch,
   } = useForm<FormValues>({
     resolver: zodResolver(formSchema(t)),
+    defaultValues: { name: "", description: "", language: "en" },
   });
 
   const addDimensionMutation = useAddDimension();
@@ -53,6 +58,7 @@ export const AddDimensionForm = ({
   const onSubmit = (data: FormValues) => {
     const payload = {
       name: data.name,
+      language: data.language,
       ...(data.description && { description: data.description }),
     };
     addDimensionMutation.mutate(payload, {
@@ -112,6 +118,16 @@ export const AddDimensionForm = ({
                   className="pl-10 min-h-[100px] rounded-lg border-gray-200 focus:border-primary focus:ring-primary/20 transition-all resize-none"
                 />
               </div>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium leading-none text-gray-700">
+                Language
+              </label>
+              <ContentLanguageSelector
+                value={watch("language")}
+                onChange={(lang) => setValue("language", lang)}
+                disabled={addDimensionMutation.isPending}
+              />
             </div>
             <div className="pt-2">
               <Button

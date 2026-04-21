@@ -25,7 +25,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { useAddDigitalisationGap } from "@/hooks/digitalisationGaps/useAddDigitalisationGap";
 import { useUpdateDigitalisationGap } from "@/hooks/digitalisationGaps/useUpdateDigitalisationGap";
-import { useDimensions } from "@/hooks/dimensions/useDimensions";
+import { useLogicalDimensions } from "@/hooks/dimensions/useLogicalDimensions";
 import { useDigitalisationGaps } from "@/hooks/digitalisationGaps/useDigitalisationGaps";
 import {
   Gap,
@@ -37,6 +37,7 @@ import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { AlertTriangle, Layers, Activity, FileText } from "lucide-react";
 import * as z from "zod";
+import { ContentLanguageSelector } from "@/components/shared/ContentLanguageSelector";
 
 interface AddDigitalisationGapFormProps {
   isOpen: boolean;
@@ -53,9 +54,10 @@ export function AddDigitalisationGapForm({
   const { data: digitalisationGaps } = useDigitalisationGaps();
 
   const formInputSchema = z.object({
-    dimensionId: z.string().min(1, t("adminGaps.validation.dimensionRequired")),
+    dimensionKey: z.string().min(1, t("adminGaps.validation.dimensionRequired")),
     gap_severity: z.nativeEnum(Gap),
     description: z.string().min(1, t("adminGaps.validation.descriptionRequired")),
+    language: z.string().min(1),
   });
 
   type AddDigitalisationGapFormValues = z.infer<typeof formInputSchema>;
@@ -69,7 +71,7 @@ export function AddDigitalisationGapForm({
           }
           const existingGap = digitalisationGaps?.find(
             (gap) =>
-              gap.dimensionId === data.dimensionId &&
+              (gap as any).dimension_key === data.dimensionKey &&
               gap.gap_severity === data.gap_severity,
           );
           return !existingGap;
@@ -81,13 +83,14 @@ export function AddDigitalisationGapForm({
       ),
     ),
     defaultValues: {
-      dimensionId: "",
+      dimensionKey: "",
       gap_severity: Gap.MEDIUM,
       description: "",
+      language: "en",
     },
   });
 
-  const { data: dimensions } = useDimensions();
+  const { data: logicalDimensions } = useLogicalDimensions();
   const addMutation = useAddDigitalisationGap();
   const updateMutation = useUpdateDigitalisationGap();
 
@@ -95,23 +98,24 @@ export function AddDigitalisationGapForm({
     if (!isOpen) {
       // Reset form when dialog is closed
       form.reset({
-        dimensionId: "",
+        dimensionKey: "",
         gap_severity: Gap.MEDIUM,
         description: "",
+        language: "en",
       });
     } else if (digitalisationGap) {
-      // Populate form for editing
       form.reset({
-        dimensionId: digitalisationGap.dimensionId,
+        dimensionKey: (digitalisationGap as any).dimensionKey || (digitalisationGap as any).dimension_key || "",
         gap_severity: digitalisationGap.gap_severity,
         description: digitalisationGap.description,
+        language: (digitalisationGap as any).language || "en",
       });
     } else {
-      // Reset to default for adding new gap when dialog is opened
       form.reset({
-        dimensionId: "",
+        dimensionKey: "",
         gap_severity: Gap.MEDIUM,
         description: "",
+        language: "en",
       });
     }
   }, [isOpen, digitalisationGap, form]);
@@ -123,13 +127,12 @@ export function AddDigitalisationGapForm({
 
     if (digitalisationGap) {
       updateMutation.mutate(
-        { ...values, id: digitalisationGap.id },
+        { ...values, id: digitalisationGap.id, dimensionId: values.dimensionKey },
         { onSuccess: handleSuccess },
       );
     } else {
-      addMutation.mutate(values, { onSuccess: handleSuccess });
-    }
-  };
+      addMutation.mutate({ ...values, dimensionId: values.dimensionKey }, { onSuccess: handleSuccess });
+    }  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -158,7 +161,7 @@ export function AddDigitalisationGapForm({
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
               <FormField
                 control={form.control}
-                name="dimensionId"
+                name="dimensionKey"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-gray-700">
@@ -179,8 +182,8 @@ export function AddDigitalisationGapForm({
                         </div>
                       </FormControl>
                       <SelectContent>
-                        {dimensions?.map((dim) => (
-                          <SelectItem key={dim.id} value={dim.id}>
+                        {logicalDimensions?.map((dim) => (
+                          <SelectItem key={dim.dimension_key} value={dim.dimension_key}>
                             {dim.name}
                           </SelectItem>
                         ))}
@@ -246,6 +249,14 @@ export function AddDigitalisationGapForm({
                   </FormItem>
                 )}
               />
+              <FormItem>
+                <FormLabel className="text-gray-700">Language</FormLabel>
+                <ContentLanguageSelector
+                  value={form.watch("language")}
+                  onChange={(lang) => form.setValue("language", lang)}
+                  disabled={addMutation.isPending || updateMutation.isPending}
+                />
+              </FormItem>
               <div className="pt-2 flex gap-3">
                 <Button
                   type="button"

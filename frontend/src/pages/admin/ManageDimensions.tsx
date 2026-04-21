@@ -6,11 +6,14 @@ import { AddDimensionForm } from "@/components/admin/dimensions/AddDimensionForm
 import { DimensionList } from "@/components/admin/dimensions/DimensionList";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { useTranslation } from "react-i18next";
+import { AdminLangFilterBar } from "@/components/shared/AdminLangFilterBar";
+import { useAdminLangFilter } from "@/hooks/useAdminLangFilter";
 
 export default function ManageDimensions() {
   const { t } = useTranslation();
   const [isAddDialogOpen, setAddDialogOpen] = useState(false);
-  const { data: dimensions, isLoading, error } = useDimensions();
+  const { lang, setLang } = useAdminLangFilter();
+  const { data: dimensions, isLoading, error } = useDimensions(lang);
 
   return (
     <div className="space-y-8 max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -31,6 +34,8 @@ export default function ManageDimensions() {
           {t("adminManageDimensions.addBtn")}
         </Button>
       </div>
+
+      <AdminLangFilterBar value={lang} onChange={setLang} />
 
       {isLoading && <LoadingSpinner />}
       {error && (

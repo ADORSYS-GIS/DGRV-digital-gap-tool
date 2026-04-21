@@ -52,6 +52,9 @@ impl DesiredStatesRepository {
         if let ActiveValue::Set(score) = desired_state_data.score {
             active_model.score = Set(score);
         }
+        if let ActiveValue::Set(language) = desired_state_data.language {
+            active_model.language = Set(language);
+        }
         active_model.updated_at = Set(chrono::Utc::now());
 
         active_model.update(db).await.map_err(AppError::from)
@@ -72,6 +75,19 @@ impl DesiredStatesRepository {
     ) -> Result<Vec<desired_states::Model>, AppError> {
         DesiredStates::find()
             .filter(desired_states::Column::DimensionId.eq(dimension_id))
+            .all(db)
+            .await
+            .map_err(AppError::from)
+    }
+
+    pub async fn find_by_dimension_and_language(
+        db: &DbConn,
+        dimension_id: Uuid,
+        language: &str,
+    ) -> Result<Vec<desired_states::Model>, AppError> {
+        DesiredStates::find()
+            .filter(desired_states::Column::DimensionId.eq(dimension_id))
+            .filter(desired_states::Column::Language.eq(language))
             .all(db)
             .await
             .map_err(AppError::from)

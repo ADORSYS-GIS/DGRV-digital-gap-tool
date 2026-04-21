@@ -104,6 +104,9 @@ export function DigitalisationGapList({
                       <TableHead className="h-12 font-medium text-gray-600 w-[150px]">
                         {t("adminGaps.list.severity")}
                       </TableHead>
+                      <TableHead className="h-12 font-medium text-gray-600 w-[60px]">
+                        Lang
+                      </TableHead>
                       <TableHead className="pr-6 h-12 font-medium text-gray-600 text-right w-[120px]">
                         {t("adminGaps.list.actions")}
                       </TableHead>
@@ -130,6 +133,9 @@ export function DigitalisationGapList({
                           >
                             {gap.gap_severity}
                           </span>
+                        </TableCell>
+                        <TableCell className="py-4 text-sm">
+                          {({ en: "🇬🇧", fr: "🇫🇷", pt: "🇧🇷", ss: "🇸🇿" } as Record<string, string>)[(gap as any).language] ?? ""}
                         </TableCell>
                         <TableCell className="pr-6 py-4 text-right">
                           <div className="flex items-center justify-end gap-1">

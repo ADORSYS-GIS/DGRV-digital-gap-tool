@@ -5,24 +5,20 @@ import { useRecommendations } from "@/hooks/recommendations/useRecommendations";
 import { AddRecommendationForm } from "@/components/admin/recommendations/AddRecommendationForm";
 import { RecommendationList } from "@/components/admin/recommendations/RecommendationList";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
-// Using a simple div for error display since Alert component is not available
-// Consider adding a proper Alert component to your UI library for better user feedback
-
-/**
- * Page component for managing recommendations in the admin panel.
- * Displays a list of recommendations with options to add, edit, and delete them.
- */
 import { useTranslation } from "react-i18next";
+import { AdminLangFilterBar } from "@/components/shared/AdminLangFilterBar";
+import { useAdminLangFilter } from "@/hooks/useAdminLangFilter";
 
 export default function ManageRecommendations() {
   const { t } = useTranslation();
   const [isAddDialogOpen, setAddDialogOpen] = useState(false);
+  const { lang, setLang } = useAdminLangFilter();
   const {
     data: recommendationsData,
     isLoading,
     error,
     refetch,
-  } = useRecommendations();
+  } = useRecommendations(lang);
 
   // Ensure recommendations is always an array
   const recommendations = Array.isArray(recommendationsData)
@@ -56,9 +52,10 @@ export default function ManageRecommendations() {
         </div>
       </div>
 
+      <AdminLangFilterBar value={lang} onChange={setLang} />
+
       {/* Loading state */}
-      {isLoading && !recommendations && (
-        <div className="flex justify-center items-center h-64">
+      {isLoading && !recommendations && (        <div className="flex justify-center items-center h-64">
           <LoadingSpinner size="lg" />
         </div>
       )}

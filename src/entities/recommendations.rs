@@ -7,10 +7,13 @@ pub struct Model {
     #[sea_orm(primary_key, auto_generate = false)]
     pub recommendation_id: Uuid,
     pub dimension_id: Uuid,
+    /// Stable cross-language key — same as the parent dimension's dimension_key
+    pub dimension_key: Uuid,
     pub priority: RecommendationPriority,
     pub description: String,
     /// "admin" = created by admin, "action_plan" = auto-created by action plan
     pub source: String,
+    pub language: String,
     pub created_at: DateTimeUtc,
     pub updated_at: DateTimeUtc,
 }

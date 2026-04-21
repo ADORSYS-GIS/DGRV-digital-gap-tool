@@ -6,9 +6,12 @@ pub struct Model {
     #[sea_orm(primary_key, auto_generate = false)]
     pub desired_state_id: Uuid,
     pub dimension_id: Uuid,
+    /// Stable cross-language key — same as the parent dimension's dimension_key
+    pub dimension_key: Uuid,
     pub title: String,
     pub description: String,
     pub score: i32,
+    pub language: String,
     pub created_at: DateTimeUtc,
     pub updated_at: DateTimeUtc,
 }

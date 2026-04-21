@@ -20,9 +20,11 @@ export interface IRecommendation {
 }
 
 export interface ICreateRecommendationRequest {
-  dimension_id: string;
+  dimension_id?: string;
+  dimension_key: string;
   priority: RecommendationPriority;
   description: string;
+  language?: string;
 }
 
 export interface IUpdateRecommendationRequest {

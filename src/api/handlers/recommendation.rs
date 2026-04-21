@@ -8,7 +8,7 @@ use sea_orm::ActiveValue::Set;
 use uuid::Uuid;
 
 use crate::api::dto::{
-    common::{ApiResponse, EmptyResponse, PaginatedResponse, PaginationParams},
+    common::{ApiResponse, EmptyResponse, LangParams, PaginatedResponse, PaginationParams},
     recommendation::{
         CreateRecommendationRequest, RecommendationResponse, UpdateRecommendationRequest,
     },
@@ -23,6 +23,7 @@ fn to_recommendation_response(model: recommendations::Model) -> RecommendationRe
         dimension_id: model.dimension_id,
         priority: model.priority.into(),
         description: model.description,
+        language: model.language,
         created_at: model.created_at,
         updated_at: model.updated_at,
     }
@@ -47,12 +48,37 @@ pub async fn create_recommendation(
     Json(payload): Json<CreateRecommendationRequest>,
 ) -> Result<Json<ApiResponse<RecommendationResponse>>, (StatusCode, Json<serde_json::Value>)> {
     let db = &state.db;
+
+    // Resolve dimension_id from dimension_key + language
+    let dimension_id = if let Some(id) = payload.dimension_id {
+        id
+    } else {
+        // Find the dimension row matching dimension_key + language
+        let dim = crate::repositories::dimensions::DimensionsRepository::find_by_key_and_language(
+            db,
+            payload.dimension_key,
+            &payload.language,
+        )
+        .await
+        .map_err(|e| {
+            let error_response = serde_json::json!({"status": "error", "message": format!("Failed to fetch dimension: {}", e)});
+            (StatusCode::INTERNAL_SERVER_ERROR, Json(error_response))
+        })?
+        .ok_or_else(|| {
+            let error_response = serde_json::json!({"status": "error", "message": format!("No dimension found for key {} and language {}", payload.dimension_key, payload.language)});
+            (StatusCode::NOT_FOUND, Json(error_response))
+        })?;
+        dim.dimension_id
+    };
+
     let recommendation = recommendations::ActiveModel {
         recommendation_id: Set(Uuid::new_v4()),
-        dimension_id: Set(payload.dimension_id),
+        dimension_id: Set(dimension_id),
+        dimension_key: Set(payload.dimension_key),
         priority: Set(payload.priority.into()),
         description: Set(payload.description),
         source: Set("admin".to_string()),
+        language: Set(payload.language),
         created_at: Set(chrono::Utc::now()),
         updated_at: Set(chrono::Utc::now()),
     };
@@ -171,6 +197,9 @@ pub async fn update_recommendation(
     if let Some(description) = payload.description {
         recommendation.description = Set(description);
     }
+    if let Some(language) = payload.language {
+        recommendation.language = Set(language);
+    }
 
     // Update the updated_at timestamp
     recommendation.updated_at = Set(chrono::Utc::now());
@@ -255,6 +284,7 @@ pub async fn delete_recommendation(
 pub async fn list_recommendations(
     State(state): State<AppState>,
     Query(params): Query<PaginationParams>,
+    Query(lang_params): Query<LangParams>,
 ) -> Result<
     Json<ApiResponse<PaginatedResponse<RecommendationResponse>>>,
     (StatusCode, Json<serde_json::Value>),
@@ -262,7 +292,7 @@ pub async fn list_recommendations(
     let db = &state.db;
     let (page, limit, _sort_by, _sort_order) = extract_pagination(Query(params));
 
-    let (recommendations, total) =
+    let (recommendations, total) = if lang_params.lang == "all" {
         RecommendationsRepository::find_all_paginated(db, page as u64, limit as u64)
             .await
             .map_err(|e| {
@@ -271,7 +301,23 @@ pub async fn list_recommendations(
                     "message": format!("Failed to fetch recommendations: {}", e)
                 });
                 (StatusCode::INTERNAL_SERVER_ERROR, Json(error_response))
-            })?;
+            })?
+    } else {
+        RecommendationsRepository::find_all_paginated_by_language(
+            db,
+            page as u64,
+            limit as u64,
+            &lang_params.lang,
+        )
+        .await
+        .map_err(|e| {
+            let error_response = serde_json::json!({
+                "status": "error",
+                "message": format!("Failed to fetch recommendations: {}", e)
+            });
+            (StatusCode::INTERNAL_SERVER_ERROR, Json(error_response))
+        })?
+    };
 
     let response = success_response(PaginatedResponse {
         items: recommendations
