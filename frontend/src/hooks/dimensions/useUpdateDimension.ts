@@ -36,6 +36,7 @@ export const useUpdateDimension = () => {
     onSuccess: () => {
       toast.success("Dimension updated successfully");
       queryClient.invalidateQueries({ queryKey: ["dimensions"] });
+      queryClient.invalidateQueries({ queryKey: ["logicalDimensions"] });
     },
     onError: (error: Error, _, context) => {
       queryClient.setQueryData(["dimensions"], context?.previousDimensions);

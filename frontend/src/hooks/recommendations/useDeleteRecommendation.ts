@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { recommendationRepository } from "@/services/recommendations/recommendationRepository";
 import { toast } from "sonner";
-import { IRecommendation } from "@/types/recommendation";
 
 export function useDeleteRecommendation() {
   const queryClient = useQueryClient();
@@ -10,31 +9,13 @@ export function useDeleteRecommendation() {
     mutationFn: async (id: string) => {
       return await recommendationRepository.delete(id);
     },
-    onMutate: async (id: string) => {
-      await queryClient.cancelQueries({ queryKey: ["recommendations"] });
-      const previousRecommendations =
-        queryClient.getQueryData<IRecommendation[]>(["recommendations"]) ?? [];
-
-      queryClient.setQueryData<IRecommendation[]>(
-        ["recommendations"],
-        (old = []) =>
-          old.filter((r) => r.id !== id && r.recommendation_id !== id),
-      );
-
-      return { previousRecommendations };
-    },
     onSuccess: () => {
       toast.success("Recommendation deleted successfully");
-    },
-    onError: (error: Error, _, context) => {
-      queryClient.setQueryData(
-        ["recommendations"],
-        context?.previousRecommendations,
-      );
-      toast.error(`Failed to delete recommendation: ${error.message}`);
-    },
-    onSettled: () => {
+      // Invalidate all recommendation queries regardless of lang key
       queryClient.invalidateQueries({ queryKey: ["recommendations"] });
+    },
+    onError: (error: Error) => {
+      toast.error(`Failed to delete recommendation: ${error.message}`);
     },
   });
 }

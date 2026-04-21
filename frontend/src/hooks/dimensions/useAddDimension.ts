@@ -46,9 +46,9 @@ export const useAddDimension = () => {
     },
     onSuccess: (data, _variables, context) => {
       toast.success("Dimension added successfully");
-      queryClient.setQueryData<IDimension[]>(["dimensions"], (old = []) =>
-        old.map((d) => (d.id === `temp-${context.optimisticId}` ? data : d)),
-      );
+      // Invalidate all dimension queries regardless of lang key
+      queryClient.invalidateQueries({ queryKey: ["dimensions"] });
+      queryClient.invalidateQueries({ queryKey: ["logicalDimensions"] });
     },
     onError: (error: Error, _, context) => {
       if (context?.previousDimensions) {
