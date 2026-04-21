@@ -5,16 +5,17 @@ import { IDimensionWithStates } from "@/types/dimension";
 
 export const useDimensionWithStates = (dimensionId?: string) => {
   const { i18n } = useTranslation();
-  const lang = i18n.language;
+  // Normalize language code — strip region suffix (e.g. "fr-FR" → "fr")
+  const lang = (i18n.language ?? 'en').split('-')[0];
 
   return useQuery<IDimensionWithStates>({
     queryKey: ["dimensionWithStates", dimensionId, lang],
     queryFn: async () => {
       if (!dimensionId) throw new Error("Dimension ID is required");
-      // The backend now handles both dimension_id and dimension_key as input,
-      // and resolves to the correct language version automatically.
       return dimensionAssessmentRepository.getDimensionWithStates(dimensionId, lang);
     },
     enabled: !!dimensionId,
+    // Always refetch when language changes
+    staleTime: 0,
   });
 };

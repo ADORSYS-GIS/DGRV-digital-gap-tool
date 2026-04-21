@@ -398,9 +398,8 @@ pub async fn create_dimension_assessment(
         )));
     }
 
-    // 1. Create the Dimension Assessment
-    // The request.dimension_id may be a dimension_key — resolve to actual dimension_id
-    let actual_dimension_id = {
+    // Resolve dimension_id from dimension_key if needed
+    let mut actual_dimension_id = {
         // Try to find a dimension with this exact dimension_id first
         if crate::repositories::dimensions::DimensionsRepository::find_by_id(db.as_ref(), request.dimension_id)
             .await
@@ -421,6 +420,55 @@ pub async fn create_dimension_assessment(
             .unwrap_or(request.dimension_id)
         }
     };
+
+    // Get the dimension_key for this dimension
+    let dimension_key = crate::repositories::dimensions::DimensionsRepository::find_by_id(db.as_ref(), actual_dimension_id)
+        .await
+        .map_err(crate::api::handlers::common::handle_error)?
+        .map(|d| d.dimension_key)
+        .unwrap_or(actual_dimension_id);
+
+    // Check for existing dimension assessment with same dimension_key + assessment_id
+    // to prevent duplicates when the same logical dimension is submitted in multiple languages
+    let existing_for_key = DimensionAssessmentsRepository::find_by_assessment_id(db.as_ref(), assessment_id)
+        .await
+        .map_err(crate::api::handlers::common::handle_error)?;
+
+    for existing_da in &existing_for_key {
+        if let Some(existing_dim) = crate::repositories::dimensions::DimensionsRepository::find_by_id(db.as_ref(), existing_da.dimension_id)
+            .await
+            .map_err(crate::api::handlers::common::handle_error)?
+        {
+            if existing_dim.dimension_key == dimension_key {
+                // Already answered this logical dimension — update instead of creating duplicate
+                actual_dimension_id = existing_da.dimension_id;
+                // Fall through to update the existing record
+                let mut active_model: crate::entities::dimension_assessments::ActiveModel = existing_da.clone().into();
+                active_model.current_state_id = sea_orm::Set(Some(request.current_state_id));
+                active_model.desired_state_id = sea_orm::Set(Some(request.desired_state_id));
+                active_model.gap_score = sea_orm::Set(request.gap_score);
+
+                let updated = DimensionAssessmentsRepository::update(db.as_ref(), existing_da.dimension_assessment_id, active_model)
+                    .await
+                    .map_err(crate::api::handlers::common::handle_error)?;
+
+                let response = DimensionAssessmentResponse {
+                    dimension_assessment_id: updated.dimension_assessment_id,
+                    assessment_id: updated.assessment_id,
+                    dimension_id: updated.dimension_id,
+                    current_state_id: updated.current_state_id,
+                    desired_state_id: updated.desired_state_id,
+                    gap_score: updated.gap_score,
+                    gap_id: updated.gap_id,
+                    organization_id: updated.organization_id,
+                    cooperation_id: updated.cooperation_id,
+                    created_at: updated.created_at,
+                    updated_at: updated.updated_at,
+                };
+                return Ok(success_response_with_message(response, "Dimension assessment updated".to_string()));
+            }
+        }
+    }
 
     let gap = GapsRepository::find_by_dimension_and_severity(
         db.as_ref(),
