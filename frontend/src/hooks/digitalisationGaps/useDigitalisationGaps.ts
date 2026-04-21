@@ -15,9 +15,11 @@ export const useDigitalisationGaps = (langOverride?: string) => {
         queryKey: ["digitalisationGaps", lang],
         queryFn: () => digitalisationGapRepository.getAll(lang),
       },
+      // Always fetch English dimensions for name lookup — ensures names show
+      // correctly regardless of the current UI language
       {
-        queryKey: ["dimensions", lang],
-        queryFn: () => dimensionRepository.getAll(lang),
+        queryKey: ["dimensions", "en"],
+        queryFn: () => dimensionRepository.getAll("en"),
       },
     ],
   });
@@ -32,7 +34,11 @@ export const useDigitalisationGaps = (langOverride?: string) => {
   const data =
     digitalisationGaps && dimensions
       ? digitalisationGaps.map((gap) => {
-          const dimension = dimensions.find((d) => d.id === gap.dimensionId);
+          // Match by dimension_key first (cross-language), fall back to dimension_id
+          const gapDimKey = (gap as any).dimension_key ?? gap.dimensionId;
+          const dimension = dimensions.find(
+            (d) => (d as any).dimension_key === gapDimKey || d.id === gap.dimensionId,
+          );
           return {
             ...gap,
             dimensionName: dimension?.name || "Unknown Dimension",

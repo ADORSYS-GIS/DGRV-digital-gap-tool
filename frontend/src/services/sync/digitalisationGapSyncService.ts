@@ -38,9 +38,11 @@ export const digitalisationGapSyncService = {
     switch (op.action) {
       case "CREATE": {
         const requestBody = {
-          dimension_id: payload.dimensionId,
+          dimension_key: (payload as any).dimension_key ?? payload.dimensionId,
+          dimension_id: payload.dimensionId ?? undefined,
           gap_description: payload.description,
           gap_severity: payload.gap_severity,
+          language: (payload as any).language ?? "en",
         };
         const response = await adminCreateGap({ requestBody });
         const responseData: any = response.data as any;

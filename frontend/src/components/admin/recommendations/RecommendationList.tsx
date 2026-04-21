@@ -20,7 +20,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { useDimensions } from "@/hooks/dimensions/useDimensions";
+import { useLogicalDimensions } from "@/hooks/dimensions/useLogicalDimensions";
 
 interface RecommendationListProps {
   recommendations: IRecommendation[];
@@ -33,13 +33,14 @@ export function RecommendationList({
   const [editingRecommendation, setEditingRecommendation] =
     useState<IRecommendation | null>(null);
   const deleteRecommendation = useDeleteRecommendation();
-  const { data: dimensions = [] } = useDimensions();
+  const { data: logicalDimensions = [] } = useLogicalDimensions();
 
-  // Group recommendations by dimension_id
+  // Group recommendations by dimension_key (stable cross-language identifier)
   const groupedRecommendations = useMemo(() => {
     return recommendations.reduce(
       (acc, rec) => {
-        const dimension = dimensions.find((d) => d.id === rec.dimension_id);
+        const dimKey = (rec as any).dimension_key ?? rec.dimension_id;
+        const dimension = logicalDimensions.find((d) => d.dimension_key === dimKey);
         const dimensionName = dimension?.name || t("common.noTitle");
 
         if (!acc[dimensionName]) {
@@ -50,7 +51,7 @@ export function RecommendationList({
       },
       {} as Record<string, IRecommendation[]>,
     );
-  }, [recommendations, dimensions]);
+  }, [recommendations, logicalDimensions]);
 
   if (recommendations.length === 0) {
     return (

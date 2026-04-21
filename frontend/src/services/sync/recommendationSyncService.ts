@@ -38,9 +38,11 @@ export const recommendationSyncService = {
     switch (op.action) {
       case "CREATE": {
         const requestBody = {
-          dimension_id: payload.dimension_id,
+          dimension_key: (payload as any).dimension_key ?? payload.dimension_id,
+          dimension_id: payload.dimension_id ?? undefined,
           priority: payload.priority ?? "MEDIUM",
           description: payload.description,
+          language: (payload as any).language ?? "en",
         };
         const response = await createRecommendation({ requestBody });
         const responseData: any = response.data as any;

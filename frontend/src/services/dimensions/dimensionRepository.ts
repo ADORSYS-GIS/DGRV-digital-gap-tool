@@ -115,7 +115,23 @@ export const dimensionRepository = {
       return;
     }
 
-    // Update in IndexedDB with PENDING status
+    if (navigator.onLine) {
+      const { updateDimension } = await import("@/openapi-client/services.gen");
+      await updateDimension({
+        id,
+        requestBody: {
+          name: (changes as any).name ?? existingDimension.name,
+          description: (changes as any).description ?? existingDimension.description ?? null,
+          category: (changes as any).category ?? existingDimension.category ?? null,
+          weight: (changes as any).weight ?? existingDimension.weight ?? null,
+          language: (changes as any).language ?? (existingDimension as any).language ?? undefined,
+        },
+      });
+      await db.dimensions.update(id, { ...changes, syncStatus: SyncStatus.SYNCED });
+      return;
+    }
+
+    // Offline: queue for later sync
     await db.dimensions.update(id, {
       ...changes,
       syncStatus: SyncStatus.PENDING,
@@ -132,7 +148,17 @@ export const dimensionRepository = {
       return;
     }
 
-    // Mark as PENDING for deletion in IndexedDB
+    if (navigator.onLine) {
+      // Call API directly when online
+      const { deleteDimension } = await import("@/openapi-client/services.gen");
+      await deleteDimension({ id });
+      await db.dimensions.delete(id);
+      // Clean up any stale sync queue entries
+      await db.sync_queue.filter((item) => item.entityId === id).delete();
+      return;
+    }
+
+    // Offline: queue for later sync
     await db.dimensions.update(id, { syncStatus: SyncStatus.PENDING });
     syncService.addToSyncQueue("Dimension", id, "DELETE", null);
   },

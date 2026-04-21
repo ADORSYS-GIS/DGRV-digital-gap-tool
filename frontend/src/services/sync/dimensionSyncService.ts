@@ -36,6 +36,7 @@ export const dimensionSyncService = {
           description: payload.description ?? null,
           category: payload.category ?? null,
           weight: payload.weight ?? null,
+          language: (payload as any).language ?? "en",
         };
         const response = await createDimension({ requestBody });
         if (response.data) {
@@ -52,6 +53,7 @@ export const dimensionSyncService = {
           description: payload.description ?? null,
           category: payload.category ?? null,
           weight: payload.weight ?? null,
+          language: (payload as any).language ?? undefined,
         };
         await updateDimension({
           id: op.entityId,
