@@ -54,6 +54,7 @@ impl MigrationTrait for Migration {
 
 #[derive(Iden)]
 enum OrgDimension {
+    #[iden = "organisation_dimension"]
     Table,
     DimensionKey,
 }
