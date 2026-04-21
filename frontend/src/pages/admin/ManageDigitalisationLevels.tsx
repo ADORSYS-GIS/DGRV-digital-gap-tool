@@ -17,20 +17,37 @@ import { LevelType } from "@/types/digitalisationLevel";
 import { useTranslation } from "react-i18next";
 import { AdminLangFilterBar } from "@/components/shared/AdminLangFilterBar";
 import { useAdminLangFilter } from "@/hooks/useAdminLangFilter";
+import { dimensionRepository } from "@/services/dimensions/dimensionRepository";
+import { useQuery } from "@tanstack/react-query";
 
 export default function ManageDigitalisationLevels() {
   const { t } = useTranslation();
-  const { dimensionId } = useParams<{ dimensionId: string }>();
+  const { dimensionId: dimensionKeyOrId } = useParams<{ dimensionId: string }>();
   const [searchParams] = useSearchParams();
   const levelType = searchParams.get("levelType") as LevelType | null;
   const [isAddLevelDialogOpen, setAddLevelDialogOpen] = useState(false);
   const { lang, setLang } = useAdminLangFilter();
 
+  // Resolve the actual dimension_id for the selected language (needed for AddLevelForm)
+  const { data: resolvedDimensionId } = useQuery({
+    queryKey: ["resolveDimensionId", dimensionKeyOrId, lang],
+    queryFn: async () => {
+      if (!dimensionKeyOrId) return dimensionKeyOrId;
+      if (lang === "all" || lang === "en") return dimensionKeyOrId;
+      const allDims = await dimensionRepository.getAll("all");
+      const match = allDims.find(
+        (d) => (d as any).dimension_key === dimensionKeyOrId && (d as any).language === lang,
+      );
+      return match?.id ?? dimensionKeyOrId;
+    },
+    enabled: !!dimensionKeyOrId,
+  });
+
   const {
     data: levels,
     isLoading,
     error,
-  } = useDigitalisationLevels(dimensionId!, lang);
+  } = useDigitalisationLevels(dimensionKeyOrId!, lang);
 
   const filteredLevels = useMemo(() => {
     if (!levels || !levelType) return [];
@@ -49,6 +66,8 @@ export default function ManageDigitalisationLevels() {
 
   const title =
     levelType === "current" ? t("adminManageDigitalLevels.titleCurrent") : t("adminManageDigitalLevels.titleDesired");
+
+  const effectiveDimensionId = resolvedDimensionId ?? dimensionKeyOrId!;
 
   return (
     <div className="container mx-auto p-4 md:p-6 lg:p-8 space-y-6">
@@ -86,7 +105,7 @@ export default function ManageDigitalisationLevels() {
       <AddLevelForm
         isOpen={isAddLevelDialogOpen}
         onClose={() => setAddLevelDialogOpen(false)}
-        dimensionId={dimensionId!}
+        dimensionId={effectiveDimensionId}
         levelType={levelType}
         existingLevels={filteredLevels}
       />
