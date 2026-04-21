@@ -28,9 +28,12 @@ import { EditDimensionForm } from "./EditDimensionForm";
 
 interface DimensionCardProps {
   dimension: IDimension;
+  /** Compact mode — shows only edit/delete actions, no manage levels button */
+  compact?: boolean;
 }
 
-export const DimensionCard = ({ dimension }: DimensionCardProps) => {
+
+export const DimensionCard = ({ dimension, compact = false }: DimensionCardProps) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [isSelectStateDialogOpen, setSelectStateDialogOpen] = useState(false);
@@ -79,12 +82,14 @@ export const DimensionCard = ({ dimension }: DimensionCardProps) => {
           </p>
         </CardContent>
         <CardFooter className="flex-col items-stretch pt-0 pb-6 px-6 gap-3">
-          <Button
-            onClick={handleManageLevels}
-            className="w-full justify-center bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white shadow-sm hover:shadow transition-all duration-300 border-0"
-          >
-            {t("adminDimensions.card.manageLevels")}
-          </Button>
+          {!compact && (
+            <Button
+              onClick={handleManageLevels}
+              className="w-full justify-center bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white shadow-sm hover:shadow transition-all duration-300 border-0"
+            >
+              {t("adminDimensions.card.manageLevels")}
+            </Button>
+          )}
           <div className="grid grid-cols-2 gap-3 w-full">
             <EditDimensionForm dimension={dimension} />
             <AlertDialog>

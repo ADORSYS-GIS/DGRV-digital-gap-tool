@@ -25,13 +25,17 @@ interface ContentLanguageSelectorProps {
   value: string;
   onChange: (lang: string) => void;
   disabled?: boolean;
+  /** Language codes to exclude from the list */
+  filterOut?: string[];
 }
 
 export const ContentLanguageSelector = ({
   value,
   onChange,
   disabled = false,
+  filterOut = [],
 }: ContentLanguageSelectorProps) => {
+  const available = CONTENT_LANGUAGES.filter((l) => !filterOut.includes(l.code));
   return (
     <div className="relative">
       <Globe className="absolute left-3 top-3 h-4 w-4 text-gray-400 z-10" />
@@ -40,7 +44,7 @@ export const ContentLanguageSelector = ({
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
-          {CONTENT_LANGUAGES.map((lang) => (
+          {available.map((lang) => (
             <SelectItem key={lang.code} value={lang.code}>
               <span className="flex items-center gap-2">
                 <span>{lang.flag}</span>

@@ -6,13 +6,12 @@ import { AddDimensionForm } from "@/components/admin/dimensions/AddDimensionForm
 import { DimensionList } from "@/components/admin/dimensions/DimensionList";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { useTranslation } from "react-i18next";
-import { AdminLangFilterBar } from "@/components/shared/AdminLangFilterBar";
 import { useAdminLangFilter } from "@/hooks/useAdminLangFilter";
 
 export default function ManageDimensions() {
   const { t } = useTranslation();
   const [isAddDialogOpen, setAddDialogOpen] = useState(false);
-  const { lang, setLang } = useAdminLangFilter();
+  const { lang, setLang } = useAdminLangFilter("all");
   const { data: dimensions, isLoading, error } = useDimensions(lang);
 
   return (
@@ -34,8 +33,6 @@ export default function ManageDimensions() {
           {t("adminManageDimensions.addBtn")}
         </Button>
       </div>
-
-      <AdminLangFilterBar value={lang} onChange={setLang} />
 
       {isLoading && <LoadingSpinner />}
       {error && (
