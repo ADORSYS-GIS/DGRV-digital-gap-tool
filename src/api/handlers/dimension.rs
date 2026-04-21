@@ -35,6 +35,24 @@ pub async fn create_dimension(
     Json(request): Json<CreateDimensionRequest>,
 ) -> Result<Json<ApiResponse<DimensionResponse>>, (StatusCode, Json<serde_json::Value>)> {
     let db = &state.db;
+    // If a dimension_key is provided, check for duplicate (same key + language already exists)
+    if let Some(key) = request.dimension_key {
+        if let Some(_existing) = DimensionsRepository::find_by_key_and_language(
+            db.as_ref(),
+            key,
+            &request.language,
+        )
+        .await
+        .map_err(crate::api::handlers::common::handle_error)?
+        {
+            return Err(crate::api::handlers::common::handle_error(
+                AppError::Conflict(format!(
+                    "A translation for this dimension in language '{}' already exists",
+                    request.language
+                )),
+            ));
+        }
+    }
     let active_model = crate::entities::dimensions::ActiveModel {
         dimension_id: sea_orm::Set(Uuid::new_v4()),
         dimension_key: sea_orm::Set(request.dimension_key.unwrap_or_else(Uuid::new_v4)),

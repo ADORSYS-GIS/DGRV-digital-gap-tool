@@ -30,6 +30,9 @@ const ManageDigitalisationLevels = React.lazy(
 const ManageDimensions = React.lazy(
   () => import("../pages/admin/ManageDimensions"),
 );
+const DimensionTranslationsPage = React.lazy(
+  () => import("../pages/admin/DimensionTranslationsPage"),
+);
 const ManageRecommendations = React.lazy(
   () => import("../pages/admin/ManageRecommendations"),
 );
@@ -135,6 +138,10 @@ const routes: RouteConfig[] = [
         element: React.createElement(ManageDigitalisationLevels),
       },
       { path: "dimensions", element: React.createElement(ManageDimensions) },
+      {
+        path: "dimensions/:dimensionKey/translations",
+        element: React.createElement(DimensionTranslationsPage),
+      },
       {
         path: "recommendations",
         element: React.createElement(ManageRecommendations),
