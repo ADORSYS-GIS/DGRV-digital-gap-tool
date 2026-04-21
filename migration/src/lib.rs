@@ -38,6 +38,7 @@ mod m20260109_082600_add_title_to_states;
 mod m20260408_000001_add_source_to_recommendations;
 mod m20260420_000001_add_language_to_content_tables;
 mod m20260421_000001_multilang_dimension_keys;
+mod m20260421_000002_add_dimension_key_to_org_dimensions;
 
 pub struct Migrator;
 
@@ -85,6 +86,7 @@ impl MigratorTrait for Migrator {
             Box::new(m20260408_000001_add_source_to_recommendations::Migration),
             Box::new(m20260420_000001_add_language_to_content_tables::Migration),
             Box::new(m20260421_000001_multilang_dimension_keys::Migration),
+            Box::new(m20260421_000002_add_dimension_key_to_org_dimensions::Migration),
         ]
     }
 }

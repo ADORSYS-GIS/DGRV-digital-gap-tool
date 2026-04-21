@@ -281,7 +281,8 @@ pub async fn get_organization_dimensions(
 ) -> AppResult<impl IntoResponse> {
     let dimensions =
         OrganisationDimensionRepository::list_by_organisation(&state.db, &org_id).await?;
-    let response: Vec<Uuid> = dimensions.into_iter().map(|d| d.dimension_id).collect();
+    // Return dimension_key values — stable cross-language identifiers
+    let response: Vec<Uuid> = dimensions.into_iter().map(|d| d.dimension_key).collect();
     Ok((StatusCode::OK, Json(response)))
 }
 

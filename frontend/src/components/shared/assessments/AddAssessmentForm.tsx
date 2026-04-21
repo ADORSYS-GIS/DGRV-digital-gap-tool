@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/select";
 import { useAddAssessment } from "@/hooks/assessments/useAddAssessment";
 import { useCooperations } from "@/hooks/cooperations/useCooperations";
-import { useDimensions } from "@/hooks/dimensions/useDimensions";
+import { useLogicalDimensions } from "@/hooks/dimensions/useLogicalDimensions";
 import { useOrganizationDimensions } from "@/hooks/organization_dimensions/useOrganizationDimensions";
 import { useOrganizationId } from "@/hooks/organizations/useOrganizationId";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -54,17 +54,18 @@ export function AddAssessmentForm({ isOpen, onClose }: AddAssessmentFormProps) {
   const { t } = useTranslation();
   const organizationId = useOrganizationId();
 
-  const { data: allDimensions, isLoading: isLoadingDimensions } =
-    useDimensions();
-  const { data: assignedDimensionIds, isLoading: isLoadingAssigned } =
+  const { data: logicalDimensions, isLoading: isLoadingDimensions } =
+    useLogicalDimensions();
+  const { data: assignedDimensionKeys, isLoading: isLoadingAssigned } =
     useOrganizationDimensions(organizationId || "");
 
   const { data: cooperations, isLoading: isLoadingCooperations } =
     useCooperations(organizationId || undefined);
   const { mutate: addAssessment, isPending: isAdding } = useAddAssessment();
 
+  // Filter to only dimensions assigned to this org (by dimension_key)
   const assignedDimensions =
-    allDimensions?.filter((d) => assignedDimensionIds?.includes(d.id)) || [];
+    logicalDimensions?.filter((d) => assignedDimensionKeys?.includes(d.dimension_key)) || [];
 
   const form = useForm<AddAssessmentFormValues>({
     resolver: zodResolver(formSchema),
@@ -172,7 +173,7 @@ export function AddAssessmentForm({ isOpen, onClose }: AddAssessmentFormProps) {
                   ) : (
                     <MultiSelect
                       options={assignedDimensions.map((d) => ({
-                        value: d.id,
+                        value: d.dimension_key,
                         label: d.name,
                       }))}
                       onValueChange={field.onChange}

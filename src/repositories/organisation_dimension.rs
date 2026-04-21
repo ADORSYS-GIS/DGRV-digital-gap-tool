@@ -9,16 +9,24 @@ impl OrganisationDimensionRepository {
     pub async fn assign(
         db: &DbConn,
         organisation_id: &str,
-        dimension_ids: Vec<Uuid>,
+        dimension_keys: Vec<Uuid>,
     ) -> Result<Vec<organisation_dimension::Model>, AppError> {
-        let new_assignments = dimension_ids
+        // Resolve dimension_key → English dimension_id for FK
+        let dims = crate::repositories::dimensions::DimensionsRepository::find_all(db).await?;
+        let new_assignments = dimension_keys
             .into_iter()
-            .map(|dimension_id| organisation_dimension::ActiveModel {
-                organisation_dimension: Set(Uuid::new_v4()),
-                organisation_id: Set(organisation_id.to_string()),
-                dimension_id: Set(dimension_id),
-                created_at: Set(chrono::Utc::now()),
-                updated_at: Set(chrono::Utc::now()),
+            .filter_map(|key| {
+                // Use the English (or first available) dimension_id for the FK
+                let dim = dims.iter().find(|d| d.dimension_key == key && d.language == "en")
+                    .or_else(|| dims.iter().find(|d| d.dimension_key == key))?;
+                Some(organisation_dimension::ActiveModel {
+                    organisation_dimension: Set(Uuid::new_v4()),
+                    organisation_id: Set(organisation_id.to_string()),
+                    dimension_id: Set(dim.dimension_id),
+                    dimension_key: Set(key),
+                    created_at: Set(chrono::Utc::now()),
+                    updated_at: Set(chrono::Utc::now()),
+                })
             })
             .collect::<Vec<_>>();
 
@@ -48,14 +56,23 @@ impl OrganisationDimensionRepository {
             .map_err(AppError::from)
     }
 
+    /// Returns the dimension_key values assigned to an organisation
+    pub async fn list_dimension_keys_by_organisation(
+        db: &DbConn,
+        organisation_id: &str,
+    ) -> Result<Vec<Uuid>, AppError> {
+        let rows = Self::list_by_organisation(db, organisation_id).await?;
+        Ok(rows.into_iter().map(|r| r.dimension_key).collect())
+    }
+
     pub async fn remove(
         db: &DbConn,
         organisation_id: &str,
-        dimension_id: Uuid,
+        dimension_key: Uuid,
     ) -> Result<bool, AppError> {
         let res = OrganisationDimension::delete_many()
             .filter(organisation_dimension::Column::OrganisationId.eq(organisation_id))
-            .filter(organisation_dimension::Column::DimensionId.eq(dimension_id))
+            .filter(organisation_dimension::Column::DimensionKey.eq(dimension_key))
             .exec(db)
             .await
             .map_err(AppError::from)?;
@@ -65,47 +82,41 @@ impl OrganisationDimensionRepository {
     pub async fn update_assignments(
         db: &DbConn,
         organisation_id: &str,
-        dimension_ids: Vec<Uuid>,
+        dimension_keys: Vec<Uuid>,
     ) -> Result<(), AppError> {
-        use crate::entities::dimensions::Entity as Dimensions;
+        let dims = crate::repositories::dimensions::DimensionsRepository::find_all(db).await?;
 
-        // Filter out dimension IDs that don't exist in the dimensions table
-        let valid_dimensions = Dimensions::find()
-            .filter(crate::entities::dimensions::Column::DimensionId.is_in(dimension_ids.clone()))
-            .all(db)
-            .await?;
-        let valid_ids: Vec<Uuid> = valid_dimensions
+        // Build assignments — one per dimension_key using English dimension_id as FK
+        let valid_assignments: Vec<organisation_dimension::ActiveModel> = dimension_keys
             .into_iter()
-            .map(|d| d.dimension_id)
+            .filter_map(|key| {
+                let dim = dims.iter().find(|d| d.dimension_key == key && d.language == "en")
+                    .or_else(|| dims.iter().find(|d| d.dimension_key == key))?;
+                Some(organisation_dimension::ActiveModel {
+                    organisation_dimension: Set(Uuid::new_v4()),
+                    organisation_id: Set(organisation_id.to_string()),
+                    dimension_id: Set(dim.dimension_id),
+                    dimension_key: Set(key),
+                    created_at: Set(chrono::Utc::now()),
+                    updated_at: Set(chrono::Utc::now()),
+                })
+            })
             .collect();
 
         let txn = db.begin().await?;
 
-        // Delete existing assignments
         OrganisationDimension::delete_many()
             .filter(organisation_dimension::Column::OrganisationId.eq(organisation_id))
             .exec(&txn)
             .await?;
 
-        // Create new assignments with only valid dimension IDs
-        if !valid_ids.is_empty() {
-            let new_assignments = valid_ids
-                .into_iter()
-                .map(|dimension_id| organisation_dimension::ActiveModel {
-                    organisation_dimension: Set(Uuid::new_v4()),
-                    organisation_id: Set(organisation_id.to_string()),
-                    dimension_id: Set(dimension_id),
-                    created_at: Set(chrono::Utc::now()),
-                    updated_at: Set(chrono::Utc::now()),
-                });
-
-            OrganisationDimension::insert_many(new_assignments)
+        if !valid_assignments.is_empty() {
+            OrganisationDimension::insert_many(valid_assignments)
                 .exec(&txn)
                 .await?;
         }
 
         txn.commit().await?;
-
         Ok(())
     }
 }

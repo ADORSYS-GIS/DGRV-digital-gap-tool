@@ -7,6 +7,8 @@ pub struct Model {
     pub organisation_dimension: Uuid,
     pub organisation_id: String,
     pub dimension_id: Uuid,
+    /// Stable cross-language identifier — used for multilingual dimension assignment
+    pub dimension_key: Uuid,
     pub created_at: DateTimeUtc,
     pub updated_at: DateTimeUtc,
 }

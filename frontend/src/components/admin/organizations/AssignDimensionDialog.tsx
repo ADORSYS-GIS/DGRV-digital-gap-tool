@@ -7,7 +7,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { useDimensions } from "@/hooks/dimensions/useDimensions";
+import { useLogicalDimensions } from "@/hooks/dimensions/useLogicalDimensions";
 import { useOrganizationDimensions } from "@/hooks/organization_dimensions/useOrganizationDimensions";
 import { useSetAssignedDimensions } from "@/hooks/organization_dimensions/useSetAssignedDimensions";
 import { Organization } from "@/types/organization";
@@ -27,8 +27,9 @@ export const AssignDimensionDialog: React.FC<AssignDimensionDialogProps> = ({
   onClose,
 }) => {
   const { t } = useTranslation();
-  const { data: allDimensions, isLoading: isLoadingDimensions } =
-    useDimensions();
+  // Always use logical dimensions (one per dimension_key, English label)
+  const { data: logicalDimensions, isLoading: isLoadingDimensions } =
+    useLogicalDimensions();
   const { data: assignedDimensionIds, isLoading: isLoadingAssigned } =
     useOrganizationDimensions(organization?.id || "");
 
@@ -40,6 +41,7 @@ export const AssignDimensionDialog: React.FC<AssignDimensionDialogProps> = ({
 
   useEffect(() => {
     if (assignedDimensionIds) {
+      // assignedDimensionIds now contains dimension_key values from the backend
       setSelectedDimensions(assignedDimensionIds);
     }
   }, [assignedDimensionIds]);
@@ -54,11 +56,11 @@ export const AssignDimensionDialog: React.FC<AssignDimensionDialogProps> = ({
     }
   };
 
-  const handleCheckboxChange = (dimensionId: string, checked: boolean) => {
+  const handleCheckboxChange = (dimensionKey: string, checked: boolean) => {
     setSelectedDimensions((prev) =>
       checked
-        ? [...prev, dimensionId]
-        : prev.filter((id) => id !== dimensionId),
+        ? [...prev, dimensionKey]
+        : prev.filter((k) => k !== dimensionKey),
     );
   };
 
@@ -76,17 +78,17 @@ export const AssignDimensionDialog: React.FC<AssignDimensionDialogProps> = ({
           <LoadingSpinner />
         ) : (
           <div className="space-y-4 py-4">
-            {allDimensions?.map((dimension) => (
-              <div key={dimension.id} className="flex items-center space-x-2">
+            {logicalDimensions?.map((dimension) => (
+              <div key={dimension.dimension_key} className="flex items-center space-x-2">
                 <Checkbox
-                  id={dimension.id}
-                  checked={selectedDimensions.includes(dimension.id)}
+                  id={dimension.dimension_key}
+                  checked={selectedDimensions.includes(dimension.dimension_key)}
                   onCheckedChange={(checked) =>
-                    handleCheckboxChange(dimension.id, !!checked)
+                    handleCheckboxChange(dimension.dimension_key, !!checked)
                   }
                 />
                 <label
-                  htmlFor={dimension.id}
+                  htmlFor={dimension.dimension_key}
                   className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                 >
                   {dimension.name}

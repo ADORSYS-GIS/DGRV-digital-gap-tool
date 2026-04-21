@@ -16,7 +16,7 @@ import { ROLES } from "@/constants/roles";
 import { useTranslation } from "react-i18next";
 
 const AssessmentDetailPage: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { assessmentId } = useParams<{ assessmentId: string }>();
   const { mutateAsync: submitAssessment } = useSubmitAssessment();
   const navigate = useNavigate();
@@ -41,10 +41,29 @@ const AssessmentDetailPage: React.FC = () => {
             fetchedAssessment.dimensionIds &&
             fetchedAssessment.dimensionIds.length > 0
           ) {
-            const fetchedDimensions = await dimensionRepository.getByIds(
+            // Fetch the base dimension rows by their stored IDs
+            const baseDimensions = await dimensionRepository.getByIds(
               fetchedAssessment.dimensionIds,
             );
-            setDimensions(fetchedDimensions);
+
+            // If UI language is not English, resolve language-specific versions
+            const lang = i18n.language;
+            if (lang !== "en") {
+              const allDims = await dimensionRepository.getAll("all");
+              const resolved = baseDimensions.map((base) => {
+                const dimKey = (base as any).dimension_key ?? base.id;
+                const translated = allDims.find(
+                  (d) =>
+                    ((d as any).dimension_key ?? d.id) === dimKey &&
+                    (d as any).language === lang,
+                );
+                // Return translated version if exists, otherwise keep English
+                return translated ?? base;
+              });
+              setDimensions(resolved);
+            } else {
+              setDimensions(baseDimensions);
+            }
           } else {
             setDimensions([]);
           }
@@ -60,7 +79,7 @@ const AssessmentDetailPage: React.FC = () => {
     };
 
     fetchAssessmentDetails();
-  }, [assessmentId]);
+  }, [assessmentId, i18n.language]);
 
   const { data: dimensionAssessments } = useDimensionAssessments(assessmentId);
 
