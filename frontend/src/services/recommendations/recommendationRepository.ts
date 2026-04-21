@@ -160,14 +160,36 @@ export const recommendationRepository = {
     const newRecommendation: IRecommendation = {
       id: newId,
       recommendation_id: newId,
-      dimension_id: recommendation.dimension_id,
+      dimension_id: recommendation.dimension_id ?? "",
       priority: recommendation.priority,
       description: recommendation.description,
       syncStatus: SyncStatus.PENDING,
       lastError: "",
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
+      // Store extra fields for sync
+      ...(recommendation.dimension_key && { dimension_key: recommendation.dimension_key } as any),
+      ...((recommendation as any).language && { language: (recommendation as any).language } as any),
     };
+
+    if (navigator.onLine) {
+      // Call API directly when online
+      const { createRecommendation } = await import("@/openapi-client/services.gen");
+      const response = await createRecommendation({
+        requestBody: {
+          dimension_key: recommendation.dimension_key!,
+          dimension_id: recommendation.dimension_id ?? undefined,
+          priority: recommendation.priority,
+          description: recommendation.description,
+          language: (recommendation as any).language ?? "en",
+        },
+      });
+      const responseData: any = response.data as any;
+      const serverId: string = responseData?.recommendation_id ?? responseData?.data?.recommendation_id ?? newId;
+      const synced: IRecommendation = { ...newRecommendation, id: serverId, recommendation_id: serverId, syncStatus: SyncStatus.SYNCED };
+      await db.recommendations.add(synced);
+      return synced;
+    }
 
     await db.recommendations.add(newRecommendation);
     syncService.addToSyncQueue(
