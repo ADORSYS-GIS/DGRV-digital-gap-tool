@@ -91,10 +91,38 @@ export const dimensionRepository = {
     return db.dimensions.where("id").anyOf(ids).toArray();
   },
   add: async (dimension: ICreateDimensionRequest): Promise<IDimension> => {
+    if (navigator.onLine) {
+      // Call API directly — ensures language and dimension_key are sent correctly
+      const { createDimension } = await import("@/openapi-client/services.gen");
+      const response = await createDimension({
+        requestBody: {
+          name: dimension.name,
+          description: dimension.description ?? null,
+          category: dimension.category ?? null,
+          weight: dimension.weight ?? null,
+          language: (dimension as any).language ?? "en",
+          // Pass dimension_key if provided (linking a translation to an existing dimension)
+          dimension_key: (dimension as any).dimension_key ?? undefined,
+        },
+      });
+      const data = response.data;
+      if (!data) throw new Error("Failed to create dimension");
+      const synced: IDimension = {
+        ...dimension,
+        id: data.dimension_id,
+        syncStatus: SyncStatus.SYNCED,
+        // Store dimension_key for future use
+        ...(data.dimension_key && { dimension_key: data.dimension_key } as any),
+      };
+      await db.dimensions.put(synced);
+      return synced;
+    }
+
+    // Offline: queue for later sync
     const newDimension: IDimension = {
       ...dimension,
       id: dimension.id || uuidv4(),
-      syncStatus: SyncStatus.PENDING, // Initially set to PENDING
+      syncStatus: SyncStatus.PENDING,
     };
     await db.dimensions.add(newDimension);
     syncService.addToSyncQueue(
