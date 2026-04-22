@@ -16,12 +16,18 @@ import { syncManager } from "@/services/sync/syncManager";
 import { ROLES } from "@/constants/roles";
 import { dimensionAssessmentRepository } from "@/services/assessments/dimensionAssessmentRepository";
 import {
+  ArrowLeft,
+  ChevronLeft,
+  ChevronRight,
+  Lock,
+} from "lucide-react";
+import { v4 as uuidv4 } from "uuid";
+import {
   IDimensionAssessment,
   IDimensionState,
   IDimensionWithStates,
 } from "@/types/dimension";
 import { calculateGapScore } from "@/utils/gapCalculation";
-import { ArrowLeft, Lock } from "lucide-react";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -305,44 +311,45 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
           cooperationId: effectiveCooperationId,
           userRoles,
           lang: (i18n.language ?? 'en').split('-')[0] || 'en',
+          dimensionKey: dimensionId, // The stable ID from the URL
         };
 
         // If offline: save locally and treat as success immediately
         if (!navigator.onLine) {
-          await submitDimensionAssessment(payload, {
-            onSuccess: handleSuccess,
-            onError: () => {
-              // Offline — the repository already saved locally, treat as success
-              handleSuccess({
-                id: "",
+          try {
+            const localResult = await dimensionAssessmentRepository.submitAssessment(payload);
+            handleSuccess(localResult);
+          } catch (offlineErr) {
+            console.error("Local save failed:", offlineErr);
+            // Construct a basic fallback IF the repository failed completely
+            handleSuccess({
+              id: uuidv4(),
+              dimensionId: dimensionId || "",
+              assessmentId: assessmentId || "",
+              currentState: {
+                id: payload.currentStateId,
                 dimensionId: dimensionId || "",
-                assessmentId: assessmentId || "",
-                currentState: {
-                  id: payload.currentStateId,
-                  dimensionId: dimensionId || "",
-                  level: currentLevel,
-                  name: currentState.name,
-                  description: currentState.description,
-                  createdAt: "",
-                  updatedAt: "",
-                },
-                desiredState: {
-                  id: payload.desiredStateId,
-                  dimensionId: dimensionId || "",
-                  level: desiredLevel,
-                  name: desiredState.name,
-                  description: desiredState.description,
-                  createdAt: "",
-                  updatedAt: "",
-                },
+                level: currentLevel,
+                name: currentState.name,
+                description: currentState.description,
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString(),
-                syncStatus: "PENDING",
-                lastError: "",
-              } as import("@/types/dimension").IDimensionAssessment);
-            },
-          });
-          // If mutateAsync threw (very unlikely offline scenario), still treat as success
+              },
+              desiredState: {
+                id: payload.desiredStateId,
+                dimensionId: dimensionId || "",
+                level: desiredLevel,
+                name: desiredState.name,
+                description: desiredState.description,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+              },
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+              syncStatus: "PENDING",
+              lastError: "",
+            } as import("@/types/dimension").IDimensionAssessment);
+          }
           return;
         }
 

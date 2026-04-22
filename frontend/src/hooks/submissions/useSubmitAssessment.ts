@@ -36,10 +36,40 @@ export function useSubmitAssessment() {
         return null;
       }
 
-      // Online: submit directly
-      return submitAssessmentApi({
-        requestBody: { assessment_id: assessmentId },
-      });
+      // Online path: try submit directly
+      try {
+        return await submitAssessmentApi({
+          requestBody: { assessment_id: assessmentId },
+        });
+      } catch (error) {
+        // If it's a network error (status 0 or similar), or if we are actually offline
+        // but navigator.onLine was true, fallback to local queue
+        const isNetworkError =
+          !navigator.onLine ||
+          (error instanceof Object && "status" in error && error.status === 0) ||
+          error instanceof TypeError; // fetch throws TypeError on network failure
+
+        if (isNetworkError) {
+          console.warn("Network error during assessment submission, falling back to local queue.");
+          await db.sync_queue.add({
+            entityType: "AssessmentSubmission",
+            entityId: assessmentId,
+            action: "CREATE",
+            payload: { assessment_id: assessmentId },
+            timestamp: new Date().toISOString(),
+            retries: 0,
+          });
+
+          toast.info(
+            "Connection lost. Your assessment has been saved locally and will be submitted automatically when you are back online.",
+            { duration: 7000 },
+          );
+          return null;
+        }
+
+        // For other API errors (4xx, 5xx), re-throw so the UI can show the error
+        throw error;
+      }
     },
     onSuccess: (data) => {
       if (data !== null) {

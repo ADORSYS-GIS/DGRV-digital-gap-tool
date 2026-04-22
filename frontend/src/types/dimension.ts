@@ -46,6 +46,7 @@ export interface ISubmitDimensionAssessmentRequest {
   currentLevel: number;
   desiredLevel: number;
   lang: string;
+  dimensionKey?: string;
 }
 
 export interface IDimensionAssessmentResponse {

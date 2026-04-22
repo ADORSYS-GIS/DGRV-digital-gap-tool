@@ -349,24 +349,45 @@ export const dimensionAssessmentRepository = {
     // Offline Result Preparation: Try to find a matching gap description locally
     // this enables immediate "Assessment Analysis" feedback even while offline.
     try {
-      const localGap = await db.digitalisationGaps
-        .where("[dimensionId+currentLevel+desiredLevel+lang]")
-        .equals([payload.dimensionId, payload.currentLevel, payload.desiredLevel, payload.lang])
-        .first();
+      // 1. Primary: Match by dimensionKey (most stable identifier for gaps)
+      // and current language
+      let localGap = null;
+      if (payload.dimensionKey) {
+        localGap = await db.digitalisationGaps
+          .where("[dimensionId+currentLevel+desiredLevel+lang]")
+          .equals([payload.dimensionKey, payload.currentLevel, payload.desiredLevel, payload.lang])
+          .first();
+      }
+
+      // 2. Secondary: Match by dimensionId (could be UUID) and current language
+      if (!localGap) {
+        localGap = await db.digitalisationGaps
+          .where("[dimensionId+currentLevel+desiredLevel+lang]")
+          .equals([payload.dimensionId, payload.currentLevel, payload.desiredLevel, payload.lang])
+          .first();
+      }
+
+      // 3. Tertiary: Fallback to English using dimensionKey
+      if (!localGap && payload.dimensionKey) {
+        localGap = await db.digitalisationGaps
+          .where("[dimensionId+currentLevel+desiredLevel+lang]")
+          .equals([payload.dimensionKey, payload.currentLevel, payload.desiredLevel, "en"])
+          .first();
+      }
+
+      // 4. Final Fallback: Match by any language for either ID variant
+      if (!localGap) {
+        const queryId = payload.dimensionKey || payload.dimensionId;
+        localGap = await db.digitalisationGaps
+          .where("dimensionId")
+          .equals(queryId)
+          .and(g => g.currentLevel === payload.currentLevel && g.desiredLevel === payload.desiredLevel)
+          .first();
+      }
 
       if (localGap) {
         newAssessment.gap_id = localGap.id;
-        console.log(`Resolved gap analysis offline: ${localGap.id}`);
-      } else {
-        // Fallback: try English version of the gap if current language is not found
-        const englishGap = await db.digitalisationGaps
-          .where("[dimensionId+currentLevel+desiredLevel+lang]")
-          .equals([payload.dimensionId, payload.currentLevel, payload.desiredLevel, "en"])
-          .first();
-        if (englishGap) {
-          newAssessment.gap_id = englishGap.id;
-          console.warn("Exact language gap match not found locally, using English fallback.");
-        }
+        console.log(`Resolved gap analysis offline: ${localGap.id} via ${localGap.lang}`);
       }
     } catch (e) {
       console.warn("Could not resolve gap analysis locally:", e);
