@@ -119,6 +119,15 @@ export const digitalisationGapRepository = {
     const currentLang = lang || i18n.language?.split("-")[0] || "en";
     let localGap = await db.digitalisationGaps.get([id, currentLang]);
 
+    // Offline fallback: if the specific language is missing, try to find ANY 
+    // version of this gap ID (e.g. English version)
+    if (!localGap) {
+      localGap = await db.digitalisationGaps.where("id").equals(id).first();
+      if (localGap) {
+        console.log(`Found fallback language version for gap ${id}: ${localGap.lang}`);
+      }
+    }
+
     try {
       if (navigator.onLine) {
         const backendGap = await getGap({ id });

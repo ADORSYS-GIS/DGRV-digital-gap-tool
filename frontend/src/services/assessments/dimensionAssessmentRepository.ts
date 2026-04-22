@@ -359,7 +359,7 @@ export const dimensionAssessmentRepository = {
       let localGap = null;
       if (payload.dimensionKey) {
         localGap = await db.digitalisationGaps
-          .where("[dimensionId+gap_severity+lang]")
+          .where("[dimension_key+gap_severity+lang]")
           .equals([payload.dimensionKey, severity, payload.lang])
           .first();
       }
@@ -375,18 +375,24 @@ export const dimensionAssessmentRepository = {
       // 4. Tertiary: Fallback to English using dimensionKey + severity
       if (!localGap && payload.dimensionKey && payload.lang !== "en") {
         localGap = await db.digitalisationGaps
-          .where("[dimensionId+gap_severity+lang]")
+          .where("[dimension_key+gap_severity+lang]")
           .equals([payload.dimensionKey, severity, "en"])
           .first();
       }
 
-      // 4. Final Fallback: Match by any language for either ID variant
+      // 5. Final Fallback: Match by severity across ANY language if specific ones failed
       if (!localGap) {
-        const queryId = payload.dimensionKey || payload.dimensionId;
         localGap = await db.digitalisationGaps
-          .where("dimensionId")
-          .equals(queryId)
-          .and(g => g.currentLevel === payload.currentLevel && g.desiredLevel === payload.desiredLevel)
+          .where("[dimension_key+gap_severity+lang]")
+          .between([payload.dimensionKey, severity, ""], [payload.dimensionKey, severity, "\uffff"])
+          .first();
+      }
+
+      // 6. Tertiary Fallback: Match by UUID across ANY language
+      if (!localGap) {
+        localGap = await db.digitalisationGaps
+          .where("[dimensionId+gap_severity+lang]")
+          .between([payload.dimensionId, severity, ""], [payload.dimensionId, severity, "\uffff"])
           .first();
       }
 
