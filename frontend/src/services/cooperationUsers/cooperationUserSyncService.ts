@@ -15,28 +15,38 @@ interface Role {
 
 export const cooperationUserSyncService = {
   async fetchAndStoreUsers(cooperationId: string) {
-    const remoteUsers = await getGroupMembers({ groupId: cooperationId });
-    const localUsers = remoteUsers.map((user) => {
-      const roles =
-        user.roles && Array.isArray(user.roles)
-          ? user.roles.map((role: Role) => role.name)
-          : [];
+    // Offline: return cached users immediately
+    if (!navigator.onLine) {
+      return cooperationUserRepository.getAllByCooperationId(cooperationId);
+    }
+    try {
+      const remoteUsers = await getGroupMembers({ groupId: cooperationId });
+      const localUsers = remoteUsers.map((user) => {
+        const roles =
+          user.roles && Array.isArray(user.roles)
+            ? user.roles.map((role: Role) => role.name)
+            : [];
 
-      // Extract assigned_dimensions from Keycloak user attributes
-      const attrs = user.attributes as Record<string, string[]> | undefined;
-      const dimensionIds = attrs?.assigned_dimensions ?? [];
+        // Extract assigned_dimensions from Keycloak user attributes
+        const attrs = user.attributes as Record<string, string[]> | undefined;
+        const dimensionIds = attrs?.assigned_dimensions ?? [];
 
-      return {
-        ...user,
-        roles,
-        dimensionIds,
-        cooperationId,
-        syncStatus: SyncStatus.SYNCED,
-      } as CooperationUser;
-    });
-    await cooperationUserRepository.clear();
-    await cooperationUserRepository.bulkAdd(localUsers);
-    return localUsers;
+        return {
+          ...user,
+          roles,
+          dimensionIds,
+          cooperationId,
+          syncStatus: SyncStatus.SYNCED,
+        } as CooperationUser;
+      });
+      await cooperationUserRepository.clear();
+      await cooperationUserRepository.bulkAdd(localUsers);
+      return localUsers;
+    } catch (error) {
+      console.error("Failed to fetch cooperation users from API:", error);
+      // Fall back to cached data
+      return cooperationUserRepository.getAllByCooperationId(cooperationId);
+    }
   },
 
   async add(user: CooperationUser) {

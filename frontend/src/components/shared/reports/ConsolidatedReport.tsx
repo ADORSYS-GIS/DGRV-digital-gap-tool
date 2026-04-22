@@ -320,7 +320,7 @@ export const ConsolidatedReport: React.FC<ConsolidatedReportProps> = ({
     return <LoadingSpinner />;
   }
 
-  if (error) {
+  if (error && !report) {
     return (
       <div className="container mx-auto max-w-7xl p-6">
         <Card className="border-destructive">
@@ -333,7 +333,7 @@ export const ConsolidatedReport: React.FC<ConsolidatedReportProps> = ({
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
-            <p className="text-muted-foreground">{error.message}</p>
+            <p className="text-muted-foreground">{(error as Error).message}</p>
           </CardContent>
         </Card>
       </div>

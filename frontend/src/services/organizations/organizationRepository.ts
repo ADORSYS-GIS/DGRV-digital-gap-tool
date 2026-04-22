@@ -13,7 +13,6 @@ export const organizationRepository = {
       if (navigator.onLine) {
         const backendOrganizations = await getOrganizations();
         if (backendOrganizations) {
-          await db.organizations.clear();
           const syncedOrganizations = backendOrganizations.map((org) => ({
             ...org,
             id: org.id || "",
@@ -26,7 +25,8 @@ export const organizationRepository = {
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
           }));
-          await db.organizations.bulkAdd(syncedOrganizations);
+          // Use bulkPut instead of clear+bulkAdd to avoid data loss on partial failure
+          await db.organizations.bulkPut(syncedOrganizations);
         }
       }
     } catch (error) {

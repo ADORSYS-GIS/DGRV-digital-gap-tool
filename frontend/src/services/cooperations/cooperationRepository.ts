@@ -1,5 +1,6 @@
 import { db } from "@/services/db";
 import { Cooperation } from "@/types/cooperation";
+import { SyncStatus } from "@/types/sync";
 import { v4 as uuidv4 } from "uuid";
 import { cooperationSyncService } from "@/services/sync/cooperationSyncService";
 import { getGroupByPath } from "@/openapi-client";
@@ -17,15 +18,22 @@ export const cooperationRepository = {
   },
 
   async getByPath(path: string): Promise<Cooperation | undefined> {
+    // Offline: look up from local IndexedDB by path
+    if (!navigator.onLine) {
+      const local = await db.cooperations.filter((c) => c.path === path).first();
+      return local;
+    }
     try {
-      // The generated client returns a KeycloakGroup, which is compatible with Cooperation
-      const cooperation = (await getGroupByPath({
-        path,
-      })) as Cooperation;
+      const cooperation = (await getGroupByPath({ path })) as Cooperation;
+      // Cache it for offline use
+      if (cooperation?.id) {
+        await db.cooperations.put({ ...cooperation, syncStatus: SyncStatus.SYNCED, syncRetries: 0 });
+      }
       return cooperation;
     } catch (error) {
       console.error(`Failed to fetch cooperation with path ${path}:`, error);
-      return undefined;
+      // Fallback to local cache on error
+      return db.cooperations.filter((c) => c.path === path).first();
     }
   },
 
