@@ -74,7 +74,7 @@ export const digitalisationLevelRepository = {
       state: s.score as LevelState,
       title: s.title,
       description: s.description ?? null,
-      level: s.level ?? null,
+      level: String(s.score) ?? null,
       syncStatus: SyncStatus.SYNCED,
       lastError: "",
     }));

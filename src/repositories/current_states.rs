@@ -1,3 +1,4 @@
+
 use crate::entities::current_states::{self, Entity as CurrentStates};
 use crate::error::AppError;
 use sea_orm::*;
@@ -106,6 +107,21 @@ impl CurrentStatesRepository {
             .map_err(AppError::from)
     }
 
+    pub async fn find_by_dimension_id_and_score_and_language(
+        db: &DbConn,
+        dimension_id: Uuid,
+        score: i32,
+        language: &str,
+    ) -> Result<Option<current_states::Model>, AppError> {
+        CurrentStates::find()
+            .filter(current_states::Column::DimensionId.eq(dimension_id))
+            .filter(current_states::Column::Score.eq(score))
+            .filter(current_states::Column::Language.eq(language))
+            .one(db)
+            .await
+            .map_err(AppError::from)
+    }
+
     pub async fn find_by_dimension_id_and_description(
         db: &DbConn,
         dimension_id: Uuid,
@@ -114,6 +130,21 @@ impl CurrentStatesRepository {
         CurrentStates::find()
             .filter(current_states::Column::DimensionId.eq(dimension_id))
             .filter(current_states::Column::Description.eq(description))
+            .one(db)
+            .await
+            .map_err(AppError::from)
+    }
+
+    pub async fn find_by_dimension_id_and_description_and_language(
+        db: &DbConn,
+        dimension_id: Uuid,
+        description: String,
+        language: &str,
+    ) -> Result<Option<current_states::Model>, AppError> {
+        CurrentStates::find()
+            .filter(current_states::Column::DimensionId.eq(dimension_id))
+            .filter(current_states::Column::Description.eq(description))
+            .filter(current_states::Column::Language.eq(language))
             .one(db)
             .await
             .map_err(AppError::from)

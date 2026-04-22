@@ -105,6 +105,21 @@ impl DesiredStatesRepository {
             .map_err(AppError::from)
     }
 
+    pub async fn find_by_dimension_id_and_score_and_language(
+        db: &DbConn,
+        dimension_id: Uuid,
+        score: i32,
+        language: &str,
+    ) -> Result<Option<desired_states::Model>, AppError> {
+        DesiredStates::find()
+            .filter(desired_states::Column::DimensionId.eq(dimension_id))
+            .filter(desired_states::Column::Score.eq(score))
+            .filter(desired_states::Column::Language.eq(language))
+            .one(db)
+            .await
+            .map_err(AppError::from)
+    }
+
     pub async fn find_by_dimension_id_and_description(
         db: &DbConn,
         dimension_id: Uuid,
@@ -113,6 +128,21 @@ impl DesiredStatesRepository {
         DesiredStates::find()
             .filter(desired_states::Column::DimensionId.eq(dimension_id))
             .filter(desired_states::Column::Description.eq(description))
+            .one(db)
+            .await
+            .map_err(AppError::from)
+    }
+
+    pub async fn find_by_dimension_id_and_description_and_language(
+        db: &DbConn,
+        dimension_id: Uuid,
+        description: String,
+        language: &str,
+    ) -> Result<Option<desired_states::Model>, AppError> {
+        DesiredStates::find()
+            .filter(desired_states::Column::DimensionId.eq(dimension_id))
+            .filter(desired_states::Column::Description.eq(description))
+            .filter(desired_states::Column::Language.eq(language))
             .one(db)
             .await
             .map_err(AppError::from)

@@ -412,11 +412,12 @@ pub async fn create_current_state(
             ))
         })?;
 
-    // Check for existing current state with same score
-    if CurrentStatesRepository::find_by_dimension_id_and_score(
+    // Check for existing current state with same score AND same language
+    if CurrentStatesRepository::find_by_dimension_id_and_score_and_language(
         db.as_ref(),
         dimension_id,
         request.score,
+        &request.language,
     )
     .await
     .map_err(crate::api::handlers::common::handle_error)?
@@ -427,11 +428,12 @@ pub async fn create_current_state(
         ));
     }
 
-    // Check for existing current state with same description
-    if CurrentStatesRepository::find_by_dimension_id_and_description(
+    // Check for existing current state with same description AND same language
+    if CurrentStatesRepository::find_by_dimension_id_and_description_and_language(
         db.as_ref(),
         dimension_id,
         request.description.clone(),
+        &request.language,
     )
     .await
     .map_err(crate::api::handlers::common::handle_error)?
@@ -570,11 +572,12 @@ pub async fn create_desired_state(
             ))
         })?;
 
-    // Check for existing desired state with same score
-    if DesiredStatesRepository::find_by_dimension_id_and_score(
+    // Check for existing desired state with same score AND same language
+    if DesiredStatesRepository::find_by_dimension_id_and_score_and_language(
         db.as_ref(),
         dimension_id,
         request.score,
+        &request.language,
     )
     .await
     .map_err(crate::api::handlers::common::handle_error)?
@@ -585,11 +588,12 @@ pub async fn create_desired_state(
         ));
     }
 
-    // Check for existing desired state with same description
-    if DesiredStatesRepository::find_by_dimension_id_and_description(
+    // Check for existing desired state with same description AND same language
+    if DesiredStatesRepository::find_by_dimension_id_and_description_and_language(
         db.as_ref(),
         dimension_id,
         request.description.clone(),
+        &request.language,
     )
     .await
     .map_err(crate::api::handlers::common::handle_error)?
