@@ -113,6 +113,18 @@ export const syncManager = {
         // Pre-cache cooperations for this organization
         await cooperationRepository.getAll(organizationId);
 
+        // Pre-cache consolidated reports
+        const { consolidatedReportRepository } = await import("../consolidated_reports/consolidatedReportRepository");
+        const userProfile = authService.getUserProfile();
+        const roles = (userProfile?.roles || []).map(r => r.toLowerCase());
+
+        if (roles.includes("admin")) {
+          await consolidatedReportRepository.getDgrvAdminConsolidatedReport();
+        }
+        if (roles.includes("org_admin") || roles.includes("second_admin")) {
+          await consolidatedReportRepository.getOrgAdminConsolidatedReport(organizationId);
+        }
+
         if (assessments && assessments.length > 0) {
           Promise.all(
             assessments.map(async (a) => {
@@ -125,7 +137,7 @@ export const syncManager = {
                   await Promise.all(
                     a.dimensionIds.map((dimId: string) =>
                       dimensionAssessmentRepository.getDimensionWithStates(dimId, lang)
-                        .catch(() => {/* ignore per-lang failures */})
+                        .catch(() => {/* ignore per-lang failures */ })
                     )
                   );
                 }
@@ -169,7 +181,7 @@ export const syncManager = {
                     await Promise.all(
                       a.dimensionIds.map((dimId: string) =>
                         dimensionAssessmentRepository.getDimensionWithStates(dimId, lang)
-                          .catch(() => {/* ignore per-lang failures */})
+                          .catch(() => {/* ignore per-lang failures */ })
                       )
                     );
                   }

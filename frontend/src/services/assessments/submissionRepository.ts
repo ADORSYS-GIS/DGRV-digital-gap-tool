@@ -76,12 +76,22 @@ const mapApiResponseToAssessmentSummary = (
 export const getAssessmentSummary = async (
   id: string,
 ): Promise<AssessmentSummary | undefined> => {
+  // Offline: try to get from local database first
+  if (!navigator.onLine) {
+    return db.submissions.get(id);
+  }
+
   try {
     const response = await fetchAssessmentSummaryApi({ id });
-    return mapApiResponseToAssessmentSummary(response) || undefined;
+    const summary = mapApiResponseToAssessmentSummary(response) || undefined;
+    if (summary) {
+      await db.submissions.put(summary);
+    }
+    return summary;
   } catch (error) {
     console.error(`Error fetching assessment summary for ${id}:`, error);
-    return undefined;
+    // On failure (even online), fall back to local data
+    return db.submissions.get(id);
   }
 };
 

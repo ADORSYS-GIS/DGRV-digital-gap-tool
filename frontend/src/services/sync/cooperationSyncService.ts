@@ -85,30 +85,34 @@ export const cooperationSyncService = {
       });
     }
 
-    const remoteCooperations = await getGroupsByOrganization({
-      orgId: organizationId,
-    });
-    const localCooperations = remoteCooperations.map(
-      mapRemoteCooperationToLocal,
-    );
-    const remoteIds = new Set(localCooperations.map((c) => c.id));
+    try {
+      const remoteCooperations = await getGroupsByOrganization({
+        orgId: organizationId,
+      });
+      const localCooperations = remoteCooperations.map(
+        mapRemoteCooperationToLocal,
+      );
+      const remoteIds = new Set(localCooperations.map((c) => c.id));
 
-    // Delete all local synced cooperations not present in remote (handles DB wipe)
-    const allLocalSynced = await db.cooperations
-      .where("syncStatus")
-      .equals(SyncStatus.SYNCED)
-      .toArray();
+      // Delete all local synced cooperations not present in remote (handles DB wipe)
+      const allLocalSynced = await db.cooperations
+        .where("syncStatus")
+        .equals(SyncStatus.SYNCED)
+        .toArray();
 
-    const idsToDelete = allLocalSynced
-      .filter((c) => !remoteIds.has(c.id))
-      .map((c) => c.id);
+      const idsToDelete = allLocalSynced
+        .filter((c) => !remoteIds.has(c.id))
+        .map((c) => c.id);
 
-    if (idsToDelete.length > 0) {
-      await db.cooperations.bulkDelete(idsToDelete);
-    }
+      if (idsToDelete.length > 0) {
+        await db.cooperations.bulkDelete(idsToDelete);
+      }
 
-    if (localCooperations.length > 0) {
-      await db.cooperations.bulkPut(localCooperations);
+      if (localCooperations.length > 0) {
+        await db.cooperations.bulkPut(localCooperations);
+      }
+    } catch (error) {
+      console.error("Failed to fetch cooperations from server:", error);
     }
   },
 };

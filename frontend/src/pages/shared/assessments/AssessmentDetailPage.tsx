@@ -136,8 +136,16 @@ const AssessmentDetailPage: React.FC = () => {
   const handleSubmit = async () => {
     if (assessmentId) {
       try {
+        const isOffline = !navigator.onLine;
         await submitAssessment(assessmentId);
-        toast.success(t("sharedAssessments.detail.submitSuccess"));
+
+        // If we're online, useSubmitAssessment already shows a success toast.
+        // If we're offline, useSubmitAssessment shows an "Offline" info toast.
+        // We only show the success toast here if we're actually online and the call succeeded.
+        if (!isOffline) {
+          toast.success(t("sharedAssessments.detail.submitSuccess"));
+        }
+
         const basePath = location.pathname.split("/")[1];
         navigate(`/${basePath}/assessments`);
       } catch (error) {

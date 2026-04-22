@@ -5,7 +5,6 @@ import {
   deleteUser,
 } from "@/openapi-client/services.gen";
 import type {
-  KeycloakUser,
   UserInvitationRequest,
 } from "@/openapi-client/types.gen";
 import { syncService } from "@/services/sync/syncService";
@@ -72,7 +71,7 @@ class UserRepository {
     });
   }
 
-  async deleteUser(userId: string, orgId: string): Promise<void> {
+  async deleteUser(userId: string): Promise<void> {
     if (!userId || userId === "undefined") {
       throw new Error("Invalid user ID");
     }

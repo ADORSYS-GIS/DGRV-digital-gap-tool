@@ -44,7 +44,7 @@ export const cooperationRepository = {
     const newCooperation: Cooperation = {
       ...cooperation,
       id: uuidv4(),
-      syncStatus: "new",
+      syncStatus: SyncStatus.NEW,
     };
     await db.cooperations.add(newCooperation);
     if (organizationId) {
@@ -70,7 +70,7 @@ export const cooperationRepository = {
     const updatedCooperation = {
       ...cooperation,
       ...updates,
-      syncStatus: "updated" as const,
+      syncStatus: SyncStatus.UPDATED,
     };
 
     await db.cooperations.put(updatedCooperation);
@@ -88,7 +88,7 @@ export const cooperationRepository = {
   async delete(id: string, organizationId?: string) {
     const cooperation = await db.cooperations.get(id);
     if (cooperation) {
-      await db.cooperations.update(id, { syncStatus: "deleted" });
+      await db.cooperations.update(id, { syncStatus: SyncStatus.DELETED });
       if (organizationId) {
         await cooperationSyncService.sync(organizationId);
       } else {
