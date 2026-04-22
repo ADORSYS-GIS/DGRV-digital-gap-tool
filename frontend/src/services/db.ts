@@ -86,9 +86,9 @@ export class AppDB extends Dexie {
     this.version(18).stores({
       digitalisationGaps: "[id+lang], id, lang, dimensionId, [dimensionId+gap_severity+lang]",
     });
-    // v19: Add dimension_key and lookup index for stable gap resolution
-    this.version(19).stores({
-      digitalisationGaps: "[id+lang], id, lang, dimensionId, dimension_key, [dimension_key+gap_severity+lang]",
+    // v20: Restore missing dimensionId index and keep dimension_key index
+    this.version(20).stores({
+      digitalisationGaps: "[id+lang], id, lang, dimensionId, dimension_key, [dimension_key+gap_severity+lang], [dimensionId+gap_severity+lang]",
     });
   }
 }

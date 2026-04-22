@@ -8,6 +8,7 @@ export interface IDimension extends OfflineEntity {
   weight?: number | null;
   is_active?: boolean | null;
   lang: string;
+  dimension_key?: string | null;
 }
 
 export interface ICreateDimensionRequest extends CreateDimensionRequest {
