@@ -112,6 +112,7 @@ export default function ManageDigitalisationLevels() {
         dimensionId={effectiveDimensionId}
         levelType={levelType}
         existingLevels={filteredLevels}
+        defaultLanguage={lang === "all" ? "en" : lang}
       />
     </div>
   );

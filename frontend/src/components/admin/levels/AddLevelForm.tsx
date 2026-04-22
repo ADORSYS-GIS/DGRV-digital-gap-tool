@@ -15,7 +15,6 @@ import {
   LevelType,
 } from "@/types/digitalisationLevel";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import * as z from "zod";
@@ -41,6 +40,7 @@ interface AddLevelFormProps {
   dimensionId: string;
   levelType: LevelType;
   existingLevels: IDigitalisationLevel[];
+  defaultLanguage?: string;
 }
 
 export const AddLevelForm = ({
@@ -49,9 +49,9 @@ export const AddLevelForm = ({
   dimensionId,
   levelType,
   existingLevels,
+  defaultLanguage = "en",
 }: AddLevelFormProps) => {
   const { t } = useTranslation();
-  const queryClient = useQueryClient();
   const {
     register,
     handleSubmit,
@@ -70,7 +70,7 @@ export const AddLevelForm = ({
           : 1,
       title: "",
       description: "",
-      language: "en",
+      language: defaultLanguage,
     },
   });
 
@@ -78,9 +78,14 @@ export const AddLevelForm = ({
 
   useEffect(() => {
     if (!isOpen) {
-      reset();
+      reset({
+        state: existingLevels.length > 0 ? Math.max(...existingLevels.map((l) => l.state)) + 1 : 1,
+        title: "",
+        description: "",
+        language: defaultLanguage,
+      });
     }
-  }, [isOpen, reset]);
+  }, [isOpen, reset, defaultLanguage]);
 
   const onSubmit: SubmitHandler<FormValues> = (data) => {
     // Only block duplicate if same score AND same language
@@ -116,11 +121,9 @@ export const AddLevelForm = ({
       },
       {
         onSuccess: () => {
-          queryClient.invalidateQueries({
-            queryKey: ["digitalisationLevels", dimensionId],
-          });
           onClose();
-        },      },
+        },
+      },
     );
   };
 
@@ -157,14 +160,16 @@ export const AddLevelForm = ({
                 <div>
                   <Input
                     {...field}
-                    type="number"
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
                     placeholder={t("adminLevels.form.levelId")}
-                    min={1}
+                    className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     onChange={(e) => {
                       const value = parseInt(e.target.value, 10);
-                      field.onChange(isNaN(value) ? undefined : value); // Pass undefined if not a valid number
+                      field.onChange(isNaN(value) ? undefined : value);
                     }}
-                    value={field.value ?? ""} // Use nullish coalescing for controlled component
+                    value={field.value ?? ""}
                   />
                   {errors.state && (
                     <p className="text-red-500 text-sm mt-1">

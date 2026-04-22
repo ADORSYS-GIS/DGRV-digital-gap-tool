@@ -18,9 +18,14 @@ i18n
             ss: { translation: ss },
         },
         fallbackLng: 'en',
-        lng: 'en',
+        // No hardcoded lng — let LanguageDetector read from localStorage
+        detection: {
+            order: ['localStorage', 'navigator'],
+            lookupLocalStorage: 'i18nextLng',
+            caches: ['localStorage'],
+        },
         interpolation: {
-            escapeValue: false, // React already escapes values
+            escapeValue: false,
         },
     });
 

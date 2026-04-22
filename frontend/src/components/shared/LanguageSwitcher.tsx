@@ -22,6 +22,8 @@ export const LanguageSwitcher: React.FC = () => {
 
     const handleLanguageChange = (lang: string) => {
         i18n.changeLanguage(lang);
+        // Persist to localStorage so it survives page refresh
+        localStorage.setItem('i18nextLng', lang);
         // Invalidate all content queries so they refetch in the new language
         queryClient.invalidateQueries({ queryKey: ["dimensionWithStates"] });
         queryClient.invalidateQueries({ queryKey: ["dimensions"] });
