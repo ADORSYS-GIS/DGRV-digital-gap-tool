@@ -30,7 +30,10 @@ export class AppDB extends Dexie {
   dimensions!: Table<IDimension, string>;
   recommendations!: Table<IRecommendation, string>;
   organizationDimensions!: Table<OrganizationDimension, string>;
+  // old single-language cache (kept for migration, no longer used)
   dimensionWithStates!: Table<IDimensionWithStates, string>;
+  // new per-language cache with composite primary key [id+lang]
+  dimensionWithStatesCache!: Table<IDimensionWithStates & { lang: string }, [string, string]>;
 
   constructor() {
     super("AppDB");
@@ -56,9 +59,9 @@ export class AppDB extends Dexie {
     this.version(12).stores({
       digitalisationGaps: "id, dimensionId, [dimensionId+currentLevel+desiredLevel]",
     });
-    // v13: store dimensionWithStates per language so offline works in any language
+    // v13: new table with composite key [id+lang] — cannot change PK of existing table
     this.version(13).stores({
-      dimensionWithStates: "[id+lang], id, lang",
+      dimensionWithStatesCache: "[id+lang], id, lang",
     });
   }
 }

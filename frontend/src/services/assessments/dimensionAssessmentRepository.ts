@@ -194,7 +194,7 @@ export const dimensionAssessmentRepository = {
 
           try {
             await db.dimensions.put(dbDimension);
-            await db.dimensionWithStates.put(toCache);
+            await db.dimensionWithStatesCache.put(toCache);
           } catch (dbError) {
             console.error("Error storing dimension in IndexedDB:", dbError);
           }
@@ -204,15 +204,19 @@ export const dimensionAssessmentRepository = {
       }
 
       // Offline — look up by composite key [id, lang]
-      const cached = await db.dimensionWithStates.get([dimensionId, lang]);
+      const cached = await db.dimensionWithStatesCache.get([dimensionId, lang]);
       if (cached) return cached;
 
       // Try any language as fallback
-      const anyLang = await db.dimensionWithStates
+      const anyLang = await db.dimensionWithStatesCache
         .where("id")
         .equals(dimensionId)
         .first();
       if (anyLang) return anyLang;
+
+      // Last-resort: also check old single-language table
+      const legacy = await db.dimensionWithStates.get(dimensionId);
+      if (legacy) return legacy;
 
       // Last-resort: basic dimension info only (no states)
       const localDimension = await db.dimensions.get(dimensionId);
