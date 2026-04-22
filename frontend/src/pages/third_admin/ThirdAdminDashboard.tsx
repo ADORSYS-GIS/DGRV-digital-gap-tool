@@ -44,7 +44,8 @@ import { useTranslation, Trans } from "react-i18next";
 import { Link } from "react-router-dom";
 
 const ThirdAdminDashboard: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language?.split('-')[0] || 'en';
   const { user } = useAuth();
   const cooperationIdFromRoute = useCooperationId();
   const {
@@ -67,11 +68,18 @@ const ThirdAdminDashboard: React.FC = () => {
     isLoading: isLoadingDimensions,
     error: dimensionsError,
   } = useDimensions('all');
+  const { data: translatedDimensions } = useDimensions(lang);
   const {
     data: allDimensionStates,
     isLoading: isLoadingStates,
     error: statesError,
   } = useAllDimensionStates();
+
+  const mergedDimensions = React.useMemo(() => {
+    if (!allDimensions) return [];
+    const translatedMap = new Map((translatedDimensions ?? []).map((d) => [d.id, d]));
+    return allDimensions.map((d) => translatedMap.get(d.id) ?? d);
+  }, [allDimensions, translatedDimensions]);
 
   const normalizedSubmissions = Array.isArray(submissionsData)
     ? submissionsData
@@ -254,7 +262,7 @@ const ThirdAdminDashboard: React.FC = () => {
                 <SubmissionChart
                   assessments={latestAssessments}
                   assessmentName={submissions[0]?.assessment?.document_title}
-                  dimensions={allDimensions}
+                  dimensions={mergedDimensions}
                   allDimensionStates={allDimensionStates ?? []}
                 />
               </CardContent>

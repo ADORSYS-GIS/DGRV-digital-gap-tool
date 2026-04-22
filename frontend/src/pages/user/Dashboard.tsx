@@ -35,7 +35,8 @@ import { IDimensionAssessment } from "@/types/dimension";
 const UserDashboard: React.FC = () => {
   const { user } = useAuth();
   const cooperationIdFromRoute = useCooperationId();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language?.split('-')[0] || 'en';
   const {
     cooperationId: cooperationIdFromPath,
     cooperationName,
@@ -53,7 +54,14 @@ const UserDashboard: React.FC = () => {
   });
 
   const { data: dimensions } = useDimensions('all');
+  const { data: translatedDimensions } = useDimensions(lang);
   const { data: allDimensionStates } = useAllDimensionStates();
+
+  const mergedDimensions = React.useMemo(() => {
+    if (!dimensions) return [];
+    const translatedMap = new Map((translatedDimensions ?? []).map((d) => [d.id, d]));
+    return dimensions.map((d) => translatedMap.get(d.id) ?? d);
+  }, [dimensions, translatedDimensions]);
 
   const normalizedSubmissions = Array.isArray(submissionsData)
     ? submissionsData
@@ -228,7 +236,7 @@ const UserDashboard: React.FC = () => {
                 <SubmissionChart
                   assessments={latestAssessments}
                   assessmentName={submissions[0]?.assessment?.document_title || ""}
-                  dimensions={dimensions}
+                  dimensions={mergedDimensions}
                   allDimensionStates={allDimensionStates}
                 />
               </CardContent>

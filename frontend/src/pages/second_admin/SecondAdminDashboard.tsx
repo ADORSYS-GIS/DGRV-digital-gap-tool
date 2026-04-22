@@ -37,21 +37,18 @@ import { useTranslation, Trans } from "react-i18next";
 import { Link } from "react-router-dom";
 
 const SecondAdminDashboard: React.FC = () => {
-  const { t } = useTranslation();
-  const { user } = useAuth();
-  const organizationId = useOrganizationId();
-  const {
-    data: submissionsData = [],
-    isLoading,
-    error,
-  } = useSubmissionsByOrganization(organizationId || "", {
-    enabled: !!organizationId,
-    refetchOnMount: true,
-    refetchOnWindowFocus: false,
-  });
-
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language?.split('-')[0] || 'en';
   const { data: allDimensions } = useDimensions('all');
+  const { data: translatedDimensions } = useDimensions(lang);
   const { data: allDimensionStates } = useAllDimensionStates();
+
+  // Merge: use translated name when available, fall back to 'all' name
+  const mergedDimensions = React.useMemo(() => {
+    if (!allDimensions) return [];
+    const translatedMap = new Map((translatedDimensions ?? []).map((d) => [d.id, d]));
+    return allDimensions.map((d) => translatedMap.get(d.id) ?? d);
+  }, [allDimensions, translatedDimensions]);
 
   const submissions: AssessmentSummary[] = submissionsData.map((s) => ({
     ...s,
@@ -243,7 +240,7 @@ const SecondAdminDashboard: React.FC = () => {
                 <SubmissionChart
                   assessments={latestAssessments}
                   assessmentName={submissions[0]?.assessment?.document_title || ""}
-                  dimensions={allDimensions}
+                  dimensions={mergedDimensions}
                   allDimensionStates={allDimensionStates ?? []}
                 />
               </CardContent>
