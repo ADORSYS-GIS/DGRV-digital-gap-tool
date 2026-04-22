@@ -17,8 +17,6 @@ import { ROLES } from "@/constants/roles";
 import { dimensionAssessmentRepository } from "@/services/assessments/dimensionAssessmentRepository";
 import {
   ArrowLeft,
-  ChevronLeft,
-  ChevronRight,
   Lock,
 } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";

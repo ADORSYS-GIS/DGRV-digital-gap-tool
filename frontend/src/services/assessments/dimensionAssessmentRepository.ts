@@ -15,6 +15,7 @@ import {
 import { ApiError } from "@/openapi-client/core/ApiError";
 import { db } from "../db";
 import { syncService } from "../sync/syncService";
+import { Gap } from "@/types/digitalisationGap";
 import { IApiResponseDimensionState } from "@/types/api";
 
 interface DimensionWithStatesResponse {
@@ -349,29 +350,33 @@ export const dimensionAssessmentRepository = {
     // Offline Result Preparation: Try to find a matching gap description locally
     // this enables immediate "Assessment Analysis" feedback even while offline.
     try {
-      // 1. Primary: Match by dimensionKey (most stable identifier for gaps)
-      // and current language
+      // 1. Calculate severity from gapScore (1=LOW, 2=MEDIUM, 3=HIGH)
+      let severity: Gap = Gap.LOW;
+      if (payload.gapScore >= 3) severity = Gap.HIGH;
+      else if (payload.gapScore === 2) severity = Gap.MEDIUM;
+
+      // 2. Primary: Match by dimensionKey (most stable identifier) + severity + lang
       let localGap = null;
       if (payload.dimensionKey) {
         localGap = await db.digitalisationGaps
-          .where("[dimensionId+currentLevel+desiredLevel+lang]")
-          .equals([payload.dimensionKey, payload.currentLevel, payload.desiredLevel, payload.lang])
+          .where("[dimensionId+gap_severity+lang]")
+          .equals([payload.dimensionKey, severity, payload.lang])
           .first();
       }
 
-      // 2. Secondary: Match by dimensionId (could be UUID) and current language
+      // 3. Secondary: Match by dimensionId (UUID) + severity + lang
       if (!localGap) {
         localGap = await db.digitalisationGaps
-          .where("[dimensionId+currentLevel+desiredLevel+lang]")
-          .equals([payload.dimensionId, payload.currentLevel, payload.desiredLevel, payload.lang])
+          .where("[dimensionId+gap_severity+lang]")
+          .equals([payload.dimensionId, severity, payload.lang])
           .first();
       }
 
-      // 3. Tertiary: Fallback to English using dimensionKey
-      if (!localGap && payload.dimensionKey) {
+      // 4. Tertiary: Fallback to English using dimensionKey + severity
+      if (!localGap && payload.dimensionKey && payload.lang !== "en") {
         localGap = await db.digitalisationGaps
-          .where("[dimensionId+currentLevel+desiredLevel+lang]")
-          .equals([payload.dimensionKey, payload.currentLevel, payload.desiredLevel, "en"])
+          .where("[dimensionId+gap_severity+lang]")
+          .equals([payload.dimensionKey, severity, "en"])
           .first();
       }
 

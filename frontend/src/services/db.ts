@@ -82,6 +82,10 @@ export class AppDB extends Dexie {
       digitalisationLevels: "[id+lang], id, lang, dimensionId, [dimensionId+levelType]",
       digitalisationGaps: "[id+lang], id, lang, dimensionId, [dimensionId+currentLevel+desiredLevel+lang]",
     });
+    // v18: Add optimized gap lookup index by severity
+    this.version(18).stores({
+      digitalisationGaps: "[id+lang], id, lang, dimensionId, [dimensionId+gap_severity+lang]",
+    });
   }
 }
 
