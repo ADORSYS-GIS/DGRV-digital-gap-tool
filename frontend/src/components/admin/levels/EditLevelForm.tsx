@@ -79,9 +79,12 @@ export const EditLevelForm = ({
   }, [isOpen, level, reset]);
 
   const onSubmit: SubmitHandler<FormValues> = (data) => {
-    // Client-side uniqueness validation for state (Level ID)
+    // Only block duplicate if same score AND same language (excluding current level)
     const isDuplicateState = existingLevels.some(
-      (l) => l.state === data.state && l.id !== level.id,
+      (l) =>
+        l.state === data.state &&
+        l.id !== level.id &&
+        ((l as any).language ?? "en") === data.language,
     );
     if (isDuplicateState) {
       setError("state", {

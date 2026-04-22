@@ -38,9 +38,10 @@ export const digitalisationLevelSyncService = {
             const requestBody = {
               dimension_id: levelPayload.dimensionId,
               title: levelPayload.title,
-              description: levelPayload.description,
+              description: levelPayload.description ?? "",
               level: levelPayload.level,
               score: levelPayload.state,
+              language: (levelPayload as any).language ?? "en",
             };
             if (item.entityType === "CurrentState") {
               const response = await createCurrentState({

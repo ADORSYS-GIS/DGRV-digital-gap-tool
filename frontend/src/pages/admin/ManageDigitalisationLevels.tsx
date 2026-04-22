@@ -33,12 +33,16 @@ export default function ManageDigitalisationLevels() {
     queryKey: ["resolveDimensionId", dimensionKeyOrId, lang],
     queryFn: async () => {
       if (!dimensionKeyOrId) return dimensionKeyOrId;
-      if (lang === "all" || lang === "en") return dimensionKeyOrId;
       const allDims = await dimensionRepository.getAll("all");
+      const targetLang = lang === "all" ? "en" : lang;
       const match = allDims.find(
-        (d) => (d as any).dimension_key === dimensionKeyOrId && (d as any).language === lang,
+        (d) => (d as any).dimension_key === dimensionKeyOrId && (d as any).language === targetLang,
       );
-      return match?.id ?? dimensionKeyOrId;
+      // If found by dimension_key, return the language-specific dimension_id
+      if (match) return match.id;
+      // If dimensionKeyOrId is already a dimension_id, return it directly
+      const byId = allDims.find((d) => d.id === dimensionKeyOrId);
+      return byId?.id ?? dimensionKeyOrId;
     },
     enabled: !!dimensionKeyOrId,
   });

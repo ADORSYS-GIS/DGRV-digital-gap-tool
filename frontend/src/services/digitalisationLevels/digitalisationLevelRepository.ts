@@ -60,7 +60,7 @@ export const digitalisationLevelRepository = {
       state: s.score as LevelState,
       title: s.title,
       description: s.description ?? null,
-      level: s.level ?? null,
+      level: String(s.score) ?? null,
       syncStatus: SyncStatus.SYNCED,
       lastError: "",
     }));
@@ -117,24 +117,63 @@ export const digitalisationLevelRepository = {
     levelData: ICreateCurrentStateRequest | ICreateDesiredStateRequest,
     levelType: LevelType,
   ): Promise<IDigitalisationLevel> => {
+    if (navigator.onLine) {
+      const { createCurrentState, createDesiredState } = await import("@/openapi-client/services.gen");
+      const requestBody = {
+        dimension_id: dimensionId,
+        title: levelData.title,
+        description: levelData.description ?? "",
+        score: levelData.score,
+        language: (levelData as any).language ?? "en",
+      };
+      try {
+        let serverId: string;
+        if (levelType === "current") {
+          const response = await createCurrentState({ id: dimensionId, requestBody: requestBody as any });
+          serverId = response.data?.current_state_id ?? uuidv4();
+        } else {
+          const response = await createDesiredState({ id: dimensionId, requestBody: requestBody as any });
+          serverId = response.data?.desired_state_id ?? uuidv4();
+        }
+        const synced: IDigitalisationLevel = {
+          id: serverId,
+          dimensionId,
+          levelType,
+          state: levelData.score as LevelState,
+          title: levelData.title,
+          description: levelData.description ?? null,
+          level: (levelData as any).level ?? null,
+          syncStatus: SyncStatus.SYNCED,
+          lastError: "",
+        };
+        await db.digitalisationLevels.put(synced);
+        return synced;
+      } catch (err: any) {
+        const status = err?.status ?? err?.response?.status;
+        const body = err?.body ?? err?.response?.data ?? {};
+        if (status === 409) {
+          throw new Error(body?.message ?? "A level with this score already exists for this dimension in this language.");
+        }
+        throw new Error(body?.message ?? err?.message ?? "Failed to create level");
+      }
+    }
+
+    // Offline fallback
     const newId = uuidv4();
     const newLevel: IDigitalisationLevel = {
       id: newId,
-      dimensionId: dimensionId,
-      levelType: levelType,
+      dimensionId,
+      levelType,
       state: levelData.score as LevelState,
       title: levelData.title,
       description: levelData.description ?? null,
-      level: levelData.level ?? null,
+      level: (levelData as any).level ?? null,
       syncStatus: SyncStatus.PENDING,
       lastError: "",
     };
-
     await db.digitalisationLevels.add(newLevel);
-    const entityType =
-      levelType === "current" ? "CurrentState" : "DesiredState";
-    syncService.addToSyncQueue(entityType, newLevel.id, "CREATE", newLevel);
-
+    const entityType = levelType === "current" ? "CurrentState" : "DesiredState";
+    syncService.addToSyncQueue(entityType, newLevel.id, "CREATE", { ...newLevel, language: (levelData as any).language ?? "en" });
     return newLevel;
   },
 
