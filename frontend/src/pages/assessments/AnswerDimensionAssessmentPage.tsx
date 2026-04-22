@@ -144,9 +144,13 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
     if (rawAssessment && dimension) {
       const currentState = dimension.current_states?.find(
         (s) => s.id === rawAssessment.currentState.id,
+      ) || dimension.current_states?.find(
+        (s) => s.level === rawAssessment.currentState.level
       );
       const desiredState = dimension.desired_states?.find(
         (s) => s.id === rawAssessment.desiredState.id,
+      ) || dimension.desired_states?.find(
+        (s) => s.level === rawAssessment.desiredState.level
       );
 
       return {
@@ -156,12 +160,14 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
           level: currentState?.level || 0,
           description: currentState?.description || "",
           name: currentState?.name || "",
+          id: currentState?.id || rawAssessment.currentState.id,
         },
         desiredState: {
           ...rawAssessment.desiredState,
           level: desiredState?.level || 0,
           description: desiredState?.description || "",
           name: desiredState?.name || "",
+          id: desiredState?.id || rawAssessment.desiredState.id,
         },
       };
     }
@@ -218,7 +224,7 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
       const currentIndex = list.indexOf(dimensionId as string);
       if (currentIndex !== -1 && currentIndex < list.length - 1) {
         const nextDimensionId = list[currentIndex + 1] as string;
-        dimensionAssessmentRepository.getDimensionWithStates(nextDimensionId, i18n.language)          .catch((err: unknown) => console.error(`Failed to pre-fetch next dimension ${nextDimensionId}:`, err));
+        dimensionAssessmentRepository.getDimensionWithStates(nextDimensionId, (i18n.language ?? 'en').split('-')[0]).catch((err: unknown) => console.error(`Failed to pre-fetch next dimension ${nextDimensionId}:`, err));
       }
     }
   }, [dimensionId, assessment, allowedDimensionIds]);

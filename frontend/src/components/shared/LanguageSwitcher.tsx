@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { useQueryClient } from '@tanstack/react-query';
 import {
     Select,
     SelectContent,
@@ -17,19 +18,31 @@ const LANGUAGES = [
 
 export const LanguageSwitcher: React.FC = () => {
     const { t, i18n } = useTranslation();
+    const queryClient = useQueryClient();
+
+    const handleLanguageChange = (lang: string) => {
+        i18n.changeLanguage(lang);
+        // Invalidate all content queries so they refetch in the new language
+        queryClient.invalidateQueries({ queryKey: ["dimensionWithStates"] });
+        queryClient.invalidateQueries({ queryKey: ["dimensions"] });
+        queryClient.invalidateQueries({ queryKey: ["assessmentDimensions"] });
+        queryClient.invalidateQueries({ queryKey: ["digitalisationLevels"] });
+        queryClient.invalidateQueries({ queryKey: ["digitalisationGaps"] });
+        queryClient.invalidateQueries({ queryKey: ["recommendations"] });
+    };
 
     const current = LANGUAGES.find((l) => l.code === i18n.language) ?? LANGUAGES[0];
 
     return (
         <Select
             value={i18n.language}
-            onValueChange={(lang) => i18n.changeLanguage(lang)}
+            onValueChange={handleLanguageChange}
         >
             <SelectTrigger className="w-[130px]">
                 <SelectValue placeholder={t("sharedLanguage.placeholder", { defaultValue: "Language" })}>
                     <span className="flex items-center gap-2">
-                        <span>{current.flag}</span>
-                        <span>{current.name}</span>
+                        <span>{current?.flag}</span>
+                        <span>{current?.name}</span>
                     </span>
                 </SelectValue>
             </SelectTrigger>

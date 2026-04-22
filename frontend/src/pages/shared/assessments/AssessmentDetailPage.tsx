@@ -4,9 +4,8 @@ import { Progress } from "@/components/ui/progress";
 import { useDimensionAssessments } from "@/hooks/assessments/useDimensionAssessments";
 import { assessmentRepository } from "@/services/assessments/assessmentRepository";
 import { dimensionRepository } from "@/services/dimensions/dimensionRepository";
-import { Assessment } from "@/types/assessment";
 import { IDimension } from "@/types/dimension";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
@@ -14,72 +13,51 @@ import { useSubmitAssessment } from "@/hooks/submissions/useSubmitAssessment";
 import { useCooperationUsersForAdmin } from "@/hooks/cooperationUsers/useCooperationUsersForAdmin";
 import { ROLES } from "@/constants/roles";
 import { useTranslation } from "react-i18next";
+import { useQuery } from "@tanstack/react-query";
 
 const AssessmentDetailPage: React.FC = () => {
   const { t, i18n } = useTranslation();
+  const lang = (i18n.language ?? 'en').split('-')[0];
   const { assessmentId } = useParams<{ assessmentId: string }>();
   const { mutateAsync: submitAssessment } = useSubmitAssessment();
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
-  const [assessment, setAssessment] = useState<Assessment | null>(null);
-  const [dimensions, setDimensions] = useState<IDimension[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchAssessmentDetails = async () => {
-      if (!assessmentId) return;
+  // Fetch assessment
+  const { data: assessment, isLoading: isLoadingAssessment, error: assessmentError } = useQuery({
+    queryKey: ["assessment", assessmentId],
+    queryFn: async () => {
+      const result = await assessmentRepository.getById(assessmentId!);
+      return result ?? null;
+    },
+    enabled: !!assessmentId,
+  });
 
-      try {
-        setLoading(true);
-        const fetchedAssessment =
-          await assessmentRepository.getById(assessmentId);
-        if (fetchedAssessment) {
-          setAssessment(fetchedAssessment);
-          if (
-            fetchedAssessment.dimensionIds &&
-            fetchedAssessment.dimensionIds.length > 0
-          ) {
-            // Fetch the base dimension rows by their stored IDs
-            const baseDimensions = await dimensionRepository.getByIds(
-              fetchedAssessment.dimensionIds,
-            );
+  // Fetch dimensions resolved to current language
+  const { data: dimensions = [], isLoading: isLoadingDimensions } = useQuery({
+    queryKey: ["assessmentDimensions", assessmentId, lang],
+    queryFn: async () => {
+      if (!assessment?.dimensionIds?.length) return [];
+      const allDims = await dimensionRepository.getAll("all");
+      return assessment.dimensionIds.map((storedId: string) => {
+        const matchById = allDims.find((d) => d.id === storedId);
+        const dimKey = matchById ? ((matchById as any).dimension_key ?? storedId) : storedId;
+        const targetRow = allDims.find(
+          (d) => ((d as any).dimension_key ?? d.id) === dimKey && (d as any).language === lang,
+        );
+        const englishRow = allDims.find(
+          (d) => ((d as any).dimension_key ?? d.id) === dimKey && (d as any).language === "en",
+        );
+        return (targetRow ?? englishRow ?? matchById) as IDimension;
+      }).filter(Boolean) as IDimension[];
+    },
+    enabled: !!assessment?.dimensionIds?.length,
+    staleTime: 0,
+  });
 
-            // If UI language is not English, resolve language-specific versions
-            const lang = i18n.language;
-            if (lang !== "en") {
-              const allDims = await dimensionRepository.getAll("all");
-              const resolved = baseDimensions.map((base) => {
-                const dimKey = (base as any).dimension_key ?? base.id;
-                const translated = allDims.find(
-                  (d) =>
-                    ((d as any).dimension_key ?? d.id) === dimKey &&
-                    (d as any).language === lang,
-                );
-                // Return translated version if exists, otherwise keep English
-                return translated ?? base;
-              });
-              setDimensions(resolved);
-            } else {
-              setDimensions(baseDimensions);
-            }
-          } else {
-            setDimensions([]);
-          }
-        } else {
-          setError(t("sharedAssessments.detail.assessmentNotFound"));
-        }
-      } catch (err) {
-        setError(t("sharedAssessments.detail.failedToFetch"));
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchAssessmentDetails();
-  }, [assessmentId, i18n.language]);
+  const loading = isLoadingAssessment || isLoadingDimensions;
+  const error = assessmentError ? t("sharedAssessments.detail.failedToFetch") : null;
 
   const { data: dimensionAssessments } = useDimensionAssessments(assessmentId);
 

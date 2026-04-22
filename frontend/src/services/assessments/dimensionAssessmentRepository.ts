@@ -628,7 +628,10 @@ export const dimensionAssessmentRepository = {
                 const { getDimensionWithStates } = await import(
                   "../../openapi-client/services.gen"
                 );
-                const dimData = await getDimensionWithStates({ id: da.dimension_id, lang: 'en' });
+                // Use the current UI language for matching states/translations
+                const i18n = (await import("@/i18n")).default;
+                const lang = i18n.language?.split("-")[0] || "en";
+                const dimData = await getDimensionWithStates({ id: da.dimension_id, lang });
                 if (dimData.data) {
                   const cs = dimData.data.current_states?.find(
                     (s) => s.current_state_id === da.current_state_id,

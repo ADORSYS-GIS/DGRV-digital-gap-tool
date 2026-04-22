@@ -147,24 +147,38 @@ pub async fn get_dimension_with_states(
     let lang = &lang_params.lang;
 
     // Try to find by dimension_id first, then fall back to dimension_key
-    let dimension = match DimensionsRepository::find_by_id(db.as_ref(), dimension_id)
+    let (dimension, provided_id_was_key) = match DimensionsRepository::find_by_id(db.as_ref(), dimension_id)
         .await
         .map_err(crate::api::handlers::common::handle_error)?
     {
-        Some(d) => d,
+        Some(d) => (d, false),
         None => {
             // Try as dimension_key — find the row matching key + language
             let target_lang = if lang == "all" { "en" } else { lang.as_str() };
-            DimensionsRepository::find_by_key_and_language(db.as_ref(), dimension_id, target_lang)
+            let dim = DimensionsRepository::find_by_key_and_language(db.as_ref(), dimension_id, target_lang)
                 .await
                 .map_err(crate::api::handlers::common::handle_error)?
-                .or_else(|| None)
                 .ok_or_else(|| {
                     crate::api::handlers::common::handle_error(AppError::NotFound(
                         "Dimension not found".to_string(),
                     ))
-                })?
+                })?;
+            (dim, true)
         }
+    };
+
+    // If we found a dimension by ID, but the language doesn't match the requested one,
+    // we should try to switch to the requested language row using the dimension_key.
+    let dimension = if !provided_id_was_key && lang != "all" && dimension.language != *lang {
+        match DimensionsRepository::find_by_key_and_language(db.as_ref(), dimension.dimension_key, lang)
+            .await
+            .map_err(crate::api::handlers::common::handle_error)?
+        {
+            Some(d) => d,
+            None => dimension, // Fallback to original if no translation exists
+        }
+    } else {
+        dimension
     };
 
     let resolved_dimension_id = dimension.dimension_id;
