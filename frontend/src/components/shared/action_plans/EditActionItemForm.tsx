@@ -29,11 +29,15 @@ export function EditActionItemForm({ item, assessmentId, onSuccess }: EditAction
   const [dimensionAssessmentId, setDimensionAssessmentId] = useState(item.dimension_assessment_id);
 
   const { data: dimensionAssessments } = useDimensionAssessments(assessmentId);
-  const { data: dimensions } = useDimensions();
+  const { data: dimensions } = useDimensions("all");
   const { updateItem, isUpdating } = useUpdateActionItem();
 
-  const getDimensionName = (dimId: string) =>
-    dimensions?.find((d) => d.id === dimId)?.name || t("shared.actionPlans.unknownDimension");
+  const getDimensionName = (dimId: string) => {
+    const byId = dimensions?.find((d) => d.id === dimId);
+    if (byId) return byId.name;
+    const byKey = dimensions?.find((d) => (d as any).dimension_key === dimId);
+    return byKey?.name || t("shared.actionPlans.unknownDimension");
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
