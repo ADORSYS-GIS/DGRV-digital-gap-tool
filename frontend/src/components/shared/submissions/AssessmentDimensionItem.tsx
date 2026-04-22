@@ -17,8 +17,11 @@ export const AssessmentDimensionItem = ({
   dimensionAssessment,
   dimensionName,
 }: AssessmentDimensionItemProps) => {
+  // Fetch levels for the specific dimension_id used during the assessment
+  // Use "all" to get levels regardless of current UI language
   const { data: levels } = useDigitalisationLevels(
     dimensionAssessment.dimension_id,
+    "all",
   );
 
   const mapLevelToState = (levelId: string): IDimensionState => {

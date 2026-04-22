@@ -157,20 +157,41 @@ export const AddLevelForm = ({
                 },
               }}
               render={({ field }) => (
-                <div>
+                <div className="relative">
                   <Input
-                    {...field}
                     type="text"
                     inputMode="numeric"
-                    pattern="[0-9]*"
                     placeholder={t("adminLevels.form.levelId")}
-                    className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                    onChange={(e) => {
-                      const value = parseInt(e.target.value, 10);
-                      field.onChange(isNaN(value) ? undefined : value);
-                    }}
+                    className="pr-20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     value={field.value ?? ""}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === "") {
+                        field.onChange(undefined);
+                      } else {
+                        const num = parseInt(val, 10);
+                        field.onChange(isNaN(num) ? undefined : num);
+                      }
+                    }}
+                    onFocus={(e) => e.target.select()}
                   />
+                  {/* Increment/decrement buttons */}
+                  <div className="absolute right-1 top-1/2 -translate-y-1/2 flex flex-col">
+                    <button
+                      type="button"
+                      onClick={() => field.onChange((field.value ?? 0) + 1)}
+                      className="px-2 py-0.5 text-xs text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded"
+                    >
+                      ▲
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => field.onChange(Math.max(1, (field.value ?? 1) - 1))}
+                      className="px-2 py-0.5 text-xs text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded"
+                    >
+                      ▼
+                    </button>
+                  </div>
                   {errors.state && (
                     <p className="text-red-500 text-sm mt-1">
                       {errors.state.message}

@@ -14,7 +14,8 @@ interface SubmissionDetailProps {
 
 export const SubmissionDetail = ({ summary }: SubmissionDetailProps) => {
   const { t } = useTranslation();
-  const { data: dimensions } = useDimensions();
+  // Fetch all dimensions (all languages) so we can find names regardless of which language the assessment was answered in
+  const { data: dimensions } = useDimensions("all");
 
   if (!summary || !summary.assessment) {
     return (
@@ -27,9 +28,12 @@ export const SubmissionDetail = ({ summary }: SubmissionDetailProps) => {
   const submission = summary;
 
   const getDimensionName = (dimensionId: string) => {
-    return (
-      dimensions?.find((d) => d.id === dimensionId)?.name || t("sharedSubmissions.detail.unknownDimension")
-    );
+    // Match by dimension_id directly (the language-specific row used during assessment)
+    const byId = dimensions?.find((d) => d.id === dimensionId);
+    if (byId) return byId.name;
+    // Fallback: match by dimension_key
+    const byKey = dimensions?.find((d) => (d as any).dimension_key === dimensionId);
+    return byKey?.name || t("sharedSubmissions.detail.unknownDimension");
   };
 
   return (
