@@ -9,26 +9,26 @@ export const dimensionRepository = {
   getAll: async (lang = 'en'): Promise<IDimension[]> => {
     // Always try to fetch from backend first if online, then update local DB
     try {
-      // Check if online (a simple check, can be more sophisticated)
       if (navigator.onLine) {
-        const backendDimensions = await listDimensions({ lang });
+        const backendDimensions = await listDimensions({ lang: lang === 'all' ? 'en' : lang });
         if (backendDimensions.data) {
           const localDimensions = await db.dimensions.toArray();
           const localDimensionsMap = new Map(
-            localDimensions.map((d) => [d.id, d]),
-          );
-          const backendDimensionIds = new Set(
-            backendDimensions.data.items.map((d) => d.dimension_id),
+            localDimensions.map((d) => [`${d.id}-${(d as any).lang || 'en'}`, d]),
           );
 
           const dimensionsToPut = [];
           for (const beDim of backendDimensions.data.items) {
-            const localDim = localDimensionsMap.get(beDim.dimension_id);
+            const currentLang = (beDim as any).language || lang;
+            const localKey = `${beDim.dimension_id}-${currentLang}`;
+            const localDim = localDimensionsMap.get(localKey);
+
             // Only update local if it's not pending sync
             if (!localDim || localDim.syncStatus !== SyncStatus.PENDING) {
               dimensionsToPut.push({
                 ...beDim,
                 id: beDim.dimension_id,
+                lang: currentLang,
                 syncStatus: SyncStatus.SYNCED,
                 lastError: "",
               });
@@ -39,53 +39,63 @@ export const dimensionRepository = {
             await db.dimensions.bulkPut(dimensionsToPut);
           }
 
-          const idsToDelete = localDimensions
-            .filter(
-              (d) =>
-                d.syncStatus !== SyncStatus.PENDING &&
-                !backendDimensionIds.has(d.id),
-            )
-            .map((d) => d.id);
+          // Cleanup logic for synced items no longer in backend (per language)
+          if (lang !== 'all') {
+            const backendDimensionIds = new Set(
+              backendDimensions.data.items.map((d) => d.dimension_id),
+            );
+            const idsToDelete: [string, string][] = localDimensions
+              .filter(
+                (d) =>
+                  d.syncStatus !== SyncStatus.PENDING &&
+                  (d as any).lang === lang &&
+                  !backendDimensionIds.has(d.id),
+              )
+              .map((d) => [d.id, (d as any).lang as string]);
 
-          if (idsToDelete.length > 0) {
-            await db.dimensions.bulkDelete(idsToDelete);
+            if (idsToDelete.length > 0) {
+              await db.dimensions.bulkDelete(idsToDelete);
+            }
           }
-          console.log(
-            "Dimensions fetched from backend and synced to IndexedDB.",
-          );
         }
       }
     } catch (error) {
-      console.error("Failed to sync all dimensions from backend:", error);
-      // Fallback to local data if backend sync fails
+      console.error(`Failed to sync dimensions (${lang}) from backend:`, error);
     }
-    return db.dimensions.toArray(); // Always read from local DB
+
+    if (lang === 'all') {
+      return db.dimensions.toArray();
+    }
+    return db.dimensions.where("lang").equals(lang).toArray();
   },
-  getById: async (id: string): Promise<IDimension | undefined> => {
-    let localDimension = await db.dimensions.get(id);
+  getById: async (id: string, lang?: string): Promise<IDimension | undefined> => {
+    let localDimension = lang
+      ? await db.dimensions.get([id, lang])
+      : await db.dimensions.where("id").equals(id).first();
 
     try {
       if (navigator.onLine) {
         const backendDimension = await getDimension({ id });
         if (backendDimension.data) {
+          const currentLang = (backendDimension.data as any).language || lang || "en";
           const syncedDimension: IDimension = {
             ...backendDimension.data,
-            id: backendDimension.data.dimension_id, // Map backend ID to local ID
+            id: backendDimension.data.dimension_id,
+            lang: currentLang,
             syncStatus: SyncStatus.SYNCED,
-            lastError: "", // Ensure lastError is a string
+            lastError: "",
           };
-          await db.dimensions.put(syncedDimension); // Update or add to local DB
-          localDimension = syncedDimension; // Use the synced version
+          await db.dimensions.put(syncedDimension);
+          localDimension = syncedDimension;
           console.log(
-            `Dimension ${id} fetched from backend and synced to IndexedDB.`,
+            `Dimension ${id} (${currentLang}) fetched from backend and synced to IndexedDB.`,
           );
         }
       }
     } catch (error) {
       console.error(`Failed to sync dimension ${id} from backend:`, error);
-      // Fallback to local data if backend sync fails
     }
-    return localDimension; // Always read from local DB
+    return localDimension;
   },
   getByIds: async (ids: string[]): Promise<IDimension[]> => {
     return db.dimensions.where("id").anyOf(ids).toArray();
@@ -128,12 +138,14 @@ export const dimensionRepository = {
     }
 
     // Offline: queue for later sync
+    const lang = (dimension as any).language || "en";
     const newDimension: IDimension = {
       ...dimension,
       id: dimension.id || uuidv4(),
+      lang,
       syncStatus: SyncStatus.PENDING,
     };
-    await db.dimensions.add(newDimension);
+    await db.dimensions.put(newDimension);
     syncService.addToSyncQueue(
       "Dimension",
       newDimension.id,
@@ -146,11 +158,13 @@ export const dimensionRepository = {
     await db.dimensions.bulkAdd(dimensions);
   },
   update: async (id: string, changes: Partial<IDimension>): Promise<void> => {
-    const existingDimension = await db.dimensions.get(id);
+    const existingDimension = await db.dimensions.where("id").equals(id).first();
     if (!existingDimension) {
       console.warn(`Dimension with ID ${id} not found in IndexedDB.`);
       return;
     }
+
+    const lang = (existingDimension as any).lang || "en";
 
     if (navigator.onLine) {
       const { updateDimension } = await import("@/openapi-client/services.gen");
@@ -164,12 +178,12 @@ export const dimensionRepository = {
           language: (changes as any).language ?? (existingDimension as any).language ?? undefined,
         },
       });
-      await db.dimensions.update(id, { ...changes, syncStatus: SyncStatus.SYNCED });
+      await db.dimensions.update([id, lang], { ...changes, syncStatus: SyncStatus.SYNCED });
       return;
     }
 
     // Offline: queue for later sync
-    await db.dimensions.update(id, {
+    await db.dimensions.update([id, lang], {
       ...changes,
       syncStatus: SyncStatus.PENDING,
     });
@@ -179,36 +193,49 @@ export const dimensionRepository = {
     });
   },
   delete: async (id: string): Promise<void> => {
-    const existingDimension = await db.dimensions.get(id);
-    if (!existingDimension) {
+    const existingDimensions = await db.dimensions.where("id").equals(id).toArray();
+    if (existingDimensions.length === 0) {
       console.warn(`Dimension with ID ${id} not found in IndexedDB.`);
       return;
     }
 
     if (navigator.onLine) {
-      // Call API directly when online
       const { deleteDimension } = await import("@/openapi-client/services.gen");
       await deleteDimension({ id });
-      await db.dimensions.delete(id);
-      // Clean up any stale sync queue entries
+      for (const d of existingDimensions) {
+        const lang = (d as any).lang || "en";
+        await db.dimensions.delete([id, lang]);
+      }
       await db.sync_queue.filter((item) => item.entityId === id).delete();
       return;
     }
 
     // Offline: queue for later sync
-    await db.dimensions.update(id, { syncStatus: SyncStatus.PENDING });
+    for (const d of existingDimensions) {
+      const lang = (d as any).lang || "en";
+      await db.dimensions.update([id, lang], { syncStatus: SyncStatus.PENDING });
+    }
     syncService.addToSyncQueue("Dimension", id, "DELETE", null);
   },
   markAsSynced: async (offlineId: string, serverId: string): Promise<void> => {
-    await db.dimensions.update(offlineId, {
-      id: serverId,
-      syncStatus: SyncStatus.SYNCED,
-      lastError: "",
-    });
+    const existing = await db.dimensions.where("id").equals(offlineId).toArray();
+    for (const d of existing) {
+      const lang = (d as any).lang || "en";
+      await db.dimensions.update([offlineId, lang], {
+        id: serverId,
+        syncStatus: SyncStatus.SYNCED,
+        lastError: "",
+      });
+    }
   },
-  markAsFailed: (id: string, error: string) =>
-    db.dimensions.update(id, {
-      syncStatus: SyncStatus.FAILED,
-      lastError: error,
-    }),
+  markAsFailed: async (id: string, error: string) => {
+    const existing = await db.dimensions.where("id").equals(id).toArray();
+    for (const d of existing) {
+      const lang = (d as any).lang || "en";
+      await db.dimensions.update([id, lang], {
+        syncStatus: SyncStatus.FAILED,
+        lastError: error,
+      });
+    }
+  },
 };

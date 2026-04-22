@@ -24,10 +24,10 @@ export class AppDB extends Dexie {
   cooperations!: Table<Cooperation, string>;
   cooperationUsers!: Table<CooperationUser, string>;
   digitalisationGaps!: Table<IDigitalisationGap, string>;
-  digitalisationLevels!: Table<IDigitalisationLevel, string>;
+  digitalisationLevels!: Table<IDigitalisationLevel, [string, string]>;
   action_plans!: Table<ActionPlan, string>;
   sync_queue!: Table<SyncQueueItem, number>;
-  dimensions!: Table<IDimension, string>;
+  dimensions!: Table<IDimension, [string, string]>;
   recommendations!: Table<IRecommendation, string>;
   organizationDimensions!: Table<OrganizationDimension, string>;
   // old single-language cache (kept for migration, no longer used)
@@ -62,6 +62,13 @@ export class AppDB extends Dexie {
     // v13: new table with composite key [id+lang] — cannot change PK of existing table
     this.version(13).stores({
       dimensionWithStatesCache: "[id+lang], id, lang",
+    });
+    this.version(14).stores({
+      dimensions: "[id+lang], id, lang",
+      digitalisationLevels: "[id+lang], id, lang, dimensionId, [dimensionId+levelType]",
+    });
+    this.version(15).stores({
+      digitalisationGaps: "id, lang, dimensionId, [id+lang], [dimensionId+currentLevel+desiredLevel+lang]",
     });
   }
 }

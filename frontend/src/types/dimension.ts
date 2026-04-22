@@ -7,6 +7,7 @@ export interface IDimension extends OfflineEntity {
   category?: string | null;
   weight?: number | null;
   is_active?: boolean | null;
+  lang: string;
 }
 
 export interface ICreateDimensionRequest extends CreateDimensionRequest {
@@ -25,7 +26,6 @@ export interface IDimensionState {
 }
 
 export interface IDimensionWithStates extends IDimension {
-  lang?: string; // language code used when this was cached
   currentState?: IDimensionState | null;
   desiredState?: IDimensionState | null;
   states?: IDimensionState[];
@@ -45,6 +45,7 @@ export interface ISubmitDimensionAssessmentRequest {
   // The following are for offline storage and UI purposes
   currentLevel: number;
   desiredLevel: number;
+  lang: string;
 }
 
 export interface IDimensionAssessmentResponse {

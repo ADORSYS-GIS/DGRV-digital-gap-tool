@@ -1,4 +1,5 @@
 import {
+  IDimension,
   IDimensionAssessment,
   IDimensionState,
   IDimensionWithStates,
@@ -28,6 +29,7 @@ interface DimensionWithStatesResponse {
 
 const mapToDimensionWithStates = (
   data: DimensionWithStatesResponse,
+  lang: string = 'en',
 ): IDimensionWithStates => {
   const mapState = (state: IApiResponseDimensionState): IDimensionState => ({
     id: state.current_state_id || state.desired_state_id || uuidv4(),
@@ -43,6 +45,7 @@ const mapToDimensionWithStates = (
     id: data.dimension.dimension_id,
     name: data.dimension.name,
     description: data.dimension.description || null,
+    lang,
     syncStatus: SyncStatus.SYNCED,
     lastError: "",
     current_states: data.current_states.map(mapState),
@@ -185,10 +188,11 @@ export const dimensionAssessmentRepository = {
           // Store with lang so each language is cached independently
           const toCache = { ...dimension, lang };
 
-          const dbDimension = {
+          const dbDimension: IDimension = {
             id: dimension.id,
             name: dimension.name,
             description: dimension.description || null,
+            lang: lang,
             syncStatus: SyncStatus.SYNCED,
             lastError: "",
           };
@@ -225,7 +229,7 @@ export const dimensionAssessmentRepository = {
       if (legacy) return legacy;
 
       // Minimum Fallback: basic dimension info only (no states)
-      const localDimension = await db.dimensions.get(dimensionId);
+      const localDimension = await db.dimensions.where("id").equals(dimensionId).first();
       if (localDimension) {
         return {
           ...localDimension,
@@ -342,15 +346,35 @@ export const dimensionAssessmentRepository = {
       lastError: "",
     };
 
+    // Offline Result Preparation: Try to find a matching gap description locally
+    // this enables immediate "Assessment Analysis" feedback even while offline.
     try {
-      // If we already have a local record for this dimension+assessment,
-      // update it in place; otherwise create a new one. This avoids
-      // Dexie "Key already exists in the object store" constraint errors.
-      const writeFn = existingAssessment
-        ? db.dimensionAssessments.put.bind(db.dimensionAssessments)
-        : db.dimensionAssessments.add.bind(db.dimensionAssessments);
+      const localGap = await db.digitalisationGaps
+        .where("[dimensionId+currentLevel+desiredLevel+lang]")
+        .equals([payload.dimensionId, payload.currentLevel, payload.desiredLevel, payload.lang])
+        .first();
 
-      await writeFn({
+      if (localGap) {
+        newAssessment.gap_id = localGap.id;
+        console.log(`Resolved gap analysis offline: ${localGap.id}`);
+      } else {
+        // Fallback: try English version of the gap if current language is not found
+        const englishGap = await db.digitalisationGaps
+          .where("[dimensionId+currentLevel+desiredLevel+lang]")
+          .equals([payload.dimensionId, payload.currentLevel, payload.desiredLevel, "en"])
+          .first();
+        if (englishGap) {
+          newAssessment.gap_id = englishGap.id;
+          console.warn("Exact language gap match not found locally, using English fallback.");
+        }
+      }
+    } catch (e) {
+      console.warn("Could not resolve gap analysis locally:", e);
+    }
+
+    try {
+      // Use put() (upsert) to avoid "Key already exists" errors if the record was partially written
+      await db.dimensionAssessments.put({
         ...newAssessment,
         syncStatus: SyncStatus.PENDING,
         lastError: "",
@@ -399,10 +423,10 @@ export const dimensionAssessmentRepository = {
             return syncedAssessment;
           }
         } catch (error) {
-          console.error("Error submitting assessment:", error);
+          console.error("Error submitting assessment to server:", error);
 
           // If the backend reports that the parent assessment is missing,
-          // keep the local record as pending and do NOT treat this as a hard failure.
+          // keep the local record as pending.
           if (error instanceof ApiError && error.status === 404) {
             await dimensionAssessmentRepository.markAsFailed(
               newAssessment.id,
@@ -411,20 +435,20 @@ export const dimensionAssessmentRepository = {
             return newAssessment;
           }
 
+          // For other errors, still keep the local record but mark as FAILED
           await dimensionAssessmentRepository.markAsFailed(
             newAssessment.id,
             error instanceof Error
               ? error.message
-              : "Failed to submit assessment",
+              : "Failed to submit assessment to server",
           );
-          throw error;
         }
       }
 
       return newAssessment;
     } catch (error) {
-      console.error("Error saving assessment locally:", error);
-      throw new Error("Failed to save assessment locally");
+      console.error("Critical error saving assessment to local DB:", error);
+      throw new Error("Failed to save assessment locally. Error: " + (error as Error).message);
     }
   },
 
@@ -617,9 +641,10 @@ export const dimensionAssessmentRepository = {
             };
 
             // Try to populate levels from local DB if available
-            const currentLevel = await db.digitalisationLevels.get(
-              da.current_state_id,
-            );
+            const currentLevel = await db.digitalisationLevels
+              .where("id")
+              .equals(da.current_state_id)
+              .first();
             if (currentLevel) {
               assessment.currentState.level = Number(currentLevel.level ?? currentLevel.state ?? 0);
               assessment.currentState.name = currentLevel.title;
@@ -627,9 +652,10 @@ export const dimensionAssessmentRepository = {
                 currentLevel.description || "";
             }
 
-            const desiredLevel = await db.digitalisationLevels.get(
-              da.desired_state_id,
-            );
+            const desiredLevel = await db.digitalisationLevels
+              .where("id")
+              .equals(da.desired_state_id)
+              .first();
             if (desiredLevel) {
               assessment.desiredState.level = Number(desiredLevel.level ?? desiredLevel.state ?? 0);
               assessment.desiredState.name = desiredLevel.title;

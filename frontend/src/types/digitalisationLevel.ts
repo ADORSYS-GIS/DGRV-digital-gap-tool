@@ -14,6 +14,7 @@ export interface IDigitalisationLevel extends OfflineEntity {
   title: string;
   description: string | null;
   level?: string | null; // This is the 'level' string from API, not the numeric state
+  lang: string;
 }
 
 export interface ICreateCurrentStateRequest extends CreateCurrentStateRequest {

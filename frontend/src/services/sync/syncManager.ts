@@ -130,20 +130,35 @@ export const syncManager = {
             assessments.map(async (a) => {
               await assessmentRepository.getById(a.id);
               await actionPlanRepository.getActionPlanByAssessmentId(a.id);
-              // Pre-cache dimension states in all supported languages
+
               if (a.dimensionIds?.length) {
                 const { dimensionAssessmentRepository } = await import("../assessments/dimensionAssessmentRepository");
-                for (const lang of ['en', 'fr', 'pt', 'ss', 'all']) {
+                const { digitalisationGapRepository } = await import("../digitalisationGaps/digitalisationGapRepository");
+                const { recommendationRepository } = await import("../recommendations/recommendationRepository");
+
+                const langs = ["en", "fr", "pt", "ss"];
+
+                // 1. Pre-cache gaps and recommendations for all languages (general)
+                for (const lang of langs) {
+                  await digitalisationGapRepository.getAll(lang).catch(() => { });
+                  await recommendationRepository.getAll(lang).catch(() => { });
+                }
+
+                // 2. Pre-cache specific dimension states
+                for (const lang of [...langs, "all"]) {
                   await Promise.all(
                     a.dimensionIds.map((dimId: string) =>
-                      dimensionAssessmentRepository.getDimensionWithStates(dimId, lang)
-                        .catch(() => {/* ignore per-lang failures */ })
-                    )
+                      dimensionAssessmentRepository
+                        .getDimensionWithStates(dimId, lang)
+                        .catch(() => {
+                          /* ignore per-lang failures */
+                        }),
+                    ),
                   );
                 }
               }
-            })
-          ).catch(err => console.error("Error during deep pre-caching:", err));
+            }),
+          ).catch((err) => console.error("Error during deep pre-caching:", err));
         }
       }
 
@@ -174,20 +189,35 @@ export const syncManager = {
               coopAssessments.map(async (a) => {
                 await assessmentRepository.getById(a.id);
                 await actionPlanRepository.getActionPlanByAssessmentId(a.id);
-                // Pre-cache dimension states in all supported languages
+
                 if (a.dimensionIds?.length) {
                   const { dimensionAssessmentRepository } = await import("../assessments/dimensionAssessmentRepository");
-                  for (const lang of ['en', 'fr', 'pt', 'ss', 'all']) {
+                  const { digitalisationGapRepository } = await import("../digitalisationGaps/digitalisationGapRepository");
+                  const { recommendationRepository } = await import("../recommendations/recommendationRepository");
+
+                  const langs = ["en", "fr", "pt", "ss"];
+
+                  // 1. Pre-cache gaps and recommendations for all languages (general)
+                  for (const lang of langs) {
+                    await digitalisationGapRepository.getAll(lang).catch(() => { });
+                    await recommendationRepository.getAll(lang).catch(() => { });
+                  }
+
+                  // 2. Pre-cache specific dimension states
+                  for (const lang of [...langs, "all"]) {
                     await Promise.all(
                       a.dimensionIds.map((dimId: string) =>
-                        dimensionAssessmentRepository.getDimensionWithStates(dimId, lang)
-                          .catch(() => {/* ignore per-lang failures */ })
-                      )
+                        dimensionAssessmentRepository
+                          .getDimensionWithStates(dimId, lang)
+                          .catch(() => {
+                            /* ignore per-lang failures */
+                          }),
+                      ),
                     );
                   }
                 }
-              })
-            ).catch(err => console.error("Error during deep pre-caching (coop):", err));
+              }),
+            ).catch((err) => console.error("Error during deep pre-caching (coop):", err));
           }
         }
       }

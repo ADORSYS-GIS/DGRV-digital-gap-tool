@@ -304,6 +304,7 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
           organizationId: submitOrgId,
           cooperationId: effectiveCooperationId,
           userRoles,
+          lang: (i18n.language ?? 'en').split('-')[0] || 'en',
         };
 
         // If offline: save locally and treat as success immediately
