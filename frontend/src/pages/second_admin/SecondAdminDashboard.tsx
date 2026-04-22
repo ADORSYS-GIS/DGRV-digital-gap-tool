@@ -39,6 +39,18 @@ import { Link } from "react-router-dom";
 const SecondAdminDashboard: React.FC = () => {
   const { t, i18n } = useTranslation();
   const lang = i18n.language?.split('-')[0] || 'en';
+  const { user } = useAuth();
+  const organizationId = useOrganizationId();
+  const {
+    data: submissionsData = [],
+    isLoading,
+    error,
+  } = useSubmissionsByOrganization(organizationId || "", {
+    enabled: !!organizationId,
+    refetchOnMount: true,
+    refetchOnWindowFocus: false,
+  });
+
   const { data: allDimensions } = useDimensions('all');
   const { data: translatedDimensions } = useDimensions(lang);
   const { data: allDimensionStates } = useAllDimensionStates();
