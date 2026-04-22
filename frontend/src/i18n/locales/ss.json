@@ -25,7 +25,8 @@
         "assessmentBanner": "Uphumile. Imiphendvulo yakho isevwe ku-local futsi itawuhlanganiswa ngokuzenzakalelayo nawubuyela online.",
         "syncStart": "Buye online – kuhlanganisa idatha leseviwe…",
         "syncDone": "Yonke idatha ihlanganiswe ngempumelelo.",
-        "offlineNotice": "Uphumile. Umsebenti wakho utawusevwa ku-local futsi uhlanjiswe nawubuyela online."
+        "offlineNotice": "Uphumile. Umsebenti wakho utawusevwa ku-local futsi uhlanjiswe nawubuyela online.",
+        "gapAnalysisPending": "Umphathi akagcini ngekuhlela inhlelo. Sicela ubenesabelo noma uxhumane nomphathi."
     },
     "adminDimensions": {
         "title": "Tinhlaka",

@@ -25,7 +25,8 @@
         "assessmentBanner": "Você está offline. As suas respostas estão a ser guardadas localmente e serão sincronizadas automaticamente quando voltar a ficar online.",
         "syncStart": "Online novamente – a sincronizar dados guardados…",
         "syncDone": "Todos os dados foram sincronizados com sucesso.",
-        "offlineNotice": "Você está offline. O seu trabalho será guardado localmente e sincronizado quando voltar a ficar online."
+        "offlineNotice": "Você está offline. O seu trabalho será guardado localmente e sincronizado quando voltar a ficar online.",
+        "gapAnalysisPending": "O administrador ainda não terminou de configurar o sistema. Por favor, seja paciente ou contacte o administrador."
     },
     "adminDimensions": {
         "title": "Dimensões",

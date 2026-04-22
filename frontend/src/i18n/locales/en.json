@@ -25,7 +25,8 @@
         "assessmentBanner": "You are offline. Your answers are being saved locally and will sync automatically when you reconnect.",
         "syncStart": "Back online – syncing saved data…",
         "syncDone": "All data synced successfully.",
-        "offlineNotice": "You are offline. Your work will be saved locally and synced when you reconnect."
+        "offlineNotice": "You are offline. Your work will be saved locally and synced when you reconnect.",
+        "gapAnalysisPending": "The administrator has not finished configuring the system. Please be patient or contact the administrator."
     },
     "adminDimensions": {
         "title": "Dimensions",

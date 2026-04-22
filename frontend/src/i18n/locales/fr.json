@@ -25,7 +25,8 @@
     "assessmentBanner": "Vous êtes hors ligne. Vos réponses sont en cours d'enregistrement local et se synchroniseront automatiquement à votre reconnexion.",
     "syncStart": "De retour en ligne – synchronisation des données enregistrées…",
     "syncDone": "Toutes les données ont été synchronisées avec succès.",
-    "offlineNotice": "Vous êtes hors ligne. Votre travail sera enregistré localement et synchronisé à votre reconnexion."
+    "offlineNotice": "Vous êtes hors ligne. Votre travail sera enregistré localement et synchronisé à votre reconnexion.",
+    "gapAnalysisPending": "L'administrateur n'a pas encore terminé la configuration du système. Veuillez patienter ou contacter l'administrateur."
   },
   "adminDimensions": {
     "title": "Dimensions",

@@ -192,17 +192,13 @@ services:
       - backend
       - keycloak
     healthcheck:
-      test: ["CMD-SHELL", "curl -f -k https://localhost/ || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://localhost/health || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 5
       start_period: 15s
     ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./ssl:/etc/nginx/ssl:ro
-      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - "127.0.0.1:8110:80"
     networks: [dgrv-net]
 
 # ────────────────────────────── VOLUMES / NETS ───────────────────────────

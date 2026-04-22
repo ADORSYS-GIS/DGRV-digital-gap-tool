@@ -36,7 +36,7 @@ export const GapDescriptionDisplay: React.FC<GapDescriptionDisplayProps> = ({
           <AlertCircle className="h-6 w-6 mb-2" />
           <p className="text-sm font-medium text-center">
             {t("offline.gapAnalysisPending", {
-              defaultValue: "Detailed gap analysis will be available once you are back online and the assessment is synced."
+              defaultValue: "The administrator has not finished configuring the system. Please be patient or contact the administrator."
             })}
           </p>
         </div>
