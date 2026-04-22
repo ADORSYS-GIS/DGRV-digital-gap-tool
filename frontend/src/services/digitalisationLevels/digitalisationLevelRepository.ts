@@ -51,10 +51,10 @@ export const digitalisationLevelRepository = {
       .toArray();
     const localLevelsMap = new Map(localLevels.map((l) => [l.id, l]));
 
-    // Sync Current States
     const beCurrentStates = backendData.data?.current_states ?? [];
     const syncedCurrentStates = beCurrentStates.map((s) => ({
       id: s.current_state_id,
+      lang,
       dimensionId: dimensionId,
       levelType: "current" as LevelType,
       state: s.score as LevelState,
@@ -69,6 +69,7 @@ export const digitalisationLevelRepository = {
     const beDesiredStates = backendData.data?.desired_states ?? [];
     const syncedDesiredStates = beDesiredStates.map((s) => ({
       id: s.desired_state_id,
+      lang,
       dimensionId: dimensionId,
       levelType: "desired" as LevelType,
       state: s.score as LevelState,
@@ -95,7 +96,7 @@ export const digitalisationLevelRepository = {
         (l) =>
           l.syncStatus !== SyncStatus.PENDING && !backendLevelIds.has(l.id),
       )
-      .map((l) => l.id);
+      .map((l) => [l.id, l.lang] as [string, string]);
 
     if (levelsToPut.length > 0 || idsToDelete.length > 0) {
       await db.transaction("rw", db.digitalisationLevels, async () => {
@@ -137,6 +138,7 @@ export const digitalisationLevelRepository = {
         }
         const synced: IDigitalisationLevel = {
           id: serverId,
+          lang: (levelData as any).language ?? "en",
           dimensionId,
           levelType,
           state: levelData.score as LevelState,
@@ -162,6 +164,7 @@ export const digitalisationLevelRepository = {
     const newId = uuidv4();
     const newLevel: IDigitalisationLevel = {
       id: newId,
+      lang: (levelData as any).language ?? "en",
       dimensionId,
       levelType,
       state: levelData.score as LevelState,
@@ -181,14 +184,18 @@ export const digitalisationLevelRepository = {
     levelId: string,
     changes: Partial<ICreateCurrentStateRequest | ICreateDesiredStateRequest>,
   ): Promise<void> => {
-    const existingLevel = await db.digitalisationLevels.get(levelId);
+    const lang = (changes as any).lang || (changes as any).language;
+    const existingLevel = lang
+      ? await db.digitalisationLevels.get([levelId, lang])
+      : await db.digitalisationLevels.where("id").equals(levelId).first();
+
     if (!existingLevel) {
       console.warn(`Level with ID ${levelId} not found in IndexedDB.`);
       return;
     }
 
     const updatedLevel = { ...existingLevel, ...changes };
-    await db.digitalisationLevels.update(levelId, {
+    await db.digitalisationLevels.update([existingLevel.id, existingLevel.lang], {
       ...changes,
       syncStatus: SyncStatus.PENDING,
     });
@@ -199,7 +206,7 @@ export const digitalisationLevelRepository = {
   },
 
   delete: async (levelId: string): Promise<void> => {
-    const existingLevel = await db.digitalisationLevels.get(levelId);
+    const existingLevel = await db.digitalisationLevels.where("id").equals(levelId).first();
     if (!existingLevel) {
       console.warn(`Level with ID ${levelId} not found in IndexedDB.`);
       return;
@@ -228,7 +235,7 @@ export const digitalisationLevelRepository = {
             },
           });
         }
-        await db.digitalisationLevels.delete(levelId);
+        await db.digitalisationLevels.where("id").equals(levelId).delete();
         // Clean up any stale sync queue entries
         await db.sync_queue
           .filter((item) => item.entityId === levelId)
@@ -247,12 +254,12 @@ export const digitalisationLevelRepository = {
         : existingLevel.levelType === "current" ? "CurrentState" : "DesiredState";
 
     if (existingLevel.syncStatus === SyncStatus.PENDING) {
-      await db.digitalisationLevels.delete(levelId);
+      await db.digitalisationLevels.delete([existingLevel.id, existingLevel.lang]);
       await db.sync_queue
         .filter((item) => item.entityId === levelId)
         .delete();
     } else {
-      await db.digitalisationLevels.delete(levelId);
+      await db.digitalisationLevels.delete([existingLevel.id, existingLevel.lang]);
       if (entityType) {
         syncService.addToSyncQueue(entityType, levelId, "DELETE", {
           id: levelId,
@@ -262,10 +269,12 @@ export const digitalisationLevelRepository = {
     }
   },
 
-  markAsSynced: async (id: string, serverId: string): Promise<void> => {
-    const level = await db.digitalisationLevels.get(id);
+  markAsSynced: async (id: string, serverId: string, lang: string): Promise<void> => {
+    const level = await db.digitalisationLevels.get([id, lang]);
     if (level) {
-      await db.digitalisationLevels.update(id, {
+      await db.digitalisationLevels.delete([id, lang]);
+      await db.digitalisationLevels.add({
+        ...level,
         id: serverId, // Update the id to the one from the server
         syncStatus: SyncStatus.SYNCED,
         lastError: "",
@@ -273,9 +282,10 @@ export const digitalisationLevelRepository = {
     }
   },
 
-  markAsFailed: (id: string, error: string) =>
-    db.digitalisationLevels.update(id, {
+  markAsFailed: async (id: string, lang: string, error: string) => {
+    await db.digitalisationLevels.update([id, lang], {
       syncStatus: SyncStatus.FAILED,
       lastError: error,
-    }),
+    });
+  },
 };

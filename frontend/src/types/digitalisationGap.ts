@@ -14,6 +14,7 @@ import { SyncStatus } from "@/types/sync";
 
 export interface IDigitalisationGap {
   id: string;
+  lang: string;
   dimensionId: string;
   gap_severity: Gap;
   description: string;

@@ -64,7 +64,7 @@ export const dimensionSyncService = {
       }
       case "DELETE": {
         await deleteDimension({ id: op.entityId });
-        await db.dimensions.delete(op.entityId);
+        await db.dimensions.where("id").equals(op.entityId).delete();
         break;
       }
       default:

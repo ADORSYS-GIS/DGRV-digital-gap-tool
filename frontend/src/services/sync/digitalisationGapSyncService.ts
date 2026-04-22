@@ -16,6 +16,7 @@ export const digitalisationGapSyncService = {
       .toArray();
 
     for (const op of pendingOperations) {
+      const payload = op.payload as IDigitalisationGap;
       try {
         await digitalisationGapSyncService.processOperation(op);
         await db.sync_queue.delete(op.id!);
@@ -26,6 +27,7 @@ export const digitalisationGapSyncService = {
         );
         digitalisationGapRepository.markAsFailed(
           op.entityId,
+          payload.lang || "en",
           (error as Error).message,
         );
       }
@@ -50,7 +52,7 @@ export const digitalisationGapSyncService = {
           responseData?.gap_id ?? responseData?.data?.gap_id;
 
         if (serverId) {
-          await digitalisationGapRepository.markAsSynced(op.entityId, serverId);
+          await digitalisationGapRepository.markAsSynced(op.entityId, serverId, payload.lang || "en");
         }
         break;
       }
@@ -66,12 +68,13 @@ export const digitalisationGapSyncService = {
         await digitalisationGapRepository.markAsSynced(
           op.entityId,
           op.entityId,
+          payload.lang || "en"
         );
         break;
       }
       case "DELETE": {
         await deleteGap({ id: op.entityId });
-        await db.digitalisationGaps.delete(op.entityId);
+        await db.digitalisationGaps.where("id").equals(op.entityId).delete();
         break;
       }
       default:

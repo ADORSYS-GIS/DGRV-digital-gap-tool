@@ -23,7 +23,7 @@ export class AppDB extends Dexie {
   organizations!: Table<Organization, string>;
   cooperations!: Table<Cooperation, string>;
   cooperationUsers!: Table<CooperationUser, string>;
-  digitalisationGaps!: Table<IDigitalisationGap, string>;
+  digitalisationGaps!: Table<IDigitalisationGap, [string, string]>;
   digitalisationLevels!: Table<IDigitalisationLevel, [string, string]>;
   action_plans!: Table<ActionPlan, string>;
   sync_queue!: Table<SyncQueueItem, number>;
@@ -69,6 +69,18 @@ export class AppDB extends Dexie {
     });
     this.version(15).stores({
       digitalisationGaps: "id, lang, dimensionId, [id+lang], [dimensionId+currentLevel+desiredLevel+lang]",
+    });
+    // v16: Drop tables with changed primary keys to avoid UpgradeError
+    this.version(16).stores({
+      dimensions: null,
+      digitalisationLevels: null,
+      digitalisationGaps: null,
+    });
+    // v17: Recreate tables with [id+lang] composite primary keys
+    this.version(17).stores({
+      dimensions: "[id+lang], id, lang",
+      digitalisationLevels: "[id+lang], id, lang, dimensionId, [dimensionId+levelType]",
+      digitalisationGaps: "[id+lang], id, lang, dimensionId, [dimensionId+currentLevel+desiredLevel+lang]",
     });
   }
 }

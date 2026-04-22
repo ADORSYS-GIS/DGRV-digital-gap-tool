@@ -50,7 +50,7 @@ export const digitalisationLevelSyncService = {
               });
               if (response && response.data) {
                 const newId = response.data.current_state_id;
-                await db.digitalisationLevels.update(item.entityId, {
+                await db.digitalisationLevels.where("id").equals(item.entityId).modify({
                   id: newId,
                 });
                 success = true;
@@ -62,7 +62,7 @@ export const digitalisationLevelSyncService = {
               });
               if (response && response.data) {
                 const newId = response.data.desired_state_id;
-                await db.digitalisationLevels.update(item.entityId, {
+                await db.digitalisationLevels.where("id").equals(item.entityId).modify({
                   id: newId,
                 });
                 success = true;
@@ -117,7 +117,7 @@ export const digitalisationLevelSyncService = {
         }
 
         if (success) {
-          await db.digitalisationLevels.update(item.entityId, {
+          await db.digitalisationLevels.where("id").equals(item.entityId).modify({
             syncStatus: SyncStatus.SYNCED,
             lastError: "",
           });
@@ -125,7 +125,7 @@ export const digitalisationLevelSyncService = {
         }
       } catch (error) {
         console.error(`Failed to sync item ${item.id}:`, error);
-        await db.digitalisationLevels.update(item.entityId, {
+        await db.digitalisationLevels.where("id").equals(item.entityId).modify({
           syncStatus: SyncStatus.FAILED,
           lastError: (error as Error).message,
         });
