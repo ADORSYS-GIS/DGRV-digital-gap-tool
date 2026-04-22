@@ -25,6 +25,7 @@ export interface IDimensionState {
 }
 
 export interface IDimensionWithStates extends IDimension {
+  lang?: string; // language code used when this was cached
   currentState?: IDimensionState | null;
   desiredState?: IDimensionState | null;
   states?: IDimensionState[];

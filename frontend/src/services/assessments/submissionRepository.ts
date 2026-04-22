@@ -118,8 +118,15 @@ export const submissionRepository = {
   listByOrganization: async (
     organizationId: string,
   ): Promise<AssessmentSummary[]> => {
+    // Offline: return cached data immediately
+    if (!navigator.onLine) {
+      return db.submissions
+        .where("assessment.organization_id")
+        .equals(organizationId)
+        .toArray();
+    }
+
     try {
-      // Try to fetch from server first
       const listResponse = (await listSubmissionsByOrganization({
         organizationId,
       })) as unknown as ApiResponseAssessmentsResponse; // Assuming actual API returns this structure
@@ -176,6 +183,17 @@ export const submissionRepository = {
   listByCooperation: async (
     cooperationId: string,
   ): Promise<AssessmentSummary[]> => {
+    // Offline: return cached data immediately
+    if (!navigator.onLine) {
+      try {
+        return await db.submissions
+          .filter((s: AssessmentSummary) => s.assessment.cooperation_id === cooperationId)
+          .toArray();
+      } catch {
+        return [];
+      }
+    }
+
     try {
       // Try to fetch from server first
       try {

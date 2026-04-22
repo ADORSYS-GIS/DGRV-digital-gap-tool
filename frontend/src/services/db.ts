@@ -56,6 +56,10 @@ export class AppDB extends Dexie {
     this.version(12).stores({
       digitalisationGaps: "id, dimensionId, [dimensionId+currentLevel+desiredLevel]",
     });
+    // v13: store dimensionWithStates per language so offline works in any language
+    this.version(13).stores({
+      dimensionWithStates: "[id+lang], id, lang",
+    });
   }
 }
 

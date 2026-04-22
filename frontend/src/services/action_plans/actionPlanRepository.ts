@@ -29,11 +29,18 @@ class ActionPlanRepository {
   async getActionPlanByAssessmentId(
     assessmentId: string,
   ): Promise<ActionPlan | undefined> {
+    // Offline: serve from cache immediately without attempting the network
+    if (!navigator.onLine) {
+      return db.action_plans
+        .where("assessment_id")
+        .equals(assessmentId)
+        .first();
+    }
+
     try {
       const response = await getActionPlanByAssessmentId({ assessmentId });
       if (response.success && response.data) {
         const actionPlan = mapToActionPlan(response.data);
-        // Cache only this specific plan — never bulk-store all plans globally
         await db.action_plans.put(actionPlan);
         return actionPlan;
       }
@@ -41,8 +48,8 @@ class ActionPlanRepository {
       console.error("Failed to fetch action plan from API:", error);
     }
 
-    // Offline fallback: only return data cached for this specific assessment
-    return await db.action_plans
+    // Online but API failed — fall back to cache
+    return db.action_plans
       .where("assessment_id")
       .equals(assessmentId)
       .first();

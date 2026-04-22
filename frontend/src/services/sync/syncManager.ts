@@ -91,6 +91,7 @@ export const syncManager = {
       const { organizationRepository } = await import("../organizations/organizationRepository");
       const { userRepository } = await import("../users/userRepository");
       const { actionPlanRepository } = await import("../action_plans/actionPlanRepository");
+      const { cooperationRepository } = await import("../cooperations/cooperationRepository");
       const { listAssessmentsByOrganization, listAssessmentsByCooperation } = await import("@/openapi-client");
 
       // Always pre-cache organization list (needed by all roles)
@@ -109,12 +110,26 @@ export const syncManager = {
 
         await submissionRepository.listByOrganization(organizationId);
         await userRepository.getMembers(organizationId);
+        // Pre-cache cooperations for this organization
+        await cooperationRepository.getAll(organizationId);
 
         if (assessments && assessments.length > 0) {
           Promise.all(
             assessments.map(async (a) => {
               await assessmentRepository.getById(a.id);
               await actionPlanRepository.getActionPlanByAssessmentId(a.id);
+              // Pre-cache dimension states in all supported languages
+              if (a.dimensionIds?.length) {
+                const { dimensionAssessmentRepository } = await import("../assessments/dimensionAssessmentRepository");
+                for (const lang of ['en', 'fr', 'pt', 'ss']) {
+                  await Promise.all(
+                    a.dimensionIds.map((dimId: string) =>
+                      dimensionAssessmentRepository.getDimensionWithStates(dimId, lang)
+                        .catch(() => {/* ignore per-lang failures */})
+                    )
+                  );
+                }
+              }
             })
           ).catch(err => console.error("Error during deep pre-caching:", err));
         }
@@ -147,6 +162,18 @@ export const syncManager = {
               coopAssessments.map(async (a) => {
                 await assessmentRepository.getById(a.id);
                 await actionPlanRepository.getActionPlanByAssessmentId(a.id);
+                // Pre-cache dimension states in all supported languages
+                if (a.dimensionIds?.length) {
+                  const { dimensionAssessmentRepository } = await import("../assessments/dimensionAssessmentRepository");
+                  for (const lang of ['en', 'fr', 'pt', 'ss']) {
+                    await Promise.all(
+                      a.dimensionIds.map((dimId: string) =>
+                        dimensionAssessmentRepository.getDimensionWithStates(dimId, lang)
+                          .catch(() => {/* ignore per-lang failures */})
+                      )
+                    );
+                  }
+                }
               })
             ).catch(err => console.error("Error during deep pre-caching (coop):", err));
           }

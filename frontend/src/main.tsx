@@ -4,7 +4,7 @@ import { registerSW } from "virtual:pwa-register";
 // On first load after a new deploy, unregister all old service workers so the
 // new one can install cleanly. We track this with a version key in localStorage.
 const SW_VERSION_KEY = "sw_version";
-const CURRENT_SW_VERSION = "v4"; // bump this with each deploy that changes the SW
+const CURRENT_SW_VERSION = "v6"; // bump this with each deploy that changes the SW
 if (localStorage.getItem(SW_VERSION_KEY) !== CURRENT_SW_VERSION) {
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.getRegistrations().then((registrations) => {

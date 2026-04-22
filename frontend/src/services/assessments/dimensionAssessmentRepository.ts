@@ -176,15 +176,14 @@ export const dimensionAssessmentRepository = {
   ): Promise<IDimensionWithStates> => {
     try {
       if (navigator.onLine) {
-        // The backend now handles both dimension_id and dimension_key as the path param
         const response = await getDimensionWithStatesApi({ id: dimensionId, lang });
         if (response.data) {
-          // Map the API response to our domain model
           const dimension = mapToDimensionWithStates(
             response.data as unknown as DimensionWithStatesResponse,
           );
+          // Store with lang so each language is cached independently
+          const toCache = { ...dimension, lang };
 
-          // Cache the basic dimension info
           const dbDimension = {
             id: dimension.id,
             name: dimension.name,
@@ -195,8 +194,7 @@ export const dimensionAssessmentRepository = {
 
           try {
             await db.dimensions.put(dbDimension);
-            // Also cache the FULL dimension data (with states) for offline use
-            await db.dimensionWithStates.put(dimension);
+            await db.dimensionWithStates.put(toCache);
           } catch (dbError) {
             console.error("Error storing dimension in IndexedDB:", dbError);
           }
@@ -205,15 +203,23 @@ export const dimensionAssessmentRepository = {
         }
       }
 
-      // Offline or API returned no data — serve from cache
-      const cached = await db.dimensionWithStates.get(dimensionId);
+      // Offline — look up by composite key [id, lang]
+      const cached = await db.dimensionWithStates.get([dimensionId, lang]);
       if (cached) return cached;
+
+      // Try any language as fallback
+      const anyLang = await db.dimensionWithStates
+        .where("id")
+        .equals(dimensionId)
+        .first();
+      if (anyLang) return anyLang;
 
       // Last-resort: basic dimension info only (no states)
       const localDimension = await db.dimensions.get(dimensionId);
       if (localDimension) {
         return {
           ...localDimension,
+          lang,
           current_states: [],
           desired_states: [],
         } as IDimensionWithStates;
