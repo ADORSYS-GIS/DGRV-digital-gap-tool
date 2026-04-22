@@ -9,5 +9,6 @@ export const useRecommendations = (langOverride?: string) => {
   return useQuery({
     queryKey: ["recommendations", lang],
     queryFn: () => recommendationRepository.getAll(lang),
+    networkMode: "always",
   });
 };

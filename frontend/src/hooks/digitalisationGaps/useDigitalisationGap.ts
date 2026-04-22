@@ -7,5 +7,6 @@ export const useDigitalisationGap = (gapId: string) => {
     queryKey: ["digitalisationGap", gapId],
     queryFn: () => digitalisationGapRepository.getById(gapId),
     enabled: !!gapId,
+    networkMode: "always",
   });
 };

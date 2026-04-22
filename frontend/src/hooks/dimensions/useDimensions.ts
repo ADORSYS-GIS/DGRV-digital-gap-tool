@@ -9,5 +9,6 @@ export const useDimensions = (langOverride?: string) => {
   return useQuery({
     queryKey: ["dimensions", lang],
     queryFn: () => dimensionRepository.getAll(lang),
+    networkMode: "always",
   });
 };

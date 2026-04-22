@@ -30,5 +30,6 @@ export const useDigitalisationLevels = (dimensionKeyOrId: string, langOverride?:
       return digitalisationLevelRepository.getByDimensionId(dimensionKeyOrId, lang);
     },
     enabled: !!dimensionKeyOrId,
+    networkMode: "always",
   });
 };

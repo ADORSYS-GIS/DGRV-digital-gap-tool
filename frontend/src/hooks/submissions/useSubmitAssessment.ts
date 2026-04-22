@@ -42,33 +42,24 @@ export function useSubmitAssessment() {
           requestBody: { assessment_id: assessmentId },
         });
       } catch (error) {
-        // If it's a network error (status 0 or similar), or if we are actually offline
-        // but navigator.onLine was true, fallback to local queue
-        const isNetworkError =
-          !navigator.onLine ||
-          (error instanceof Object && "status" in error && error.status === 0) ||
-          error instanceof TypeError; // fetch throws TypeError on network failure
+        // Fallback for ANY error that is not a successful server response
+        // (Status 0, network timeouts, fetch failures, etc.)
+        console.warn("Assessment submission failed, potentially offline. Falling back to local queueing:", error);
 
-        if (isNetworkError) {
-          console.warn("Network error during assessment submission, falling back to local queue.");
-          await db.sync_queue.add({
-            entityType: "AssessmentSubmission",
-            entityId: assessmentId,
-            action: "CREATE",
-            payload: { assessment_id: assessmentId },
-            timestamp: new Date().toISOString(),
-            retries: 0,
-          });
+        await db.sync_queue.add({
+          entityType: "AssessmentSubmission",
+          entityId: assessmentId,
+          action: "CREATE",
+          payload: { assessment_id: assessmentId },
+          timestamp: new Date().toISOString(),
+          retries: 0,
+        });
 
-          toast.info(
-            "Connection lost. Your assessment has been saved locally and will be submitted automatically when you are back online.",
-            { duration: 7000 },
-          );
-          return null;
-        }
-
-        // For other API errors (4xx, 5xx), re-throw so the UI can show the error
-        throw error;
+        toast.info(
+          "Saved locally. Your assessment will be synchronized automatically when a stable connection is restored.",
+          { duration: 7000 },
+        );
+        return null;
       }
     },
     onSuccess: (data) => {

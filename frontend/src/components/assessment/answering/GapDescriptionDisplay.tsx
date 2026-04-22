@@ -57,8 +57,8 @@ export const GapDescriptionDisplay: React.FC<GapDescriptionDisplayProps> = ({
         <div className="flex items-start space-x-2 rounded-md border border-destructive bg-destructive/10 p-4 text-destructive">
           <AlertCircle className="h-5 w-5 flex-shrink-0" />
           <div>
-            <h5 className="font-semibold">{t("adminReports.organizations.errorLoading", { error: "" }).split(":")[0]}</h5>
-            <p>{error.message || t("assessmentAnswering.errors.loadGapError")}</p>
+            <h5 className="font-semibold">{t("assessmentAnswering.errors.loadGapError")}</h5>
+            <p className="text-sm">{error.message}</p>
           </div>
         </div>
       );
