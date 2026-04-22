@@ -52,7 +52,7 @@ const UserDashboard: React.FC = () => {
     enabled: !!cooperationId,
   });
 
-  const { data: dimensions } = useDimensions();
+  const { data: dimensions } = useDimensions('all');
   const { data: allDimensionStates } = useAllDimensionStates();
 
   const normalizedSubmissions = Array.isArray(submissionsData)

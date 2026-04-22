@@ -53,7 +53,7 @@ const AdminDashboard: React.FC = () => {
     },
     overall_score: s.overall_score ?? null,
   }));
-  const { data: dimensions } = useDimensions();
+  const { data: dimensions } = useDimensions('all');
   const { data: organizations } = useOrganizations();
   const { data: allMembers } = useAllOrganizationMembers();
 

@@ -66,7 +66,7 @@ const ThirdAdminDashboard: React.FC = () => {
     data: allDimensions,
     isLoading: isLoadingDimensions,
     error: dimensionsError,
-  } = useDimensions();
+  } = useDimensions('all');
   const {
     data: allDimensionStates,
     isLoading: isLoadingStates,

@@ -50,7 +50,7 @@ const SecondAdminDashboard: React.FC = () => {
     refetchOnWindowFocus: false,
   });
 
-  const { data: allDimensions } = useDimensions();
+  const { data: allDimensions } = useDimensions('all');
   const { data: allDimensionStates } = useAllDimensionStates();
 
   const submissions: AssessmentSummary[] = submissionsData.map((s) => ({
