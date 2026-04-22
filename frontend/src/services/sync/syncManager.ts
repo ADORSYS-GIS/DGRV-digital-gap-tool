@@ -133,7 +133,7 @@ export const syncManager = {
               // Pre-cache dimension states in all supported languages
               if (a.dimensionIds?.length) {
                 const { dimensionAssessmentRepository } = await import("../assessments/dimensionAssessmentRepository");
-                for (const lang of ['en', 'fr', 'pt', 'ss']) {
+                for (const lang of ['en', 'fr', 'pt', 'ss', 'all']) {
                   await Promise.all(
                     a.dimensionIds.map((dimId: string) =>
                       dimensionAssessmentRepository.getDimensionWithStates(dimId, lang)
@@ -177,7 +177,7 @@ export const syncManager = {
                 // Pre-cache dimension states in all supported languages
                 if (a.dimensionIds?.length) {
                   const { dimensionAssessmentRepository } = await import("../assessments/dimensionAssessmentRepository");
-                  for (const lang of ['en', 'fr', 'pt', 'ss']) {
+                  for (const lang of ['en', 'fr', 'pt', 'ss', 'all']) {
                     await Promise.all(
                       a.dimensionIds.map((dimId: string) =>
                         dimensionAssessmentRepository.getDimensionWithStates(dimId, lang)

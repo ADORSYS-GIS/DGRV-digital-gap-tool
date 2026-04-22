@@ -174,8 +174,9 @@ export const dimensionAssessmentRepository = {
     dimensionId: string,
     lang = 'en',
   ): Promise<IDimensionWithStates> => {
-    try {
-      if (navigator.onLine) {
+    // 1. Try Remote First (only if online)
+    if (navigator.onLine) {
+      try {
         const response = await getDimensionWithStatesApi({ id: dimensionId, lang });
         if (response.data) {
           const dimension = mapToDimensionWithStates(
@@ -192,33 +193,38 @@ export const dimensionAssessmentRepository = {
             lastError: "",
           };
 
-          try {
-            await db.dimensions.put(dbDimension);
-            await db.dimensionWithStatesCache.put(toCache);
-          } catch (dbError) {
-            console.error("Error storing dimension in IndexedDB:", dbError);
-          }
+          await db.dimensions.put(dbDimension);
+          await db.dimensionWithStatesCache.put(toCache);
 
           return dimension;
         }
+      } catch (error) {
+        console.error(`Network fetch failed for dimension ${dimensionId} (${lang}), falling back to cache:`, error);
+        // Fall through to cache logic
       }
+    }
 
-      // Offline — look up by composite key [id, lang]
+    // 2. Offline Fallback Logic
+    try {
+      // Primary: Look up by composite key [id, lang]
       const cached = await db.dimensionWithStatesCache.get([dimensionId, lang]);
       if (cached) return cached;
 
-      // Try any language as fallback
+      // Secondary: Try any available language for this dimension
       const anyLang = await db.dimensionWithStatesCache
         .where("id")
         .equals(dimensionId)
         .first();
-      if (anyLang) return anyLang;
+      if (anyLang) {
+        console.warn(`Exact language match (${lang}) not found for dimension ${dimensionId}, using ${anyLang.lang} fallback.`);
+        return anyLang;
+      }
 
-      // Last-resort: also check old single-language table
+      // Legacy Fallback: check old single-language table
       const legacy = await db.dimensionWithStates.get(dimensionId);
       if (legacy) return legacy;
 
-      // Last-resort: basic dimension info only (no states)
+      // Minimum Fallback: basic dimension info only (no states)
       const localDimension = await db.dimensions.get(dimensionId);
       if (localDimension) {
         return {
@@ -228,12 +234,11 @@ export const dimensionAssessmentRepository = {
           desired_states: [],
         } as IDimensionWithStates;
       }
-
-      throw new Error(`Dimension ${dimensionId} not found in local database. Please go online to load this dimension.`);
-    } catch (error) {
-      console.error(`Error fetching dimension ${dimensionId}:`, error);
-      throw error;
+    } catch (dbError) {
+      console.error("Critical error reading from IndexedDB cache:", dbError);
     }
+
+    throw new Error(`Dimension ${dimensionId} not found in local database. Please go online to load this dimension.`);
   },
 
   /**
