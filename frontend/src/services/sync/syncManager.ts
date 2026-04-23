@@ -106,8 +106,20 @@ export const syncManager = {
       // Always pre-cache organization list (needed by all roles)
       await organizationRepository.getAll();
 
+      // --- 1. Common Metadata Sync (Shared by all flows) ---
+      const { digitalisationGapRepository } = await import("../digitalisationGaps/digitalisationGapRepository");
+      const { recommendationRepository } = await import("../recommendations/recommendationRepository");
+      const langs = ["en", "fr", "pt", "ss"];
+
+      for (const lang of langs) {
+        await digitalisationGapRepository.getAll(lang).catch(() => { });
+        await recommendationRepository.getAll(lang).catch(() => { });
+      }
+
+      const uniqueDimensionIds = new Set<string>();
+
+      // --- 2. Organization Assessment Processing ---
       if (organizationId) {
-        // Pre-cache assessments for this organization
         const assessments = await assessmentRepository.syncAssessments(
           async () => {
             const resp = await listAssessmentsByOrganization({ organizationId });
@@ -119,10 +131,8 @@ export const syncManager = {
 
         await submissionRepository.listByOrganization(organizationId);
         await userRepository.getMembers(organizationId);
-        // Pre-cache cooperations for this organization
         await cooperationRepository.getAll(organizationId);
 
-        // Pre-cache consolidated reports
         const { consolidatedReportRepository } = await import("../consolidated_reports/consolidatedReportRepository");
         const userProfile = authService.getUserProfile();
         const roles = (userProfile?.roles || []).map(r => r.toLowerCase());
@@ -135,50 +145,19 @@ export const syncManager = {
         }
 
         if (assessments && assessments.length > 0) {
-          // 1. Pre-cache global metadata (Gaps & Recommendations) once for all assessment needs
-          const { digitalisationGapRepository } = await import("../digitalisationGaps/digitalisationGapRepository");
-          const { recommendationRepository } = await import("../recommendations/recommendationRepository");
-          const langs = ["en", "fr", "pt", "ss"];
-
-          for (const lang of langs) {
-            await digitalisationGapRepository.getAll(lang).catch(() => { });
-            await recommendationRepository.getAll(lang).catch(() => { });
-          }
-
-          // 2. Process assessments and collect unique dimension IDs
-          const uniqueDimensionIds = new Set<string>();
-
           await Promise.all(
             assessments.map(async (a) => {
               await assessmentRepository.getById(a.id);
               await actionPlanRepository.getActionPlanByAssessmentId(a.id);
-
               if (a.dimensionIds?.length) {
                 a.dimensionIds.forEach(id => uniqueDimensionIds.add(id));
               }
             })
           );
-
-          // 3. Pre-cache specific dimension states for unique IDs only
-          if (uniqueDimensionIds.size > 0) {
-            const { dimensionAssessmentRepository } = await import("../assessments/dimensionAssessmentRepository");
-
-            // Try specific languages and 'all' if supported
-            for (const lang of [...langs, "all"]) {
-              const dimIdsArray = Array.from(uniqueDimensionIds);
-              await Promise.all(
-                dimIdsArray.map((dimId) =>
-                  dimensionAssessmentRepository
-                    .getDimensionWithStates(dimId, lang)
-                    .catch(() => { })
-                )
-              );
-            }
-          }
         }
       }
 
-      // Pre-cache cooperation data for coop_admin, coop_user, second_admin, third_admin
+      // --- 3. Cooperation Assessment Processing ---
       const userProfile = authService.getUserProfile();
       const roles = (userProfile?.roles || []).map(r => r.toLowerCase());
       const isCoopRelated = roles.some(r =>
@@ -187,7 +166,6 @@ export const syncManager = {
       );
 
       if (isCoopRelated) {
-        // For coop roles the cooperation ID lives in the organization field
         const cooperationId = userProfile?.organization;
         if (cooperationId) {
           const coopAssessments = await assessmentRepository.syncAssessments(
@@ -201,40 +179,38 @@ export const syncManager = {
           await submissionRepository.listByCooperation(cooperationId);
 
           if (coopAssessments && coopAssessments.length > 0) {
-            Promise.all(
+            await Promise.all(
               coopAssessments.map(async (a) => {
                 await assessmentRepository.getById(a.id);
                 await actionPlanRepository.getActionPlanByAssessmentId(a.id);
-
                 if (a.dimensionIds?.length) {
-                  const { dimensionAssessmentRepository } = await import("../assessments/dimensionAssessmentRepository");
-                  const { digitalisationGapRepository } = await import("../digitalisationGaps/digitalisationGapRepository");
-                  const { recommendationRepository } = await import("../recommendations/recommendationRepository");
-
-                  const langs = ["en", "fr", "pt", "ss"];
-
-                  // 1. Pre-cache gaps and recommendations for all languages (general)
-                  for (const lang of langs) {
-                    await digitalisationGapRepository.getAll(lang).catch(() => { });
-                    await recommendationRepository.getAll(lang).catch(() => { });
-                  }
-
-                  // 2. Pre-cache specific dimension states
-                  for (const lang of [...langs, "all"]) {
-                    await Promise.all(
-                      a.dimensionIds.map((dimId: string) =>
-                        dimensionAssessmentRepository
-                          .getDimensionWithStates(dimId, lang)
-                          .catch(() => {
-                            /* ignore per-lang failures */
-                          }),
-                      ),
-                    );
-                  }
+                  a.dimensionIds.forEach(id => uniqueDimensionIds.add(id));
                 }
-              }),
-            ).catch((err) => console.error("Error during deep pre-caching (coop):", err));
+              })
+            );
           }
+        }
+      }
+
+      // --- 4. Unique Dimension State & Metadata Cache (Enrichment) ---
+      if (uniqueDimensionIds.size > 0) {
+        const { dimensionAssessmentRepository } = await import("../assessments/dimensionAssessmentRepository");
+        const { dimensionRepository } = await import("../dimensions/dimensionRepository");
+        const dimIdsArray = Array.from(uniqueDimensionIds);
+
+        // Fetch FULL dimension objects to ensure dimension_key is cached
+        await Promise.all(
+          dimIdsArray.map((dimId) => dimensionRepository.getById(dimId).catch(() => { }))
+        );
+
+        for (const lang of [...langs, "all"]) {
+          await Promise.all(
+            dimIdsArray.map((dimId) =>
+              dimensionAssessmentRepository
+                .getDimensionWithStates(dimId, lang)
+                .catch(() => { })
+            )
+          );
         }
       }
 

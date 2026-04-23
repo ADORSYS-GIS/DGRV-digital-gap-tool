@@ -59,9 +59,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, [updateAuthState]);
 
   useEffect(() => {
-    // main.tsx already called keycloak.init() before rendering the app.
-    // Here we just wire up the event handlers and read the current state.
-    // onReady fires once init completes (authenticated or not).
+    // Immediately check if keycloak was already initialized by main.tsx
+    // This is crucial for offline re-hydration sessions.
+    if (keycloak.authenticated || !!keycloak.token) {
+      updateAuthState();
+    }
+
     keycloak.onReady = () => {
       updateAuthState();
     };
