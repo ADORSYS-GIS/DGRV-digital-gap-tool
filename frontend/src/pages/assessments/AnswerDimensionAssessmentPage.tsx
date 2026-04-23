@@ -15,22 +15,15 @@ import { useSubmitAssessment } from "@/hooks/submissions/useSubmitAssessment";
 import { syncManager } from "@/services/sync/syncManager";
 import { ROLES } from "@/constants/roles";
 import { dimensionAssessmentRepository } from "@/services/assessments/dimensionAssessmentRepository";
-import {
-  ArrowLeft,
-  Lock,
-} from "lucide-react";
-import { v4 as uuidv4 } from "uuid";
-import {
-  IDimensionAssessment,
-  IDimensionState,
-  IDimensionWithStates,
-} from "@/types/dimension";
+import { digitalisationGapRepository } from "@/services/digitalisationGaps/digitalisationGapRepository";
 import { calculateGapScore } from "@/utils/gapCalculation";
+import { IDimensionAssessment, IDimensionState, IDimensionWithStates } from "@/types/dimension";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
-import { WifiOff } from "lucide-react";
+import { ArrowLeft, Lock, WifiOff } from "lucide-react";
+import { v4 as uuidv4 } from "uuid";
 
 interface RouteParams extends Record<string, string | undefined> {
   assessmentId: string;
@@ -220,6 +213,11 @@ export const AnswerDimensionAssessmentPage: React.FC = () => {
     setGapId(null);
     setSubmittedData(null);
     setIsSubmitting(false);
+
+    if (navigator.onLine) {
+      const lang = (i18n.language ?? "en").split("-")[0] || "en";
+      digitalisationGapRepository.getAll(lang).catch(() => { });
+    }
 
     // Proactively pre-fetch the NEXT dimension while we are still online
     // to ensure it's available in the cache if the user goes offline later

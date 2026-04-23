@@ -5,6 +5,7 @@ import {
 import { db } from "@/services/db";
 import { dimensionAssessmentRepository } from "../assessments/dimensionAssessmentRepository";
 import { SyncQueueItem } from "@/types/sync";
+import { digitalisationGapRepository } from "../digitalisationGaps/digitalisationGapRepository";
 
 export const dimensionAssessmentSyncService = {
     sync: async () => {
@@ -56,6 +57,14 @@ export const dimensionAssessmentSyncService = {
                         op.entityId,
                         serverData
                     );
+
+                    if (serverData?.gap_id) {
+                        try {
+                            await digitalisationGapRepository.getById(serverData.gap_id);
+                        } catch (e) {
+                            console.warn(`Failed to cache gap ${serverData.gap_id} after assessment sync:`, e);
+                        }
+                    }
                 }
                 break;
             }
@@ -77,6 +86,14 @@ export const dimensionAssessmentSyncService = {
                         op.entityId,
                         serverData
                     );
+
+                    if (serverData?.gap_id) {
+                        try {
+                            await digitalisationGapRepository.getById(serverData.gap_id);
+                        } catch (e) {
+                            console.warn(`Failed to cache gap ${serverData.gap_id} after assessment sync:`, e);
+                        }
+                    }
                 }
                 break;
             }

@@ -18,6 +18,7 @@ import { syncService } from "../sync/syncService";
 import { Gap } from "@/types/digitalisationGap";
 import i18n from "@/i18n";
 import { IApiResponseDimensionState } from "@/types/api";
+import { digitalisationGapRepository } from "../digitalisationGaps/digitalisationGapRepository";
 
 interface DimensionWithStatesResponse {
   current_states: IApiResponseDimensionState[];
@@ -450,6 +451,18 @@ export const dimensionAssessmentRepository = {
               newAssessment.id,
               serverAssessment,
             );
+
+            if (serverAssessment.gap_id) {
+              try {
+                const lang = payload.lang?.split("-")[0] || "en";
+                await digitalisationGapRepository.getById(serverAssessment.gap_id, lang);
+              } catch (e) {
+                console.warn(
+                  `Failed to cache gap ${serverAssessment.gap_id} for offline use:`,
+                  e,
+                );
+              }
+            }
             const syncedAssessment = await db.dimensionAssessments.get(
               serverAssessment.id,
             );
@@ -576,6 +589,18 @@ export const dimensionAssessmentRepository = {
               assessmentId,
               serverAssessment,
             );
+
+            if (serverAssessment.gap_id) {
+              try {
+                const lang = payload.lang?.split("-")[0] || "en";
+                await digitalisationGapRepository.getById(serverAssessment.gap_id, lang);
+              } catch (e) {
+                console.warn(
+                  `Failed to cache gap ${serverAssessment.gap_id} for offline use:`,
+                  e,
+                );
+              }
+            }
             const syncedAssessment = await db.dimensionAssessments.get(
               serverAssessment.id,
             );
