@@ -380,6 +380,14 @@ export const dimensionAssessmentRepository = {
           .first();
       }
 
+      // 4.1 Tertiary Fallback (Any Language): Match by dimensionKey + severity across ANY language
+      if (!localGap && payload.dimensionKey) {
+        localGap = await db.digitalisationGaps
+          .where("[dimension_key+gap_severity+lang]")
+          .between([payload.dimensionKey, severity, ""], [payload.dimensionKey, severity, "\uffff"])
+          .first();
+      }
+
       // 5. Final Fallback: Match by severity across ANY language if specific ones failed
       if (!localGap) {
         localGap = await db.digitalisationGaps

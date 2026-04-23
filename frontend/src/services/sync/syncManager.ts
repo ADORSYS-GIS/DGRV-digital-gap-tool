@@ -56,6 +56,15 @@ export const syncManager = {
       await dimensionSyncService.sync();
       await digitalisationLevelSyncService.sync();
       await digitalisationGapSyncService.sync();
+
+      // Explicitly trigger a full metadata refresh for gaps if online
+      // This ensures the local gap cache is populated even if pre-caching was skipped.
+      const { digitalisationGapRepository } = await import("../digitalisationGaps/digitalisationGapRepository");
+      const langs = ["en", "fr", "pt", "ss"];
+      for (const lang of langs) {
+        await digitalisationGapRepository.getAll(lang).catch(() => { });
+      }
+
       await recommendationSyncService.sync();
       await userSyncService.sync();
 

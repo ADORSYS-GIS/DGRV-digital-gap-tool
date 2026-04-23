@@ -29,6 +29,8 @@ export const dimensionRepository = {
                 ...beDim,
                 id: beDim.dimension_id,
                 lang: currentLang,
+                // Preserve dimension_key if backend omits it (truncated list response)
+                dimension_key: (beDim as any).dimension_key || localDim?.dimension_key || null,
                 syncStatus: SyncStatus.SYNCED,
                 lastError: "",
               });
