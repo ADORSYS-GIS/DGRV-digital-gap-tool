@@ -49,12 +49,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const login = useCallback(async () => {
-    await keycloak.login();
-  }, []);
+    await authService.login();
+    updateAuthState();
+  }, [updateAuthState]);
 
   const logout = useCallback(async () => {
-    await keycloak.logout();
-  }, []);
+    await authService.logout();
+    updateAuthState();
+  }, [updateAuthState]);
 
   useEffect(() => {
     // main.tsx already called keycloak.init() before rendering the app.
@@ -92,12 +94,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     return () => {
-      keycloak.onReady = () => {};
-      keycloak.onAuthSuccess = () => {};
-      keycloak.onAuthError = () => {};
-      keycloak.onAuthRefreshSuccess = () => {};
-      keycloak.onAuthRefreshError = () => {};
-      keycloak.onTokenExpired = () => {};
+      keycloak.onReady = () => { };
+      keycloak.onAuthSuccess = () => { };
+      keycloak.onAuthError = () => { };
+      keycloak.onAuthRefreshSuccess = () => { };
+      keycloak.onAuthRefreshError = () => { };
+      keycloak.onTokenExpired = () => { };
     };
   }, [updateAuthState]);
 

@@ -28,4 +28,5 @@ export const keycloakInitOptions = {
   enableLogging: import.meta.env.DEV,
   silentCheckSsoRedirectUri: window.location.origin + "/silent-check-sso.html",
   redirectUri: window.location.origin,
+  scope: "openid offline_access",
 };

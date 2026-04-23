@@ -36,6 +36,7 @@ export const authService = {
     try {
       await keycloak.login({
         redirectUri: redirectUri || window.location.origin,
+        scope: "openid offline_access",
       });
     } catch (error) {
       console.error("Login failed:", error);
