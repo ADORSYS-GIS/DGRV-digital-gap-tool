@@ -29,7 +29,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     isAuthenticated: false,
     user: null,
     roles: [],
-    // Start as loading=true; main.tsx resolves Keycloak and calls updateAuthState
+    // Start as loading=true; effect below re-hydrates from cache or waits for Keycloak
     loading: true,
   });
   const [isInvitationPending, setIsInvitationPending] = useState(false);
@@ -59,37 +59,71 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, [updateAuthState]);
 
   useEffect(() => {
-    // Immediately check if keycloak was already initialized by main.tsx
-    // This is crucial for offline re-hydration sessions.
+    // 1. Instant re-hydration: check for cached profile and tokens immediately
+    // This prevents the "logout on refresh" issue while offline.
+    const rehydrate = async () => {
+      try {
+        const { get } = await import("idb-keyval");
+        const cachedProfile = await get("auth_profile");
+        const cachedTokens = await get("auth_tokens");
+
+        if (cachedProfile && (cachedTokens?.accessToken || !!keycloak.token)) {
+          console.log("AuthProvider: Re-hydrating session from cache.");
+          setAuthState({
+            isAuthenticated: true,
+            user: cachedProfile,
+            roles: cachedProfile.roles || [],
+            loading: false
+          });
+        }
+      } catch (err) {
+        console.warn("AuthProvider: Failed to re-hydrate from cache:", err);
+      }
+    };
+
+    rehydrate();
+
+    // 2. Attach Keycloak listeners for live updates
     if (keycloak.authenticated || !!keycloak.token) {
       updateAuthState();
     }
 
-    keycloak.onReady = () => {
+    keycloak.onReady = (authenticated) => {
+      console.log(`AuthProvider: Keycloak ready (authenticated: ${authenticated})`);
       updateAuthState();
     };
 
     keycloak.onAuthSuccess = () => {
+      console.log("AuthProvider: Authentication successful.");
       authService.storeTokens();
       updateAuthState();
     };
-    keycloak.onAuthError = () => updateAuthState();
+
+    keycloak.onAuthError = (error) => {
+      console.error("AuthProvider: Authentication error:", error);
+      updateAuthState();
+    };
+
     keycloak.onAuthRefreshSuccess = () => {
       authService.storeTokens();
       updateAuthState();
     };
+
     keycloak.onAuthRefreshError = () => {
-      authService.clearStoredTokens();
-      updateAuthState();
+      console.warn("AuthProvider: Refresh failed — clearing tokens if online.");
+      if (navigator.onLine) {
+        authService.clearStoredTokens();
+        updateAuthState();
+      }
     };
+
     keycloak.onTokenExpired = () => {
       if (!navigator.onLine) {
-        // Offline — keep the expired token in memory so IndexedDB reads still work.
-        // It will be refreshed automatically once we're back online.
-        console.warn("Token expired while offline — keeping cached token.");
+        console.warn("AuthProvider: Token expired while offline — keeping current session.");
         return;
       }
       keycloak.updateToken(30).catch(() => {
+        console.error("AuthProvider: Token update failed while online — logging out.");
         authService.clearStoredTokens();
         keycloak.clearToken();
         updateAuthState();

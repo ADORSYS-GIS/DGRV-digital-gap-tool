@@ -16,6 +16,7 @@ import { ApiError } from "@/openapi-client/core/ApiError";
 import { db } from "../db";
 import { syncService } from "../sync/syncService";
 import { Gap } from "@/types/digitalisationGap";
+import i18n from "@/i18n";
 import { IApiResponseDimensionState } from "@/types/api";
 
 interface DimensionWithStatesResponse {
@@ -348,65 +349,62 @@ export const dimensionAssessmentRepository = {
     };
 
     // Offline Result Preparation: Try to find a matching gap description locally
-    // this enables immediate "Assessment Analysis" feedback even while offline.
     try {
-      // 1. Calculate severity from gapScore (1=LOW, 2=MEDIUM, 3=HIGH)
+      // 1. Normalize language (e.g. 'en-US' -> 'en')
+      const targetLang = payload.lang?.split("-")[0] || "en";
+
+      // 2. Calculate severity from gapScore (1=LOW, 2=MEDIUM, 3=HIGH)
       let severity: Gap = Gap.LOW;
       if (payload.gapScore >= 3) severity = Gap.HIGH;
       else if (payload.gapScore === 2) severity = Gap.MEDIUM;
 
-      // 2. Primary: Match by dimensionKey (most stable identifier) + severity + lang
+      // 3. Primary: Match by dimensionKey (most stable identifier) + severity + Normalized Lang
       let localGap = null;
       if (payload.dimensionKey) {
         localGap = await db.digitalisationGaps
           .where("[dimension_key+gap_severity+lang]")
-          .equals([payload.dimensionKey, severity, payload.lang])
+          .equals([payload.dimensionKey, severity, targetLang])
           .first();
       }
 
-      // 3. Secondary: Match by dimensionId (UUID) + severity + lang
+      // 4. Secondary: Match by dimensionId (UUID) + severity + Normalized Lang
       if (!localGap) {
         localGap = await db.digitalisationGaps
           .where("[dimensionId+gap_severity+lang]")
-          .equals([payload.dimensionId, severity, payload.lang])
+          .equals([payload.dimensionId, severity, targetLang])
           .first();
       }
 
-      // 4. Tertiary: Fallback to English using dimensionKey + severity
-      if (!localGap && payload.dimensionKey && payload.lang !== "en") {
-        localGap = await db.digitalisationGaps
-          .where("[dimension_key+gap_severity+lang]")
-          .equals([payload.dimensionKey, severity, "en"])
-          .first();
-      }
-
-      // 4.1 Tertiary Fallback (Any Language): Match by dimensionKey + severity across ANY language
+      // 5. Fuzzy Match: Find ANY severity for this dimension in the target language
       if (!localGap && payload.dimensionKey) {
         localGap = await db.digitalisationGaps
-          .where("[dimension_key+gap_severity+lang]")
-          .between([payload.dimensionKey, severity, ""], [payload.dimensionKey, severity, "\uffff"])
+          .where("dimension_key")
+          .equals(payload.dimensionKey)
+          .and(g => g.lang === targetLang)
           .first();
       }
 
-      // 5. Final Fallback: Match by severity across ANY language if specific ones failed
-      if (!localGap) {
+      // 6. Linguistic Fallback: Match by dimensionKey across ANY language
+      if (!localGap && payload.dimensionKey) {
         localGap = await db.digitalisationGaps
-          .where("[dimension_key+gap_severity+lang]")
-          .between([payload.dimensionKey, severity, ""], [payload.dimensionKey, severity, "\uffff"])
+          .where("dimension_key")
+          .equals(payload.dimensionKey)
           .first();
       }
 
-      // 6. Tertiary Fallback: Match by UUID across ANY language
+      // 7. Last Resort: Match by dimensionId (UUID) across ANY language
       if (!localGap) {
         localGap = await db.digitalisationGaps
-          .where("[dimensionId+gap_severity+lang]")
-          .between([payload.dimensionId, severity, ""], [payload.dimensionId, severity, "\uffff"])
+          .where("dimensionId")
+          .equals(payload.dimensionId)
           .first();
       }
 
       if (localGap) {
         newAssessment.gap_id = localGap.id;
-        console.log(`Resolved gap analysis offline: ${localGap.id} via ${localGap.lang}`);
+        console.log(`Resolved gap analysis offline: ${localGap.id} [${localGap.dimension_key}] via ${localGap.lang}`);
+      } else {
+        console.warn(`Could not resolve gap offline for dim: ${payload.dimensionKey}, severity: ${severity}, lang: ${targetLang}`);
       }
     } catch (e) {
       console.warn("Could not resolve gap analysis locally:", e);
@@ -550,6 +548,8 @@ export const dimensionAssessmentRepository = {
           current_state_id: payload.currentStateId,
           desired_state_id: payload.desiredStateId,
           gap_score: payload.gapScore,
+          organization_id: payload.organizationId,
+          cooperation_id: payload.cooperationId,
         },
       );
 
@@ -706,13 +706,8 @@ export const dimensionAssessmentRepository = {
             // If levels still missing, fetch from backend via dimension with-states
             if (assessment.currentState.level === 0 || assessment.desiredState.level === 0) {
               try {
-                const { getDimensionWithStates } = await import(
-                  "../../openapi-client/services.gen"
-                );
-                // Use the current UI language for matching states/translations
-                const i18n = (await import("@/i18n")).default;
                 const lang = i18n.language?.split("-")[0] || "en";
-                const dimData = await getDimensionWithStates({ id: da.dimension_id, lang });
+                const dimData = await getDimensionWithStatesApi({ id: da.dimension_id, lang });
                 if (dimData.data) {
                   const cs = dimData.data.current_states?.find(
                     (s) => s.current_state_id === da.current_state_id,
