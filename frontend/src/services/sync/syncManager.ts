@@ -135,39 +135,46 @@ export const syncManager = {
         }
 
         if (assessments && assessments.length > 0) {
-          Promise.all(
+          // 1. Pre-cache global metadata (Gaps & Recommendations) once for all assessment needs
+          const { digitalisationGapRepository } = await import("../digitalisationGaps/digitalisationGapRepository");
+          const { recommendationRepository } = await import("../recommendations/recommendationRepository");
+          const langs = ["en", "fr", "pt", "ss"];
+
+          for (const lang of langs) {
+            await digitalisationGapRepository.getAll(lang).catch(() => { });
+            await recommendationRepository.getAll(lang).catch(() => { });
+          }
+
+          // 2. Process assessments and collect unique dimension IDs
+          const uniqueDimensionIds = new Set<string>();
+
+          await Promise.all(
             assessments.map(async (a) => {
               await assessmentRepository.getById(a.id);
               await actionPlanRepository.getActionPlanByAssessmentId(a.id);
 
               if (a.dimensionIds?.length) {
-                const { dimensionAssessmentRepository } = await import("../assessments/dimensionAssessmentRepository");
-                const { digitalisationGapRepository } = await import("../digitalisationGaps/digitalisationGapRepository");
-                const { recommendationRepository } = await import("../recommendations/recommendationRepository");
-
-                const langs = ["en", "fr", "pt", "ss"];
-
-                // 1. Pre-cache gaps and recommendations for all languages (general)
-                for (const lang of langs) {
-                  await digitalisationGapRepository.getAll(lang).catch(() => { });
-                  await recommendationRepository.getAll(lang).catch(() => { });
-                }
-
-                // 2. Pre-cache specific dimension states
-                for (const lang of [...langs, "all"]) {
-                  await Promise.all(
-                    a.dimensionIds.map((dimId: string) =>
-                      dimensionAssessmentRepository
-                        .getDimensionWithStates(dimId, lang)
-                        .catch(() => {
-                          /* ignore per-lang failures */
-                        }),
-                    ),
-                  );
-                }
+                a.dimensionIds.forEach(id => uniqueDimensionIds.add(id));
               }
-            }),
-          ).catch((err) => console.error("Error during deep pre-caching:", err));
+            })
+          );
+
+          // 3. Pre-cache specific dimension states for unique IDs only
+          if (uniqueDimensionIds.size > 0) {
+            const { dimensionAssessmentRepository } = await import("../assessments/dimensionAssessmentRepository");
+
+            // Try specific languages and 'all' if supported
+            for (const lang of [...langs, "all"]) {
+              const dimIdsArray = Array.from(uniqueDimensionIds);
+              await Promise.all(
+                dimIdsArray.map((dimId) =>
+                  dimensionAssessmentRepository
+                    .getDimensionWithStates(dimId, lang)
+                    .catch(() => { })
+                )
+              );
+            }
+          }
         }
       }
 
