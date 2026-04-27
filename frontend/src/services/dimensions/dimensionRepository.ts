@@ -124,7 +124,13 @@ export const dimensionRepository = {
           syncStatus: SyncStatus.SYNCED,
           ...(data.dimension_key && { dimension_key: data.dimension_key } as any),
         };
-        await db.dimensions.put(synced);
+        
+        // Ensure the dimension has the required fields for the composite key [id+lang]
+        if (!synced.id || !synced.lang) {
+          console.error("Cannot store dimension: missing id or lang", { id: synced.id, lang: synced.lang });
+        } else {
+          await db.dimensions.put(synced);
+        }
         return synced;
       } catch (err: any) {
         const status = err?.status ?? err?.response?.status;

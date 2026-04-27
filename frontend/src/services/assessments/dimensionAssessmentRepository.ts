@@ -200,7 +200,12 @@ export const dimensionAssessmentRepository = {
             lastError: "",
           };
 
-          await db.dimensions.put(dbDimension);
+          // Ensure the dimension has the required fields for the composite key [id+lang]
+          if (!dbDimension.id || !dbDimension.lang) {
+            console.error("Cannot store dimension: missing id or lang", { id: dbDimension.id, lang: dbDimension.lang });
+          } else {
+            await db.dimensions.put(dbDimension);
+          }
           await db.dimensionWithStatesCache.put(toCache);
 
           return dimension;

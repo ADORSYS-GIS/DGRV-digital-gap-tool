@@ -3,8 +3,18 @@ import { registerSW } from "virtual:pwa-register";
 
 // Global circuit breaker to prevent infinite reloads
 const RELOAD_COUNTER_KEY = "__reload_counter__";
-const MAX_RELOADS = 3;
-const RELOAD_WINDOW = 30000; // 30 seconds
+const MAX_RELOADS = 2; // Reduced from 3 to 2
+const RELOAD_WINDOW = 60000; // Increased to 60 seconds
+const EMERGENCY_STOP_KEY = "__emergency_stop__";
+
+// Check if we're in emergency stop mode
+if (sessionStorage.getItem(EMERGENCY_STOP_KEY)) {
+  console.error("Emergency stop activated - all reloads disabled");
+  // Override all reload functions
+  window.location.reload = () => {
+    console.error("Reload blocked by emergency stop");
+  };
+}
 
 const checkReloadLimit = () => {
   const now = Date.now();
@@ -21,7 +31,19 @@ const checkReloadLimit = () => {
     
     // Check if we've exceeded the limit
     if (count >= MAX_RELOADS) {
-      console.error("Reload limit exceeded, preventing infinite reload loop");
+      console.error("Reload limit exceeded, activating emergency stop");
+      sessionStorage.setItem(EMERGENCY_STOP_KEY, "1");
+      // Show user notification
+      if (document.body) {
+        const banner = document.createElement('div');
+        banner.style.cssText = `
+          position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
+          background: #dc2626; color: white; padding: 10px; text-align: center;
+          font-family: system-ui; font-size: 14px;
+        `;
+        banner.innerHTML = 'Infinite reload detected and stopped. Please manually refresh if needed.';
+        document.body.appendChild(banner);
+      }
       return false;
     }
     
@@ -36,6 +58,11 @@ const checkReloadLimit = () => {
 };
 
 const safeReload = (reason: string) => {
+  if (sessionStorage.getItem(EMERGENCY_STOP_KEY)) {
+    console.error(`Reload blocked by emergency stop: ${reason}`);
+    return;
+  }
+  
   if (checkReloadLimit()) {
     console.log(`Safe reload triggered: ${reason}`);
     window.location.reload();
@@ -44,8 +71,25 @@ const safeReload = (reason: string) => {
   }
 };
 
+// Add global error handlers to prevent unhandled errors from causing reloads
+window.addEventListener('error', (event) => {
+  console.error('Global error caught:', event.error);
+  // Prevent default behavior that might cause reloads
+  event.preventDefault();
+  return false;
+});
+
+window.addEventListener('unhandledrejection', (event) => {
+  console.error('Unhandled promise rejection:', event.reason);
+  // Prevent default behavior that might cause reloads
+  event.preventDefault();
+  return false;
+});
+
+// TEMPORARILY DISABLE SERVICE WORKER VERSION CHECK
 // On first load after a new deploy, unregister all old service workers so the
 // new one can install cleanly. We track this with a version key in localStorage.
+/*
 const SW_VERSION_KEY = "sw_version";
 const CURRENT_SW_VERSION = "v6"; // bump this with each deploy that changes the SW
 const SW_RELOAD_KEY = "__sw_reload_attempted__";
@@ -68,8 +112,13 @@ if (localStorage.getItem(SW_VERSION_KEY) !== CURRENT_SW_VERSION && !sessionStora
     localStorage.setItem(SW_VERSION_KEY, CURRENT_SW_VERSION);
   }
 }
+*/
 
-// Register Service Worker for PWA support
+console.log("Service Worker version check disabled");
+
+// TEMPORARILY DISABLE SERVICE WORKER TO FIX INFINITE RELOAD
+// Register Service Worker for PWA support - DISABLED
+/*
 registerSW({
   immediate: true,
   onNeedRefresh() {
@@ -91,6 +140,35 @@ registerSW({
     console.error("PWA: Service Worker registration failed:", error);
   }
 });
+*/
+
+console.log("Service Worker registration disabled to prevent infinite reloads");
+
+// Clean up any existing service workers that might be causing the infinite reload
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.getRegistrations().then((registrations) => {
+    console.log(`Found ${registrations.length} service worker registrations, unregistering all...`);
+    registrations.forEach((registration) => {
+      registration.unregister().then((success) => {
+        if (success) {
+          console.log("Service worker unregistered successfully");
+        }
+      });
+    });
+  });
+  
+  // Clear all caches
+  caches.keys().then((cacheNames) => {
+    console.log(`Found ${cacheNames.length} caches, clearing all...`);
+    return Promise.all(
+      cacheNames.map((cacheName) => {
+        return caches.delete(cacheName);
+      })
+    );
+  }).then(() => {
+    console.log("All caches cleared");
+  });
+}
 
 // Handle Vite chunk load failures after new deployments.
 // When a new build is deployed, old chunk hash URLs no longer exist on the

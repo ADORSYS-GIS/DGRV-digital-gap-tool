@@ -94,3 +94,23 @@ export class AppDB extends Dexie {
 }
 
 export const db = new AppDB();
+
+// Add global error handler for IndexedDB to prevent infinite reloads
+db.on('error', (error) => {
+  console.error('IndexedDB error:', error);
+  // Prevent this error from bubbling up and potentially causing reloads
+  return false;
+});
+
+// Add handler for blocked events
+db.on('blocked', () => {
+  console.warn('IndexedDB blocked - another tab may have a newer version');
+  // Don't reload automatically, let user handle it
+});
+
+// Add handler for version change
+db.on('versionchange', () => {
+  console.warn('IndexedDB version changed by another tab');
+  // Close the database connection gracefully
+  db.close();
+});
