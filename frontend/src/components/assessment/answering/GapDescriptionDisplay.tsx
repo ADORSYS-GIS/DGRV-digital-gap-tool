@@ -31,16 +31,19 @@ export const GapDescriptionDisplay: React.FC<GapDescriptionDisplayProps> = ({
 
   const renderGapContent = () => {
     if (!gapId || gapId === "missing-id") {
-      const isOffline = !navigator.onLine;
+      // "missing-id" means the gap couldn't be resolved — this only happens offline
+      // when the cached dimension assessment has no gap linked yet.
+      // An empty/null gapId means the admin hasn't configured gaps for this dimension.
+      const isOfflineCase = gapId === "missing-id";
       return (
         <div className={`flex flex-col items-center justify-center p-4 rounded-md border ${
-          isOffline
+          isOfflineCase
             ? "text-blue-600 bg-blue-50 border-blue-200"
             : "text-amber-600 bg-amber-50 border-amber-200"
         }`}>
           <AlertCircle className="h-6 w-6 mb-2" />
           <p className="text-sm font-medium text-center">
-            {isOffline
+            {isOfflineCase
               ? t("offline.gapAnalysisOffline")
               : t("offline.gapAnalysisPending")}
           </p>
