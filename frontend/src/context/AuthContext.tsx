@@ -40,6 +40,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const user = authService.getUserProfile();
     const roles = user?.roles || [];
 
+    console.log("AuthProvider: updateAuthState called", {
+      isAuthenticated,
+      hasUser: !!user,
+      userOrganization: user?.organization,
+      hasKeycloakToken: !!keycloak.token,
+      hasKeycloakTokenParsed: !!keycloak.tokenParsed
+    });
+
     if (roles.includes(ROLES.ORG_ADMIN) && user?.is_member_of === false) {
       setIsInvitationPending(true);
     } else {
@@ -88,12 +96,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 console.log("AuthProvider: Token restored with organization claims:", {
                   hasOrganization: !!tokenPayload.organization,
                   hasOrganizations: !!tokenPayload.organizations,
-                  hasCooperation: !!tokenPayload.cooperation
+                  hasCooperation: !!tokenPayload.cooperation,
+                  sub: tokenPayload.sub
                 });
               }
             } catch (tokenError) {
               console.warn("AuthProvider: Failed to parse cached token:", tokenError);
             }
+          } else if (keycloak.token) {
+            console.log("AuthProvider: Keycloak token already present");
           }
           
           setAuthState({
@@ -102,6 +113,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             roles: cachedProfile.roles || [],
             loading: false
           });
+          
+          console.log("AuthProvider: Rehydrated user profile", {
+            hasOrganization: !!cachedProfile.organization,
+            organization: cachedProfile.organization,
+            roles: cachedProfile.roles
+          });
+          
           return; // Early return to prevent further processing
         }
       } catch (err) {

@@ -21,20 +21,26 @@ interface ProtectedRouteProps {
   children?: React.ReactNode;
 }
 
-const NoOrganizationMessage: React.FC = () => (
-  <div className="flex min-h-screen items-center justify-center bg-background">
-    <div className="max-w-md text-center space-y-4 p-8">
-      <h2 className="text-2xl font-semibold text-foreground">
-        Organization Required
-      </h2>
-      <p className="text-muted-foreground">
-        Your account has the Organization Admin role but is not yet linked to an
-        organization. Please contact your system administrator to be added to an
-        organization before accessing this area.
-      </p>
+const NoOrganizationMessage: React.FC = React.memo(() => {
+  React.useEffect(() => {
+    console.log("NoOrganizationMessage: Rendered");
+  }, []);
+  
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-background">
+      <div className="max-w-md text-center space-y-4 p-8">
+        <h2 className="text-2xl font-semibold text-foreground">
+          Organization Required
+        </h2>
+        <p className="text-muted-foreground">
+          Your account has the Organization Admin role but is not yet linked to an
+          organization. Please contact your system administrator to be added to an
+          organization before accessing this area.
+        </p>
+      </div>
     </div>
-  </div>
-);
+  );
+});
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   allowedRoles,
@@ -95,9 +101,20 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   const isOrgAdminRoute = allowedRoles?.some(
     (r) => r.toLowerCase() === ROLES.ORG_ADMIN.toLowerCase(),
   );
+  
+  // org_admin routes require the user to have an org ID in their token
+  const isOrgAdminRoute = allowedRoles?.some(
+    (r) => r.toLowerCase() === ROLES.ORG_ADMIN.toLowerCase(),
+  );
+  
   if (isOrgAdminRoute && userRoles.includes(ROLES.ORG_ADMIN.toLowerCase())) {
-    const orgId = authService.getOrganizationId();
-    if (!orgId) {
+    // Simply check if user has organization in their profile
+    // The AuthContext should have populated this from the token
+    if (!user?.organization) {
+      console.log("ProtectedRoute: No organization found for org_admin user", {
+        user: user,
+        isOffline: !navigator.onLine
+      });
       return <NoOrganizationMessage />;
     }
   }
