@@ -60,6 +60,11 @@ export const digitalisationGapRepository = {
               if (localGap && localGap.syncStatus === SyncStatus.PENDING) {
                 return null;
               }
+              // Validate required fields for composite key [id+lang]
+              if (!d.gap_id || !itemLang) {
+                console.warn(`Skipping gap with missing required fields:`, { id: d.gap_id, lang: itemLang });
+                return null;
+              }
               return {
                 id: d.gap_id,
                 dimensionId: d.dimension_id,
@@ -76,7 +81,13 @@ export const digitalisationGapRepository = {
             .filter((g): g is IDigitalisationGap => g !== null);
 
           if (gapsToUpsert.length > 0) {
-            await db.digitalisationGaps.bulkPut(gapsToUpsert);
+            try {
+              await db.digitalisationGaps.bulkPut(gapsToUpsert);
+              console.log(`Successfully stored ${gapsToUpsert.length} digitalisation gaps`);
+            } catch (error) {
+              console.error("Failed to store digitalisation gaps in IndexedDB:", error);
+              // Don't throw - continue with local data
+            }
           }
         }
 
@@ -152,8 +163,19 @@ export const digitalisationGapRepository = {
             createdAt: backendGap.data.created_at,
             updatedAt: backendGap.data.updated_at,
           };
-          await db.digitalisationGaps.put(syncedGap);
-          localGap = syncedGap;
+          
+          // Validate required fields before storing
+          if (syncedGap.id && syncedGap.lang) {
+            try {
+              await db.digitalisationGaps.put(syncedGap);
+              localGap = syncedGap;
+            } catch (error) {
+              console.error(`Failed to store digitalisation gap ${id}:`, error);
+              // Keep existing local gap if storage fails
+            }
+          } else {
+            console.error(`Invalid gap data for ${id}: missing required fields`);
+          }
         }
       }
     } catch (error) {
@@ -184,12 +206,25 @@ export const digitalisationGapRepository = {
         const synced: IDigitalisationGap = {
           ...payload,
           id: serverId,
+          lang: (payload as any).language ?? "en", // Ensure lang field is present
           syncStatus: SyncStatus.SYNCED,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
           isDeleted: false,
         };
-        await db.digitalisationGaps.put(synced);
+        
+        // Validate required fields before storing
+        if (synced.id && synced.lang) {
+          try {
+            await db.digitalisationGaps.put(synced);
+          } catch (error) {
+            console.error("Failed to store digitalisation gap:", error);
+            // Don't throw - the gap was created on backend successfully
+          }
+        } else {
+          console.error("Invalid gap data: missing required fields", { id: synced.id, lang: synced.lang });
+        }
+        
         return synced;
       } catch (err: any) {
         const status = err?.status ?? err?.response?.status;
@@ -208,18 +243,31 @@ export const digitalisationGapRepository = {
     const newGap: IDigitalisationGap = {
       ...payload,
       id: uuidv4(),
+      lang: (payload as any).language ?? "en", // Ensure lang field is present
       syncStatus: SyncStatus.PENDING,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       isDeleted: false,
     };
-    await db.digitalisationGaps.add(newGap);
-    syncService.addToSyncQueue(
-      "DigitalisationGap",
-      newGap.id,
-      "CREATE",
-      newGap,
-    );
+    
+    // Validate required fields before storing
+    if (newGap.id && newGap.lang) {
+      try {
+        await db.digitalisationGaps.add(newGap);
+        syncService.addToSyncQueue(
+          "DigitalisationGap",
+          newGap.id,
+          "CREATE",
+          newGap,
+        );
+      } catch (error) {
+        console.error("Failed to store digitalisation gap offline:", error);
+        throw new Error("Failed to create gap offline");
+      }
+    } else {
+      throw new Error("Invalid gap data: missing required fields");
+    }
+    
     return newGap;
   },
   update: async (

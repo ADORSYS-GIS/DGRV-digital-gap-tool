@@ -148,7 +148,19 @@ export const digitalisationLevelRepository = {
           syncStatus: SyncStatus.SYNCED,
           lastError: "",
         };
-        await db.digitalisationLevels.put(synced);
+        
+        // Validate required fields before storing
+        if (synced.id && synced.lang) {
+          try {
+            await db.digitalisationLevels.put(synced);
+          } catch (error) {
+            console.error("Failed to store digitalisation level:", error);
+            // Don't throw - the level was created on backend successfully
+          }
+        } else {
+          console.error("Invalid level data: missing required fields", { id: synced.id, lang: synced.lang });
+        }
+        
         return synced;
       } catch (err: any) {
         const status = err?.status ?? err?.response?.status;
@@ -174,9 +186,21 @@ export const digitalisationLevelRepository = {
       syncStatus: SyncStatus.PENDING,
       lastError: "",
     };
-    await db.digitalisationLevels.add(newLevel);
-    const entityType = levelType === "current" ? "CurrentState" : "DesiredState";
-    syncService.addToSyncQueue(entityType, newLevel.id, "CREATE", { ...newLevel, language: (levelData as any).language ?? "en" });
+    
+    // Validate required fields before storing
+    if (!newLevel.id || !newLevel.lang) {
+      throw new Error("Invalid level data: missing required fields");
+    }
+    
+    try {
+      await db.digitalisationLevels.add(newLevel);
+      const entityType = levelType === "current" ? "CurrentState" : "DesiredState";
+      syncService.addToSyncQueue(entityType, newLevel.id, "CREATE", { ...newLevel, language: (levelData as any).language ?? "en" });
+    } catch (error) {
+      console.error("Failed to store digitalisation level offline:", error);
+      throw new Error("Failed to create level offline");
+    }
+    
     return newLevel;
   },
 

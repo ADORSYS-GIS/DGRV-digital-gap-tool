@@ -30,15 +30,23 @@ export default function DimensionTranslationsPage() {
   const { data: allDimensions = [], isLoading } = useDimensions("all");
   const { mutate: deleteDimension, isPending: isDeleting } = useDeleteDimension();
 
-  // Find all rows sharing this dimension_key
+  // Find all rows sharing this dimension_key, deduplicated by language
   const group = useMemo(() => {
-    return allDimensions.filter(
+    const all = allDimensions.filter(
       (d) => ((d as any).dimension_key ?? d.id) === dimensionKey,
     );
+    // Deduplicate by language — keep the first occurrence of each language
+    const seen = new Set<string>();
+    return all.filter((d) => {
+      const lang = (d as any).language ?? (d as any).lang ?? "en";
+      if (seen.has(lang)) return false;
+      seen.add(lang);
+      return true;
+    });
   }, [allDimensions, dimensionKey]);
 
-  const base = group.find((d) => (d as any).language === "en") ?? group[0];
-  const configuredLangs = group.map((d) => (d as any).language ?? "en");
+  const base = group.find((d) => ((d as any).language ?? (d as any).lang) === "en") ?? group[0];
+  const configuredLangs = group.map((d) => (d as any).language ?? (d as any).lang ?? "en");
   const missingLangs = ALL_LANGS.filter((l) => !configuredLangs.includes(l));
 
   if (isLoading) return <LoadingSpinner />;
@@ -95,10 +103,10 @@ export default function DimensionTranslationsPage() {
         {group
           .sort((a, b) => {
             const order = ["en", "fr", "pt", "ss"];
-            return order.indexOf((a as any).language) - order.indexOf((b as any).language);
+            return order.indexOf((a as any).language ?? (a as any).lang ?? "en") - order.indexOf((b as any).language ?? (b as any).lang ?? "en");
           })
           .map((dim) => {
-            const lang = (dim as any).language ?? "en";
+            const lang = (dim as any).language ?? (dim as any).lang ?? "en";
             const isBase = lang === "en";
             return (
               <div

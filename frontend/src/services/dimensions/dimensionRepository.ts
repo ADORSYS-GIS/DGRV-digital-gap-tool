@@ -10,7 +10,7 @@ export const dimensionRepository = {
     // Always try to fetch from backend first if online, then update local DB
     try {
       if (navigator.onLine) {
-        const backendDimensions = await listDimensions({ lang: lang === 'all' ? 'en' : lang });
+        const backendDimensions = await listDimensions(lang === 'all' ? {} : { lang });
         if (backendDimensions.data) {
           const localDimensions = await db.dimensions.toArray();
           const localDimensionsMap = new Map(
@@ -19,12 +19,12 @@ export const dimensionRepository = {
 
           const dimensionsToPut = [];
           for (const beDim of backendDimensions.data.items) {
-            const currentLang = (beDim as any).language || lang;
+            const currentLang = (beDim as any).language || (lang === 'all' ? 'en' : lang);
             const localKey = `${beDim.dimension_id}-${currentLang}`;
             const localDim = localDimensionsMap.get(localKey);
 
-            // Only update local if it's not pending sync
-            if (!localDim || localDim.syncStatus !== SyncStatus.PENDING) {
+            // Only update local if it's not pending sync and has required fields
+            if ((!localDim || localDim.syncStatus !== SyncStatus.PENDING) && beDim.dimension_id && currentLang) {
               dimensionsToPut.push({
                 ...beDim,
                 id: beDim.dimension_id,
@@ -38,7 +38,22 @@ export const dimensionRepository = {
           }
 
           if (dimensionsToPut.length > 0) {
-            await db.dimensions.bulkPut(dimensionsToPut);
+            try {
+              // Validate all items have required fields before bulk insert
+              const validDimensions = dimensionsToPut.filter(dim => 
+                dim.id && dim.lang
+              );
+              
+              if (validDimensions.length > 0) {
+                await db.dimensions.bulkPut(validDimensions);
+                console.log(`Successfully stored ${validDimensions.length} dimensions`);
+              } else {
+                console.warn('No valid dimensions to store - all missing required fields');
+              }
+            } catch (error) {
+              console.error("Failed to store dimensions in IndexedDB:", error);
+              // Don't throw - continue with local data
+            }
           }
 
           // Cleanup logic for synced items no longer in backend (per language)
@@ -87,11 +102,22 @@ export const dimensionRepository = {
             syncStatus: SyncStatus.SYNCED,
             lastError: "",
           };
-          await db.dimensions.put(syncedDimension);
-          localDimension = syncedDimension;
-          console.log(
-            `Dimension ${id} (${currentLang}) fetched from backend and synced to IndexedDB.`,
-          );
+          
+          // Validate required fields before storing
+          if (syncedDimension.id && syncedDimension.lang) {
+            try {
+              await db.dimensions.put(syncedDimension);
+              localDimension = syncedDimension;
+              console.log(
+                `Dimension ${id} (${currentLang}) fetched from backend and synced to IndexedDB.`,
+              );
+            } catch (error) {
+              console.error(`Failed to store dimension ${id}:`, error);
+              // Keep existing local dimension if storage fails
+            }
+          } else {
+            console.error(`Invalid dimension data for ${id}: missing required fields`);
+          }
         }
       }
     } catch (error) {
@@ -103,6 +129,8 @@ export const dimensionRepository = {
     return db.dimensions.where("id").anyOf(ids).toArray();
   },
   add: async (dimension: ICreateDimensionRequest): Promise<IDimension> => {
+    // Extract language explicitly — it's on CreateDimensionRequest but not on IDimension
+    const dimensionLang = dimension.language ?? "en";
     if (navigator.onLine) {
       const { createDimension } = await import("@/openapi-client/services.gen");
       try {
@@ -112,27 +140,35 @@ export const dimensionRepository = {
             description: dimension.description ?? null,
             category: dimension.category ?? null,
             weight: dimension.weight ?? null,
-            language: (dimension as any).language ?? "en",
+            language: dimensionLang,
             dimension_key: (dimension as any).dimension_key ?? undefined,
           },
         });
         const data = response.data;
         if (!data) throw new Error("Failed to create dimension");
         const synced: IDimension = {
-          ...dimension,
           id: data.dimension_id,
+          lang: dimensionLang,
+          name: dimension.name,
+          description: dimension.description ?? null,
+          category: dimension.category ?? null,
+          weight: dimension.weight ?? null,
+          is_active: dimension.is_active ?? null,
+          dimension_key: data.dimension_key ?? (dimension as any).dimension_key ?? null,
           syncStatus: SyncStatus.SYNCED,
-          ...(data.dimension_key && { dimension_key: data.dimension_key } as any),
+          lastError: "",
         };
         
-        // Ensure the dimension has the required fields for the composite key [id+lang]
+        // Validate required fields for composite key [id+lang]
         if (!synced.id || !synced.lang) {
           console.error("Cannot store dimension: missing id or lang", { id: synced.id, lang: synced.lang });
+          // Still return the synced object — it was created on backend
         } else {
           try {
             await db.dimensions.put(synced);
           } catch (error) {
-            console.error("Failed to store dimension:", error);
+            console.error("Failed to store dimension in IndexedDB:", error);
+            // Don't throw - the dimension was created on backend successfully
           }
         }
         return synced;
@@ -150,12 +186,17 @@ export const dimensionRepository = {
     }
 
     // Offline: queue for later sync
-    const lang = (dimension as any).language || "en";
     const newDimension: IDimension = {
-      ...dimension,
       id: dimension.id || uuidv4(),
-      lang,
+      lang: dimensionLang,
+      name: dimension.name,
+      description: dimension.description ?? null,
+      category: dimension.category ?? null,
+      weight: dimension.weight ?? null,
+      is_active: dimension.is_active ?? null,
+      dimension_key: (dimension as any).dimension_key ?? null,
       syncStatus: SyncStatus.PENDING,
+      lastError: "",
     };
     await db.dimensions.put(newDimension);
     syncService.addToSyncQueue(

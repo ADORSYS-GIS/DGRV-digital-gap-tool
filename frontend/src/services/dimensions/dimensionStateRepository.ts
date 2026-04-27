@@ -25,40 +25,65 @@ export const dimensionStateRepository = {
             const data = statesResponse.data;
             if (data) {
               for (const cs of (data as any).current_states ?? []) {
-                allLevels.push({
-                  id: cs.current_state_id,
-                  dimensionId: dim.dimension_id,
-                  levelType: "current",
-                  state: cs.score as number,
-                  level: cs.level ?? cs.score ?? 0,
-                  title: cs.title,
-                  description: cs.description ?? null,
-                  syncStatus: SyncStatus.SYNCED,
-                  lastError: "",
-                });
+                // Ensure required fields for composite key [id+lang] are present
+                if (cs.current_state_id) {
+                  allLevels.push({
+                    id: cs.current_state_id,
+                    lang: "en", // Add required lang field for composite key
+                    dimensionId: dim.dimension_id,
+                    levelType: "current",
+                    state: cs.score as number,
+                    level: cs.level ?? cs.score ?? 0,
+                    title: cs.title,
+                    description: cs.description ?? null,
+                    syncStatus: SyncStatus.SYNCED,
+                    lastError: "",
+                  });
+                }
               }
               for (const ds of (data as any).desired_states ?? []) {
-                allLevels.push({
-                  id: ds.desired_state_id,
-                  dimensionId: dim.dimension_id,
-                  levelType: "desired",
-                  state: typeof ds.score === 'number' ? ds.score : 0,
-                  level: null,
-                  title: ds.title,
-                  description: ds.description ?? null,
-                  syncStatus: SyncStatus.SYNCED,
-                  lastError: "",
-                });
+                // Ensure required fields for composite key [id+lang] are present
+                if (ds.desired_state_id) {
+                  allLevels.push({
+                    id: ds.desired_state_id,
+                    lang: "en", // Add required lang field for composite key
+                    dimensionId: dim.dimension_id,
+                    levelType: "desired",
+                    state: typeof ds.score === 'number' ? ds.score : 0,
+                    level: null,
+                    title: ds.title,
+                    description: ds.description ?? null,
+                    syncStatus: SyncStatus.SYNCED,
+                    lastError: "",
+                  });
+                }
               }
             }
-          } catch {
+          } catch (error) {
+            console.error(`Failed to fetch states for dimension ${dim.dimension_id}:`, error);
             // skip this dimension
           }
         }
 
         if (allLevels.length > 0) {
-          await db.digitalisationLevels.bulkPut(allLevels);
-          levels = allLevels;
+          try {
+            // Validate all items have required fields before bulk insert
+            const validLevels = allLevels.filter(level => 
+              level.id && level.lang && level.dimensionId
+            );
+            
+            if (validLevels.length > 0) {
+              await db.digitalisationLevels.bulkPut(validLevels);
+              levels = validLevels;
+              console.log(`Successfully stored ${validLevels.length} digitalisation levels`);
+            } else {
+              console.warn('No valid levels to store - all missing required fields');
+            }
+          } catch (error) {
+            console.error("Failed to store digitalisation levels in IndexedDB:", error);
+            // Don't throw - return empty array to prevent app crash
+            levels = [];
+          }
         }
       } catch (error) {
         console.error("Failed to fetch dimension states from backend:", error);

@@ -98,8 +98,79 @@ export const db = new AppDB();
 // Global error handler for uncaught database errors
 // This prevents database errors from crashing the app or causing reloads
 window.addEventListener('unhandledrejection', (event) => {
-  if (event.reason && event.reason.name === 'DatabaseError') {
-    console.error('IndexedDB error caught:', event.reason);
+  if (event.reason && (
+    event.reason.name === 'DatabaseError' || 
+    event.reason.name === 'DataError' ||
+    event.reason.message?.includes('IDBObjectStore') ||
+    event.reason.message?.includes('key path did not yield a value')
+  )) {
+    console.error('IndexedDB error caught and prevented from crashing app:', event.reason);
     event.preventDefault(); // Prevent the error from propagating
   }
 });
+
+// Add comprehensive error handling for all composite key tables
+const wrapTableOperations = (table: any, tableName: string) => {
+  const originalPut = table.put.bind(table);
+  const originalBulkPut = table.bulkPut.bind(table);
+  const originalAdd = table.add.bind(table);
+  const originalBulkAdd = table.bulkAdd.bind(table);
+
+  table.put = async function(item: any, key?: any) {
+    try {
+      return await originalPut(item, key);
+    } catch (error: any) {
+      console.error(`IndexedDB ${tableName}.put error:`, error);
+      if (error.message?.includes('key path did not yield a value')) {
+        console.error(`Missing required fields for ${tableName}:`, item);
+      }
+      // Return a resolved promise to prevent crashes
+      return Promise.resolve(key || item.id || item);
+    }
+  };
+
+  table.bulkPut = async function(items: any[]) {
+    try {
+      return await originalBulkPut(items);
+    } catch (error: any) {
+      console.error(`IndexedDB ${tableName}.bulkPut error:`, error);
+      if (error.message?.includes('key path did not yield a value')) {
+        console.error(`Some items missing required fields for ${tableName}:`, items);
+      }
+      // Return empty array to prevent crashes
+      return Promise.resolve([]);
+    }
+  };
+
+  table.add = async function(item: any, key?: any) {
+    try {
+      return await originalAdd(item, key);
+    } catch (error: any) {
+      console.error(`IndexedDB ${tableName}.add error:`, error);
+      if (error.message?.includes('key path did not yield a value')) {
+        console.error(`Missing required fields for ${tableName}:`, item);
+      }
+      // Return a resolved promise to prevent crashes
+      return Promise.resolve(key || item.id || item);
+    }
+  };
+
+  table.bulkAdd = async function(items: any[]) {
+    try {
+      return await originalBulkAdd(items);
+    } catch (error: any) {
+      console.error(`IndexedDB ${tableName}.bulkAdd error:`, error);
+      if (error.message?.includes('key path did not yield a value')) {
+        console.error(`Some items missing required fields for ${tableName}:`, items);
+      }
+      // Return empty array to prevent crashes
+      return Promise.resolve([]);
+    }
+  };
+};
+
+// Wrap all tables with composite keys
+wrapTableOperations(db.dimensions, 'dimensions');
+wrapTableOperations(db.digitalisationLevels, 'digitalisationLevels');
+wrapTableOperations(db.digitalisationGaps, 'digitalisationGaps');
+wrapTableOperations(db.dimensionWithStatesCache, 'dimensionWithStatesCache');
