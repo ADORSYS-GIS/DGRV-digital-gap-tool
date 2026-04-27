@@ -22,7 +22,7 @@ use axum::{
 )]
 pub async fn add_member(
     State(state): State<AppState>,
-    Extension(token): Extension<String>,
+    Extension(_token): Extension<String>,
     Path(group_id): Path<String>,
     Json(payload): Json<AddMemberRequest>,
 ) -> AppResult<impl IntoResponse> {

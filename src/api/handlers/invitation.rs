@@ -5,7 +5,7 @@ use axum::{
     Json,
 };
 
-use crate::api::dto::invitation::{UserInvitationRequest, UserInvitationResponse, PendingInvitation};
+use crate::api::dto::invitation::{UserInvitationRequest, UserInvitationResponse};
 use crate::auth::claims::Claims;
 use crate::error::AppError;
 use crate::models::keycloak::CreateUserRequest;
@@ -59,7 +59,7 @@ pub async fn invite_user_to_organization(
         "Received user invitation request for organization {}",
         org_id
     );
-    let token = get_token_from_extensions(&token)?;
+    let _token = get_token_from_extensions(&token)?;
 
     if !claims.is_application_admin() {
         return Err(AppError::BadRequest("Insufficient permissions".to_string()));
@@ -124,6 +124,12 @@ pub async fn invite_user_to_organization(
             .assign_client_role_to_user(&admin_token, &user.id, "realm-management", role)
             .await?;
     }
+
+    // Store the invited org on the user so we can filter pending invitations per org
+    let _ = app_state
+        .keycloak_service
+        .set_user_attribute(&admin_token, &user.id, "invited_org", &org_id)
+        .await;
 
     // Create invitation
     match app_state

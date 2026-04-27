@@ -556,7 +556,7 @@ export const ConsolidatedReport: React.FC<ConsolidatedReportProps> = ({
                   <div>
                     <h4 className="font-semibold mb-3 text-base">{recTitle}</h4>
                     <ul className="space-y-2">
-                      {highestRiskDimension.top_recommendations.map(
+                      {(highestRiskDimension.top_recommendations ?? []).map(
                         (rec, index) => (
                           <li key={index} className="flex items-start gap-3">
                             <span className={`mt-1.5 h-1.5 w-1.5 rounded-full ${bulletColor} shrink-0`} />

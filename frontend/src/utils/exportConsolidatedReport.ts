@@ -253,7 +253,7 @@ export async function exportConsolidatedReportAsPDF(
     const accentColor = isHigh ? C.high : isMed ? C.medium : C.low;
     const bgColor = isHigh ? C.highBg : isMed ? C.mediumBg : C.lowBg;
 
-    const recLines = highest.top_recommendations.flatMap((r) =>
+    const recLines = (highest.top_recommendations ?? []).flatMap((r) =>
       doc.splitTextToSize(`• ${sanitize(r)}`, CW - 10) as string[],
     );
     const sectionH = 34 + recLines.length * 4.5;
