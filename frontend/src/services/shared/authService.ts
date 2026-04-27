@@ -68,21 +68,21 @@ export const authService = {
    */
   async getAccessToken(): Promise<string | null> {
     try {
-      if (!keycloak.token || !keycloak.tokenParsed?.exp) {
-        return null;
-      }
+      // If Keycloak has a valid token, use it
+      if (keycloak.token && keycloak.tokenParsed?.exp) {
+        const now = Math.floor(Date.now() / 1000);
+        const timeUntilExpiry = keycloak.tokenParsed.exp - now;
 
-      // Refresh token if needed (30 seconds before expiry)
-      const now = Math.floor(Date.now() / 1000);
-      const timeUntilExpiry = keycloak.tokenParsed.exp - now;
+        if (timeUntilExpiry > 30) {
+          return keycloak.token;
+        }
 
-      if (timeUntilExpiry <= 30) {
-        // Don't attempt refresh (and never clear tokens) when offline —
-        // the cached token is the best we have and IndexedDB reads still work.
+        // Token near expiry — skip refresh if offline
         if (!navigator.onLine) {
           console.warn("Offline — skipping token refresh, using cached token.");
           return keycloak.token;
         }
+
         try {
           const refreshed = await keycloak.updateToken(30);
           if (refreshed) {
@@ -90,17 +90,31 @@ export const authService = {
           }
         } catch (error) {
           console.error("Failed to refresh token:", error);
-          // Only clear tokens when we're actually online and the refresh failed
-          // (e.g. session revoked). Offline failures must not wipe the cache.
           if (navigator.onLine) {
             await this.clearStoredTokens();
             keycloak.clearToken();
             return null;
           }
+          // Offline — keep using the expired token
+          return keycloak.token;
         }
+
+        return keycloak.token;
       }
 
-      return keycloak.token;
+      // No Keycloak token — try to restore from IndexedDB cache
+      try {
+        const { get } = await import("idb-keyval");
+        const cachedTokens = await get("auth_tokens");
+        if (cachedTokens?.accessToken) {
+          console.warn("getAccessToken: Keycloak token missing, using cached token.");
+          return cachedTokens.accessToken as string;
+        }
+      } catch {
+        // ignore
+      }
+
+      return null;
     } catch (error) {
       console.error("Failed to get access token:", error);
       return null;

@@ -18,9 +18,9 @@ export const digitalisationGapRepository = {
       if (navigator.onLine) {
         const token = await authService.getAccessToken();
         if (!token) {
-          throw new Error("Missing access token");
-        }
-        // Fetch ALL pages from backend to avoid losing items beyond page 1
+          // No token available — skip backend sync, use local cache
+          console.warn("No access token available, skipping backend sync for gaps");
+        } else {
         const allBackendGaps: any[] = [];
         let currentPage = 1;
         let totalPages = 1;
@@ -110,6 +110,7 @@ export const digitalisationGapRepository = {
         console.log(
           `Digitalisation gaps fetched from backend (${allBackendGaps.length} total) and synced to IndexedDB.`,
         );
+        } // end else (token available)
       }
     } catch (error) {
       console.error(
