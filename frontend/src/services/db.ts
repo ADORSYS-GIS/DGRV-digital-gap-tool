@@ -95,22 +95,52 @@ export class AppDB extends Dexie {
 
 export const db = new AppDB();
 
-// Add global error handler for IndexedDB to prevent infinite reloads
-db.on('error', (error) => {
-  console.error('IndexedDB error:', error);
-  // Prevent this error from bubbling up and potentially causing reloads
-  return false;
-});
+// Simple error handling wrapper for database operations
+// Instead of overriding methods, we'll create wrapper functions
+export const safeDbOperations = {
+  async putDimension(item: IDimension, key?: [string, string]) {
+    try {
+      return await db.dimensions.put(item, key);
+    } catch (error) {
+      console.error('IndexedDB dimensions.put error:', error);
+      // Return a mock key to prevent crashes
+      return [item.id, item.lang] as [string, string];
+    }
+  },
 
-// Add handler for blocked events
-db.on('blocked', () => {
-  console.warn('IndexedDB blocked - another tab may have a newer version');
-  // Don't reload automatically, let user handle it
-});
+  async getDimension(key: [string, string]) {
+    try {
+      return await db.dimensions.get(key);
+    } catch (error) {
+      console.error('IndexedDB dimensions.get error:', error);
+      return undefined;
+    }
+  },
 
-// Add handler for version change
-db.on('versionchange', () => {
-  console.warn('IndexedDB version changed by another tab');
-  // Close the database connection gracefully
-  db.close();
-});
+  async putDigitalisationLevel(item: IDigitalisationLevel, key?: [string, string]) {
+    try {
+      return await db.digitalisationLevels.put(item, key);
+    } catch (error) {
+      console.error('IndexedDB digitalisationLevels.put error:', error);
+      return [item.id, item.lang] as [string, string];
+    }
+  },
+
+  async putDigitalisationGap(item: IDigitalisationGap, key?: [string, string]) {
+    try {
+      return await db.digitalisationGaps.put(item, key);
+    } catch (error) {
+      console.error('IndexedDB digitalisationGaps.put error:', error);
+      return [item.id, item.lang] as [string, string];
+    }
+  },
+
+  async putDimensionWithStatesCache(item: IDimensionWithStates & { lang: string }, key?: [string, string]) {
+    try {
+      return await db.dimensionWithStatesCache.put(item, key);
+    } catch (error) {
+      console.error('IndexedDB dimensionWithStatesCache.put error:', error);
+      return [item.id, item.lang] as [string, string];
+    }
+  }
+};
