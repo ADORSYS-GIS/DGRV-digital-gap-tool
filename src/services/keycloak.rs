@@ -588,24 +588,28 @@ impl KeycloakService {
     }
 
     /// Get pending invitations for an organization.
-    /// Uses Keycloak's organization-specific invitations endpoint so only
-    /// invitations for THIS org are returned.
+    /// Uses the official Keycloak API: GET /organizations/{org-id}/invitations
     pub async fn get_organization_invitations(
         &self,
         token: &str,
         org_id: &str,
     ) -> Result<Vec<crate::api::dto::invitation::PendingInvitation>> {
-        // Try Keycloak 26 organization invitations endpoint first
+        // Official Keycloak endpoint per docs:
+        // GET /admin/realms/{realm}/organizations/{org-id}/invitations
         let url = format!(
-            "{}/admin/realms/{}/organizations/{}/members/invitations",
+            "{}/admin/realms/{}/organizations/{}/invitations?max=200",
             self.config.keycloak.url, self.config.keycloak.realm, org_id
         );
 
-        let response = self.client.get(&url).bearer_auth(token).send().await?;
+        tracing::info!(url = %url, org_id = %org_id, "Fetching org invitations via official endpoint");
 
-        if response.status().is_success() {
-            #[derive(serde::Deserialize)]
-            struct KcInvitation {
+        let resp = self.client.get(&url).bearer_auth(token).send().await?;
+        let status = resp.status();
+        tracing::info!(status = %status, "Keycloak invitations response");
+
+        if resp.status().is_success() {
+            #[derive(serde::Deserialize, Debug)]
+            struct OrgInvitation {
                 id: Option<String>,
                 email: Option<String>,
                 #[serde(rename = "firstName")]
@@ -614,7 +618,9 @@ impl KeycloakService {
                 last_name: Option<String>,
             }
 
-            let raw: Vec<KcInvitation> = response.json().await.unwrap_or_default();
+            let raw: Vec<OrgInvitation> = resp.json().await.unwrap_or_default();
+            tracing::info!(count = raw.len(), "Invitations returned from Keycloak");
+
             let pending = raw
                 .into_iter()
                 .filter_map(|inv| {
@@ -627,41 +633,17 @@ impl KeycloakService {
                     })
                 })
                 .collect();
+
             return Ok(pending);
         }
 
-        // Fallback: use the unaccepted members endpoint (Keycloak 26 org feature)
-        // GET /organizations/{org_id}/members?unaccepted=true
-        let fallback_url = format!(
-            "{}/admin/realms/{}/organizations/{}/members?unaccepted=true&max=200",
-            self.config.keycloak.url, self.config.keycloak.realm, org_id
+        // Fallback: attribute-based lookup for users invited via our app
+        tracing::warn!(
+            org_id = %org_id,
+            status = %status,
+            "Official invitations endpoint failed, using attribute fallback"
         );
 
-        let fallback_response = self
-            .client
-            .get(&fallback_url)
-            .bearer_auth(token)
-            .send()
-            .await?;
-
-        if fallback_response.status().is_success() {
-            let users: Vec<KeycloakUser> = fallback_response.json().await.unwrap_or_default();
-            let pending = users
-                .into_iter()
-                .map(|u| crate::api::dto::invitation::PendingInvitation {
-                    id: u.id,
-                    email: u.email,
-                    first_name: u.first_name,
-                    last_name: u.last_name,
-                })
-                .collect();
-            return Ok(pending);
-        }
-
-        // Last resort fallback: get all org_admin users not yet in this org
-        // This is the old (incorrect) behaviour — kept as a safety net but
-        // filtered more strictly by checking if the user has a pending
-        // organization attribute matching this org_id.
         let members = self
             .get_organization_members(token, org_id)
             .await
@@ -669,49 +651,39 @@ impl KeycloakService {
         let member_ids: std::collections::HashSet<String> =
             members.iter().map(|m| m.id.clone()).collect();
 
-        let role_url = format!(
-            "{}/admin/realms/{}/roles/org_admin/users?max=200",
+        let search_url = format!(
+            "{}/admin/realms/{}/users?max=500&briefRepresentation=false",
             self.config.keycloak.url, self.config.keycloak.realm
         );
 
-        let role_response = self.client.get(&role_url).bearer_auth(token).send().await?;
-
-        if !role_response.status().is_success() {
-            return Ok(vec![]);
+        if let Ok(search_resp) = self.client.get(&search_url).bearer_auth(token).send().await {
+            if search_resp.status().is_success() {
+                let all_users: Vec<KeycloakUser> = search_resp.json().await.unwrap_or_default();
+                let pending: Vec<crate::api::dto::invitation::PendingInvitation> = all_users
+                    .into_iter()
+                    .filter(|u| {
+                        if member_ids.contains(&u.id) {
+                            return false;
+                        }
+                        if let Some(attrs) = &u.attributes {
+                            if let Some(arr) = attrs.get("invited_org").and_then(|v| v.as_array()) {
+                                return arr.iter().any(|v| v.as_str() == Some(org_id));
+                            }
+                        }
+                        false
+                    })
+                    .map(|u| crate::api::dto::invitation::PendingInvitation {
+                        id: u.id,
+                        email: u.email,
+                        first_name: u.first_name,
+                        last_name: u.last_name,
+                    })
+                    .collect();
+                return Ok(pending);
+            }
         }
 
-        let all_org_admin_users: Vec<KeycloakUser> =
-            role_response.json().await.unwrap_or_default();
-
-        // Only include users whose attributes indicate they were invited to THIS org
-        let pending: Vec<crate::api::dto::invitation::PendingInvitation> = all_org_admin_users
-            .into_iter()
-            .filter(|u| {
-                if member_ids.contains(&u.id) {
-                    return false;
-                }
-                // Check if user has an invited_org attribute matching this org
-                // Keycloak stores attributes as { "key": ["value1", "value2"] }
-                if let Some(attrs) = &u.attributes {
-                    if let Some(invited_orgs) = attrs.get("invited_org").and_then(|v| v.as_array()) {
-                        return invited_orgs.iter().any(|o| o.as_str() == Some(org_id));
-                    }
-                    // Also check legacy attribute name
-                    if let Some(invited_orgs) = attrs.get("organization_id").and_then(|v| v.as_array()) {
-                        return invited_orgs.iter().any(|o| o.as_str() == Some(org_id));
-                    }
-                }
-                false
-            })
-            .map(|u| crate::api::dto::invitation::PendingInvitation {
-                id: u.id,
-                email: u.email,
-                first_name: u.first_name,
-                last_name: u.last_name,
-            })
-            .collect();
-
-        Ok(pending)
+        Ok(vec![])
     }
 
     /// Create a new user with email verification required
