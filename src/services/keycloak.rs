@@ -686,6 +686,61 @@ impl KeycloakService {
         Ok(vec![])
     }
 
+    /// Delete a pending invitation by ID
+    /// DELETE /admin/realms/{realm}/organizations/{org-id}/invitations/{id}
+    pub async fn delete_organization_invitation(
+        &self,
+        token: &str,
+        org_id: &str,
+        invitation_id: &str,
+    ) -> Result<()> {
+        let url = format!(
+            "{}/admin/realms/{}/organizations/{}/invitations/{}",
+            self.config.keycloak.url, self.config.keycloak.realm, org_id, invitation_id
+        );
+
+        let resp = self.client.delete(&url).bearer_auth(token).send().await?;
+
+        match resp.status() {
+            s if s.is_success() || s.as_u16() == 204 => Ok(()),
+            s if s.as_u16() == 404 => {
+                tracing::warn!(invitation_id = %invitation_id, "Invitation not found, may already be deleted");
+                Ok(())
+            }
+            _ => {
+                let err = resp.text().await.unwrap_or_default();
+                Err(anyhow::anyhow!("Failed to delete invitation: {}", err))
+            }
+        }
+    }
+
+    /// Resend a pending invitation by ID
+    /// POST /admin/realms/{realm}/organizations/{org-id}/invitations/{id}/resend
+    pub async fn resend_organization_invitation(
+        &self,
+        token: &str,
+        org_id: &str,
+        invitation_id: &str,
+    ) -> Result<()> {
+        let url = format!(
+            "{}/admin/realms/{}/organizations/{}/invitations/{}/resend",
+            self.config.keycloak.url, self.config.keycloak.realm, org_id, invitation_id
+        );
+
+        let resp = self.client.post(&url).bearer_auth(token).send().await?;
+
+        match resp.status() {
+            s if s.is_success() || s.as_u16() == 204 => Ok(()),
+            s if s.as_u16() == 404 => {
+                Err(anyhow::anyhow!("Invitation not found"))
+            }
+            _ => {
+                let err = resp.text().await.unwrap_or_default();
+                Err(anyhow::anyhow!("Failed to resend invitation: {}", err))
+            }
+        }
+    }
+
     /// Create a new user with email verification required
     pub async fn create_user_with_email_verification(
         &self,

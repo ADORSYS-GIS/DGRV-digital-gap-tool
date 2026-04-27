@@ -833,6 +833,33 @@
             }
         },
         "/admin/organizations/{org_id}/invitations": {
+            "get": {
+                "tags": ["Organization"],
+                "summary": "Get pending invitations for an organization",
+                "operationId": "get_organization_invitations",
+                "parameters": [
+                    {
+                        "name": "org_id",
+                        "in": "path",
+                        "description": "Organization ID",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": { "$ref": "#/components/schemas/PendingInvitation" }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
             "post": {
                 "tags": [
                     "Organization"
@@ -871,6 +898,60 @@
                             }
                         }
                     }
+                }
+            }
+        },
+        "/admin/organizations/{org_id}/invitations/{invitation_id}": {
+            "delete": {
+                "tags": ["Organization"],
+                "summary": "Delete a pending invitation",
+                "operationId": "delete_organization_invitation",
+                "parameters": [
+                    {
+                        "name": "org_id",
+                        "in": "path",
+                        "description": "Organization ID",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "invitation_id",
+                        "in": "path",
+                        "description": "Invitation ID",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    }
+                ],
+                "responses": {
+                    "204": { "description": "No Content" },
+                    "404": { "description": "Not Found" }
+                }
+            }
+        },
+        "/admin/organizations/{org_id}/invitations/{invitation_id}/resend": {
+            "post": {
+                "tags": ["Organization"],
+                "summary": "Resend a pending invitation",
+                "operationId": "resend_organization_invitation",
+                "parameters": [
+                    {
+                        "name": "org_id",
+                        "in": "path",
+                        "description": "Organization ID",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "invitation_id",
+                        "in": "path",
+                        "description": "Invitation ID",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    }
+                ],
+                "responses": {
+                    "204": { "description": "No Content" },
+                    "404": { "description": "Not Found" }
                 }
             }
         },
@@ -7272,12 +7353,17 @@
                     }
                 }
             },
-            "UserInvitationRequest": {
+            "PendingInvitation": {
                 "type": "object",
-                "required": [
-                    "email",
-                    "roles"
-                ],
+                "required": ["id", "email"],
+                "properties": {
+                    "id": { "type": "string" },
+                    "email": { "type": "string" },
+                    "first_name": { "type": "string", "nullable": true },
+                    "last_name": { "type": "string", "nullable": true }
+                }
+            },
+            "UserInvitationRequest": {
                 "properties": {
                     "email": {
                         "type": "string"

@@ -11,7 +11,6 @@ use crate::error::AppError;
 use crate::models::keycloak::CreateUserRequest;
 use crate::AppState;
 
-// Helper function to extract token from request extensions
 fn get_token_from_extensions(token: &str) -> Result<String, AppError> {
     Ok(token.to_string())
 }
@@ -36,6 +35,42 @@ pub async fn get_organization_invitations(
         .await
         .unwrap_or_default();
     Ok((StatusCode::OK, Json(invitations)))
+}
+
+/// Delete a pending invitation
+pub async fn delete_organization_invitation(
+    Extension(claims): Extension<Claims>,
+    State(app_state): State<AppState>,
+    Path((org_id, invitation_id)): Path<(String, String)>,
+) -> Result<impl IntoResponse, AppError> {
+    if !claims.is_application_admin() {
+        return Err(AppError::BadRequest("Insufficient permissions".to_string()));
+    }
+    let admin_token = app_state.keycloak_service.get_admin_token().await?;
+    app_state
+        .keycloak_service
+        .delete_organization_invitation(&admin_token, &org_id, &invitation_id)
+        .await
+        .map_err(|e| AppError::InternalServerError(e.to_string()))?;
+    Ok(StatusCode::NO_CONTENT)
+}
+
+/// Resend a pending invitation
+pub async fn resend_organization_invitation(
+    Extension(claims): Extension<Claims>,
+    State(app_state): State<AppState>,
+    Path((org_id, invitation_id)): Path<(String, String)>,
+) -> Result<impl IntoResponse, AppError> {
+    if !claims.is_application_admin() {
+        return Err(AppError::BadRequest("Insufficient permissions".to_string()));
+    }
+    let admin_token = app_state.keycloak_service.get_admin_token().await?;
+    app_state
+        .keycloak_service
+        .resend_organization_invitation(&admin_token, &org_id, &invitation_id)
+        .await
+        .map_err(|e| AppError::InternalServerError(e.to_string()))?;
+    Ok(StatusCode::NO_CONTENT)
 }
 
 /// Invite a user to an organization
