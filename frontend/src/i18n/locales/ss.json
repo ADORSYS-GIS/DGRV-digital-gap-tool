@@ -26,7 +26,8 @@
     "syncStart": "Ubuyele ku-inthanethi – kuhlanganiswa imininingwane legciniwe…",
     "syncDone": "Yonkhe imininingwane ihlanganiswe ngempumelelo.",
     "offlineNotice": "Uphumile ku-inthanethi. Umsebenti wakho utawugcinwa khona lapha futsi uhlanganiswe nawubuyela ku-inthanethi.",
-    "gapAnalysisPending": "Umphatsi akakakapheli kuhlela lesistimu. Sicela ulinde nobe utintsintse umphatsi."
+    "gapAnalysisPending": "Umphatsi akakakapheli kuhlela lesistimu. Sicela ulinde nobe utintsintse umphatsi.",
+    "gapAnalysisOffline": "Ucwaningo lwakho lwezikhala luyatfolakala nawubuyela ku-inthanethi. Tiphendvulo takho titigcinile futsi tiyawuhlanganiswa ngekuzenzela."
   },
   "adminDimensions": {
     "title": "Tinchubekela",

@@ -26,7 +26,8 @@
     "syncStart": "Back online – synchronizing saved data…",
     "syncDone": "All data has been synchronized successfully.",
     "offlineNotice": "You are offline. Your work will be saved locally and synced when you reconnect.",
-    "gapAnalysisPending": "The administrator has not yet completed the system configuration. Please wait or contact the administrator."
+    "gapAnalysisPending": "The administrator has not yet completed the system configuration. Please wait or contact the administrator.",
+    "gapAnalysisOffline": "Your gap analysis will be available once you're back online. Your answers have been saved and will sync automatically."
   },
   "adminDimensions": {
     "title": "Dimensions",

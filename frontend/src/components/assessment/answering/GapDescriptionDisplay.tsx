@@ -31,13 +31,18 @@ export const GapDescriptionDisplay: React.FC<GapDescriptionDisplayProps> = ({
 
   const renderGapContent = () => {
     if (!gapId || gapId === "missing-id") {
+      const isOffline = !navigator.onLine;
       return (
-        <div className="flex flex-col items-center justify-center p-4 text-amber-600 bg-amber-50 rounded-md border border-amber-200">
+        <div className={`flex flex-col items-center justify-center p-4 rounded-md border ${
+          isOffline
+            ? "text-blue-600 bg-blue-50 border-blue-200"
+            : "text-amber-600 bg-amber-50 border-amber-200"
+        }`}>
           <AlertCircle className="h-6 w-6 mb-2" />
           <p className="text-sm font-medium text-center">
-            {t("offline.gapAnalysisPending", {
-              defaultValue: "The administrator has not finished configuring the system. Please be patient or contact the administrator."
-            })}
+            {isOffline
+              ? t("offline.gapAnalysisOffline")
+              : t("offline.gapAnalysisPending")}
           </p>
         </div>
       );

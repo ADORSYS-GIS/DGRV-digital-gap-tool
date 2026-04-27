@@ -26,7 +26,8 @@
     "syncStart": "De volta online – a sincronizar os dados guardados…",
     "syncDone": "Todos os dados foram sincronizados com sucesso.",
     "offlineNotice": "Está offline. O seu trabalho será guardado localmente e sincronizado quando voltar a estar online.",
-    "gapAnalysisPending": "O administrador ainda não terminou a configuração do sistema. Por favor, aguarde ou contacte o administrador."
+    "gapAnalysisPending": "O administrador ainda não terminou a configuração do sistema. Por favor, aguarde ou contacte o administrador.",
+    "gapAnalysisOffline": "A sua análise de lacunas estará disponível quando voltar a estar online. As suas respostas foram guardadas e serão sincronizadas automaticamente."
   },
   "adminDimensions": {
     "title": "Dimensões",
