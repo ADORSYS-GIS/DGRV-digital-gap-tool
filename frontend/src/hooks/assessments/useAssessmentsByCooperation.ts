@@ -24,6 +24,7 @@ export const useAssessmentsByCooperation = (
 
   return useQuery<Assessment[]>({
     queryKey,
+    networkMode: "always",
     queryFn: async () => {
       const fetcher = async () => {
         const response = await listAssessmentsByCooperation({ cooperationId });

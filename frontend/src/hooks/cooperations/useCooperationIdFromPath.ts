@@ -14,12 +14,18 @@ import { useAuth } from "@/hooks/useAuth";
  */
 export const useCooperationIdFromPath = () => {
   const { user } = useAuth();
-  // Stable key: use user.sub (string) not the whole user object
   const userSub = user?.sub ?? null;
+  
   const cooperationPath = useMemo(
-    () => authService.getCooperationPath(),
+    () => {
+      // Try live token first
+      const livePath = authService.getCooperationPath();
+      if (livePath) return livePath;
+      // Fall back to user profile from AuthContext (populated from cache offline)
+      return (user as any)?.cooperation_path ?? null;
+    },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [userSub],
+    [userSub, user],
   );
 
   const query = useQuery({

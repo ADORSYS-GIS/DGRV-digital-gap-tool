@@ -12,6 +12,14 @@ export const queryClient = new QueryClient({
       refetchOnWindowFocus: false,
       // Do refetch when the network comes back online
       refetchOnReconnect: true,
+      // CRITICAL: always run queries regardless of network status
+      // Without this, React Query pauses all queries when offline
+      // and pages show empty instead of falling back to IndexedDB cache
+      networkMode: "always",
+    },
+    mutations: {
+      // Also run mutations offline — they queue to IndexedDB sync
+      networkMode: "always",
     },
   },
 });

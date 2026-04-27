@@ -25,6 +25,7 @@ export const useAssessmentsByOrganization = (
 
   return useQuery<Assessment[]>({
     queryKey,
+    networkMode: "always",
     queryFn: async () => {
       const fetcher = async () => {
         const response = await listAssessmentsByOrganization({
