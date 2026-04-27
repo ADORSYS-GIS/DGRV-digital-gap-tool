@@ -219,9 +219,15 @@ export function ConsolidatedReportPage() {
         },
       };
 
-      const highest = report.dimension_summaries.reduce((a, b) =>
-        a.average_risk_level > b.average_risk_level ? a : b,
-      );
+      const highest = report.dimension_summaries.reduce((a, b) => {
+        if (a.average_risk_level !== b.average_risk_level) {
+          return a.average_risk_level > b.average_risk_level ? a : b;
+        }
+        return a.risk_level_distribution.high_risk_percentage >=
+          b.risk_level_distribution.high_risk_percentage
+          ? a
+          : b;
+      });
       if (highest.average_risk_level > 2.5) {
         translations.attention.title = t("consolidatedReport.focus.high.title");
         translations.attention.recommendations = t(
@@ -268,9 +274,15 @@ export function ConsolidatedReportPage() {
     ) {
       return null;
     }
-    return report.dimension_summaries.reduce((max, summary) =>
-      summary.average_risk_level > max.average_risk_level ? summary : max,
-    );
+    return report.dimension_summaries.reduce((max, summary) => {
+      if (summary.average_risk_level !== max.average_risk_level) {
+        return summary.average_risk_level > max.average_risk_level ? summary : max;
+      }
+      return summary.risk_level_distribution.high_risk_percentage >
+        max.risk_level_distribution.high_risk_percentage
+        ? summary
+        : max;
+    });
   }, [report]);
 
   const chartData = useMemo(() => {

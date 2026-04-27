@@ -170,9 +170,25 @@ export const submissionRepository = {
           (s): s is AssessmentSummary => s !== null,
         );
 
-        for (const submission of validSubmissions) {
-          await db.submissions.put(submission);
-        }
+        // Sync to IndexedDB: upsert fresh data and delete stale entries
+        const backendIds = new Set(validSubmissions.map((s) => s.id));
+        const localSubmissions = await db.submissions
+          .where("assessment.organization_id")
+          .equals(organizationId)
+          .toArray();
+        const staleIds = localSubmissions
+          .filter((s) => !backendIds.has(s.id))
+          .map((s) => s.id);
+
+        await db.transaction("rw", db.submissions, async () => {
+          for (const submission of validSubmissions) {
+            await db.submissions.put(submission);
+          }
+          if (staleIds.length > 0) {
+            await db.submissions.bulkDelete(staleIds);
+          }
+        });
+
         return validSubmissions;
       }
     } catch (error) {
@@ -240,9 +256,24 @@ export const submissionRepository = {
             (s): s is AssessmentSummary => s !== null,
           );
 
-          for (const submission of validSubmissions) {
-            await db.submissions.put(submission);
-          }
+          // Sync to IndexedDB: upsert fresh data and delete stale entries
+          const backendIds = new Set(validSubmissions.map((s) => s.id));
+          const localSubmissions = await db.submissions
+            .filter((s: AssessmentSummary) => s.assessment.cooperation_id === cooperationId)
+            .toArray();
+          const staleIds = localSubmissions
+            .filter((s) => !backendIds.has(s.id))
+            .map((s) => s.id);
+
+          await db.transaction("rw", db.submissions, async () => {
+            for (const submission of validSubmissions) {
+              await db.submissions.put(submission);
+            }
+            if (staleIds.length > 0) {
+              await db.submissions.bulkDelete(staleIds);
+            }
+          });
+
           return validSubmissions;
         }
       } catch (apiError) {

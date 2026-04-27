@@ -954,7 +954,7 @@
       "description": "View the details and recommendations of the assessment.",
       "empty": "Empty",
       "noSubmissions": "No Submissions",
-      "submissionCount": "Submission Count",
+      "submissionCount": "{{count}} submission(s)",
       "title": "Assessment"
     }
   },

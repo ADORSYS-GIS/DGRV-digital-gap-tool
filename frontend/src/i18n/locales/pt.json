@@ -954,7 +954,7 @@
       "description": "Consulte os detalhes e as recomendações da avaliação.",
       "empty": "Vazio",
       "noSubmissions": "Sem submissões",
-      "submissionCount": "Contagem de submissões",
+      "submissionCount": "{{count}} submissão(ões)",
       "title": "Avaliação"
     }
   },

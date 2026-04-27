@@ -247,9 +247,16 @@ export const ConsolidatedReport: React.FC<ConsolidatedReportProps> = ({
     ) {
       return null;
     }
-    return report.dimension_summaries.reduce((max, summary) =>
-      summary.average_risk_level > max.average_risk_level ? summary : max,
-    );
+    return report.dimension_summaries.reduce((max, summary) => {
+      if (summary.average_risk_level !== max.average_risk_level) {
+        return summary.average_risk_level > max.average_risk_level ? summary : max;
+      }
+      // Tie-break: prefer higher high_risk_percentage
+      return summary.risk_level_distribution.high_risk_percentage >
+        max.risk_level_distribution.high_risk_percentage
+        ? summary
+        : max;
+    });
   }, [report]);
 
   const chartData = useMemo(() => {

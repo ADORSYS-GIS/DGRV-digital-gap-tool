@@ -238,9 +238,16 @@ export async function exportConsolidatedReportAsPDF(
 
   // ── Dimension Needing Attention ──────────────────────────────────────────
   if (report.dimension_summaries.length > 0) {
-    const highest = report.dimension_summaries.reduce((a, b) =>
-      a.average_risk_level > b.average_risk_level ? a : b,
-    );
+    const highest = report.dimension_summaries.reduce((a, b) => {
+      if (a.average_risk_level !== b.average_risk_level) {
+        return a.average_risk_level > b.average_risk_level ? a : b;
+      }
+      // Tie-break: prefer higher high_risk_percentage
+      return a.risk_level_distribution.high_risk_percentage >=
+        b.risk_level_distribution.high_risk_percentage
+        ? a
+        : b;
+    });
     const isHigh = highest.average_risk_level > 2.5;
     const isMed = highest.average_risk_level >= 1.5;
     const accentColor = isHigh ? C.high : isMed ? C.medium : C.low;

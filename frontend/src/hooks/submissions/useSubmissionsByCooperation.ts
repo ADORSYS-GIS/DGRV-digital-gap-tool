@@ -8,6 +8,7 @@ export const useSubmissionsByCooperation = (
 ) => {
   return useQuery<AssessmentSummary[]>({
     queryKey: ["submissions", "cooperation", cooperationId],
+    networkMode: "always",
     queryFn: async () => {
       if (!cooperationId) return [];
       return await submissionRepository.listByCooperation(cooperationId);
