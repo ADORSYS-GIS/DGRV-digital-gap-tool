@@ -47,14 +47,24 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 }) => {
   const { isAuthenticated, user, loading } = useAuth();
   const location = useLocation();
-  // Track whether we have cached tokens in IndexedDB (for offline use)
   const [hasCachedTokens, setHasCachedTokens] = React.useState<boolean | null>(null);
+  // After a timeout, stop waiting for Keycloak and trust the cache
+  const [offlineTimeout, setOfflineTimeout] = React.useState(false);
 
   React.useEffect(() => {
     get("auth_tokens").then((tokens: any) => {
       setHasCachedTokens(!!(tokens?.accessToken));
     }).catch(() => setHasCachedTokens(false));
   }, []);
+
+  // If we have cached tokens but auth hasn't resolved after 3s, assume offline and proceed
+  React.useEffect(() => {
+    if (hasCachedTokens && !isAuthenticated) {
+      const timer = setTimeout(() => setOfflineTimeout(true), 3000);
+      return () => clearTimeout(timer);
+    }
+    return undefined;
+  }, [hasCachedTokens, isAuthenticated]);
 
   const userRoles = React.useMemo(() => {
     if (!user) return [];
@@ -68,23 +78,24 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return allowedRoles.some((role) => userRoles.includes(role.toLowerCase()));
   }, [userRoles, allowedRoles]);
 
-  // Still resolving auth state or checking cached tokens — show spinner, never redirect
-  if (loading || hasCachedTokens === null) {
+  // Still resolving — show spinner, but not forever
+  if ((loading || hasCachedTokens === null) && !offlineTimeout) {
     return <LoadingSpinner />;
   }
 
-  // Not authenticated AND no cached tokens → only then redirect to home
-  // If we have cached tokens but isAuthenticated is still false (e.g. Keycloak
-  // server unreachable), we wait — main.tsx will resolve this via the offline
-  // fallback path and call onReady(true), which updates AuthContext.
+  // Not authenticated AND no cached tokens → redirect to home
   if (!isAuthenticated && !hasCachedTokens) {
     return <Navigate to="/" replace state={{ from: location }} />;
   }
 
-  // Have cached tokens but auth hasn't resolved yet (offline Keycloak init in progress)
-  if (!isAuthenticated && hasCachedTokens) {
+  // Have cached tokens but Keycloak hasn't resolved — waiting (with timeout fallback)
+  if (!isAuthenticated && hasCachedTokens && !offlineTimeout) {
     return <LoadingSpinner />;
   }
+
+  // offlineTimeout hit OR isAuthenticated — proceed with whatever user we have
+  // For offline timeout case, try to get user from cached profile
+  const effectiveUser = user;
 
   const isAdmin = userRoles.includes(ROLES.ADMIN.toLowerCase());
 
@@ -102,14 +113,15 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   );
   
   if (isOrgAdminRoute && userRoles.includes(ROLES.ORG_ADMIN.toLowerCase())) {
-    // Simply check if user has organization in their profile
-    // The AuthContext should have populated this from the token
-    if (!user?.organization) {
+    if (!effectiveUser?.organization) {
       console.log("ProtectedRoute: No organization found for org_admin user", {
-        user: user,
+        user: effectiveUser,
         isOffline: !navigator.onLine
       });
-      return <NoOrganizationMessage />;
+      // Don't block offline users — they may have org in cached token
+      if (navigator.onLine) {
+        return <NoOrganizationMessage />;
+      }
     }
   }
 

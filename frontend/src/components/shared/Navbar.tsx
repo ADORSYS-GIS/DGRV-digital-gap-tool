@@ -92,20 +92,18 @@ export const Navbar = () => {
       )}
       <nav className={`fixed ${isOffline ? "top-8" : "top-0"} left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200/50 shadow-sm transition-all duration-300`}>
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+          <div className="flex justify-between items-center h-20">
             {/* Logo */}
             <div className="flex items-center gap-6">
               <div
                 className="flex items-center gap-3 cursor-pointer group"
                 onClick={() => navigate(getHomeRoute())}
               >
-                <div className="w-40 h-16 relative flex items-center justify-start">
-                  <img
-                    src="/coopdigigap-removebg-preview.png"
-                    alt="DGAT Logo"
-                    className="h-full object-contain"
-                  />
-                </div>
+                <img
+                  src="/coopdigigap-removebg-preview.png"
+                  alt="DGAT Logo"
+                  className="h-16 w-auto object-contain"
+                />
               </div>
 
               {/* Desktop Home Button */}
