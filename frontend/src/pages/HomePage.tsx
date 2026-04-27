@@ -130,7 +130,7 @@ export const HomePage: React.FC = () => {
       <header className="absolute top-0 left-0 right-0 z-10 p-4">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <div className="flex items-center gap-2">
-            <img src="/dgrv.jpg" alt="DGRV Logo" className="h-10 w-auto" />
+            <img src="/coopdigigap-removebg-preview.png" alt="DGAT Logo" className="h-10 w-auto" />
             <span className="text-xl font-semibold text-gray-700">{t('home.header.logoText')}</span>
           </div>
           <div className="flex items-center gap-4">
@@ -174,9 +174,9 @@ export const HomePage: React.FC = () => {
             </div>
             <div className="hidden lg:block">
               <img
-                src="/dgat.jpg"
-                alt="Digital Transformation"
-                className="rounded-lg w-full h-auto object-cover"
+                src="/coopdigigap-removebg-preview.png"
+                alt="DGAT – Digital Gap Analysis Tool"
+                className="rounded-lg w-full h-auto object-contain max-h-96"
               />
             </div>
           </div>

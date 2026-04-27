@@ -101,8 +101,8 @@ export const Navbar = () => {
               >
                 <div className="w-28 h-12 relative flex items-center justify-start">
                   <img
-                    src="/dgrv.jpg"
-                    alt="DGRV Logo"
+                    src="/coopdigigap-removebg-preview.png"
+                    alt="DGAT Logo"
                     className="h-full object-contain"
                   />
                 </div>
@@ -211,14 +211,14 @@ export const Navbar = () => {
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 flex items-center justify-center">
                 <img
-                  src="/dgrv.jpg"
-                  alt="DGRV Logo"
+                  src="/coopdigigap-removebg-preview.png"
+                  alt="DGAT Logo"
                   className="w-full h-full object-contain"
                 />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-dgrv-blue">DGRV</h2>
-                <p className="text-xs text-gray-600">DGAT</p>
+                <h2 className="text-xl font-bold text-dgrv-blue">DGAT</h2>
+                <p className="text-xs text-gray-600">Digital Gap Analysis Tool</p>
               </div>
             </div>
             <Button
