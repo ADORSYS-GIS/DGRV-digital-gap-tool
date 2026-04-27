@@ -21,8 +21,14 @@ pub struct UserInvitationResponse {
 pub struct PendingInvitation {
     pub id: String,
     pub email: String,
-    #[serde(rename = "firstName")]
+    #[serde(rename = "firstName", skip_serializing_if = "Option::is_none")]
     pub first_name: Option<String>,
-    #[serde(rename = "lastName")]
+    #[serde(rename = "lastName", skip_serializing_if = "Option::is_none")]
     pub last_name: Option<String>,
+    #[serde(rename = "sentDate", skip_serializing_if = "Option::is_none")]
+    pub sent_date: Option<i64>,
+    #[serde(rename = "expiresAt", skip_serializing_if = "Option::is_none")]
+    pub expires_at: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub status: Option<String>,
 }

@@ -111,8 +111,8 @@ export default function OrganizationUsers() {
                 {invitations.map((inv) => (
                   <tr key={inv.id} className="border-b border-amber-100 last:border-0">
                     <td className="px-4 py-3 text-gray-800">{inv.email}</td>
-                    <td className="px-4 py-3 text-gray-600">{inv.first_name ?? "—"}</td>
-                    <td className="px-4 py-3 text-gray-600">{inv.last_name ?? "—"}</td>
+                    <td className="px-4 py-3 text-gray-600">{inv.firstName ?? "—"}</td>
+                    <td className="px-4 py-3 text-gray-600">{inv.lastName ?? "—"}</td>
                     <td className="px-4 py-3">
                       <Badge className="bg-amber-100 text-amber-700 border border-amber-300">
                         Pending

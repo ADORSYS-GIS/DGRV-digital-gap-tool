@@ -7359,8 +7359,11 @@
                 "properties": {
                     "id": { "type": "string" },
                     "email": { "type": "string" },
-                    "first_name": { "type": "string", "nullable": true },
-                    "last_name": { "type": "string", "nullable": true }
+                    "firstName": { "type": "string", "nullable": true },
+                    "lastName": { "type": "string", "nullable": true },
+                    "sentDate": { "type": "integer", "format": "int64", "nullable": true },
+                    "expiresAt": { "type": "integer", "format": "int64", "nullable": true },
+                    "status": { "type": "string", "nullable": true }
                 }
             },
             "UserInvitationRequest": {
