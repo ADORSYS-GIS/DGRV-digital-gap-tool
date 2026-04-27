@@ -30,8 +30,8 @@ export default defineConfig(({ mode }) => ({
     react(),
     tsconfigPaths(),
     VitePWA({
-      registerType: "autoUpdate",
-      injectRegister: "auto",
+      registerType: "prompt",
+      injectRegister: null, // We register manually in main.tsx
       manifest: {
         name: "DGAT – Digital Gap Analysis Tool",
         short_name: "DGAT",
@@ -68,7 +68,7 @@ export default defineConfig(({ mode }) => ({
         runtimeCaching: [
           {
             // Cache backend API responses so they're readable offline
-            urlPattern: /^https:\/\/app\.decidel\.app\/backend\/.*/i,
+            urlPattern: /^https:\/\/gat\.dgrvcoop360\.com\/api\/.*/i,
             handler: "NetworkFirst",
             options: {
               cacheName: "api-cache",
@@ -84,7 +84,7 @@ export default defineConfig(({ mode }) => ({
           },
           {
             // Cache Keycloak's OIDC discovery/config endpoint
-            urlPattern: /^https:\/\/app\.decidel\.app\/keycloak\/.*(openid-configuration|certs).*/i,
+            urlPattern: /^https:\/\/gat\.dgrvcoop360\.com\/keycloak\/.*(openid-configuration|certs).*/i,
             handler: "StaleWhileRevalidate",
             options: {
               cacheName: "keycloak-config-cache",
@@ -100,7 +100,7 @@ export default defineConfig(({ mode }) => ({
         ],
       },
       devOptions: {
-        enabled: true,
+        enabled: false,
       },
     }),
     mode === "development" && componentTagger(),

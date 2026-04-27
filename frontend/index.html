@@ -16,12 +16,12 @@
     <script>
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.getRegistrations().then(function(registrations) {
-          var active = registrations.filter(function(r) { return r.active; });
-          var waiting = registrations.filter(function(r) { return r.waiting && !r.active; });
-          waiting.forEach(function(r) { r.unregister(); });
-          if (active.length > 1) {
-            active.slice(0, active.length - 1).forEach(function(r) { r.unregister(); });
-          }
+          // Only unregister SWs that are stuck in 'redundant' state
+          registrations.forEach(function(r) {
+            if (r.active === null && r.installing === null && r.waiting === null) {
+              r.unregister();
+            }
+          });
         });
       }
     </script>

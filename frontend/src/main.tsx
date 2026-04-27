@@ -1,189 +1,45 @@
 import { createRoot } from "react-dom/client";
-import { registerSW } from "virtual:pwa-register";
-
-// Global circuit breaker to prevent infinite reloads
-const RELOAD_COUNTER_KEY = "__reload_counter__";
-const MAX_RELOADS = 2; // Reduced from 3 to 2
-const RELOAD_WINDOW = 60000; // Increased to 60 seconds
-const EMERGENCY_STOP_KEY = "__emergency_stop__";
-
-// Check if we're in emergency stop mode
-if (sessionStorage.getItem(EMERGENCY_STOP_KEY)) {
-  console.error("Emergency stop activated - all reloads disabled");
-  // Override all reload functions
-  window.location.reload = () => {
-    console.error("Reload blocked by emergency stop");
-  };
-}
-
-const checkReloadLimit = () => {
-  const now = Date.now();
-  const reloadData = sessionStorage.getItem(RELOAD_COUNTER_KEY);
-  
-  if (reloadData) {
-    const { count, timestamp } = JSON.parse(reloadData);
-    
-    // Reset counter if window has passed
-    if (now - timestamp > RELOAD_WINDOW) {
-      sessionStorage.setItem(RELOAD_COUNTER_KEY, JSON.stringify({ count: 1, timestamp: now }));
-      return true;
-    }
-    
-    // Check if we've exceeded the limit
-    if (count >= MAX_RELOADS) {
-      console.error("Reload limit exceeded, activating emergency stop");
-      sessionStorage.setItem(EMERGENCY_STOP_KEY, "1");
-      // Show user notification
-      if (document.body) {
-        const banner = document.createElement('div');
-        banner.style.cssText = `
-          position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
-          background: #dc2626; color: white; padding: 10px; text-align: center;
-          font-family: system-ui; font-size: 14px;
-        `;
-        banner.innerHTML = 'Infinite reload detected and stopped. Please manually refresh if needed.';
-        document.body.appendChild(banner);
-      }
-      return false;
-    }
-    
-    // Increment counter
-    sessionStorage.setItem(RELOAD_COUNTER_KEY, JSON.stringify({ count: count + 1, timestamp }));
-    return true;
-  } else {
-    // First reload
-    sessionStorage.setItem(RELOAD_COUNTER_KEY, JSON.stringify({ count: 1, timestamp: now }));
-    return true;
-  }
-};
-
-const safeReload = (reason: string) => {
-  if (sessionStorage.getItem(EMERGENCY_STOP_KEY)) {
-    console.error(`Reload blocked by emergency stop: ${reason}`);
-    return;
-  }
-  
-  if (checkReloadLimit()) {
-    console.log(`Safe reload triggered: ${reason}`);
-    window.location.reload();
-  } else {
-    console.error(`Reload blocked to prevent infinite loop: ${reason}`);
-  }
-};
 
 // Add global error handlers to prevent unhandled errors from causing reloads
 window.addEventListener('error', (event) => {
   console.error('Global error caught:', event.error);
-  // Prevent default behavior that might cause reloads
   event.preventDefault();
-  return false;
 });
 
 window.addEventListener('unhandledrejection', (event) => {
-  console.error('Unhandled promise rejection:', event.reason);
-  // Prevent default behavior that might cause reloads
-  event.preventDefault();
-  return false;
-});
-
-// TEMPORARILY DISABLE SERVICE WORKER VERSION CHECK
-// On first load after a new deploy, unregister all old service workers so the
-// new one can install cleanly. We track this with a version key in localStorage.
-/*
-const SW_VERSION_KEY = "sw_version";
-const CURRENT_SW_VERSION = "v6"; // bump this with each deploy that changes the SW
-const SW_RELOAD_KEY = "__sw_reload_attempted__";
-
-if (localStorage.getItem(SW_VERSION_KEY) !== CURRENT_SW_VERSION && !sessionStorage.getItem(SW_RELOAD_KEY)) {
-  if ("serviceWorker" in navigator) {
-    sessionStorage.setItem(SW_RELOAD_KEY, "1");
-    navigator.serviceWorker.getRegistrations().then((registrations) => {
-      registrations.forEach((r) => r.unregister());
-      // Clear all SW caches so the new SW starts fresh
-      caches.keys().then((keys) => keys.forEach((k) => caches.delete(k)));
-    }).then(() => {
-      localStorage.setItem(SW_VERSION_KEY, CURRENT_SW_VERSION);
-      // Only reload if we're online to avoid infinite loops when offline
-      if (navigator.onLine) {
-        safeReload("Service worker version update");
-      }
-    });
+  // Only suppress non-critical errors
+  const reason = event.reason;
+  if (reason?.name === 'DataError' || reason?.message?.includes('IDBObjectStore') || reason?.name === 'DatabaseError') {
+    event.preventDefault();
   } else {
-    localStorage.setItem(SW_VERSION_KEY, CURRENT_SW_VERSION);
-  }
-}
-*/
-
-console.log("Service Worker version check disabled");
-
-// TEMPORARILY DISABLE SERVICE WORKER TO FIX INFINITE RELOAD
-// Register Service Worker for PWA support - DISABLED
-/*
-registerSW({
-  immediate: true,
-  onNeedRefresh() {
-    // New SW waiting — only reload if online to avoid infinite loops
-    if (navigator.onLine) {
-      console.log("PWA: New service worker available, reloading...");
-      safeReload("PWA service worker update");
-    } else {
-      console.log("PWA: New service worker available but offline, skipping reload");
-    }
-  },
-  onOfflineReady() {
-    console.log("PWA: App ready to work offline.");
-  },
-  onRegistered(r) {
-    console.log("PWA: Service Worker registered:", r);
-  },
-  onRegisterError(error) {
-    console.error("PWA: Service Worker registration failed:", error);
+    console.error('Unhandled promise rejection:', reason);
   }
 });
-*/
-
-console.log("Service Worker registration disabled to prevent infinite reloads");
-
-// Clean up any existing service workers that might be causing the infinite reload
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.getRegistrations().then((registrations) => {
-    console.log(`Found ${registrations.length} service worker registrations, unregistering all...`);
-    registrations.forEach((registration) => {
-      registration.unregister().then((success) => {
-        if (success) {
-          console.log("Service worker unregistered successfully");
-        }
-      });
-    });
-  });
-  
-  // Clear all caches
-  caches.keys().then((cacheNames) => {
-    console.log(`Found ${cacheNames.length} caches, clearing all...`);
-    return Promise.all(
-      cacheNames.map((cacheName) => {
-        return caches.delete(cacheName);
-      })
-    );
-  }).then(() => {
-    console.log("All caches cleared");
-  });
-}
 
 // Handle Vite chunk load failures after new deployments.
-// When a new build is deployed, old chunk hash URLs no longer exist on the
-// server. Vite fires "vite:preloadError" when a dynamic import 404s.
-// We reload once to pick up the new index.html and fresh chunks.
 window.addEventListener("vite:preloadError", () => {
   const RELOAD_KEY = "__vite_reload_attempted__";
   if (!sessionStorage.getItem(RELOAD_KEY) && navigator.onLine) {
     sessionStorage.setItem(RELOAD_KEY, "1");
     console.log("Vite: Chunk load failed, reloading...");
-    safeReload("Vite chunk load failure");
-  } else if (!navigator.onLine) {
-    console.log("Vite: Chunk load failed but offline, skipping reload");
+    window.location.reload();
   }
 });
+
+// Register Service Worker — silent update, no forced reload
+// skipWaiting + clientsClaim in workbox config means the new SW takes over
+// immediately without needing a reload trigger from here.
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/sw.js", { scope: "/" })
+      .then((reg) => {
+        console.log("SW registered:", reg.scope);
+      })
+      .catch((err) => {
+        console.warn("SW registration failed (expected when offline on first load):", err);
+      });
+  });
+}
 
 import { QueryClientProvider } from "@tanstack/react-query";
 import App from "./App";
