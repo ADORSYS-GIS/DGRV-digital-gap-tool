@@ -27,8 +27,13 @@ export default function OrganizationUsers() {
     queryKey: ["organizationInvitations", orgId],
     queryFn: async () => {
       const result = await getOrganizationInvitations({ orgId: orgId! });
-      // Handle both direct array and wrapped { data: [...] } responses
-      return Array.isArray(result) ? result : ((result as any)?.data ?? []);
+      console.log("[OrganizationUsers] raw invitations result:", result);
+      // Handle both direct array and wrapped { success, data: [...] } responses
+      if (Array.isArray(result)) return result;
+      const wrapped = result as any;
+      if (Array.isArray(wrapped?.data)) return wrapped.data;
+      if (Array.isArray(wrapped?.items)) return wrapped.items;
+      return [];
     },
     enabled: !!orgId,
   });
@@ -79,14 +84,18 @@ export default function OrganizationUsers() {
       {/* Active members */}
       {!isLoading && <UserList users={members || []} />}
 
-      {/* Pending invitations */}
-      {!isLoadingInvitations && invitations.length > 0 && (
-        <div className="space-y-3">
-          <h2 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-            <Clock className="h-5 w-5 text-amber-500" />
-            Pending Invitations
-            <Badge variant="secondary">{invitations.length}</Badge>
-          </h2>
+      {/* Pending invitations — always show section so we can debug */}
+      <div className="space-y-3">
+        <h2 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+          <Clock className="h-5 w-5 text-amber-500" />
+          Pending Invitations
+          <Badge variant="secondary">{invitations.length}</Badge>
+        </h2>
+        {isLoadingInvitations ? (
+          <LoadingSpinner />
+        ) : invitations.length === 0 ? (
+          <p className="text-sm text-muted-foreground px-1">No pending invitations.</p>
+        ) : (
           <div className="rounded-xl border border-amber-200 bg-amber-50/50 overflow-hidden">
             <table className="w-full text-sm">
               <thead>
@@ -138,8 +147,8 @@ export default function OrganizationUsers() {
               </tbody>
             </table>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       <InviteUserForm
         isOpen={isInviteDialogOpen}
