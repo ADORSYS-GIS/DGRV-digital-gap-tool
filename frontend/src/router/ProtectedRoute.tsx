@@ -102,11 +102,6 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     (r) => r.toLowerCase() === ROLES.ORG_ADMIN.toLowerCase(),
   );
   
-  // org_admin routes require the user to have an org ID in their token
-  const isOrgAdminRoute = allowedRoles?.some(
-    (r) => r.toLowerCase() === ROLES.ORG_ADMIN.toLowerCase(),
-  );
-  
   if (isOrgAdminRoute && userRoles.includes(ROLES.ORG_ADMIN.toLowerCase())) {
     // Simply check if user has organization in their profile
     // The AuthContext should have populated this from the token
