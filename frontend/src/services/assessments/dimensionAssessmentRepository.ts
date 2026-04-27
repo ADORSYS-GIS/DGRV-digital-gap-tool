@@ -211,7 +211,7 @@ export const dimensionAssessmentRepository = {
       }
     }
 
-    // 2. Offline Fallback Logic
+    // 2. Offline Fallback Logic - Enhanced with better error handling
     try {
       // Primary: Look up by composite key [id, lang]
       const cached = await db.dimensionWithStatesCache.get([dimensionId, lang]);
@@ -231,21 +231,76 @@ export const dimensionAssessmentRepository = {
       const legacy = await db.dimensionWithStates.get(dimensionId);
       if (legacy) return legacy;
 
-      // Minimum Fallback: basic dimension info only (no states)
+      // Enhanced Fallback: Try to construct from basic dimension + digitalization levels
       const localDimension = await db.dimensions.where("id").equals(dimensionId).first();
       if (localDimension) {
-        return {
+        // Try to get digitalization levels for this dimension
+        const levels = await db.digitalisationLevels
+          .where("dimensionId")
+          .equals(dimensionId)
+          .and(level => level.lang === lang)
+          .toArray();
+
+        // If no levels for exact language, try any language
+        const fallbackLevels = levels.length === 0 
+          ? await db.digitalisationLevels
+              .where("dimensionId")
+              .equals(dimensionId)
+              .toArray()
+          : levels;
+
+        const states: IDimensionState[] = fallbackLevels.map(level => ({
+          id: level.id,
+          dimensionId: dimensionId,
+          level: Number(level.level ?? level.state ?? 0),
+          name: level.title || `Level ${level.level ?? level.state ?? 0}`,
+          description: level.description || "",
+          createdAt: (level as any).createdAt || new Date().toISOString(),
+          updatedAt: (level as any).updatedAt || new Date().toISOString(),
+        }));
+
+        const dimensionWithStates: IDimensionWithStates = {
           ...localDimension,
           lang,
-          current_states: [],
-          desired_states: [],
-        } as IDimensionWithStates;
+          current_states: states,
+          desired_states: states,
+        };
+
+        // Cache this constructed result for future use
+        await db.dimensionWithStatesCache.put(dimensionWithStates);
+        
+        return dimensionWithStates;
       }
+
+      // Last resort: Create minimal dimension structure
+      console.warn(`Creating minimal dimension structure for ${dimensionId} - some functionality may be limited`);
+      const minimalDimension: IDimensionWithStates = {
+        id: dimensionId,
+        name: `Dimension ${dimensionId}`,
+        description: null,
+        lang,
+        syncStatus: SyncStatus.PENDING,
+        lastError: "Dimension data not fully cached",
+        current_states: [],
+        desired_states: [],
+      };
+
+      return minimalDimension;
     } catch (dbError) {
       console.error("Critical error reading from IndexedDB cache:", dbError);
+      
+      // Even if DB fails, return a minimal structure to prevent complete failure
+      return {
+        id: dimensionId,
+        name: `Dimension ${dimensionId}`,
+        description: null,
+        lang,
+        syncStatus: SyncStatus.FAILED,
+        lastError: "Database error - please try again when online",
+        current_states: [],
+        desired_states: [],
+      };
     }
-
-    throw new Error(`Dimension ${dimensionId} not found in local database. Please go online to load this dimension.`);
   },
 
   /**

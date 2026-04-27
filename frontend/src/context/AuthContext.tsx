@@ -11,6 +11,7 @@ import {
 } from "react";
 import { InvitationPendingDialog } from "@/components/shared/InvitationPendingDialog";
 import { ROLES } from "@/constants/roles";
+import { syncManager } from "@/services/sync/syncManager";
 
 export const AuthContext = createContext<AuthContextType | undefined>(
   undefined,
@@ -69,15 +70,48 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
         if (cachedProfile && (cachedTokens?.accessToken || !!keycloak.token)) {
           console.log("AuthProvider: Re-hydrating session from cache.");
+          
+          // When offline and no keycloak token is set, restore it manually
+          // This ensures getOrganizationId() works properly
+          if (!navigator.onLine && cachedTokens?.accessToken && !keycloak.token) {
+            try {
+              console.log("AuthProvider: Manually restoring Keycloak token for offline use");
+              keycloak.token = cachedTokens.accessToken;
+              keycloak.refreshToken = cachedTokens.refreshToken;
+              keycloak.idToken = cachedTokens.idToken;
+              keycloak.authenticated = true;
+              
+              // Parse the token manually for offline organization extraction
+              if (cachedTokens.accessToken) {
+                const tokenPayload = JSON.parse(atob(cachedTokens.accessToken.split('.')[1]));
+                keycloak.tokenParsed = tokenPayload;
+                console.log("AuthProvider: Token restored with organization claims:", {
+                  hasOrganization: !!tokenPayload.organization,
+                  hasOrganizations: !!tokenPayload.organizations,
+                  hasCooperation: !!tokenPayload.cooperation
+                });
+              }
+            } catch (tokenError) {
+              console.warn("AuthProvider: Failed to parse cached token:", tokenError);
+            }
+          }
+          
           setAuthState({
             isAuthenticated: true,
             user: cachedProfile,
             roles: cachedProfile.roles || [],
             loading: false
           });
+          return; // Early return to prevent further processing
         }
       } catch (err) {
         console.warn("AuthProvider: Failed to re-hydrate from cache:", err);
+      }
+      
+      // If rehydration failed or no cached data, set loading to false
+      // This prevents infinite loading states
+      if (!keycloak.authenticated && !keycloak.token) {
+        setAuthState(prev => ({ ...prev, loading: false }));
       }
     };
 
@@ -139,6 +173,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       keycloak.onTokenExpired = () => { };
     };
   }, [updateAuthState]);
+
+  useEffect(() => {
+    if (authState.loading) return;
+    if (!authState.isAuthenticated) return;
+    if (!navigator.onLine) return;
+
+    const PRECACHE_KEY = "__gap_precache_after_auth_v1__";
+    if (sessionStorage.getItem(PRECACHE_KEY)) return;
+    sessionStorage.setItem(PRECACHE_KEY, "1");
+
+    const orgId = authService.getOrganizationId();
+    syncManager.precacheAll(orgId).catch((e: unknown) => {
+      console.warn("Pre-cache after auth failed:", e);
+    });
+  }, [authState.isAuthenticated, authState.loading]);
 
   return (
     <AuthContext.Provider value={{ ...authState, login, logout }}>

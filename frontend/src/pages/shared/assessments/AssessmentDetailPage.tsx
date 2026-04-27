@@ -14,6 +14,8 @@ import { useCooperationUsersForAdmin } from "@/hooks/cooperationUsers/useCoopera
 import { ROLES } from "@/constants/roles";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
+import { useOnlineStatus } from "@/hooks/useOnlineStatus";
+import { WifiOff } from "lucide-react";
 
 const AssessmentDetailPage: React.FC = () => {
   const { t, i18n } = useTranslation();
@@ -23,6 +25,7 @@ const AssessmentDetailPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
+  const { isOffline } = useOnlineStatus();
 
   // Fetch assessment
   const { data: assessment, isLoading: isLoadingAssessment, error: assessmentError } = useQuery({
@@ -35,7 +38,7 @@ const AssessmentDetailPage: React.FC = () => {
   });
 
   // Fetch dimensions resolved to current language
-  const { data: dimensions = [], isLoading: isLoadingDimensions } = useQuery({
+  const { data: dimensions = [], isLoading: isLoadingDimensions, error: dimensionsError } = useQuery({
     queryKey: ["assessmentDimensions", assessmentId, lang],
     queryFn: async () => {
       if (!assessment?.dimensionIds?.length) return [];
@@ -54,10 +57,18 @@ const AssessmentDetailPage: React.FC = () => {
     },
     enabled: !!assessment?.dimensionIds?.length,
     staleTime: 0,
+    retry: (failureCount) => {
+      // When offline, don't retry network requests
+      if (!navigator.onLine) return false;
+      // Retry up to 2 times for network errors
+      return failureCount < 2;
+    },
   });
 
   const loading = isLoadingAssessment || isLoadingDimensions;
-  const error = assessmentError ? t("sharedAssessments.detail.failedToFetch") : null;
+  const errorMessage = assessmentError ? t("sharedAssessments.detail.failedToFetch") : 
+                dimensionsError && !navigator.onLine ? t("sharedAssessments.detail.offlineError", { defaultValue: "Some content may be limited while offline. Please reconnect to access all features." }) :
+                dimensionsError ? t("sharedAssessments.detail.dimensionsError", { defaultValue: "Failed to load assessment dimensions. Please try again." }) : null;
 
   const { data: dimensionAssessments } = useDimensionAssessments(assessmentId);
 
@@ -162,12 +173,12 @@ const AssessmentDetailPage: React.FC = () => {
     );
   }
 
-  if (error) {
+  if (errorMessage) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background px-4">
         <div className="max-w-md rounded-xl border border-destructive/40 bg-destructive/10 px-6 py-4 text-sm text-destructive">
           <p className="font-semibold">{t("sharedAssessments.detail.unableToLoad")}</p>
-          <p className="mt-1 opacity-90">{error}</p>
+          <p className="mt-1 opacity-90">{errorMessage}</p>
         </div>
       </div>
     );
@@ -191,6 +202,19 @@ const AssessmentDetailPage: React.FC = () => {
   return (
     <div className="overflow-y-auto h-full bg-background">
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+        {/* Offline notice */}
+        {isOffline && (
+          <div className="mb-6 flex items-center gap-2 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+            <WifiOff className="h-4 w-4 shrink-0" />
+            <span>
+              {t("offline.assessmentBanner", {
+                defaultValue:
+                  "You are offline. Your work will be saved locally and synced when you reconnect.",
+              })}
+            </span>
+          </div>
+        )}
+        
         {/* Progress header */}
         <section className="mb-8 rounded-xl border border-border bg-card px-5 py-4 shadow-sm sm:px-6 sm:py-5">
           <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">

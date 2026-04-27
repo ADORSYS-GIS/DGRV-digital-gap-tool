@@ -183,9 +183,12 @@ export const authService = {
    */
   getOrganizationId(): string | null {
     try {
-      if (!keycloak.tokenParsed) return null;
+      if (!keycloak.tokenParsed) {
+        return null;
+      }
 
       const token = keycloak.tokenParsed as CustomKeycloakTokenParsed;
+      
       // Try singular "organization" claim first (Keycloak 26 organization scope)
       const orgs = token.organization || token.organizations;
       if (orgs) {
@@ -193,7 +196,8 @@ export const authService = {
         const orgName = orgNames[0];
         if (orgName) {
           const organizationDetails = orgs[orgName];
-          return organizationDetails?.id || null;
+          const orgId = organizationDetails?.id || null;
+          return orgId;
         }
       }
 
@@ -208,7 +212,10 @@ export const authService = {
           const uuidMatch = withoutSlash.match(
             /^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i,
           );
-          if (uuidMatch) return uuidMatch[1] ?? null;
+          if (uuidMatch) {
+            const orgId = uuidMatch[1] ?? null;
+            return orgId;
+          }
         }
       }
 

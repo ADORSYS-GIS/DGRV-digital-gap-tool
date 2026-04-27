@@ -10,11 +10,16 @@ import { SyncStatus } from "@/types/sync";
 import { v4 as uuidv4 } from "uuid";
 import { db } from "../db";
 import { syncService } from "../sync/syncService";
+import { authService } from "../shared/authService";
 
 export const digitalisationGapRepository = {
   getAll: async (lang = 'en'): Promise<IDigitalisationGapWithDimension[]> => {
     try {
       if (navigator.onLine) {
+        const token = await authService.getAccessToken();
+        if (!token) {
+          throw new Error("Missing access token");
+        }
         // Fetch ALL pages from backend to avoid losing items beyond page 1
         const allBackendGaps: any[] = [];
         let currentPage = 1;
@@ -130,6 +135,10 @@ export const digitalisationGapRepository = {
 
     try {
       if (navigator.onLine) {
+        const token = await authService.getAccessToken();
+        if (!token) {
+          return localGap;
+        }
         const backendGap = await getGap({ id });
         if (backendGap.data) {
           const syncedGap: IDigitalisationGap = {
