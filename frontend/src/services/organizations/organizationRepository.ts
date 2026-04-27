@@ -53,7 +53,7 @@ export const organizationRepository = {
           requestBody: {
             name: organization.name,
             domains: [{ name: organization.domain }],
-            redirectUrl: `${import.meta.env.VITE_APP_PUBLIC_URL ?? "https://app.decidel.app"}/`,
+            redirectUrl: `${import.meta.env.VITE_APP_PUBLIC_URL ?? "https://gat.dgrvcoop360.com"}/`,
             enabled: "true",
             attributes: {
               description: [organization.description],

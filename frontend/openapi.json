@@ -10,7 +10,7 @@
     },
     "servers": [
         {
-            "url": "https://app.decidel.app/api",
+            "url": "https://gat.dgrvcoop360.com/api",
             "description": "DGAT Backend Server"
         }
     ],

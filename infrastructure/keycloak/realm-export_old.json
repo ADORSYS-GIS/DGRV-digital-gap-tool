@@ -875,15 +875,15 @@
       "clientId": "dgat-client",
       "name": "",
       "description": "",
-      "rootUrl": "https://app.decidel.app/",
-      "adminUrl": "https://app.decidel.app/",
-      "baseUrl": "https://app.decidel.app/",
+      "rootUrl": "https://gat.dgrvcoop360.com/",
+      "adminUrl": "https://gat.dgrvcoop360.com/",
+      "baseUrl": "https://gat.dgrvcoop360.com/",
       "surrogateAuthRequired": false,
       "enabled": true,
       "alwaysDisplayInConsole": true,
       "clientAuthenticatorType": "client-secret",
       "redirectUris": [
-        "https://app.decidel.app/*"
+        "https://gat.dgrvcoop360.com/*"
       ],
       "webOrigins": [
         "+"
@@ -904,7 +904,7 @@
         "client.secret.creation.time": "1763470162",
         "backchannel.logout.session.required": "true",
         "standard.token.exchange.enabled": "false",
-        "post.logout.redirect.uris": "https://app.decidel.app/*",
+        "post.logout.redirect.uris": "https://gat.dgrvcoop360.com/*",
         "frontchannel.logout.session.required": "true",
         "oauth2.device.authorization.grant.enabled": "false",
         "display.on.consent.screen": "false",

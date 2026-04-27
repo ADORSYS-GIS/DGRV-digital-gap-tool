@@ -3,45 +3,57 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>DGAT GAP ANALYSIS</title>
+    <title>DGAT – Digital Gap Analysis Tool</title>
 
-    <!-- Unregister stale service workers from old deploys before anything else loads.
-         Without this, old SWs block the new one from installing and offline breaks. -->
+    <!-- Favicon / tab icon -->
+    <link rel="icon" type="image/png" sizes="48x48" href="/dgat-48-48.png" />
+    <link rel="icon" type="image/png" sizes="96x96" href="/dgat-96-96.png" />
+    <link rel="icon" type="image/png" sizes="144x144" href="/dgat-144-144.png" />
+    <link rel="shortcut icon" href="/dgat-48-48.png" />
+
+    <!-- Unregister stale service workers from old deploys before anything else loads. -->
     <script>
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.getRegistrations().then(function(registrations) {
-          // Keep only the most recently installed SW, unregister the rest
           var active = registrations.filter(function(r) { return r.active; });
           var waiting = registrations.filter(function(r) { return r.waiting && !r.active; });
-          // Unregister all purely-waiting (stuck) registrations
           waiting.forEach(function(r) { r.unregister(); });
-          // If more than one active, unregister all but the newest
           if (active.length > 1) {
             active.slice(0, active.length - 1).forEach(function(r) { r.unregister(); });
           }
         });
       }
     </script>
-    <meta
-      name="description"
-      content="Empower your cooperative with DGAT GAP ANALYSISs. Built for cooperatives in Southern Africa."
-    />
+
+    <!-- Primary meta -->
+    <meta name="description" content="DGAT helps cooperatives in Southern Africa assess and close their digital gaps through structured assessments, actionable recommendations, and progress tracking." />
     <meta name="author" content="DGRV" />
+    <meta name="keywords" content="digital gap analysis, cooperative, DGRV, digitalization, assessment, Southern Africa" />
 
-    <meta property="og:title" content="DGAT GAP ANALYSIS" />
-    <meta
-      property="og:description"
-      content="Empower your cooperative with DGAT GAP ANALYSISs. Built for cooperatives in Southern Africa."
-    />
+    <!-- Open Graph (social sharing) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="DGAT – Digital Gap Analysis Tool" />
+    <meta property="og:title" content="DGAT – Digital Gap Analysis Tool" />
+    <meta property="og:description" content="Assess and close your cooperative's digital gaps with structured assessments and actionable recommendations." />
+    <meta property="og:image" content="/dgat-512-512.png" />
+    <meta property="og:image:width" content="512" />
+    <meta property="og:image:height" content="512" />
+    <meta property="og:image:alt" content="DGAT logo" />
 
-    <!-- PWA Meta Tags -->
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="DGAT – Digital Gap Analysis Tool" />
+    <meta name="twitter:description" content="Assess and close your cooperative's digital gaps with structured assessments and actionable recommendations." />
+    <meta name="twitter:image" content="/dgat-512-512.png" />
+
+    <!-- PWA -->
     <meta name="theme-color" content="#10b981" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <meta name="apple-mobile-web-app-title" content="DGRV Assessment" />
+    <meta name="apple-mobile-web-app-title" content="DGAT" />
     <link rel="apple-touch-icon" href="/dgat-192-192.png" />
 
-    <!-- Preload critical fonts -->
+    <!-- Preconnect for fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   </head>

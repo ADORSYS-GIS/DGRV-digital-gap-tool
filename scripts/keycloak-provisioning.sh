@@ -143,7 +143,7 @@ echo "[a.sh] Configuring realm email settings..."
 echo "[a.sh] Email configuration completed successfully"
 
 # --- Set realm frontend URL so action token links use the public HTTPS URL ---
-KEYCLOAK_PUBLIC_URL="${KC_HOSTNAME_URL:-https://app.decidel.app/keycloak}"
+KEYCLOAK_PUBLIC_URL="${KC_HOSTNAME_URL:-https://gat.dgrvcoop360.com/keycloak}"
 echo "[a.sh] Setting realm frontendUrl to ${KEYCLOAK_PUBLIC_URL}..."
 ./kcadm.sh update realms/"${REALM}" \
   -s "attributes.frontendUrl=${KEYCLOAK_PUBLIC_URL}" \
