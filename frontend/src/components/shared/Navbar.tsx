@@ -99,7 +99,7 @@ export const Navbar = () => {
                 className="flex items-center gap-3 cursor-pointer group"
                 onClick={() => navigate(getHomeRoute())}
               >
-                <div className="w-28 h-12 relative flex items-center justify-start">
+                <div className="w-40 h-16 relative flex items-center justify-start">
                   <img
                     src="/coopdigigap-removebg-preview.png"
                     alt="DGAT Logo"

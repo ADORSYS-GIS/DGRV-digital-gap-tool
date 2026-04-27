@@ -174,9 +174,9 @@ export const HomePage: React.FC = () => {
             </div>
             <div className="hidden lg:block">
               <img
-                src="/coopdigigap-removebg-preview.png"
-                alt="DGAT – Digital Gap Analysis Tool"
-                className="rounded-lg w-full h-auto object-contain max-h-96"
+                src="/dgat.jpg"
+                alt="Digital Transformation"
+                className="rounded-lg w-full h-auto object-cover"
               />
             </div>
           </div>
