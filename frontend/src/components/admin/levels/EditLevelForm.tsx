@@ -11,7 +11,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { useUpdateDigitalisationLevel } from "@/hooks/digitalisationLevels/useUpdateDigitalisationLevel";
 import { IDigitalisationLevel, LevelState } from "@/types/digitalisationLevel";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import * as z from "zod";
@@ -45,7 +44,7 @@ export const EditLevelForm = ({
   existingLevels,
 }: EditLevelFormProps) => {
   const { t } = useTranslation();
-  const queryClient = useQueryClient();
+  const updateLevelMutation = useUpdateDigitalisationLevel();
   const {
     register,
     handleSubmit,
@@ -61,11 +60,9 @@ export const EditLevelForm = ({
       state: level.state,
       title: level.title ?? "",
       description: level.description ?? "",
-      language: (level as any).language ?? "en",
+      language: (level as any).language ?? (level as any).lang ?? "en",
     },
   });
-
-  const updateLevelMutation = useUpdateDigitalisationLevel();
 
   useEffect(() => {
     if (isOpen) {
@@ -73,18 +70,17 @@ export const EditLevelForm = ({
         state: level.state,
         title: level.title ?? "",
         description: level.description ?? "",
-        language: (level as any).language ?? "en",
+        language: (level as any).language ?? (level as any).lang ?? "en",
       });
     }
   }, [isOpen, level, reset]);
 
   const onSubmit: SubmitHandler<FormValues> = (data) => {
-    // Only block duplicate if same score AND same language (excluding current level)
     const isDuplicateState = existingLevels.some(
       (l) =>
         l.state === data.state &&
         l.id !== level.id &&
-        ((l as any).language ?? "en") === data.language,
+        ((l as any).language ?? (l as any).lang ?? "en") === data.language,
     );
     if (isDuplicateState) {
       setError("state", {
@@ -103,19 +99,8 @@ export const EditLevelForm = ({
     };
 
     updateLevelMutation.mutate(
-      {
-        dimensionId: level.dimensionId,
-        levelId: level.id,
-        changes,
-      },
-      {
-        onSuccess: () => {
-          queryClient.invalidateQueries({
-            queryKey: ["digitalisationLevels", level.dimensionId],
-          });
-          onClose();
-        },
-      },
+      { dimensionId: level.dimensionId, levelId: level.id, changes },
+      { onSuccess: () => onClose() },
     );
   };
 
@@ -126,74 +111,53 @@ export const EditLevelForm = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>
-            {t("adminLevels.form.titleEdit")}
-          </DialogTitle>
+          <DialogTitle>{t("adminLevels.form.titleEdit")}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <>
-            <Controller
-              name="state"
-              control={control}
-              rules={{
-                validate: (value) => {
-                  if (typeof value !== "number" || isNaN(value)) {
-                    return t("adminLevels.validation.stateNumber");
-                  }
-                  return (
-                    isStateAvailable(value) ||
-                    t("adminLevels.validation.stateExists")
-                  );
-                },
-              }}
-              render={({ field }) => (
-                <div>
-                  <Input
-                    {...field}
-                    type="number"
-                    placeholder={t("adminLevels.form.levelId")}
-                    min={1}
-                    onChange={(e) => {
-                      const value = parseInt(e.target.value, 10);
-                      field.onChange(isNaN(value) ? undefined : value);
-                    }}
-                    value={field.value ?? ""}
-                  />
-                  {errors.state && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.state.message}
-                    </p>
-                  )}
-                </div>
-              )}
-            />
-          </>
+          <Controller
+            name="state"
+            control={control}
+            rules={{
+              validate: (value) => {
+                if (typeof value !== "number" || isNaN(value)) {
+                  return t("adminLevels.validation.stateNumber");
+                }
+                return isStateAvailable(value) || t("adminLevels.validation.stateExists");
+              },
+            }}
+            render={({ field }) => (
+              <div>
+                <Input
+                  {...field}
+                  type="number"
+                  placeholder={t("adminLevels.form.levelId")}
+                  min={1}
+                  onChange={(e) => {
+                    const value = parseInt(e.target.value, 10);
+                    field.onChange(isNaN(value) ? undefined : value);
+                  }}
+                  value={field.value ?? ""}
+                />
+                {errors.state && (
+                  <p className="text-red-500 text-sm mt-1">{errors.state.message}</p>
+                )}
+              </div>
+            )}
+          />
           <div>
-            <Input
-              {...register("title")}
-              placeholder={t("adminLevels.form.levelName")}
-            />
+            <Input {...register("title")} placeholder={t("adminLevels.form.levelName")} />
             {errors.title && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.title.message}
-              </p>
+              <p className="text-red-500 text-sm mt-1">{errors.title.message}</p>
             )}
           </div>
           <div>
-            <Textarea
-              {...register("description")}
-              placeholder={t("adminLevels.form.description")}
-            />
+            <Textarea {...register("description")} placeholder={t("adminLevels.form.description")} />
             {errors.description && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.description.message}
-              </p>
+              <p className="text-red-500 text-sm mt-1">{errors.description.message}</p>
             )}
           </div>
           <div>
-            <label className="text-sm font-medium text-gray-700 mb-1 block">
-              Language
-            </label>
+            <label className="text-sm font-medium text-gray-700 mb-1 block">Language</label>
             <ContentLanguageSelector
               value={watch("language")}
               onChange={(lang) => setValue("language", lang)}

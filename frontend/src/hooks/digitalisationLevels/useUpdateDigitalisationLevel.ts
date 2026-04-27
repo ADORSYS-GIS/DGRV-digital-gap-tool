@@ -18,10 +18,16 @@ export const useUpdateDigitalisationLevel = () => {
   return useMutation<void, Error, UpdateDigitalisationLevelVariables>({
     mutationFn: ({ levelId, changes }) =>
       digitalisationLevelRepository.update(levelId, changes),
-    onSuccess: (_, variables) => {
+    onSuccess: () => {
       toast.success("Level updated successfully");
+      // Invalidate all digitalisationLevels queries regardless of dimension/lang
       queryClient.invalidateQueries({
-        queryKey: ["digitalisationLevels", variables.dimensionId],
+        queryKey: ["digitalisationLevels"],
+        refetchType: "all",
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["dimensionWithStates"],
+        refetchType: "all",
       });
     },
     onError: (error: Error) => {

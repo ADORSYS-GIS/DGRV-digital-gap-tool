@@ -12,11 +12,16 @@ export const useDeleteDigitalisationLevel = () => {
 
   return useMutation<void, Error, DeleteDigitalisationLevelVariables>({
     mutationFn: ({ levelId }) => digitalisationLevelRepository.delete(levelId),
-    onSuccess: (_, variables) => {
+    onSuccess: () => {
       toast.success("Level deleted successfully");
-      // Invalidate all language variants — prefix match covers ["digitalisationLevels", dimensionId, "fr"] etc.
+      // Invalidate all digitalisationLevels queries regardless of dimension/lang
       queryClient.invalidateQueries({
-        queryKey: ["digitalisationLevels", variables.dimensionId],
+        queryKey: ["digitalisationLevels"],
+        refetchType: "all",
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["dimensionWithStates"],
+        refetchType: "all",
       });
     },
     onError: (err: Error) => {

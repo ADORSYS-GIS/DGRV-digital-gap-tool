@@ -22,9 +22,15 @@ export const useAddDigitalisationLevel = () => {
       digitalisationLevelRepository.add(dimensionId, levelData, levelType),
     onSuccess: (_, variables) => {
       toast.success("Level added successfully");
-      // Invalidate all language variants for this dimension
+      // Invalidate all queries that start with digitalisationLevels — covers all dimension IDs and languages
       queryClient.invalidateQueries({
-        queryKey: ["digitalisationLevels", variables.dimensionId],
+        queryKey: ["digitalisationLevels"],
+        refetchType: "all",
+      });
+      // Also invalidate dimension-with-states cache used in assessments
+      queryClient.invalidateQueries({
+        queryKey: ["dimensionWithStates"],
+        refetchType: "all",
       });
     },
     onError: (error: Error) => {
