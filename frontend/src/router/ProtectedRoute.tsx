@@ -12,7 +12,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { LoadingSpinner } from "../components/shared/LoadingSpinner";
 import React from "react";
 import { ROLES } from "@/constants/roles";
-import { authService } from "@/services/shared/authService";
 import { get } from "idb-keyval";
 
 interface ProtectedRouteProps {

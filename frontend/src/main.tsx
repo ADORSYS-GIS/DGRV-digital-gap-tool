@@ -1,20 +1,68 @@
 import { createRoot } from "react-dom/client";
 import { registerSW } from "virtual:pwa-register";
 
+// Global circuit breaker to prevent infinite reloads
+const RELOAD_COUNTER_KEY = "__reload_counter__";
+const MAX_RELOADS = 3;
+const RELOAD_WINDOW = 30000; // 30 seconds
+
+const checkReloadLimit = () => {
+  const now = Date.now();
+  const reloadData = sessionStorage.getItem(RELOAD_COUNTER_KEY);
+  
+  if (reloadData) {
+    const { count, timestamp } = JSON.parse(reloadData);
+    
+    // Reset counter if window has passed
+    if (now - timestamp > RELOAD_WINDOW) {
+      sessionStorage.setItem(RELOAD_COUNTER_KEY, JSON.stringify({ count: 1, timestamp: now }));
+      return true;
+    }
+    
+    // Check if we've exceeded the limit
+    if (count >= MAX_RELOADS) {
+      console.error("Reload limit exceeded, preventing infinite reload loop");
+      return false;
+    }
+    
+    // Increment counter
+    sessionStorage.setItem(RELOAD_COUNTER_KEY, JSON.stringify({ count: count + 1, timestamp }));
+    return true;
+  } else {
+    // First reload
+    sessionStorage.setItem(RELOAD_COUNTER_KEY, JSON.stringify({ count: 1, timestamp: now }));
+    return true;
+  }
+};
+
+const safeReload = (reason: string) => {
+  if (checkReloadLimit()) {
+    console.log(`Safe reload triggered: ${reason}`);
+    window.location.reload();
+  } else {
+    console.error(`Reload blocked to prevent infinite loop: ${reason}`);
+  }
+};
+
 // On first load after a new deploy, unregister all old service workers so the
 // new one can install cleanly. We track this with a version key in localStorage.
 const SW_VERSION_KEY = "sw_version";
 const CURRENT_SW_VERSION = "v6"; // bump this with each deploy that changes the SW
-if (localStorage.getItem(SW_VERSION_KEY) !== CURRENT_SW_VERSION) {
+const SW_RELOAD_KEY = "__sw_reload_attempted__";
+
+if (localStorage.getItem(SW_VERSION_KEY) !== CURRENT_SW_VERSION && !sessionStorage.getItem(SW_RELOAD_KEY)) {
   if ("serviceWorker" in navigator) {
+    sessionStorage.setItem(SW_RELOAD_KEY, "1");
     navigator.serviceWorker.getRegistrations().then((registrations) => {
       registrations.forEach((r) => r.unregister());
       // Clear all SW caches so the new SW starts fresh
       caches.keys().then((keys) => keys.forEach((k) => caches.delete(k)));
     }).then(() => {
       localStorage.setItem(SW_VERSION_KEY, CURRENT_SW_VERSION);
-      // Reload once so the new SW registers cleanly
-      window.location.reload();
+      // Only reload if we're online to avoid infinite loops when offline
+      if (navigator.onLine) {
+        safeReload("Service worker version update");
+      }
     });
   } else {
     localStorage.setItem(SW_VERSION_KEY, CURRENT_SW_VERSION);
@@ -25,8 +73,13 @@ if (localStorage.getItem(SW_VERSION_KEY) !== CURRENT_SW_VERSION) {
 registerSW({
   immediate: true,
   onNeedRefresh() {
-    // New SW waiting — reload to activate it so the cache is always fresh
-    window.location.reload();
+    // New SW waiting — only reload if online to avoid infinite loops
+    if (navigator.onLine) {
+      console.log("PWA: New service worker available, reloading...");
+      safeReload("PWA service worker update");
+    } else {
+      console.log("PWA: New service worker available but offline, skipping reload");
+    }
   },
   onOfflineReady() {
     console.log("PWA: App ready to work offline.");
@@ -45,9 +98,12 @@ registerSW({
 // We reload once to pick up the new index.html and fresh chunks.
 window.addEventListener("vite:preloadError", () => {
   const RELOAD_KEY = "__vite_reload_attempted__";
-  if (!sessionStorage.getItem(RELOAD_KEY)) {
+  if (!sessionStorage.getItem(RELOAD_KEY) && navigator.onLine) {
     sessionStorage.setItem(RELOAD_KEY, "1");
-    window.location.reload();
+    console.log("Vite: Chunk load failed, reloading...");
+    safeReload("Vite chunk load failure");
+  } else if (!navigator.onLine) {
+    console.log("Vite: Chunk load failed but offline, skipping reload");
   }
 });
 
