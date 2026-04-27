@@ -1,12 +1,14 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useMemo } from "react";
+import { useQueries } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Globe, Trash2, Plus } from "lucide-react";
-import { useDimensions } from "@/hooks/dimensions/useDimensions";
 import { useDeleteDimension } from "@/hooks/dimensions/useDeleteDimension";
 import { AddTranslationForm } from "@/components/admin/dimensions/AddTranslationForm";
 import { EditDimensionForm } from "@/components/admin/dimensions/EditDimensionForm";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
+import { dimensionRepository } from "@/services/dimensions/dimensionRepository";
+import { IDimension } from "@/types/dimension";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,23 +29,34 @@ export default function DimensionTranslationsPage() {
   const { dimensionKey } = useParams<{ dimensionKey: string }>();
   const navigate = useNavigate();
   const [isAddTranslationOpen, setAddTranslationOpen] = useState(false);
-  const { data: allDimensions = [], isLoading } = useDimensions("all");
   const { mutate: deleteDimension, isPending: isDeleting } = useDeleteDimension();
 
-  // Find all rows sharing this dimension_key, deduplicated by language
+  // Fetch all languages in parallel so we always see every translation
+  const langQueries = useQueries({
+    queries: ALL_LANGS.map((lang) => ({
+      queryKey: ["dimensions", lang],
+      queryFn: () => dimensionRepository.getAll(lang),
+      networkMode: "always" as const,
+    })),
+  });
+
+  const isLoading = langQueries.some((q) => q.isLoading);
+
+  // Merge all language results and find the ones matching this dimensionKey
   const group = useMemo(() => {
-    const all = allDimensions.filter(
+    const allDimensions: IDimension[] = langQueries.flatMap((q) => q.data ?? []);
+    const matching = allDimensions.filter(
       (d) => ((d as any).dimension_key ?? d.id) === dimensionKey,
     );
     // Deduplicate by language — keep the first occurrence of each language
     const seen = new Set<string>();
-    return all.filter((d) => {
+    return matching.filter((d) => {
       const lang = (d as any).language ?? (d as any).lang ?? "en";
       if (seen.has(lang)) return false;
       seen.add(lang);
       return true;
     });
-  }, [allDimensions, dimensionKey]);
+  }, [langQueries, dimensionKey]);
 
   const base = group.find((d) => ((d as any).language ?? (d as any).lang) === "en") ?? group[0];
   const configuredLangs = group.map((d) => (d as any).language ?? (d as any).lang ?? "en");

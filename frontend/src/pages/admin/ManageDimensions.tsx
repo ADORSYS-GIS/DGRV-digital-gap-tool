@@ -1,18 +1,37 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { useQueries } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
-import { useDimensions } from "@/hooks/dimensions/useDimensions";
 import { AddDimensionForm } from "@/components/admin/dimensions/AddDimensionForm";
 import { DimensionList } from "@/components/admin/dimensions/DimensionList";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { useTranslation } from "react-i18next";
-import { useAdminLangFilter } from "@/hooks/useAdminLangFilter";
+import { dimensionRepository } from "@/services/dimensions/dimensionRepository";
+import { IDimension } from "@/types/dimension";
+
+const ALL_LANGS = ["en", "fr", "pt", "ss"];
 
 export default function ManageDimensions() {
   const { t } = useTranslation();
   const [isAddDialogOpen, setAddDialogOpen] = useState(false);
-  const { lang, setLang } = useAdminLangFilter("all");
-  const { data: dimensions, isLoading, error } = useDimensions(lang);
+
+  // Fetch all languages in parallel so translation badges are accurate
+  const langQueries = useQueries({
+    queries: ALL_LANGS.map((lang) => ({
+      queryKey: ["dimensions", lang],
+      queryFn: () => dimensionRepository.getAll(lang),
+      networkMode: "always" as const,
+    })),
+  });
+
+  const isLoading = langQueries.some((q) => q.isLoading);
+  const error = langQueries.find((q) => q.error)?.error as Error | undefined;
+
+  // Merge all language results — DimensionList handles deduplication/grouping
+  const dimensions = useMemo<IDimension[]>(
+    () => langQueries.flatMap((q) => q.data ?? []),
+    [langQueries],
+  );
 
   return (
     <div className="space-y-8 max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
