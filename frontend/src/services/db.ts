@@ -95,52 +95,11 @@ export class AppDB extends Dexie {
 
 export const db = new AppDB();
 
-// Simple error handling wrapper for database operations
-// Instead of overriding methods, we'll create wrapper functions
-export const safeDbOperations = {
-  async putDimension(item: IDimension, key?: [string, string]) {
-    try {
-      return await db.dimensions.put(item, key);
-    } catch (error) {
-      console.error('IndexedDB dimensions.put error:', error);
-      // Return a mock key to prevent crashes
-      return [item.id, item.lang] as [string, string];
-    }
-  },
-
-  async getDimension(key: [string, string]) {
-    try {
-      return await db.dimensions.get(key);
-    } catch (error) {
-      console.error('IndexedDB dimensions.get error:', error);
-      return undefined;
-    }
-  },
-
-  async putDigitalisationLevel(item: IDigitalisationLevel, key?: [string, string]) {
-    try {
-      return await db.digitalisationLevels.put(item, key);
-    } catch (error) {
-      console.error('IndexedDB digitalisationLevels.put error:', error);
-      return [item.id, item.lang] as [string, string];
-    }
-  },
-
-  async putDigitalisationGap(item: IDigitalisationGap, key?: [string, string]) {
-    try {
-      return await db.digitalisationGaps.put(item, key);
-    } catch (error) {
-      console.error('IndexedDB digitalisationGaps.put error:', error);
-      return [item.id, item.lang] as [string, string];
-    }
-  },
-
-  async putDimensionWithStatesCache(item: IDimensionWithStates & { lang: string }, key?: [string, string]) {
-    try {
-      return await db.dimensionWithStatesCache.put(item, key);
-    } catch (error) {
-      console.error('IndexedDB dimensionWithStatesCache.put error:', error);
-      return [item.id, item.lang] as [string, string];
-    }
+// Global error handler for uncaught database errors
+// This prevents database errors from crashing the app or causing reloads
+window.addEventListener('unhandledrejection', (event) => {
+  if (event.reason && event.reason.name === 'DatabaseError') {
+    console.error('IndexedDB error caught:', event.reason);
+    event.preventDefault(); // Prevent the error from propagating
   }
-};
+});

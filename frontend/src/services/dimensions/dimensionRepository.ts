@@ -129,7 +129,11 @@ export const dimensionRepository = {
         if (!synced.id || !synced.lang) {
           console.error("Cannot store dimension: missing id or lang", { id: synced.id, lang: synced.lang });
         } else {
-          await db.dimensions.put(synced);
+          try {
+            await db.dimensions.put(synced);
+          } catch (error) {
+            console.error("Failed to store dimension:", error);
+          }
         }
         return synced;
       } catch (err: any) {

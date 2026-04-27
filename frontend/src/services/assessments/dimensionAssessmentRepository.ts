@@ -204,8 +204,11 @@ export const dimensionAssessmentRepository = {
           if (!dbDimension.id || !dbDimension.lang) {
             console.error("Cannot store dimension: missing id or lang", { id: dbDimension.id, lang: dbDimension.lang });
           } else {
-            const { safeDbOperations } = await import("../db");
-            await safeDbOperations.putDimension(dbDimension);
+            try {
+              await db.dimensions.put(dbDimension);
+            } catch (error) {
+              console.error("Failed to store dimension:", error);
+            }
           }
           await db.dimensionWithStatesCache.put(toCache);
 
