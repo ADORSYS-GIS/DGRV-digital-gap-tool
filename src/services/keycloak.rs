@@ -698,7 +698,7 @@ impl KeycloakService {
         // endpoint adds existing users as org members directly, which would cause
         // all invited users to be filtered out.
         let search_url = format!(
-            "{}/admin/realms/{}/users?q=invited_org:{}&max=500&briefRepresentation=false",
+            "{}/admin/realms/{}/users?q=invited_org:\"{}\"&max=500&briefRepresentation=false",
             self.config.keycloak.url, self.config.keycloak.realm, org_id
         );
 
