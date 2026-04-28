@@ -36,10 +36,10 @@ export const EditCooperationUserForm = ({ user }: EditCooperationUserFormProps) 
   const queryClient = useQueryClient();
 
   const { data: allDimensions = [] } = useDimensions();
-  const { data: assignedDimensionIds = [] } = useOrganizationDimensions(organizationId || "");
+  const { data: assignedDimensionKeys = [] } = useOrganizationDimensions(organizationId || "");
 
   const filteredDimensions = allDimensions.filter((d) =>
-    assignedDimensionIds.includes(d.id),
+    d.dimension_key && assignedDimensionKeys.includes(d.dimension_key),
   );
 
   const userId = user.id;
@@ -104,12 +104,14 @@ export const EditCooperationUserForm = ({ user }: EditCooperationUserFormProps) 
               {filteredDimensions.map((dimension) => (
                 <label key={dimension.id} className="flex items-center gap-2 text-sm">
                   <Checkbox
-                    checked={selectedDimensionIds.includes(dimension.id)}
+                    checked={dimension.dimension_key ? selectedDimensionIds.includes(dimension.dimension_key) : false}
                     onCheckedChange={(checked) => {
+                      if (!dimension.dimension_key) return;
+                      const key = dimension.dimension_key;
                       setSelectedDimensionIds((prev) =>
                         checked
-                          ? [...prev, dimension.id]
-                          : prev.filter((id) => id !== dimension.id),
+                          ? [...prev, key]
+                          : prev.filter((id) => id !== key),
                       );
                     }}
                   />
