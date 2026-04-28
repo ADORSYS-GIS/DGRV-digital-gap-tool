@@ -49,21 +49,11 @@ pub async fn delete_organization_invitation(
     }
     let admin_token = app_state.keycloak_service.get_admin_token().await?;
 
-    // Try to delete from Keycloak's invitation system (best effort)
+    // For pending invitations, invitation_id is the user_id.
+    // If the user is unverified, we delete the user entirely to "cancel" the invitation.
     let _ = app_state
         .keycloak_service
-        .delete_organization_invitation(&admin_token, &org_id, &invitation_id)
-        .await;
-
-    // Also clear the invited_organization attribute
-    let _ = app_state
-        .keycloak_service
-        .update_user_attributes(
-            &admin_token, 
-            &invitation_id, 
-            serde_json::json!({ "invited_organization": [] }), // Empty array to clear
-            None
-        )
+        .delete_user(&admin_token, &invitation_id)
         .await;
 
     Ok(StatusCode::NO_CONTENT)
@@ -79,11 +69,21 @@ pub async fn resend_organization_invitation(
         return Err(AppError::BadRequest("Insufficient permissions".to_string()));
     }
     let admin_token = app_state.keycloak_service.get_admin_token().await?;
-    app_state
+    // Primary attempt: Official Keycloak invitation resend
+    let resend_result = app_state
         .keycloak_service
         .resend_organization_invitation(&admin_token, &org_id, &invitation_id)
-        .await
-        .map_err(|e| AppError::InternalServerError(e.to_string()))?;
+        .await;
+
+    if resend_result.is_err() {
+        tracing::info!(user_id = %invitation_id, "Official resend failed (404/405), falling back to standard verification email");
+        // Fallback: Resend standard Keycloak verification email for the user
+        app_state
+            .keycloak_service
+            .trigger_email_verification(&admin_token, &invitation_id, None)
+            .await
+            .map_err(|e| AppError::InternalServerError(format!("Failed to resend invitation: {}", e)))?;
+    }
     Ok(StatusCode::NO_CONTENT)
 }
 

@@ -483,63 +483,6 @@ impl KeycloakService {
         }
     }
 
-    /// Set a single attribute on a Keycloak user (merges with existing attributes)
-    pub async fn set_user_attribute(
-        &self,
-        token: &str,
-        user_id: &str,
-        key: &str,
-        value: &str,
-    ) -> Result<()> {
-        // First fetch the current user to get existing attributes
-        let get_url = format!(
-            "{}/admin/realms/{}/users/{}",
-            self.config.keycloak.url, self.config.keycloak.realm, user_id
-        );
-        let get_resp = self.client.get(&get_url).bearer_auth(token).send().await?;
-        if !get_resp.status().is_success() {
-            return Ok(()); // Non-fatal — best effort
-        }
-
-        let mut user: serde_json::Value = get_resp.json().await.unwrap_or(serde_json::json!({}));
-        tracing::info!(user_id = %user_id, key = %key, value = %value, "Current user attributes fetched, merging new attribute");
-
-        // Merge the new attribute into the existing attributes map
-        let attrs = user
-            .get_mut("attributes")
-            .and_then(|a| a.as_object_mut())
-            .map(|a| {
-                a.insert(key.to_string(), serde_json::json!([value]));
-                serde_json::Value::Object(a.clone())
-            })
-            .unwrap_or_else(|| {
-                serde_json::json!({ key: [value] })
-            });
-
-        user["attributes"] = attrs;
-
-        let put_url = format!(
-            "{}/admin/realms/{}/users/{}",
-            self.config.keycloak.url, self.config.keycloak.realm, user_id
-        );
-        let response = self
-            .client
-            .put(&put_url)
-            .bearer_auth(token)
-            .json(&user)
-            .send()
-            .await?;
-
-        if response.status().is_success() {
-            tracing::info!(user_id = %user_id, key = %key, value = %value, "Successfully updated user attribute in Keycloak");
-            Ok(())
-        } else {
-            let status = response.status();
-            let body = response.text().await.unwrap_or_default();
-            tracing::error!(status = %status, body = %body, user_id = %user_id, "Failed to update user attribute in Keycloak");
-            Err(anyhow::anyhow!("Failed to update user attribute (status: {}): {}", status, body))
-        }
-    }
 
     /// Create an invitation to an organization.
     /// Uses the official Keycloak endpoint:
@@ -733,13 +676,6 @@ impl KeycloakService {
                                 }
                             }
                             
-                            // Audit log for each unverified user's attributes
-                            tracing::info!(
-                                user_id = %user.id,
-                                email = %user.email,
-                                attributes = ?user.attributes,
-                                "Audit: Checking unverified user for invitation"
-                            );
                             
                             // Check the invited_organization attribute
                             if let Some(attributes) = &user.attributes {
