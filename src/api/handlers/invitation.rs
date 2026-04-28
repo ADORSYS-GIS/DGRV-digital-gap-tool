@@ -169,7 +169,15 @@ pub async fn invite_user_to_organization(
     // Create invitation
     match app_state
         .keycloak_service
-        .create_invitation(&admin_token, &org_id, &request.email, request.roles.clone(), None)
+        .create_invitation(
+            &admin_token,
+            &org_id,
+            &request.email,
+            request.first_name.as_deref(),
+            request.last_name.as_deref(),
+            request.roles.clone(),
+            None,
+        )
         .await
     {
         Ok(_invitation) => {

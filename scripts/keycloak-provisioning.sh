@@ -127,9 +127,9 @@ echo "[a.sh] Configuring realm email settings..."
 ./kcadm.sh update realms/"${REALM}" \
   -s 'smtpServer.host='"${KC_SPI_EMAIL_DEFAULT_HOST:-smtp.gmail.com}" \
   -s 'smtpServer.port='"${KC_SPI_EMAIL_DEFAULT_PORT:-25}" \
-  -s 'smtpServer.from='"${KC_SPI_EMAIL_DEFAULT_FROM:-noreply@dgrv.coop}" \
+  -s 'smtpServer.from='"${KC_SPI_EMAIL_DEFAULT_FROM:-dgrvesw@gmail.comp}" \
   -s 'smtpServer.fromDisplayName='"${KC_SPI_EMAIL_DEFAULT_FROM_DISPLAY_NAME:-DGRV COOPERATION}" \
-  -s 'smtpServer.user='"${KC_SPI_EMAIL_DEFAULT_USER:-yemelechristian2@gmail.com}" \
+  -s 'smtpServer.user='"${KC_SPI_EMAIL_DEFAULT_USER:-dgrvesw@gmail.com}" \
   -s 'smtpServer.password='"${KC_SPI_EMAIL_DEFAULT_PASSWORD}" \
   -s 'smtpServer.ssl='"${KC_SPI_EMAIL_DEFAULT_SSL:-false}" \
   -s 'smtpServer.starttls='"${KC_SPI_EMAIL_DEFAULT_STARTTLS:-true}" \

@@ -532,92 +532,70 @@ impl KeycloakService {
         Ok(())
     }
 
-    /// Create an invitation to an organization
+    /// Create an invitation to an organization.
+    /// Uses the official Keycloak endpoint:
+    /// POST /admin/realms/{realm}/organizations/{org-id}/members/invite-user
+    /// This ensures invitations appear in GET /organizations/{org-id}/invitations.
     pub async fn create_invitation(
         &self,
         token: &str,
         org_id: &str,
         email: &str,
-        roles: Vec<String>,
-        expiration: Option<String>,
+        first_name: Option<&str>,
+        last_name: Option<&str>,
+        _roles: Vec<String>,
+        _expiration: Option<String>,
     ) -> Result<KeycloakInvitation> {
-        // Use the official invitations endpoint so invitations appear in GET /invitations
-        // POST /admin/realms/{realm}/organizations/{org-id}/invitations
         let url = format!(
-            "{}/admin/realms/{}/organizations/{}/invitations",
+            "{}/admin/realms/{}/organizations/{}/members/invite-user",
             self.config.keycloak.url, self.config.keycloak.realm, org_id
         );
 
-        let mut body = serde_json::json!({
-            "email": email,
-        });
-
-        // Add optional fields
-        if let Some(exp) = &expiration {
-            body["expirationDate"] = serde_json::json!(exp);
+        let mut form_data: Vec<(&str, String)> = vec![("email", email.to_string())];
+        if let Some(first) = first_name {
+            if !first.is_empty() {
+                form_data.push(("firstName", first.to_string()));
+            }
+        }
+        if let Some(last) = last_name {
+            if !last.is_empty() {
+                form_data.push(("lastName", last.to_string()));
+            }
         }
 
-        info!(url = %url, email = %email, org_id = %org_id, "Creating organization invitation via invitations endpoint");
+        info!(url = %url, email = %email, org_id = %org_id, "Creating organization invitation via invite-user endpoint");
 
         let response = self
             .client
             .post(&url)
             .bearer_auth(token)
-            .json(&body)
+            .form(&form_data)
             .send()
             .await?;
 
         match response.status() {
             s if s.is_success() || s.as_u16() == 204 => {
-                // Try to parse the response body for the invitation ID
-                let invitation_id = if s.as_u16() != 204 {
-                    response.json::<serde_json::Value>().await
-                        .ok()
-                        .and_then(|v| v.get("id").and_then(|id| id.as_str()).map(|s| s.to_string()))
-                        .unwrap_or_else(|| format!("invitation-{}", chrono::Utc::now().timestamp()))
-                } else {
-                    format!("invitation-{}", chrono::Utc::now().timestamp())
-                };
-
                 let invitation = KeycloakInvitation {
-                    id: invitation_id.clone(),
+                    id: format!("invitation-{}", chrono::Utc::now().timestamp()),
                     email: email.to_string(),
                     invited_at: chrono::Utc::now().to_rfc3339(),
-                    expiration,
-                    roles,
+                    expiration: None,
+                    roles: vec![],
                 };
-                info!(invitation_id = %invitation_id, email = %email, "Organization invitation created successfully");
+                info!(email = %email, "Organization invitation created successfully");
                 Ok(invitation)
             }
             _ => {
+                let status = response.status();
                 let error_text = response.text().await?;
-                error!("Failed to create invitation: {}", error_text);
-                // Fallback to the old invite-user endpoint
-                let fallback_url = format!(
-                    "{}/admin/realms/{}/organizations/{}/members/invite-user",
-                    self.config.keycloak.url, self.config.keycloak.realm, org_id
-                );
-                let mut form_data = std::collections::HashMap::new();
-                form_data.insert("email".to_string(), email.to_string());
-                if !roles.is_empty() {
-                    form_data.insert("roles".to_string(), roles.join(","));
-                }
-                let fallback_resp = self.client.post(&fallback_url).bearer_auth(token).form(&form_data).send().await?;
-                if fallback_resp.status().is_success() || fallback_resp.status().as_u16() == 204 {
-                    let invitation = KeycloakInvitation {
-                        id: format!("invitation-{}", chrono::Utc::now().timestamp()),
-                        email: email.to_string(),
-                        invited_at: chrono::Utc::now().to_rfc3339(),
-                        expiration,
-                        roles,
-                    };
-                    Ok(invitation)
-                } else {
-                    Err(anyhow!("Failed to create invitation: {}", error_text))
-                }
+                error!(status = %status, "Failed to create invitation: {}", error_text);
+                Err(anyhow!("Failed to create invitation (status: {}): {}", status, error_text))
             }
         }
     }
+
+
+
 
     /// Get pending invitations for an organization.
     /// Uses the official Keycloak API: GET /organizations/{org-id}/invitations
