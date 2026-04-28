@@ -741,9 +741,9 @@ impl KeycloakService {
                                 "Audit: Checking unverified user for invitation"
                             );
                             
-                            // Check the invited_org attribute
+                            // Check the invited_organization attribute
                             if let Some(attributes) = &user.attributes {
-                                if let Some(org_attr) = attributes.get("invited_org") {
+                                if let Some(org_attr) = attributes.get("invited_organization") {
                                     let matches = if let Some(org_list) = org_attr.as_array() {
                                         org_list.iter().any(|v| v.as_str() == Some(org_id))
                                     } else if let Some(org_str) = org_attr.as_str() {

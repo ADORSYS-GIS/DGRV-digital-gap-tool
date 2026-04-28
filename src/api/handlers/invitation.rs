@@ -54,10 +54,15 @@ pub async fn delete_organization_invitation(
         .delete_organization_invitation(&admin_token, &org_id, &invitation_id)
         .await;
 
-    // Also clear the invited_org attribute (invitation_id is the user ID in our system)
+    // Also clear the invited_organization attribute
     let _ = app_state
         .keycloak_service
-        .set_user_attribute(&admin_token, &invitation_id, "invited_org", "")
+        .update_user_attributes(
+            &admin_token, 
+            &invitation_id, 
+            serde_json::json!({ "invited_organization": [] }), // Empty array to clear
+            None
+        )
         .await;
 
     Ok(StatusCode::NO_CONTENT)
@@ -123,7 +128,8 @@ pub async fn invite_user_to_organization(
     let user = if let Some(user) = existing_user {
         user
     } else {
-        // Create user if not exists
+        // Create user if not exists with the invitation attribute
+        let initial_attrs = json!({ "invited_organization": [org_id.clone()] });
         let create_user_request = CreateUserRequest {
             username: request.email.clone(),
             email: request.email.clone(),
@@ -131,19 +137,32 @@ pub async fn invite_user_to_organization(
             last_name: request.last_name.clone(),
             email_verified: Some(false),
             enabled: Some(true),
-            attributes: None,
+            attributes: Some(initial_attrs),
             credentials: None,
             required_actions: Some(vec!["VERIFY_EMAIL".to_string()]),
         };
 
-        app_state
+        let new_user = app_state
             .keycloak_service
             .create_user_with_email_verification(&admin_token, &create_user_request)
             .await
             .map_err(|e| {
                 tracing::error!("Failed to create user: {}", e);
                 AppError::InternalServerError("Failed to create user".to_string())
-            })?
+            })?;
+        
+        // Explicitly update attributes after creation to ensure persistence (following pattern in user.rs)
+        let _ = app_state
+            .keycloak_service
+            .update_user_attributes(
+                &admin_token, 
+                &new_user.id, 
+                json!({ "invited_organization": [org_id.clone()] }),
+                Some(&request.email)
+            )
+            .await;
+        
+        new_user
     };
 
     // Assign roles
@@ -171,12 +190,15 @@ pub async fn invite_user_to_organization(
     // Store the invited org on the user so we can filter pending invitations per org
     if let Err(e) = app_state
         .keycloak_service
-        .set_user_attribute(&admin_token, &user.id, "invited_org", &org_id)
+        .update_user_attributes(
+            &admin_token, 
+            &user.id, 
+            json!({ "invited_organization": [org_id.clone()] }),
+            Some(&user.email)
+        )
         .await
     {
-        tracing::error!(error = %e, user_id = %user.id, "Failed to set invited_org attribute on user");
-        // We continue anyway as the official invitation might still work, 
-        // but this explains why it might not show up in our custom pending list.
+        tracing::error!(error = %e, user_id = %user.id, "Failed to set invited_organization attribute on user");
     }
 
     // Create invitation
