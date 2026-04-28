@@ -684,14 +684,10 @@ impl KeycloakService {
             );
         }
 
-        let members = self
-            .get_organization_members(token, org_id)
-            .await
-            .unwrap_or_default();
-        let member_ids: std::collections::HashSet<String> =
-            members.iter().map(|m| m.id.clone()).collect();
-
-        // Keycloak user search with attribute filter
+        // The `invited_org` attribute is our source of truth for pending invitations.
+        // We do NOT filter by membership status because Keycloak's invite-user
+        // endpoint adds existing users as org members directly, which would cause
+        // all invited users to be filtered out.
         let search_url = format!(
             "{}/admin/realms/{}/users?q=invited_org:{}&max=500&briefRepresentation=false",
             self.config.keycloak.url, self.config.keycloak.realm, org_id
@@ -706,7 +702,7 @@ impl KeycloakService {
                 
                 let pending: Vec<crate::api::dto::invitation::PendingInvitation> = all_users
                     .into_iter()
-                    .filter(|u| !member_ids.contains(&u.id))
+                    .filter(|u| !u.email_verified) // Only show users who haven't verified their email yet
                     .map(|u| crate::api::dto::invitation::PendingInvitation {
                         id: u.id,
                         email: u.email,

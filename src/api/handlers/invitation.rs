@@ -47,11 +47,19 @@ pub async fn delete_organization_invitation(
         return Err(AppError::BadRequest("Insufficient permissions".to_string()));
     }
     let admin_token = app_state.keycloak_service.get_admin_token().await?;
-    app_state
+
+    // Try to delete from Keycloak's invitation system (best effort)
+    let _ = app_state
         .keycloak_service
         .delete_organization_invitation(&admin_token, &org_id, &invitation_id)
-        .await
-        .map_err(|e| AppError::InternalServerError(e.to_string()))?;
+        .await;
+
+    // Also clear the invited_org attribute (invitation_id is the user ID in our system)
+    let _ = app_state
+        .keycloak_service
+        .set_user_attribute(&admin_token, &invitation_id, "invited_org", "")
+        .await;
+
     Ok(StatusCode::NO_CONTENT)
 }
 
