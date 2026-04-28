@@ -733,6 +733,14 @@ impl KeycloakService {
                                 }
                             }
                             
+                            // Audit log for each unverified user's attributes
+                            tracing::info!(
+                                user_id = %user.id,
+                                email = %user.email,
+                                attributes = ?user.attributes,
+                                "Audit: Checking unverified user for invitation"
+                            );
+                            
                             // Check the invited_org attribute
                             if let Some(attributes) = &user.attributes {
                                 if let Some(org_attr) = attributes.get("invited_org") {
