@@ -4,7 +4,7 @@ use axum::{
     middleware::Next,
     response::Response,
 };
-use tracing::{error, info};
+use tracing::error;
 
 use crate::AppState;
 

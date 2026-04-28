@@ -441,7 +441,6 @@ pub async fn create_dimension_assessment(
         {
             if existing_dim.dimension_key == dimension_key {
                 // Already answered this logical dimension — update instead of creating duplicate
-                actual_dimension_id = existing_da.dimension_id;
                 // Fall through to update the existing record
                 let mut active_model: crate::entities::dimension_assessments::ActiveModel = existing_da.clone().into();
                 active_model.current_state_id = sea_orm::Set(Some(request.current_state_id));

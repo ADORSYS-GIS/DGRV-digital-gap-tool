@@ -2,7 +2,7 @@ use anyhow::{anyhow, Result};
 use biscuit::{jwa::SignatureAlgorithm, Validation, ValidationOptions, JWT};
 use std::sync::Arc;
 use tokio::sync::RwLock;
-use tracing::{error, info};
+use tracing::error;
 
 use crate::auth::claims::{Claims, PrivateClaims};
 use crate::config::KeycloakConfigs;

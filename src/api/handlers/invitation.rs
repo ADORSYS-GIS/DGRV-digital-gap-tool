@@ -4,6 +4,7 @@ use axum::{
     response::IntoResponse,
     Json,
 };
+use serde_json::json;
 
 use crate::api::dto::invitation::{UserInvitationRequest, UserInvitationResponse};
 use crate::auth::claims::Claims;
