@@ -26,7 +26,11 @@ export const digitalisationLevelRepository = {
         error,
       );
     }
-    return db.digitalisationLevels.where({ dimensionId }).toArray();
+    const query = db.digitalisationLevels.where({ dimensionId });
+    if (lang !== "all") {
+      return query.filter((l) => l.lang === lang).toArray();
+    }
+    return query.toArray();
   },
 
   syncByDimensionId: async (dimensionId: string, lang = 'en'): Promise<void> => {
@@ -46,9 +50,10 @@ export const digitalisationLevelRepository = {
     );
 
     const backendData = await getDimensionWithStates({ id: dimensionId, lang });
-    const localLevels = await db.digitalisationLevels
-      .where({ dimensionId })
-      .toArray();
+    const localLevels =
+      lang === "all"
+        ? await db.digitalisationLevels.where({ dimensionId }).toArray()
+        : await db.digitalisationLevels.where({ dimensionId, lang }).toArray();
     const localLevelsMap = new Map(localLevels.map((l) => [l.id, l]));
 
     const beCurrentStates = backendData.data?.current_states ?? [];
@@ -94,7 +99,9 @@ export const digitalisationLevelRepository = {
     const idsToDelete = localLevels
       .filter(
         (l) =>
-          l.syncStatus !== SyncStatus.PENDING && !backendLevelIds.has(l.id),
+          l.syncStatus !== SyncStatus.PENDING &&
+          (lang === "all" || l.lang === lang) &&
+          !backendLevelIds.has(l.id),
       )
       .map((l) => [l.id, l.lang] as [string, string]);
 
@@ -148,7 +155,7 @@ export const digitalisationLevelRepository = {
           syncStatus: SyncStatus.SYNCED,
           lastError: "",
         };
-        
+
         // Validate required fields before storing
         if (synced.id && synced.lang) {
           try {
@@ -160,7 +167,7 @@ export const digitalisationLevelRepository = {
         } else {
           console.error("Invalid level data: missing required fields", { id: synced.id, lang: synced.lang });
         }
-        
+
         return synced;
       } catch (err: any) {
         const status = err?.status ?? err?.response?.status;
@@ -186,12 +193,12 @@ export const digitalisationLevelRepository = {
       syncStatus: SyncStatus.PENDING,
       lastError: "",
     };
-    
+
     // Validate required fields before storing
     if (!newLevel.id || !newLevel.lang) {
       throw new Error("Invalid level data: missing required fields");
     }
-    
+
     try {
       await db.digitalisationLevels.add(newLevel);
       const entityType = levelType === "current" ? "CurrentState" : "DesiredState";
@@ -200,7 +207,7 @@ export const digitalisationLevelRepository = {
       console.error("Failed to store digitalisation level offline:", error);
       throw new Error("Failed to create level offline");
     }
-    
+
     return newLevel;
   },
 
