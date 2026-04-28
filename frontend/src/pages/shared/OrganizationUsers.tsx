@@ -2,6 +2,17 @@ import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { PlusCircle, Trash2, RefreshCw, Clock } from "lucide-react";
 import { useOrganizationMembers } from "@/hooks/users/useOrganizationMembers";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -130,16 +141,37 @@ export default function OrganizationUsers() {
                           <RefreshCw className="h-3.5 w-3.5 mr-1" />
                           Resend
                         </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="h-8 px-3 text-xs border-red-200 text-red-600 hover:bg-red-50"
-                          disabled={deleteMutation.isPending}
-                          onClick={() => deleteMutation.mutate(inv.id)}
-                        >
-                          <Trash2 className="h-3.5 w-3.5 mr-1" />
-                          Delete
-                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-8 px-3 text-xs border-red-200 text-red-600 hover:bg-red-50"
+                              disabled={deleteMutation.isPending}
+                            >
+                              <Trash2 className="h-3.5 w-3.5 mr-1" />
+                              Delete
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>{t("sharedUsers.delete.title")}</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                {t("sharedUsers.delete.description")}
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => deleteMutation.mutate(inv.id)}
+                                className="bg-red-600 hover:bg-red-700"
+                                disabled={deleteMutation.isPending}
+                              >
+                                {deleteMutation.isPending ? t("common.deleting") : t("common.delete")}
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </div>
                     </td>
                   </tr>

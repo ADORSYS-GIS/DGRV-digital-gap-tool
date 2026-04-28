@@ -12,6 +12,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface CooperationUserListProps {
   users: CooperationUser[];
@@ -44,8 +55,8 @@ export const CooperationUserList = ({ users }: CooperationUserListProps) => {
             <TableCell>
               <span
                 className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${user.emailVerified
-                    ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100"
-                    : "bg-amber-50 text-amber-700 ring-1 ring-amber-100"
+                  ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100"
+                  : "bg-amber-50 text-amber-700 ring-1 ring-amber-100"
                   }`}
               >
                 <span
@@ -62,16 +73,37 @@ export const CooperationUserList = ({ users }: CooperationUserListProps) => {
                 {user.roles.includes("coop_user") && user.syncStatus === "synced" && (
                   <EditCooperationUserForm user={user} />
                 )}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => deleteUser(user.id)}
-                  disabled={isPending}
-                  className="border-red-200 text-red-700 hover:border-red-300 hover:bg-red-50 hover:text-red-800"
-                >
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  {t("secondAdminCooperationUsers.list.actions.delete")}
-                </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={isPending}
+                      className="border-red-200 text-red-700 hover:border-red-300 hover:bg-red-50 hover:text-red-800"
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      {t("secondAdminCooperationUsers.list.actions.delete")}
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>{t("sharedUsers.delete.title")}</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        {t("sharedUsers.delete.description")}
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={() => deleteUser(user.id)}
+                        className="bg-red-600 hover:bg-red-700"
+                        disabled={isPending}
+                      >
+                        {isPending ? t("common.deleting") : t("common.delete")}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
             </TableCell>
           </TableRow>

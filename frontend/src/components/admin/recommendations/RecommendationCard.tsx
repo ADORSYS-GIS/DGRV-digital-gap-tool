@@ -8,6 +8,17 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Pencil, Trash2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { EditRecommendationForm } from "./EditRecommendationForm";
@@ -28,11 +39,7 @@ export function RecommendationCard({
   const deleteRecommendation = useDeleteRecommendation();
 
   const handleDelete = async () => {
-    if (
-      window.confirm(t("adminRecommendations.card.confirmDelete"))
-    ) {
-      await deleteRecommendation.mutate(recommendation.id);
-    }
+    await deleteRecommendation.mutate(recommendation.id);
   };
 
   return (
@@ -82,15 +89,35 @@ export function RecommendationCard({
                 <Pencil className="h-4 w-4 mr-1" />
                 {t("adminRecommendations.card.edit")}
               </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleDelete}
-                disabled={deleteRecommendation.isPending}
-              >
-                <Trash2 className="h-4 w-4 mr-1" />
-                {deleteRecommendation.isPending ? t("adminRecommendations.card.deleting") : t("adminRecommendations.card.delete")}
-              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={deleteRecommendation.isPending}
+                  >
+                    <Trash2 className="h-4 w-4 mr-1" />
+                    {deleteRecommendation.isPending ? t("adminRecommendations.card.deleting") : t("adminRecommendations.card.delete")}
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>{t("adminLevels.delete.title")}</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      {t("adminRecommendations.card.confirmDelete")}
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={handleDelete}
+                      className="bg-red-600 hover:bg-red-700"
+                    >
+                      {t("common.delete")}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
           </div>
         </CardContent>
