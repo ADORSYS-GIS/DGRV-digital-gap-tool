@@ -23,13 +23,13 @@ export const useInviteUser = (orgId: string) => {
 
       const optimisticUser: UserWithSync = {
         id: uuidv4(),
-        email: newInvitation.email,
+        email: newInvitation.email!,
         firstName: newInvitation.first_name || "",
         lastName: newInvitation.last_name || "",
         roles: newInvitation.roles,
         orgId: orgId,
         syncStatus: SyncStatus.PENDING,
-        username: newInvitation.email,
+        username: newInvitation.email!,
       };
 
       queryClient.setQueryData<UserWithSync[]>(
@@ -39,7 +39,7 @@ export const useInviteUser = (orgId: string) => {
 
       return { previousMembers };
     },
-    onError: (err, newInvitation, context) => {
+    onError: (_err, _newInvitation, context) => {
       if (context?.previousMembers) {
         queryClient.setQueryData(
           ["organizationMembers", orgId],
@@ -50,6 +50,9 @@ export const useInviteUser = (orgId: string) => {
     onSettled: () => {
       queryClient.invalidateQueries({
         queryKey: ["organizationMembers", orgId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["organizationInvitations", orgId],
       });
     },
   });

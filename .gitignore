@@ -35,3 +35,4 @@ dist-ssr
 .cursorrules.md
 docs
 .github/workflows/active-deployment.yml
+.env.prod1

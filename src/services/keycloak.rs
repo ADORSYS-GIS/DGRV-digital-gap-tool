@@ -634,37 +634,55 @@ impl KeycloakService {
                 status: Option<String>,
             }
 
+            let status = resp.status();
             let body = resp.text().await.unwrap_or_default();
-            tracing::info!(body = %body, "Raw invitations response body");
+            tracing::info!(body = %body, "Raw invitations response body from Keycloak");
 
-            let raw: Vec<OrgInvitation> = serde_json::from_str(&body).unwrap_or_default();
-            tracing::info!(count = raw.len(), "Invitations returned from Keycloak");
+            match serde_json::from_str::<Vec<OrgInvitation>>(&body) {
+                Ok(raw) => {
+                    tracing::info!(count = raw.len(), "Invitations successfully parsed from Keycloak");
+                    let pending = raw
+                        .into_iter()
+                        .filter_map(|inv| {
+                            let email = inv.email?;
+                            let id = inv.id.unwrap_or_else(|| email.clone());
+                            Some(crate::api::dto::invitation::PendingInvitation {
+                                id,
+                                email,
+                                first_name: inv.first_name,
+                                last_name: inv.last_name,
+                                sent_date: inv.sent_date,
+                                expires_at: inv.expires_at,
+                                status: inv.status,
+                            })
+                        })
+                        .collect();
+                    return Ok(pending);
+                }
+                Err(e) => {
+                    tracing::error!(
+                        error = %e,
+                        body = %body,
+                        "Failed to deserialize Keycloak invitations. Still attempting attribute fallback."
+                    );
+                }
+            }
 
-            let pending = raw
-                .into_iter()
-                .filter_map(|inv| {
-                    let email = inv.email?;
-                    Some(crate::api::dto::invitation::PendingInvitation {
-                        id: inv.id.unwrap_or_else(|| email.clone()),
-                        email,
-                        first_name: inv.first_name,
-                        last_name: inv.last_name,
-                        sent_date: inv.sent_date,
-                        expires_at: inv.expires_at,
-                        status: inv.status,
-                    })
-                })
-                .collect();
-
-            return Ok(pending);
+            // Fallback: attribute-based lookup for users invited via our app
+            // We search using the 'q' parameter for invited_org:{org_id} which is efficient
+            tracing::warn!(
+                org_id = %org_id,
+                status = %status,
+                "Official invitations endpoint didn't provide results, using attribute fallback"
+            );
+        } else {
+             // Fallback: attribute-based lookup for users invited via our app
+            tracing::warn!(
+                org_id = %org_id,
+                status = %resp.status(),
+                "Official invitations endpoint didn't provide results, using attribute fallback"
+            );
         }
-
-        // Fallback: attribute-based lookup for users invited via our app
-        tracing::warn!(
-            org_id = %org_id,
-            status = %status,
-            "Official invitations endpoint failed, using attribute fallback"
-        );
 
         let members = self
             .get_organization_members(token, org_id)
@@ -673,27 +691,22 @@ impl KeycloakService {
         let member_ids: std::collections::HashSet<String> =
             members.iter().map(|m| m.id.clone()).collect();
 
+        // Keycloak user search with attribute filter
         let search_url = format!(
-            "{}/admin/realms/{}/users?max=500&briefRepresentation=false",
-            self.config.keycloak.url, self.config.keycloak.realm
+            "{}/admin/realms/{}/users?q=invited_org:{}&max=500&briefRepresentation=false",
+            self.config.keycloak.url, self.config.keycloak.realm, org_id
         );
 
-        if let Ok(search_resp) = self.client.get(&search_url).bearer_auth(token).send().await {
-            if search_resp.status().is_success() {
+        tracing::info!(url = %search_url, "Searching for users with invited_org attribute");
+
+        match self.client.get(&search_url).bearer_auth(token).send().await {
+            Ok(search_resp) if search_resp.status().is_success() => {
                 let all_users: Vec<KeycloakUser> = search_resp.json().await.unwrap_or_default();
+                tracing::info!(count = all_users.len(), "Found users with matching invited_org attribute");
+                
                 let pending: Vec<crate::api::dto::invitation::PendingInvitation> = all_users
                     .into_iter()
-                    .filter(|u| {
-                        if member_ids.contains(&u.id) {
-                            return false;
-                        }
-                        if let Some(attrs) = &u.attributes {
-                            if let Some(arr) = attrs.get("invited_org").and_then(|v| v.as_array()) {
-                                return arr.iter().any(|v| v.as_str() == Some(org_id));
-                            }
-                        }
-                        false
-                    })
+                    .filter(|u| !member_ids.contains(&u.id))
                     .map(|u| crate::api::dto::invitation::PendingInvitation {
                         id: u.id,
                         email: u.email,
@@ -704,12 +717,21 @@ impl KeycloakService {
                         status: Some("pending".to_string()),
                     })
                     .collect();
-                return Ok(pending);
+                Ok(pending)
+            }
+            Ok(search_resp) => {
+                let status = search_resp.status();
+                let err_body = search_resp.text().await.unwrap_or_default();
+                tracing::error!(status = %status, body = %err_body, "Attribute search fallback failed");
+                Ok(vec![])
+            }
+            Err(e) => {
+                tracing::error!(error = %e, "Attribute search fallback request failed");
+                Ok(vec![])
             }
         }
-
-        Ok(vec![])
     }
+
 
     /// Delete a pending invitation by ID
     /// DELETE /admin/realms/{realm}/organizations/{org-id}/invitations/{id}
