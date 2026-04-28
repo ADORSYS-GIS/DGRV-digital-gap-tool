@@ -15,7 +15,7 @@ import { useAddCooperationUser } from "@/hooks/cooperationUsers/useAddCooperatio
 import { AddCooperationUser } from "@/types/cooperationUser";
 import { useAuth } from "@/context/AuthContext";
 import { ROLES } from "@/constants/roles";
-import { useDimensions } from "@/hooks/dimensions/useDimensions";
+import { useLogicalDimensions } from "@/hooks/dimensions/useLogicalDimensions";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
@@ -42,28 +42,13 @@ export const AddCooperationUserForm = () => {
   const organizationId =
     currentUser?.organization || organizationIdFromHook || "";
 
-  const { data: dimensions = [] } = useDimensions();
+  const { data: logicalDimensions = [] } = useLogicalDimensions();
   const { data: assignedDimensionKeys = [] } =
     useOrganizationDimensions(organizationId);
 
-  console.log("AddCooperationUserForm Debug:", {
-    organizationId,
-    currentUserOrganization: currentUser?.organization,
-    organizationIdFromHook,
-    dimensionsCount: dimensions.length,
-    assignedDimensionKeysCount: assignedDimensionKeys.length,
-    assignedDimensionKeys
-  });
-
-  const filteredDimensions = dimensions.filter((d) => {
-    const isMatched = d.dimension_key && assignedDimensionKeys.includes(d.dimension_key);
-    return isMatched;
-  });
-
-  console.log("AddCooperationUserForm Filtered:", {
-    filteredCount: filteredDimensions.length,
-    dimensionKeys: dimensions.map(d => d.dimension_key)
-  });
+  const filteredDimensions = logicalDimensions.filter((d) =>
+    d.dimension_key && assignedDimensionKeys.includes(d.dimension_key)
+  );
 
   const getNewUserRole = () => {
     if (currentUser?.roles?.includes(ROLES.COOP_ADMIN)) {
@@ -190,13 +175,12 @@ export const AddCooperationUserForm = () => {
                 )}
                 {filteredDimensions.map((dimension) => (
                   <label
-                    key={dimension.id}
+                    key={dimension.dimension_key}
                     className="flex items-center gap-2 text-sm"
                   >
                     <Checkbox
-                      checked={dimension.dimension_key ? selectedDimensionIds.includes(dimension.dimension_key) : false}
+                      checked={selectedDimensionIds.includes(dimension.dimension_key)}
                       onCheckedChange={(checked) => {
-                        if (!dimension.dimension_key) return;
                         const key = dimension.dimension_key;
                         setSelectedDimensionIds((prev) =>
                           checked

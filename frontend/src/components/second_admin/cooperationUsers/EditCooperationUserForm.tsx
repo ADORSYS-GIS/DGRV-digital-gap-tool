@@ -13,7 +13,7 @@ import { toast } from "sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateUserDimensions } from "@/openapi-client/services.gen";
 import { db } from "@/services/db";
-import { useDimensions } from "@/hooks/dimensions/useDimensions";
+import { useLogicalDimensions } from "@/hooks/dimensions/useLogicalDimensions";
 import { useOrganizationDimensions } from "@/hooks/organization_dimensions/useOrganizationDimensions";
 import { useOrganizationId } from "@/hooks/organizations/useOrganizationId";
 import { CooperationUser } from "@/types/cooperationUser";
@@ -35,28 +35,12 @@ export const EditCooperationUserForm = ({ user }: EditCooperationUserFormProps) 
   const cooperationId = useCooperationId();
   const queryClient = useQueryClient();
 
-  const { data: allDimensions = [] } = useDimensions();
+  const { data: logicalDimensions = [] } = useLogicalDimensions();
   const { data: assignedDimensionKeys = [] } = useOrganizationDimensions(organizationId || "");
 
-  console.log("EditCooperationUserForm Debug:", {
-    organizationId,
-    allDimensionsCount: allDimensions.length,
-    assignedDimensionKeysCount: assignedDimensionKeys.length,
-    assignedDimensionKeys
-  });
-
-  const filteredDimensions = allDimensions.filter((d) => {
-    const isMatched = d.dimension_key && assignedDimensionKeys.includes(d.dimension_key);
-    if (allDimensions.length > 0 && assignedDimensionKeys.length > 0 && !isMatched) {
-      console.log("EditCooperationUserForm Mismatch:", { dimensionKey: d.dimension_key, dimensionName: d.name });
-    }
-    return isMatched;
-  });
-
-  console.log("EditCooperationUserForm Filtered:", {
-    filteredCount: filteredDimensions.length,
-    dimensionKeys: allDimensions.map(d => d.dimension_key)
-  });
+  const filteredDimensions = logicalDimensions.filter((d) =>
+    d.dimension_key && assignedDimensionKeys.includes(d.dimension_key),
+  );
 
   const userId = user.id;
 
@@ -118,11 +102,10 @@ export const EditCooperationUserForm = ({ user }: EditCooperationUserFormProps) 
                 </p>
               )}
               {filteredDimensions.map((dimension) => (
-                <label key={dimension.id} className="flex items-center gap-2 text-sm">
+                <label key={dimension.dimension_key} className="flex items-center gap-2 text-sm">
                   <Checkbox
-                    checked={dimension.dimension_key ? selectedDimensionIds.includes(dimension.dimension_key) : false}
+                    checked={selectedDimensionIds.includes(dimension.dimension_key)}
                     onCheckedChange={(checked) => {
-                      if (!dimension.dimension_key) return;
                       const key = dimension.dimension_key;
                       setSelectedDimensionIds((prev) =>
                         checked
