@@ -30,12 +30,20 @@ pub struct PdfReportRow {
     pub recommendations: Vec<String>,
 }
 
-/// Chart data
+/// Localized labels for the report
 #[derive(Debug, Clone, Serialize)]
-pub struct ChartData {
-    pub labels: Vec<String>,
-    pub current_state: Vec<i32>,
-    pub desired_state: Vec<i32>,
+pub struct PdfReportLabels {
+    pub title: String,
+    pub coop_prefix: String,
+    pub category: String,
+    pub gap: String,
+    pub result: String,
+    pub recommendations: String,
+    pub no_action_items: String,
+    pub chart_title: String,
+    pub current_state: String,
+    pub desired_state: String,
+    pub generated_at: String,
 }
 
 /// Full report data passed to the template
@@ -46,6 +54,7 @@ pub struct PdfReportData {
     pub rows: Vec<PdfReportRow>,
     pub chart_data: Option<String>,
     pub generation_date: String,
+    pub labels: PdfReportLabels,
 }
 
 pub struct PdfGeneratorService;
@@ -56,9 +65,11 @@ impl PdfGeneratorService {
         db: &DatabaseConnection,
         assessment_id: Uuid,
         organization_name: Option<String>,
+        lang: Option<String>,
     ) -> Result<Bytes, AppError> {
         info!("Starting PDF generation.");
-        let report_data = Self::fetch_report_data(db, assessment_id, organization_name).await?;
+        let lang = lang.unwrap_or_else(|| "en".to_string());
+        let report_data = Self::fetch_report_data(db, assessment_id, organization_name, &lang).await?;
         let html = Self::render_html_template(&report_data)?;
         let pdf_bytes = Self::html_to_pdf(&html).await?;
         Ok(pdf_bytes)
@@ -69,7 +80,9 @@ impl PdfGeneratorService {
         db: &DatabaseConnection,
         assessment_id: Uuid,
         organization_name: Option<String>,
+        lang: &str,
     ) -> Result<PdfReportData, AppError> {
+        let labels = Self::get_labels(lang);
         let assessment = AssessmentsRepository::find_by_id(db, assessment_id)
             .await?
             .ok_or_else(|| AppError::NotFound("Assessment not found".to_string()))?;
@@ -162,8 +175,70 @@ impl PdfGeneratorService {
             organization_id: organization_name.unwrap_or_else(|| assessment.organization_id.clone()),
             rows,
             chart_data,
-            generation_date: chrono::Utc::now().format("%B %d, %Y at %H:%M UTC").to_string(),
+            generation_date: match lang {
+                "pt" => chrono::Utc::now().format("%d de %B de %Y às %H:%M UTC").to_string(),
+                "fr" => chrono::Utc::now().format("%d %B %Y à %H:%M UTC").to_string(),
+                _ => chrono::Utc::now().format("%B %d, %Y at %H:%M UTC").to_string(),
+            },
+            labels,
         })
+    }
+
+    fn get_labels(lang: &str) -> PdfReportLabels {
+        match lang {
+            "pt" => PdfReportLabels {
+                title: "Relatório de Avaliação de Gap".to_string(),
+                coop_prefix: "Cooperativa".to_string(),
+                category: "Categoria".to_string(),
+                gap: "Gap".to_string(),
+                result: "Resultado".to_string(),
+                recommendations: "Recomendações (Plano de Ação)".to_string(),
+                no_action_items: "Ainda não há itens de ação".to_string(),
+                chart_title: "Estado Atual vs Desejado por Dimensão".to_string(),
+                current_state: "Estado Atual".to_string(),
+                desired_state: "Estado Desejado".to_string(),
+                generated_at: "Gerado em".to_string(),
+            },
+            "fr" => PdfReportLabels {
+                title: "Rapport d'Évaluation des Écarts".to_string(),
+                coop_prefix: "Coopérative".to_string(),
+                category: "Catégorie".to_string(),
+                gap: "Écart".to_string(),
+                result: "Résultat".to_string(),
+                recommendations: "Recommandations (Plan d'Action)".to_string(),
+                no_action_items: "Pas encore d'éléments d'action".to_string(),
+                chart_title: "État Actuel vs Désiré par Dimension".to_string(),
+                current_state: "État Actuel".to_string(),
+                desired_state: "État Désiré".to_string(),
+                generated_at: "Généré le".to_string(),
+            },
+            "ss" => PdfReportLabels {
+                title: "Umbiko Wekuhlola Lokulahleka".to_string(), // SiSwati approximation
+                coop_prefix: "Libambiswano".to_string(),
+                category: "Sigaba".to_string(),
+                gap: "Ligebe".to_string(),
+                result: "Imiphumela".to_string(),
+                recommendations: "Tincumo (Luhlelo Lekwenta)".to_string(),
+                no_action_items: "Kute tintfo letentiwe nyalo".to_string(),
+                chart_title: "Simo Sanyalo vs Lesifisako ngetakhiwo".to_string(),
+                current_state: "Simo Sanyalo".to_string(),
+                desired_state: "Simo Lesifisako".to_string(),
+                generated_at: "Ikhiwe nga".to_string(),
+            },
+            _ => PdfReportLabels {
+                title: "Gap Assessment Report".to_string(),
+                coop_prefix: "Cooperative".to_string(),
+                category: "Category".to_string(),
+                gap: "Gap".to_string(),
+                result: "Result".to_string(),
+                recommendations: "Recommendations (Action Plan)".to_string(),
+                no_action_items: "No action items yet".to_string(),
+                chart_title: "Current vs Desired State by Dimension".to_string(),
+                current_state: "Current State".to_string(),
+                desired_state: "Desired State".to_string(),
+                generated_at: "Generated".to_string(),
+            },
+        }
     }
 
     #[instrument(skip(data))]
@@ -179,6 +254,7 @@ impl PdfGeneratorService {
         context.insert("rows", &data.rows);
         context.insert("chart_data", &data.chart_data);
         context.insert("generation_date", &data.generation_date);
+        context.insert("labels", &data.labels);
 
         tera.render("report.html", &context).map_err(|e| {
             error!(error = %e, "Failed to render HTML template.");

@@ -196,6 +196,11 @@ export const recommendationRepository = {
         // Extract a meaningful message from the API error response
         const status = err?.status ?? err?.response?.status;
         const body = err?.body ?? err?.response?.data ?? {};
+
+        if (status === 404 && body?.message?.includes("No dimension found") && body?.message?.includes("language")) {
+          throw new Error("Please you need to add a translation for the dimension first");
+        }
+
         if (status === 409) {
           throw new Error(
             body?.message ??

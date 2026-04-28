@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Gap Assessment Report</title>
+    <title>{{ labels.title }}</title>
     <style>
         * {
             margin: 0;
@@ -126,18 +126,18 @@
 
 <body>
     <div class="header">
-        <h1>Gap Assessment Report</h1>
+        <h1>{{ labels.title }}</h1>
         <p class="subtitle">{{ assessment_title }}</p>
-        <p style="color:#94a3b8;font-size:13px;margin-top:4px;">Cooperative: {{ organization_id }}</p>
+        <p style="color:#94a3b8;font-size:13px;margin-top:4px;">{{ labels.coop_prefix }}: {{ organization_id }}</p>
     </div>
 
     <table>
         <thead>
             <tr>
-                <th style="width:16%">Category</th>
-                <th style="width:10%">Gap</th>
-                <th style="width:30%">Result</th>
-                <th>Recommendations (Action Plan)</th>
+                <th style="width:16%">{{ labels.category }}</th>
+                <th style="width:10%">{{ labels.gap }}</th>
+                <th style="width:30%">{{ labels.result }}</th>
+                <th>{{ labels.recommendations }}</th>
             </tr>
         </thead>
         <tbody>
@@ -148,7 +148,7 @@
                 <td>{{ row.result }}</td>
                 <td>
                     {% if row.recommendations | length == 0 %}
-                    <span style="color:#94a3b8;font-style:italic">No action items yet</span>
+                    <span style="color:#94a3b8;font-style:italic">{{ labels.no_action_items }}</span>
                     {% else %}
                     <ul class="rec-list">
                         {% for rec in row.recommendations %}
@@ -164,7 +164,7 @@
 
     {% if chart_data %}
     <div class="chart-container">
-        <h2 class="chart-title">Current vs Desired State by Dimension</h2>
+        <h2 class="chart-title">{{ labels.chart_title }}</h2>
         <canvas id="gapChart" width="800" height="350"></canvas>
     </div>
     <script>
@@ -175,8 +175,8 @@
             data: {
                 labels: chartData.labels,
                 datasets: [
-                    { label: 'Current State', data: chartData.current_state, backgroundColor: '#3b82f6', borderColor: '#2563eb', borderWidth: 1 },
-                    { label: 'Desired State', data: chartData.desired_state, backgroundColor: '#f97316', borderColor: '#ea580c', borderWidth: 1 }
+                    { label: '{{ labels.current_state }}', data: chartData.current_state, backgroundColor: '#3b82f6', borderColor: '#2563eb', borderWidth: 1 },
+                    { label: '{{ labels.desired_state }}', data: chartData.desired_state, backgroundColor: '#f97316', borderColor: '#ea580c', borderWidth: 1 }
                 ]
             },
             options: {
@@ -199,7 +199,7 @@
     {% endif %}
 
     <div class="footer">
-        <p>Generated: {{ generation_date }}</p>
+        <p>{{ labels.generated_at }}: {{ generation_date }}</p>
     </div>
 </body>
 

@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { OpenAPI } from "@/openapi-client/core/OpenAPI";
 import { authService } from "@/services/shared/authService";
+import { useTranslation } from "react-i18next";
 
 /**
  * Generates a fresh PDF from current assessment + action plan data,
@@ -9,14 +10,16 @@ import { authService } from "@/services/shared/authService";
  */
 export const useGenerateAndExportReport = () => {
   const queryClient = useQueryClient();
+  const { i18n } = useTranslation();
 
   return useMutation({
     mutationFn: async (assessmentId: string) => {
       const token = await authService.getAccessToken();
       const baseUrl = OpenAPI.BASE || "";
+      const currentLang = i18n.language || "en";
 
       const response = await fetch(
-        `${baseUrl}/reports/assessment/${assessmentId}/generate-and-export`,
+        `${baseUrl}/reports/assessment/${assessmentId}/generate-and-export?lang=${currentLang}`,
         {
           method: "POST",
           headers: {

@@ -555,8 +555,11 @@ pub async fn delete_report(
 pub async fn generate_and_export_report(
     State(state): State<AppState>,
     Path(assessment_id): Path<Uuid>,
+    Query(params): Query<HashMap<String, String>>,
 ) -> Result<impl axum::response::IntoResponse, (StatusCode, Json<serde_json::Value>)> {
     tracing::info!(assessment_id = %assessment_id, "Generating fresh PDF for export");
+
+    let lang = params.get("lang").cloned();
 
     // Fetch cooperation name from Keycloak to include in the report header
     let organization_name = async {
@@ -591,7 +594,7 @@ pub async fn generate_and_export_report(
 
     let (pdf_bytes, _) = state
         .report_service
-        .generate_and_export(assessment_id, organization_name)
+        .generate_and_export(assessment_id, organization_name, lang)
         .await
         .map_err(crate::api::handlers::common::handle_error)?;
 
