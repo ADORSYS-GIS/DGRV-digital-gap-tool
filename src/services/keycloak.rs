@@ -707,39 +707,59 @@ impl KeycloakService {
                 
                 match serde_json::from_str::<Vec<KeycloakUser>>(&body) {
                     Ok(all_users) => {
-                        let pending: Vec<crate::api::dto::invitation::PendingInvitation> = all_users
+                        if let Some(first_user) = all_users.first() {
+                            tracing::info!(
+                                user_id = %first_user.id,
+                                has_attributes = first_user.attributes.is_some(),
+                                attributes = ?first_user.attributes,
+                                "Diagnostic: First user from list response"
+                            );
+                        }
+                        
+                        let unverified_users: Vec<KeycloakUser> = all_users
                             .into_iter()
-                            .filter(|u| {
-                                // 1. Must not be verified
-                                if u.email_verified {
-                                    return false;
-                                }
-                                
-                                // 2. Must have the invited_org attribute matching our org_id
-                                if let Some(attributes) = &u.attributes {
-                                    if let Some(org_attr) = attributes.get("invited_org") {
-                                        if let Some(org_list) = org_attr.as_array() {
-                                            return org_list.iter().any(|v| v.as_str() == Some(org_id));
-                                        }
-                                        if let Some(org_str) = org_attr.as_str() {
-                                            return org_str == org_id;
-                                        }
-                                    }
-                                }
-                                false
-                            })
-                            .map(|u| crate::api::dto::invitation::PendingInvitation {
-                                id: u.id,
-                                email: u.email,
-                                first_name: u.first_name,
-                                last_name: u.last_name,
-                                sent_date: None,
-                                expires_at: None,
-                                status: Some("pending".to_string()),
-                            })
+                            .filter(|u| !u.email_verified)
+                            .take(100) // Safety limit
                             .collect();
                         
-                        tracing::info!(count = pending.len(), "Successfully filtered pending invitations manually");
+                        tracing::info!(count = unverified_users.len(), "Fetching full details for unverified users to check attributes");
+                        
+                        let mut pending = Vec::new();
+                        for mut user in unverified_users {
+                            // Fetch full user if attributes are missing
+                            if user.attributes.is_none() {
+                                if let Ok(full_user) = self.get_user_by_id(token, &user.id).await {
+                                    user.attributes = full_user.attributes;
+                                }
+                            }
+                            
+                            // Check the invited_org attribute
+                            if let Some(attributes) = &user.attributes {
+                                if let Some(org_attr) = attributes.get("invited_org") {
+                                    let matches = if let Some(org_list) = org_attr.as_array() {
+                                        org_list.iter().any(|v| v.as_str() == Some(org_id))
+                                    } else if let Some(org_str) = org_attr.as_str() {
+                                        org_str == org_id
+                                    } else {
+                                        false
+                                    };
+                                    
+                                    if matches {
+                                        pending.push(crate::api::dto::invitation::PendingInvitation {
+                                            id: user.id,
+                                            email: user.email,
+                                            first_name: user.first_name,
+                                            last_name: user.last_name,
+                                            sent_date: None,
+                                            expires_at: None,
+                                            status: Some("pending".to_string()),
+                                        });
+                                    }
+                                }
+                            }
+                        }
+                        
+                        tracing::info!(count = pending.len(), "Successfully filtered pending invitations after full detail fetch");
                         Ok(pending)
                     }
                     Err(e) => {
