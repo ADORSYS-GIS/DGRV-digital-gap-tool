@@ -6,6 +6,7 @@ use axum::{
     response::Json,
 };
 use uuid::Uuid;
+use std::collections::HashMap;
 
 use crate::api::dto::report::{ReportStatus, ReportType};
 use crate::api::dto::{
@@ -92,6 +93,7 @@ pub async fn generate_report(
         crate::services::pdf_generator::PdfGeneratorService::generate_assessment_pdf(
             &state.db,
             request.assessment_id,
+            None,
             None,
         )
         .await;

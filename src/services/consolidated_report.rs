@@ -43,6 +43,7 @@ async fn process_submissions(
 ) -> Result<ConsolidatedReport, String> {
     let mut dimension_assessments_map: HashMap<Uuid, Vec<dimension_assessments::Model>> =
         HashMap::new();
+    let mut id_to_key_map: HashMap<Uuid, Uuid> = HashMap::new();
     let mut total_gap_score = 0;
     let mut total_dimension_assessments = 0;
 
@@ -53,8 +54,19 @@ async fn process_submissions(
                 .map_err(|e| e.to_string())?;
 
         for da in dimension_assessments {
+            let dimension_key = if let Some(key) = id_to_key_map.get(&da.dimension_id) {
+                *key
+            } else {
+                let dim = DimensionsRepository::find_by_id(&db, da.dimension_id)
+                    .await
+                    .map_err(|e| e.to_string())?
+                    .ok_or_else(|| format!("Dimension {} not found", da.dimension_id))?;
+                id_to_key_map.insert(da.dimension_id, dim.dimension_key);
+                dim.dimension_key
+            };
+
             dimension_assessments_map
-                .entry(da.dimension_id)
+                .entry(dimension_key)
                 .or_default()
                 .push(da.clone());
             total_gap_score += da.gap_score;
@@ -65,18 +77,29 @@ async fn process_submissions(
     let mut dimension_summaries = Vec::new();
     let mut total_risk_level = 0.0;
 
-    for (dimension_id, das) in dimension_assessments_map {
-        let dimension = DimensionsRepository::find_by_id(&db, dimension_id)
+    for (dimension_key, das) in dimension_assessments_map {
+        // Try to find English version for display name and recommendations
+        let dimension = match DimensionsRepository::find_by_key_and_language(&db, dimension_key, "en")
             .await
             .map_err(|e| e.to_string())?
-            .ok_or_else(|| "Dimension not found".to_string())?;
+        {
+            Some(d) => d,
+            None => {
+                // Fallback: use the first available dimension instance
+                DimensionsRepository::find_by_id(&db, das[0].dimension_id)
+                    .await
+                    .map_err(|e| e.to_string())?
+                    .ok_or_else(|| "Dimension fallback not found".to_string())?
+            }
+        };
 
         let (average_gap_score, risk_level_distribution, average_risk_level) =
             calculate_dimension_metrics(&das);
 
-        let recommendations = RecommendationsRepository::find_admin_by_dimension(&db, dimension_id)
-            .await
-            .map_err(|e| e.to_string())?;
+        let recommendations =
+            RecommendationsRepository::find_admin_by_dimension(&db, dimension.dimension_id)
+                .await
+                .map_err(|e| e.to_string())?;
 
         let top_recommendations = recommendations
             .into_iter()

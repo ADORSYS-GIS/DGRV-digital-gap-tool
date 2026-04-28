@@ -19,6 +19,13 @@ use tera::{Context, Tera};
 use tracing::{error, info, instrument, warn};
 use uuid::Uuid;
 
+#[derive(Serialize)]
+struct ChartData {
+    labels: Vec<String>,
+    current_state: Vec<i32>,
+    desired_state: Vec<i32>,
+}
+
 /// One row in the report table: one dimension assessment
 #[derive(Debug, Clone, Serialize)]
 pub struct PdfReportRow {
