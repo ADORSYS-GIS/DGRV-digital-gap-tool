@@ -834,7 +834,9 @@
         },
         "/admin/organizations/{org_id}/invitations": {
             "get": {
-                "tags": ["Organization"],
+                "tags": [
+                    "Organization"
+                ],
                 "summary": "Get pending invitations for an organization",
                 "operationId": "get_organization_invitations",
                 "parameters": [
@@ -843,7 +845,9 @@
                         "in": "path",
                         "description": "Organization ID",
                         "required": true,
-                        "schema": { "type": "string" }
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 ],
                 "responses": {
@@ -853,7 +857,9 @@
                             "application/json": {
                                 "schema": {
                                     "type": "array",
-                                    "items": { "$ref": "#/components/schemas/PendingInvitation" }
+                                    "items": {
+                                        "$ref": "#/components/schemas/PendingInvitation"
+                                    }
                                 }
                             }
                         }
@@ -903,7 +909,9 @@
         },
         "/admin/organizations/{org_id}/invitations/{invitation_id}": {
             "delete": {
-                "tags": ["Organization"],
+                "tags": [
+                    "Organization"
+                ],
                 "summary": "Delete a pending invitation",
                 "operationId": "delete_organization_invitation",
                 "parameters": [
@@ -912,25 +920,35 @@
                         "in": "path",
                         "description": "Organization ID",
                         "required": true,
-                        "schema": { "type": "string" }
+                        "schema": {
+                            "type": "string"
+                        }
                     },
                     {
                         "name": "invitation_id",
                         "in": "path",
                         "description": "Invitation ID",
                         "required": true,
-                        "schema": { "type": "string" }
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 ],
                 "responses": {
-                    "204": { "description": "No Content" },
-                    "404": { "description": "Not Found" }
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    }
                 }
             }
         },
         "/admin/organizations/{org_id}/invitations/{invitation_id}/resend": {
             "post": {
-                "tags": ["Organization"],
+                "tags": [
+                    "Organization"
+                ],
                 "summary": "Resend a pending invitation",
                 "operationId": "resend_organization_invitation",
                 "parameters": [
@@ -939,19 +957,27 @@
                         "in": "path",
                         "description": "Organization ID",
                         "required": true,
-                        "schema": { "type": "string" }
+                        "schema": {
+                            "type": "string"
+                        }
                     },
                     {
                         "name": "invitation_id",
                         "in": "path",
                         "description": "Invitation ID",
                         "required": true,
-                        "schema": { "type": "string" }
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 ],
                 "responses": {
-                    "204": { "description": "No Content" },
-                    "404": { "description": "Not Found" }
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    }
                 }
             }
         },
@@ -4348,7 +4374,9 @@
                                             "description": "Dimension response",
                                             "required": [
                                                 "dimension_id",
+                                                "dimension_key",
                                                 "name",
+                                                "language",
                                                 "created_at",
                                                 "updated_at"
                                             ],
@@ -4369,12 +4397,22 @@
                                                     "type": "string",
                                                     "format": "uuid"
                                                 },
+                                                "dimension_key": {
+                                                    "type": "string",
+                                                    "format": "uuid",
+                                                    "description": "Stable cross-language identifier shared by all language versions of the same logical dimension"
+                                                },
                                                 "is_active": {
                                                     "type": "boolean",
                                                     "nullable": true
                                                 },
                                                 "name": {
                                                     "type": "string"
+                                                },
+                                                "language": {
+                                                    "type": "string",
+                                                    "description": "Language code for this content entry",
+                                                    "example": "en"
                                                 },
                                                 "updated_at": {
                                                     "type": "string",
@@ -6393,7 +6431,9 @@
                             "description": "Dimension response",
                             "required": [
                                 "dimension_id",
+                                "dimension_key",
                                 "name",
+                                "language",
                                 "created_at",
                                 "updated_at"
                             ],
@@ -6414,12 +6454,22 @@
                                     "type": "string",
                                     "format": "uuid"
                                 },
+                                "dimension_key": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "description": "Stable cross-language identifier shared by all language versions of the same logical dimension"
+                                },
                                 "is_active": {
                                     "type": "boolean",
                                     "nullable": true
                                 },
                                 "name": {
                                     "type": "string"
+                                },
+                                "language": {
+                                    "type": "string",
+                                    "description": "Language code for this content entry",
+                                    "example": "en"
                                 },
                                 "updated_at": {
                                     "type": "string",
@@ -7355,15 +7405,39 @@
             },
             "PendingInvitation": {
                 "type": "object",
-                "required": ["id", "email"],
+                "required": [
+                    "id",
+                    "email"
+                ],
                 "properties": {
-                    "id": { "type": "string" },
-                    "email": { "type": "string" },
-                    "firstName": { "type": "string", "nullable": true },
-                    "lastName": { "type": "string", "nullable": true },
-                    "sentDate": { "type": "integer", "format": "int64", "nullable": true },
-                    "expiresAt": { "type": "integer", "format": "int64", "nullable": true },
-                    "status": { "type": "string", "nullable": true }
+                    "id": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "firstName": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "lastName": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "sentDate": {
+                        "type": "integer",
+                        "format": "int64",
+                        "nullable": true
+                    },
+                    "expiresAt": {
+                        "type": "integer",
+                        "format": "int64",
+                        "nullable": true
+                    },
+                    "status": {
+                        "type": "string",
+                        "nullable": true
+                    }
                 }
             },
             "UserInvitationRequest": {

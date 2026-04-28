@@ -30,7 +30,7 @@ export const dimensionRepository = {
                 id: beDim.dimension_id,
                 lang: currentLang,
                 // Preserve dimension_key if backend omits it (truncated list response)
-                dimension_key: (beDim as any).dimension_key || localDim?.dimension_key || null,
+                dimension_key: beDim.dimension_key || localDim?.dimension_key || null,
                 syncStatus: SyncStatus.SYNCED,
                 lastError: "",
               });
@@ -40,10 +40,10 @@ export const dimensionRepository = {
           if (dimensionsToPut.length > 0) {
             try {
               // Validate all items have required fields before bulk insert
-              const validDimensions = dimensionsToPut.filter(dim => 
+              const validDimensions = dimensionsToPut.filter(dim =>
                 dim.id && dim.lang
               );
-              
+
               if (validDimensions.length > 0) {
                 await db.dimensions.bulkPut(validDimensions);
                 console.log(`Successfully stored ${validDimensions.length} dimensions`);
@@ -102,7 +102,7 @@ export const dimensionRepository = {
             syncStatus: SyncStatus.SYNCED,
             lastError: "",
           };
-          
+
           // Validate required fields before storing
           if (syncedDimension.id && syncedDimension.lang) {
             try {
@@ -158,7 +158,7 @@ export const dimensionRepository = {
           syncStatus: SyncStatus.SYNCED,
           lastError: "",
         };
-        
+
         // Validate required fields for composite key [id+lang]
         if (!synced.id || !synced.lang) {
           console.error("Cannot store dimension: missing id or lang", { id: synced.id, lang: synced.lang });
