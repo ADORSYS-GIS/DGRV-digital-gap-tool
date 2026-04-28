@@ -693,30 +693,41 @@ impl KeycloakService {
             );
         }
 
-        // The `invited_org` attribute is our source of truth for pending invitations.
-        // We do NOT filter by membership status because Keycloak's invite-user
-        // endpoint adds existing users as org members directly, which would cause
-        // all invited users to be filtered out.
+        // Fallback: If the official endpoint fails, we fetch realm users and filter manually by invited_org.
+        // We do this because Keycloak's `q` search parameter for attributes can be unreliable.
         let search_url = format!(
-            "{}/admin/realms/{}/users?q=invited_org:\"{}\"&max=500&briefRepresentation=false",
-            self.config.keycloak.url, self.config.keycloak.realm, org_id
+            "{}/admin/realms/{}/users?max=1000&briefRepresentation=false",
+            self.config.keycloak.url, self.config.keycloak.realm
         );
-
-        tracing::info!(url = %search_url, "Searching for users with invited_org attribute");
-
+        tracing::info!(url = %search_url, org_id = %org_id, "Fetching users for manual attribute filtering");
+        
         match self.client.get(&search_url).bearer_auth(token).send().await {
             Ok(search_resp) if search_resp.status().is_success() => {
-                let status = search_resp.status();
                 let body = search_resp.text().await.unwrap_or_default();
-                tracing::info!(status = %status, body = %body, "Attribute search raw response body");
                 
                 match serde_json::from_str::<Vec<KeycloakUser>>(&body) {
                     Ok(all_users) => {
-                        tracing::info!(count = all_users.len(), "Found users with matching invited_org attribute");
-                        
                         let pending: Vec<crate::api::dto::invitation::PendingInvitation> = all_users
                             .into_iter()
-                            .filter(|u| !u.email_verified)
+                            .filter(|u| {
+                                // 1. Must not be verified
+                                if u.email_verified {
+                                    return false;
+                                }
+                                
+                                // 2. Must have the invited_org attribute matching our org_id
+                                if let Some(attributes) = &u.attributes {
+                                    if let Some(org_attr) = attributes.get("invited_org") {
+                                        if let Some(org_list) = org_attr.as_array() {
+                                            return org_list.iter().any(|v| v.as_str() == Some(org_id));
+                                        }
+                                        if let Some(org_str) = org_attr.as_str() {
+                                            return org_str == org_id;
+                                        }
+                                    }
+                                }
+                                false
+                            })
                             .map(|u| crate::api::dto::invitation::PendingInvitation {
                                 id: u.id,
                                 email: u.email,
@@ -727,22 +738,23 @@ impl KeycloakService {
                                 status: Some("pending".to_string()),
                             })
                             .collect();
+                        
+                        tracing::info!(count = pending.len(), "Successfully filtered pending invitations manually");
                         Ok(pending)
                     }
                     Err(e) => {
-                        tracing::error!(error = %e, body = %body, "Failed to deserialize Keycloak users from attribute search");
+                        tracing::error!(error = %e, "Failed to deserialize Keycloak users for manual filtering");
                         Ok(vec![])
                     }
                 }
             }
             Ok(search_resp) => {
                 let status = search_resp.status();
-                let err_body = search_resp.text().await.unwrap_or_default();
-                tracing::error!(status = %status, body = %err_body, "Attribute search fallback failed");
+                tracing::error!(status = %status, "User fetch for manual filtering failed");
                 Ok(vec![])
             }
             Err(e) => {
-                tracing::error!(error = %e, "Attribute search fallback request failed");
+                tracing::error!(error = %e, "User fetch request failed");
                 Ok(vec![])
             }
         }
