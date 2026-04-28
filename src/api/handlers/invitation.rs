@@ -169,10 +169,15 @@ pub async fn invite_user_to_organization(
     }
 
     // Store the invited org on the user so we can filter pending invitations per org
-    let _ = app_state
+    if let Err(e) = app_state
         .keycloak_service
         .set_user_attribute(&admin_token, &user.id, "invited_org", &org_id)
-        .await;
+        .await
+    {
+        tracing::error!(error = %e, user_id = %user.id, "Failed to set invited_org attribute on user");
+        // We continue anyway as the official invitation might still work, 
+        // but this explains why it might not show up in our custom pending list.
+    }
 
     // Create invitation
     match app_state

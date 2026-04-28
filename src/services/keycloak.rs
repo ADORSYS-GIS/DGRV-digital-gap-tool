@@ -502,6 +502,7 @@ impl KeycloakService {
         }
 
         let mut user: serde_json::Value = get_resp.json().await.unwrap_or(serde_json::json!({}));
+        tracing::info!(user_id = %user_id, key = %key, value = %value, "Current user attributes fetched, merging new attribute");
 
         // Merge the new attribute into the existing attributes map
         let attrs = user
@@ -521,15 +522,23 @@ impl KeycloakService {
             "{}/admin/realms/{}/users/{}",
             self.config.keycloak.url, self.config.keycloak.realm, user_id
         );
-        let _ = self
+        let response = self
             .client
             .put(&put_url)
             .bearer_auth(token)
             .json(&user)
             .send()
-            .await;
+            .await?;
 
-        Ok(())
+        if response.status().is_success() {
+            tracing::info!(user_id = %user_id, key = %key, value = %value, "Successfully updated user attribute in Keycloak");
+            Ok(())
+        } else {
+            let status = response.status();
+            let body = response.text().await.unwrap_or_default();
+            tracing::error!(status = %status, body = %body, user_id = %user_id, "Failed to update user attribute in Keycloak");
+            Err(anyhow::anyhow!("Failed to update user attribute (status: {}): {}", status, body))
+        }
     }
 
     /// Create an invitation to an organization.
