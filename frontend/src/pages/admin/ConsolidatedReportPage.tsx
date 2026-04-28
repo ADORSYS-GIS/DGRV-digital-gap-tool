@@ -253,9 +253,9 @@ export function ConsolidatedReportPage() {
     try {
       setLoading(true);
       setError(null);
-      const data =
+      const result =
         await consolidatedReportRepository.getDgrvAdminConsolidatedReport();
-      setReport(data);
+      setReport(result?.data || null);
     } catch (err) {
       setError(t("consolidatedReport.errors.fetch"));
     } finally {
