@@ -10,5 +10,6 @@ pub mod recommendation;
 pub mod report;
 pub mod submission;
 pub mod user;
+pub mod user_me;
 
 pub mod group;

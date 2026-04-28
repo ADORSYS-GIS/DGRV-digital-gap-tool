@@ -3141,10 +3141,141 @@
                     }
                 }
             }
+        },
+        "/user/me": {
+            "get": {
+                "tags": [
+                    "User Me"
+                ],
+                "summary": "Get current user profile",
+                "operationId": "get_me",
+                "responses": {
+                    "200": {
+                        "description": "User profile fetched",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/KeycloakUser"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_auth": []
+                    }
+                ]
+            },
+            "patch": {
+                "tags": [
+                    "User Me"
+                ],
+                "summary": "Update current user profile",
+                "operationId": "update_me",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateMeRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "User profile updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/KeycloakUser"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_auth": []
+                    }
+                ]
+            }
+        },
+        "/user/me/password": {
+            "post": {
+                "tags": [
+                    "User Me"
+                ],
+                "summary": "Change current user password",
+                "operationId": "change_password",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ChangePasswordRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Password changed"
+                    },
+                    "401": {
+                        "description": "Invalid current password"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_auth": []
+                    }
+                ]
+            }
         }
     },
     "components": {
         "schemas": {
+            "UpdateMeRequest": {
+                "type": "object",
+                "required": [
+                    "first_name",
+                    "last_name"
+                ],
+                "properties": {
+                    "first_name": {
+                        "type": "string"
+                    },
+                    "last_name": {
+                        "type": "string"
+                    }
+                }
+            },
+            "ChangePasswordRequest": {
+                "type": "object",
+                "required": [
+                    "old_password",
+                    "new_password"
+                ],
+                "properties": {
+                    "old_password": {
+                        "type": "string"
+                    },
+                    "new_password": {
+                        "type": "string"
+                    }
+                }
+            },
             "ActionItemResponse": {
                 "type": "object",
                 "required": [

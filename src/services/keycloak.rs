@@ -1606,4 +1606,123 @@ impl KeycloakService {
             }
         }
     }
+
+    /// Update basic user profile information (firstName, lastName)
+    pub async fn update_user_profile(
+        &self,
+        token: &str,
+        user_id: &str,
+        first_name: Option<String>,
+        last_name: Option<String>,
+        email: Option<String>,
+    ) -> Result<()> {
+        let url = format!(
+            "{}/admin/realms/{}/users/{}",
+            self.config.keycloak.url, self.config.keycloak.realm, user_id
+        );
+
+        let mut payload = serde_json::Map::new();
+        if let Some(first) = first_name {
+            payload.insert("firstName".to_string(), json!(first));
+        }
+        if let Some(last) = last_name {
+            payload.insert("lastName".to_string(), json!(last));
+        }
+        if let Some(email) = email {
+            payload.insert("email".to_string(), json!(email));
+        }
+
+        info!(url = %url, user_id = %user_id, "Updating user profile");
+
+        let response = self
+            .client
+            .put(&url)
+            .bearer_auth(token)
+            .json(&payload)
+            .send()
+            .await?;
+
+        match response.status() {
+            StatusCode::NO_CONTENT | StatusCode::OK => Ok(()),
+            _ => {
+                let status = response.status();
+                let error_text = response.text().await?;
+                error!(status = %status, "Failed to update user profile: {}", error_text);
+                Err(anyhow!(
+                    "Failed to update user profile (status: {}): {}",
+                    status,
+                    error_text
+                ))
+            }
+        }
+    }
+
+    /// Reset user password (admin action)
+    pub async fn reset_password(
+        &self,
+        token: &str,
+        user_id: &str,
+        new_password: &str,
+        temporary: bool,
+    ) -> Result<()> {
+        let url = format!(
+            "{}/admin/realms/{}/users/{}/reset-password",
+            self.config.keycloak.url, self.config.keycloak.realm, user_id
+        );
+
+        let payload = json!({
+            "type": "password",
+            "value": new_password,
+            "temporary": temporary,
+        });
+
+        info!(url = %url, user_id = %user_id, "Resetting user password");
+
+        let response = self
+            .client
+            .put(&url)
+            .bearer_auth(token)
+            .json(&payload)
+            .send()
+            .await?;
+
+        match response.status() {
+            StatusCode::NO_CONTENT | StatusCode::OK => Ok(()),
+            _ => {
+                let status = response.status();
+                let error_text = response.text().await?;
+                error!(status = %status, "Failed to reset password: {}", error_text);
+                Err(anyhow!(
+                    "Failed to reset password (status: {}): {}",
+                    status,
+                    error_text
+                ))
+            }
+        }
+    }
+
+    /// Verify user password by attempting to get a token via direct grant
+    pub async fn verify_user_password(
+        &self,
+        username: &str,
+        password: &str,
+    ) -> Result<bool> {
+        let url = format!(
+            "{}/realms/{}/protocol/openid-connect/token",
+            self.config.keycloak.url, self.config.keycloak.realm
+        );
+
+        let params = [
+            ("grant_type", "password"),
+            ("client_id", &self.config.keycloak.client_id),
+            ("client_secret", &self.config.keycloak.client_secret),
+            ("username", username),
+            ("password", password),
+            ("scope", "openid"),
+        ];
+
+        let response = self.client.post(&url).form(&params).send().await?;
+
+        Ok(response.status().is_success())
+    }
 }

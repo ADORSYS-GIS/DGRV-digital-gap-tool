@@ -1340,5 +1340,29 @@
     "title": "Gérer les Utilisateurs",
     "subtitle": "Gérez les comptes utilisateurs et l'accès au système."
   },
-  "inviteUser": "Inviter un utilisateur"
+  "inviteUser": "Inviter un utilisateur",
+  "profile": {
+    "title": "Mon Profil",
+    "subtitle": "Gérez vos informations personnelles et la sécurité de votre compte.",
+    "personal_info": "Informations Personnelles",
+    "personal_info_desc": "Mettez à jour votre nom et vos informations principales.",
+    "firstName": "Prénom",
+    "lastName": "Nom",
+    "username": "Nom d'utilisateur",
+    "email": "Email",
+    "update_profile": "Mettre à jour le profil",
+    "update_success": "Profil mis à jour avec succès",
+    "update_error": "Échec de la mise à jour du profil",
+    "security": "Sécurité",
+    "password_change": "Changer le mot de passe",
+    "password_change_desc": "Assurez la sécurité de votre compte en mettant régulièrement à jour votre mot de passe.",
+    "old_password": "Mot de passe actuel",
+    "new_password": "Nouveau mot de passe",
+    "confirm_password": "Confirmer le nouveau mot de passe",
+    "password_mismatch": "Les mots de passe ne correspondent pas",
+    "change_password_btn": "Changer le mot de passe",
+    "password_change_success": "Mot de passe changé avec succès",
+    "password_change_error": "Échec du changement de mot de passe",
+    "password_change_invalid_current": "Mot de passe actuel invalide"
+  }
 }

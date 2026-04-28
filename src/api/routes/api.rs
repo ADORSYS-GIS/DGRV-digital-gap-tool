@@ -4,7 +4,7 @@ use axum::{
     Router,
 };
 
-use crate::api::handlers::{assessment::*, dimension::*, gap::*};
+use crate::api::handlers::{assessment::*, dimension::*, gap::*, user_me::*};
 use crate::api::routes::{
     action_plan::create_action_plan_routes, consolidated_report::consolidated_report_routes,
     group::create_group_routes, organization::create_organization_routes,
@@ -22,6 +22,9 @@ pub fn create_api_routes() -> Router<AppState> {
         .nest("/recommendations", create_recommendation_routes())
         .nest("/api/submissions", create_submission_routes())
         .nest("/consolidated-reports", consolidated_report_routes())
+        // User personal routes
+        .route("/user/me", get(get_me).patch(update_me))
+        .route("/user/me/password", post(change_password))
         // Assessment routes
         .route("/assessments", post(create_assessment))
         .route("/assessments", get(list_assessments))

@@ -98,6 +98,7 @@ const ManageCooperationUsersPage = React.lazy(
 const SubmissionsByCooperativePage = React.lazy(
   () => import("../pages/second_admin/SubmissionsByCooperativePage"),
 );
+const ProfilePage = React.lazy(() => import("../pages/shared/ProfilePage"));
 
 import { RouteConfig } from "@/types/router";
 
@@ -186,6 +187,10 @@ const routes: RouteConfig[] = [
         path: "consolidated-report",
         element: React.createElement(ConsolidatedReportPage),
       },
+      {
+        path: "profile",
+        element: React.createElement(ProfilePage),
+      },
     ],
   },
   {
@@ -247,6 +252,10 @@ const routes: RouteConfig[] = [
         path: "consolidated-report/:organizationId",
         element: React.createElement(OrgAdminConsolidatedReportPage),
       },
+      {
+        path: "profile",
+        element: React.createElement(ProfilePage),
+      },
     ],
   },
   {
@@ -293,6 +302,10 @@ const routes: RouteConfig[] = [
         path: "manage-cooperation-users/:cooperationId",
         element: React.createElement(ManageCooperationUsersPage),
       },
+      {
+        path: "profile",
+        element: React.createElement(ProfilePage),
+      },
     ],
   },
   {
@@ -332,6 +345,10 @@ const routes: RouteConfig[] = [
           {
             path: "action-plans/:assessmentId",
             element: React.createElement(ActionPlanPage),
+          },
+          {
+            path: "profile",
+            element: React.createElement(ProfilePage),
           },
         ],
         path: "",

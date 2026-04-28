@@ -1340,5 +1340,29 @@
     "title": "Manage Users",
     "subtitle": "Manage user accounts and system access."
   },
-  "inviteUser": "Invite user"
+  "inviteUser": "Invite user",
+  "profile": {
+    "title": "My Profile",
+    "subtitle": "Manage your personal information and account security.",
+    "personal_info": "Personal Information",
+    "personal_info_desc": "Update your name and primary details.",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "username": "Username",
+    "email": "Email",
+    "update_profile": "Update Profile",
+    "update_success": "Profile updated successfully",
+    "update_error": "Failed to update profile",
+    "security": "Security",
+    "password_change": "Change Password",
+    "password_change_desc": "Ensure your account stays secure by updating your password regularly.",
+    "old_password": "Current Password",
+    "new_password": "New Password",
+    "confirm_password": "Confirm New Password",
+    "password_mismatch": "Passwords do not match",
+    "change_password_btn": "Change Password",
+    "password_change_success": "Password changed successfully",
+    "password_change_error": "Failed to change password",
+    "password_change_invalid_current": "Invalid current password"
+  }
 }

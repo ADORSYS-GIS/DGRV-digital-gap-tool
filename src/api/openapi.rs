@@ -100,6 +100,9 @@ use crate::models::keycloak::KeycloakUser;
         crate::api::handlers::user::add_member,
         crate::api::handlers::user::get_group_members,
         crate::api::handlers::submission::submit_assessment,
+        crate::api::handlers::user_me::get_me,
+        crate::api::handlers::user_me::update_me,
+        crate::api::handlers::user_me::change_password,
     ),
     components(
         schemas(
@@ -230,6 +233,8 @@ use crate::models::keycloak::KeycloakUser;
             ConsolidatedReport,
             DimensionSummary,
             RiskLevelDistribution,
+            crate::api::handlers::user_me::UpdateMeRequest,
+            crate::api::handlers::user_me::ChangePasswordRequest,
         )
     ),
     tags(
@@ -243,6 +248,7 @@ use crate::models::keycloak::KeycloakUser;
         (name = "Gaps", description = "Gap endpoints"),
         (name = "Admin", description = "Administrative configuration endpoints"),
         (name = "User", description = "User management endpoints"),
+        (name = "User Me", description = "Personal account management endpoints"),
         (name = "Submissions", description = "Submission management endpoints")
     )
 )]

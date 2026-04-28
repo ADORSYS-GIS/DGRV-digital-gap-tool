@@ -73,6 +73,17 @@ export const Navbar = () => {
     return "/";
   };
 
+  const getProfileRoute = () => {
+    if (!isAuthenticated || !user) return "/";
+
+    if (roles.includes(ROLES.ADMIN)) return "/admin/profile";
+    if (roles.includes(ROLES.ORG_ADMIN)) return "/second-admin/profile";
+    if (roles.includes(ROLES.COOP_ADMIN)) return "/third-admin/profile";
+    if (roles.includes(ROLES.COOP_USER)) return "/user/profile";
+
+    return "/";
+  };
+
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
@@ -164,6 +175,13 @@ export const Navbar = () => {
                           {user?.email}
                         </p>
                       </div>
+                      <DropdownMenuItem
+                        onClick={() => navigate(getProfileRoute())}
+                        className="flex items-center gap-2 cursor-pointer rounded-md"
+                      >
+                        <User className="w-4 h-4 text-gray-500" />
+                        <span>{t('nav.myProfile', { defaultValue: 'My Profile' })}</span>
+                      </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={logout}
                         className="flex items-center gap-2 text-red-600 focus:text-red-600 focus:bg-red-50 cursor-pointer rounded-md mt-1"
@@ -290,6 +308,18 @@ export const Navbar = () => {
                         </div>
                       </div>
                     </div>
+                    <Button
+                      variant="ghost"
+                      size="lg"
+                      className="w-full justify-start items-center space-x-4 h-12 hover:bg-blue-100 text-gray-700 rounded-lg mb-2"
+                      onClick={() => {
+                        navigate(getProfileRoute());
+                        closeSidebar();
+                      }}
+                    >
+                      <User className="w-5 h-5" />
+                      <span className="font-medium">{t('nav.myProfile', { defaultValue: 'My Profile' })}</span>
+                    </Button>
                   </div>
 
                   <Button
