@@ -21,95 +21,97 @@ export const digitalisationGapRepository = {
           // No token available — skip backend sync, use local cache
           console.warn("No access token available, skipping backend sync for gaps");
         } else {
-        const allBackendGaps: any[] = [];
-        let currentPage = 1;
-        let totalPages = 1;
+          const allBackendGaps: any[] = [];
+          let currentPage = 1;
+          let totalPages = 1;
 
-        do {
-          const backendGapsResponse = await listGaps({
-            page: currentPage,
-            limit: 100,
-            lang,
-          });
-          if (backendGapsResponse.data) {
-            const responseData: any = backendGapsResponse.data as any;
-            const paginatedData =
-              responseData?.data ?? responseData ?? {};
-            const gaps: any[] = Array.isArray(paginatedData)
-              ? paginatedData
-              : (paginatedData.items ?? responseData?.items ?? []);
-            allBackendGaps.push(...gaps);
-            totalPages = paginatedData.total_pages ?? 1;
-          }
-          currentPage++;
-        } while (currentPage <= totalPages);
+          do {
+            const backendGapsResponse = await listGaps({
+              page: currentPage,
+              limit: 100,
+              lang,
+            });
+            if (backendGapsResponse.data) {
+              const responseData: any = backendGapsResponse.data as any;
+              const paginatedData =
+                responseData?.data ?? responseData ?? {};
+              const gaps: any[] = Array.isArray(paginatedData)
+                ? paginatedData
+                : (paginatedData.items ?? responseData?.items ?? []);
+              allBackendGaps.push(...gaps);
+              totalPages = paginatedData.total_pages ?? 1;
+            }
+            currentPage++;
+          } while (currentPage <= totalPages);
 
-        // Always sync — move cleanup outside length check so stale data
-        // is cleared even when backend returns empty (e.g. after DB wipe)
-        const localGaps = await db.digitalisationGaps.toArray();
-        const backendGapIds = new Set(allBackendGaps.map((d) => d.gap_id));
+          // Always sync — move cleanup outside length check so stale data
+          // is cleared even when backend returns empty (e.g. after DB wipe)
+          const localGaps = lang === "all"
+            ? await db.digitalisationGaps.toArray()
+            : await db.digitalisationGaps.where("lang").equals(lang).toArray();
+          const backendGapIds = new Set(allBackendGaps.map((d) => d.gap_id));
 
-        if (allBackendGaps.length > 0) {
-          const localGapsMap = new Map(localGaps.map((g) => [`${g.id}-${g.lang}`, g]));
+          if (allBackendGaps.length > 0) {
+            const localGapsMap = new Map(localGaps.map((g) => [`${g.id}-${g.lang}`, g]));
 
-          const gapsToUpsert = allBackendGaps
-            .map((d: any) => {
-              const itemLang = d.language || lang || "en";
-              const key = `${d.gap_id}-${itemLang}`;
-              const localGap = localGapsMap.get(key);
-              if (localGap && localGap.syncStatus === SyncStatus.PENDING) {
-                return null;
+            const gapsToUpsert = allBackendGaps
+              .map((d: any) => {
+                const itemLang = d.language || lang || "en";
+                const key = `${d.gap_id}-${itemLang}`;
+                const localGap = localGapsMap.get(key);
+                if (localGap && localGap.syncStatus === SyncStatus.PENDING) {
+                  return null;
+                }
+                // Validate required fields for composite key [id+lang]
+                if (!d.gap_id || !itemLang) {
+                  console.warn(`Skipping gap with missing required fields:`, { id: d.gap_id, lang: itemLang });
+                  return null;
+                }
+                return {
+                  id: d.gap_id,
+                  dimensionId: d.dimension_id,
+                  dimension_key: d.dimension_key,
+                  gap_severity: d.gap_severity as Gap,
+                  description: d.gap_description || "",
+                  lang: itemLang,
+                  syncStatus: SyncStatus.SYNCED,
+                  lastError: "",
+                  createdAt: d.created_at,
+                  updatedAt: d.updated_at,
+                } as IDigitalisationGap;
+              })
+              .filter((g): g is IDigitalisationGap => g !== null);
+
+            if (gapsToUpsert.length > 0) {
+              try {
+                await db.digitalisationGaps.bulkPut(gapsToUpsert);
+                console.log(`Successfully stored ${gapsToUpsert.length} digitalisation gaps`);
+              } catch (error) {
+                console.error("Failed to store digitalisation gaps in IndexedDB:", error);
+                // Don't throw - continue with local data
               }
-              // Validate required fields for composite key [id+lang]
-              if (!d.gap_id || !itemLang) {
-                console.warn(`Skipping gap with missing required fields:`, { id: d.gap_id, lang: itemLang });
-                return null;
-              }
-              return {
-                id: d.gap_id,
-                dimensionId: d.dimension_id,
-                dimension_key: d.dimension_key,
-                gap_severity: d.gap_severity as Gap,
-                description: d.gap_description || "",
-                lang: itemLang,
-                syncStatus: SyncStatus.SYNCED,
-                lastError: "",
-                createdAt: d.created_at,
-                updatedAt: d.updated_at,
-              } as IDigitalisationGap;
-            })
-            .filter((g): g is IDigitalisationGap => g !== null);
-
-          if (gapsToUpsert.length > 0) {
-            try {
-              await db.digitalisationGaps.bulkPut(gapsToUpsert);
-              console.log(`Successfully stored ${gapsToUpsert.length} digitalisation gaps`);
-            } catch (error) {
-              console.error("Failed to store digitalisation gaps in IndexedDB:", error);
-              // Don't throw - continue with local data
             }
           }
-        }
 
-        // Always delete stale local items (runs even when backend returns empty)
-        const idsToDelete = localGaps
-          .filter(
-            (g) =>
-              g.syncStatus !== SyncStatus.PENDING &&
-              g.syncStatus !== SyncStatus.FAILED &&
-              !backendGapIds.has(g.id),
-          )
-          .map((g) => [g.id, g.lang] as [string, string]);
+          // Always delete stale local items (runs even when backend returns empty)
+          const idsToDelete = localGaps
+            .filter(
+              (g) =>
+                g.syncStatus !== SyncStatus.PENDING &&
+                g.syncStatus !== SyncStatus.FAILED &&
+                !backendGapIds.has(g.id),
+            )
+            .map((g) => [g.id, g.lang] as [string, string]);
 
-        await db.transaction("rw", db.digitalisationGaps, async () => {
-          if (idsToDelete.length > 0) {
-            await db.digitalisationGaps.bulkDelete(idsToDelete);
-          }
-        });
+          await db.transaction("rw", db.digitalisationGaps, async () => {
+            if (idsToDelete.length > 0) {
+              await db.digitalisationGaps.bulkDelete(idsToDelete);
+            }
+          });
 
-        console.log(
-          `Digitalisation gaps fetched from backend (${allBackendGaps.length} total) and synced to IndexedDB.`,
-        );
+          console.log(
+            `Digitalisation gaps fetched from backend (${allBackendGaps.length} total) and synced to IndexedDB.`,
+          );
         } // end else (token available)
       }
     } catch (error) {
@@ -118,7 +120,9 @@ export const digitalisationGapRepository = {
         error,
       );
     }
-    const allGaps = await db.digitalisationGaps.toArray();
+    const allGaps = lang === "all"
+      ? await db.digitalisationGaps.toArray()
+      : await db.digitalisationGaps.where("lang").equals(lang).toArray();
     const gaps = allGaps.filter((gap) => !gap.isDeleted);
     const dimensions = await db.dimensions.toArray();
     const dimensionMap = new Map<string, IDimension>(
@@ -164,7 +168,7 @@ export const digitalisationGapRepository = {
             createdAt: backendGap.data.created_at,
             updatedAt: backendGap.data.updated_at,
           };
-          
+
           // Validate required fields before storing
           if (syncedGap.id && syncedGap.lang) {
             try {
@@ -213,7 +217,7 @@ export const digitalisationGapRepository = {
           updatedAt: new Date().toISOString(),
           isDeleted: false,
         };
-        
+
         // Validate required fields before storing
         if (synced.id && synced.lang) {
           try {
@@ -225,7 +229,7 @@ export const digitalisationGapRepository = {
         } else {
           console.error("Invalid gap data: missing required fields", { id: synced.id, lang: synced.lang });
         }
-        
+
         return synced;
       } catch (err: any) {
         const status = err?.status ?? err?.response?.status;
@@ -250,7 +254,7 @@ export const digitalisationGapRepository = {
       updatedAt: new Date().toISOString(),
       isDeleted: false,
     };
-    
+
     // Validate required fields before storing
     if (newGap.id && newGap.lang) {
       try {
@@ -268,7 +272,7 @@ export const digitalisationGapRepository = {
     } else {
       throw new Error("Invalid gap data: missing required fields");
     }
-    
+
     return newGap;
   },
   update: async (
