@@ -46,9 +46,24 @@ export const AddCooperationUserForm = () => {
   const { data: assignedDimensionKeys = [] } =
     useOrganizationDimensions(organizationId);
 
-  const filteredDimensions = dimensions.filter((d) =>
-    d.dimension_key && assignedDimensionKeys.includes(d.dimension_key),
-  );
+  console.log("AddCooperationUserForm Debug:", {
+    organizationId,
+    currentUserOrganization: currentUser?.organization,
+    organizationIdFromHook,
+    dimensionsCount: dimensions.length,
+    assignedDimensionKeysCount: assignedDimensionKeys.length,
+    assignedDimensionKeys
+  });
+
+  const filteredDimensions = dimensions.filter((d) => {
+    const isMatched = d.dimension_key && assignedDimensionKeys.includes(d.dimension_key);
+    return isMatched;
+  });
+
+  console.log("AddCooperationUserForm Filtered:", {
+    filteredCount: filteredDimensions.length,
+    dimensionKeys: dimensions.map(d => d.dimension_key)
+  });
 
   const getNewUserRole = () => {
     if (currentUser?.roles?.includes(ROLES.COOP_ADMIN)) {

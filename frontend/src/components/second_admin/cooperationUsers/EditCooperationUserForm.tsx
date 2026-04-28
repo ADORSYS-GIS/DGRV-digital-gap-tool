@@ -38,9 +38,25 @@ export const EditCooperationUserForm = ({ user }: EditCooperationUserFormProps) 
   const { data: allDimensions = [] } = useDimensions();
   const { data: assignedDimensionKeys = [] } = useOrganizationDimensions(organizationId || "");
 
-  const filteredDimensions = allDimensions.filter((d) =>
-    d.dimension_key && assignedDimensionKeys.includes(d.dimension_key),
-  );
+  console.log("EditCooperationUserForm Debug:", {
+    organizationId,
+    allDimensionsCount: allDimensions.length,
+    assignedDimensionKeysCount: assignedDimensionKeys.length,
+    assignedDimensionKeys
+  });
+
+  const filteredDimensions = allDimensions.filter((d) => {
+    const isMatched = d.dimension_key && assignedDimensionKeys.includes(d.dimension_key);
+    if (allDimensions.length > 0 && assignedDimensionKeys.length > 0 && !isMatched) {
+      console.log("EditCooperationUserForm Mismatch:", { dimensionKey: d.dimension_key, dimensionName: d.name });
+    }
+    return isMatched;
+  });
+
+  console.log("EditCooperationUserForm Filtered:", {
+    filteredCount: filteredDimensions.length,
+    dimensionKeys: allDimensions.map(d => d.dimension_key)
+  });
 
   const userId = user.id;
 
