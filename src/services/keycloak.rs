@@ -697,23 +697,34 @@ impl KeycloakService {
 
         match self.client.get(&search_url).bearer_auth(token).send().await {
             Ok(search_resp) if search_resp.status().is_success() => {
-                let all_users: Vec<KeycloakUser> = search_resp.json().await.unwrap_or_default();
-                tracing::info!(count = all_users.len(), "Found users with matching invited_org attribute");
+                let status = search_resp.status();
+                let body = search_resp.text().await.unwrap_or_default();
+                tracing::info!(status = %status, body = %body, "Attribute search raw response body");
                 
-                let pending: Vec<crate::api::dto::invitation::PendingInvitation> = all_users
-                    .into_iter()
-                    .filter(|u| !u.email_verified) // Only show users who haven't verified their email yet
-                    .map(|u| crate::api::dto::invitation::PendingInvitation {
-                        id: u.id,
-                        email: u.email,
-                        first_name: u.first_name,
-                        last_name: u.last_name,
-                        sent_date: None,
-                        expires_at: None,
-                        status: Some("pending".to_string()),
-                    })
-                    .collect();
-                Ok(pending)
+                match serde_json::from_str::<Vec<KeycloakUser>>(&body) {
+                    Ok(all_users) => {
+                        tracing::info!(count = all_users.len(), "Found users with matching invited_org attribute");
+                        
+                        let pending: Vec<crate::api::dto::invitation::PendingInvitation> = all_users
+                            .into_iter()
+                            .filter(|u| !u.email_verified)
+                            .map(|u| crate::api::dto::invitation::PendingInvitation {
+                                id: u.id,
+                                email: u.email,
+                                first_name: u.first_name,
+                                last_name: u.last_name,
+                                sent_date: None,
+                                expires_at: None,
+                                status: Some("pending".to_string()),
+                            })
+                            .collect();
+                        Ok(pending)
+                    }
+                    Err(e) => {
+                        tracing::error!(error = %e, body = %body, "Failed to deserialize Keycloak users from attribute search");
+                        Ok(vec![])
+                    }
+                }
             }
             Ok(search_resp) => {
                 let status = search_resp.status();

@@ -33,7 +33,6 @@ impl JwtValidator {
         );
         let response = reqwest::get(&oidc_config_url).await?;
         let response_text = response.text().await?;
-        info!("[AUTH] OIDC Config Response: {}", response_text);
         let oidc_config: serde_json::Value = serde_json::from_str(&response_text)?;
         let public_issuer = oidc_config["issuer"]
             .as_str()
@@ -46,10 +45,6 @@ impl JwtValidator {
         let internal_issuer = format!("{}/realms/{}", self.config.url, self.config.realm);
         let jwks_uri_internal = jwks_uri_public.replace(public_issuer, &internal_issuer);
 
-        info!(
-            "[AUTH] Fetching JWKS from internal URL: {}",
-            jwks_uri_internal
-        );
         let fetched_jwks: biscuit::jwk::JWKSet<biscuit::Empty> =
             reqwest::get(jwks_uri_internal).await?.json().await?;
         *jwks_guard = Some(fetched_jwks.clone());
@@ -82,13 +77,6 @@ impl JwtValidator {
             .ok()
             .and_then(|p| p.registered.issuer.clone());
 
-        // --- JWT ISSUER VALIDATION LOGS ---
-        info!("[AUTH] Expected issuer: {}", expected_issuer);
-        info!(
-            "[AUTH] Received issuer: {:?}",
-            token_issuer.as_deref().unwrap_or("N/A")
-        );
-        // --- END LOGS ---
 
         if let Some(issuer) = token_issuer.as_deref() {
             if issuer != expected_issuer {
