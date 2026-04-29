@@ -314,7 +314,7 @@ const routes: RouteConfig[] = [
     children: [
       {
         element: React.createElement(ProtectedRoute, {
-          allowedRoles: [ROLES.COOP_USER],
+          allowedRoles: [ROLES.COOP_USER, ROLES.COOP_ADMIN],
         }),
         children: [
           { path: "dashboard", element: React.createElement(Dashboard) },

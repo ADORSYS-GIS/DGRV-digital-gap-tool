@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { ROLES } from "@/constants/roles";
 import { useOrganizationId } from "@/hooks/organizations/useOrganizationId";
@@ -197,15 +197,18 @@ export default function ActionPlansListPage() {
 
   const userRoles = (user?.roles || []).map((r) => r.toLowerCase());
   const isOrgAdmin = userRoles.includes(ROLES.ORG_ADMIN.toLowerCase());
+  const isCoopAdmin = userRoles.includes(ROLES.COOP_ADMIN.toLowerCase());
   const isCoopUser =
     userRoles.includes(ROLES.COOP_USER.toLowerCase()) ||
-    userRoles.includes(ROLES.COOP_ADMIN.toLowerCase());
+    isCoopAdmin;
 
   const { data: cooperations = [], isLoading: isLoadingCoops } = useCooperations(
     isOrgAdmin ? organizationId || undefined : undefined,
   );
 
-  const basePath = isOrgAdmin ? "/second-admin" : "/third-admin";
+  const location = useLocation();
+  const isUserPath = location.pathname.startsWith("/user");
+  const basePath = isOrgAdmin ? "/second-admin" : (isUserPath ? "/user" : "/third-admin");
 
   if (!isOrgAdmin && !isCoopUser) {
     return (
