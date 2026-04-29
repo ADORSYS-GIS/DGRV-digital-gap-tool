@@ -29,26 +29,57 @@ export const AssessmentDimensionItem = ({
 
   useEffect(() => {
     let isMounted = true;
+
+    // The backend stores a LANGUAGE-SPECIFIC UUID per current/desired state.
+    // A submission answered in Portuguese stores Portuguese state UUIDs, which
+    // are never found in an English-only fetch. To reliably resolve the score
+    // for any language, we fetch all supported languages in parallel and search
+    // across every response until we find the matching UUID.
+    const SUPPORTED_LANGS = ["en", "pt", "fr", "ss"];
+
     import("@/openapi-client/services.gen").then(({ getDimensionWithStates }) => {
-      // Fetch the original states directly without lang parameter to discover their numeric scores
-      getDimensionWithStates({ id: dimensionAssessment.dimension_id })
-        .then((res) => {
-          if (!isMounted) return;
-          const currentScore =
-            res.data?.current_states?.find(
+      Promise.all(
+        SUPPORTED_LANGS.map((l) =>
+          getDimensionWithStates({ id: dimensionAssessment.dimension_id, lang: l }).catch(
+            () => null,
+          ),
+        ),
+      ).then((responses) => {
+        if (!isMounted) return;
+
+        let currentScore: number | undefined;
+        let desiredScore: number | undefined;
+
+        for (const res of responses) {
+          if (!res?.data) continue;
+
+          if (currentScore === undefined) {
+            const match = res.data.current_states?.find(
               (s) => s.current_state_id === dimensionAssessment.current_state_id,
-            )?.score || 0;
-          const desiredScore =
-            res.data?.desired_states?.find(
+            );
+            if (match !== undefined) currentScore = match.score;
+          }
+
+          if (desiredScore === undefined) {
+            const match = res.data.desired_states?.find(
               (s) => s.desired_state_id === dimensionAssessment.desired_state_id,
-            )?.score || 0;
-          setScores({ currentScore, desiredScore });
-        })
-        .catch(console.error)
-        .finally(() => {
-          if (isMounted) setIsScoresLoading(false);
+            );
+            if (match !== undefined) desiredScore = match.score;
+          }
+
+          if (currentScore !== undefined && desiredScore !== undefined) break;
+        }
+
+        setScores({
+          currentScore: currentScore ?? 0,
+          desiredScore: desiredScore ?? 0,
         });
-    });
+      });
+    })
+      .catch(console.error)
+      .finally(() => {
+        if (isMounted) setIsScoresLoading(false);
+      });
 
     return () => {
       isMounted = false;
@@ -66,13 +97,15 @@ export const AssessmentDimensionItem = ({
     // Find the localized level with this score
     const level = levels?.find((l) => Number(l.state) === score || Number(l.level) === score);
 
-    if (!level || score === 0) {
+    // Only show Unknown/Loading when the level is genuinely not resolved yet.
+    // Do NOT treat score=0 as missing — 0 is a valid score for the lowest level.
+    if (!level) {
       return {
         id: fallbackId,
         dimensionId: dimensionKey,
         level: score,
         name: isScoresLoading ? "Loading..." : "Unknown",
-        description: "Details not available",
+        description: isScoresLoading ? "" : "Details not available",
         createdAt: "",
         updatedAt: "",
       };
