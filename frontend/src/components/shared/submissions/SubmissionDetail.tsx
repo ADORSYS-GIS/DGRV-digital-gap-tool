@@ -36,6 +36,11 @@ export const SubmissionDetail = ({ summary }: SubmissionDetailProps) => {
     return byKey?.name || t("sharedSubmissions.detail.unknownDimension");
   };
 
+  const getDimensionKey = (dimensionId: string) => {
+    const dim = dimensions?.find((d) => d.id === dimensionId);
+    return dim ? ((dim as any).dimension_key ?? dimensionId) : dimensionId;
+  };
+
   return (
     <div className="space-y-6">
       <Card className="shadow-sm border border-border">
@@ -117,6 +122,7 @@ export const SubmissionDetail = ({ summary }: SubmissionDetailProps) => {
                   key={da.dimension_assessment_id}
                   dimensionAssessment={da}
                   dimensionName={getDimensionName(da.dimension_id)}
+                  dimensionKey={getDimensionKey(da.dimension_id)}
                 />
               ))}
             </Accordion>

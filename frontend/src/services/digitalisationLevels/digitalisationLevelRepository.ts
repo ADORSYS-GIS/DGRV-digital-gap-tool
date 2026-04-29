@@ -17,7 +17,7 @@ export const digitalisationLevelRepository = {
     lang = 'en',
   ): Promise<IDigitalisationLevel[]> => {
     try {
-      if (navigator.onLine) {
+      if (navigator.onLine && lang !== "all") {
         await digitalisationLevelRepository.syncByDimensionId(dimensionId, lang);
       }
     } catch (error) {

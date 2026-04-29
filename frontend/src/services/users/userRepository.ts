@@ -7,8 +7,6 @@ import {
 import type {
   UserInvitationRequest,
 } from "@/openapi-client/types.gen";
-import { syncService } from "@/services/sync/syncService";
-import { v4 as uuidv4 } from "uuid";
 import { SyncStatus } from "@/types/sync/index";
 import { KeycloakUser as UserWithSync } from "@/types/user";
 

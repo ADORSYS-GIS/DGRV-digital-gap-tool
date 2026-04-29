@@ -65,10 +65,19 @@ const AssessmentDetailPage: React.FC = () => {
     },
   });
 
+  // Fetch all dimensions for mapping language-specific dimensionIds back to dimension_key
+  const { data: allDimensions = [] } = useQuery({
+    queryKey: ["allDimensionsMapping"],
+    queryFn: async () => {
+      return dimensionRepository.getAll("all");
+    },
+    staleTime: Infinity,
+  });
+
   const loading = isLoadingAssessment || isLoadingDimensions;
-  const errorMessage = assessmentError ? t("sharedAssessments.detail.failedToFetch") : 
-                dimensionsError && !navigator.onLine ? t("sharedAssessments.detail.offlineError", { defaultValue: "Some content may be limited while offline. Please reconnect to access all features." }) :
-                dimensionsError ? t("sharedAssessments.detail.dimensionsError", { defaultValue: "Failed to load assessment dimensions. Please try again." }) : null;
+  const errorMessage = assessmentError ? t("sharedAssessments.detail.failedToFetch") :
+    dimensionsError && !navigator.onLine ? t("sharedAssessments.detail.offlineError", { defaultValue: "Some content may be limited while offline. Please reconnect to access all features." }) :
+      dimensionsError ? t("sharedAssessments.detail.dimensionsError", { defaultValue: "Failed to load assessment dimensions. Please try again." }) : null;
 
   const { data: dimensionAssessments } = useDimensionAssessments(assessmentId);
 
@@ -120,12 +129,12 @@ const AssessmentDetailPage: React.FC = () => {
             : assignedDimensionIds.includes(da.dimensionId),
         )
         .map((da) => {
-          // Find the dimension_key for this dimensionId
-          const dim = dimensions.find((d) => d.id === da.dimensionId);
+          // Find the dimension_key for this dimensionId by searching all dimensions globally
+          const dim = allDimensions.find((d) => d.id === da.dimensionId);
           return dim ? ((dim as any).dimension_key ?? da.dimensionId) : da.dimensionId;
         }),
     );
-  }, [dimensionAssessments, assignedDimensionIds, isCoopUserRestricted, dimensions]);
+  }, [dimensionAssessments, assignedDimensionIds, isCoopUserRestricted, allDimensions]);
 
   const completedPerspectives = submittedDimensionIds.size;
 
@@ -214,7 +223,7 @@ const AssessmentDetailPage: React.FC = () => {
             </span>
           </div>
         )}
-        
+
         {/* Progress header */}
         <section className="mb-8 rounded-xl border border-border bg-card px-5 py-4 shadow-sm sm:px-6 sm:py-5">
           <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
