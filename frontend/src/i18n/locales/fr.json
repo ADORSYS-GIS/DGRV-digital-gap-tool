@@ -990,6 +990,7 @@
       "errorLoad": "Échec du chargement des détails",
       "errorLoading": "Erreur de chargement",
       "exportPdf": "Exporter en PDF",
+      "exportWord": "Exporter en Word",
       "noDimensionAssessments": "Aucune évaluation de dimension trouvée",
       "riskLevel": "Niveau de risque",
       "riskLevelDesc": "L'écart entre vos niveaux actuel et souhaité est analysé pour déterminer un niveau de risque, indiquant l'urgence et l'importance d'aborder ce domaine.",

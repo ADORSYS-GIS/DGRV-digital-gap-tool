@@ -990,6 +990,7 @@
       "errorLoad": "Failed to load details",
       "errorLoading": "Error loading",
       "exportPdf": "Export to PDF",
+      "exportWord": "Export to Word",
       "noDimensionAssessments": "No dimension assessment found",
       "riskLevel": "Risk level",
       "riskLevelDesc": "The gap between your current and desired levels is analyzed to determine a risk level, indicating the urgency and importance of addressing this area.",

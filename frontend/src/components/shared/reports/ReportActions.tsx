@@ -33,14 +33,14 @@ export const ReportActions: React.FC = () => {
         <p className="text-sm text-muted-foreground">
           {t("shared.reports.selectSubmissionInfo")}
         </p>
-        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+        <div className="flex flex-wrap gap-3 w-full">
           <Button
             onClick={() => {
               setSelectedFormat("pdf");
               setIsModalOpen(true);
             }}
             variant="default"
-            className="w-full sm:w-auto"
+            className="flex-1 sm:flex-initial min-w-[140px]"
             disabled={isPending}
           >
             {generatePdfMutation.isPending ? (
@@ -62,7 +62,7 @@ export const ReportActions: React.FC = () => {
               setIsModalOpen(true);
             }}
             variant="outline"
-            className="w-full sm:w-auto"
+            className="flex-1 sm:flex-initial min-w-[140px]"
             disabled={isPending}
           >
             {generateWordMutation.isPending ? (
