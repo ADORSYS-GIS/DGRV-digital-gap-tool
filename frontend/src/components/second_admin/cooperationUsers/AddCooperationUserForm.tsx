@@ -87,8 +87,9 @@ export const AddCooperationUserForm = () => {
           setLastName("");
           setSelectedDimensionIds([]);
         },
-        onError: (error) => {
-          toast.error(error.message || t("secondAdminCooperationUsers.add.toast.error"));
+        onError: (error: any) => {
+          const errorMessage = error.body?.message || error.message;
+          toast.error(errorMessage || t("secondAdminCooperationUsers.add.toast.error"));
         },
       },
     );

@@ -99,6 +99,7 @@ const SubmissionsByCooperativePage = React.lazy(
   () => import("../pages/second_admin/SubmissionsByCooperativePage"),
 );
 const ProfilePage = React.lazy(() => import("../pages/shared/ProfilePage"));
+const ManualGuidePage = React.lazy(() => import("../pages/shared/ManualGuidePage").then(module => ({ default: module.ManualGuidePage })));
 
 import { RouteConfig } from "@/types/router";
 
@@ -191,6 +192,10 @@ const routes: RouteConfig[] = [
         path: "profile",
         element: React.createElement(ProfilePage),
       },
+      {
+        path: "manual-guide",
+        element: React.createElement(ManualGuidePage),
+      },
     ],
   },
   {
@@ -256,6 +261,10 @@ const routes: RouteConfig[] = [
         path: "profile",
         element: React.createElement(ProfilePage),
       },
+      {
+        path: "manual-guide",
+        element: React.createElement(ManualGuidePage),
+      },
     ],
   },
   {
@@ -306,6 +315,10 @@ const routes: RouteConfig[] = [
         path: "profile",
         element: React.createElement(ProfilePage),
       },
+      {
+        path: "manual-guide",
+        element: React.createElement(ManualGuidePage),
+      },
     ],
   },
   {
@@ -349,6 +362,10 @@ const routes: RouteConfig[] = [
           {
             path: "profile",
             element: React.createElement(ProfilePage),
+          },
+          {
+            path: "manual-guide",
+            element: React.createElement(ManualGuidePage),
           },
         ],
         path: "",

@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useMemo } from "react";
 import { exportConsolidatedReportAsPDF, type ExportTranslations } from "@/utils/exportConsolidatedReport";
+import { exportConsolidatedReportAsWord } from "@/utils/exportConsolidatedReportAsWord";
 import {
   Card,
   CardContent,
@@ -48,6 +49,8 @@ import { useDgrvAdminConsolidatedReport } from "@/hooks/consolidated_reports/use
 import { useOrgAdminConsolidatedReport } from "@/hooks/consolidated_reports/useOrgAdminConsolidatedReport";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { useTranslation } from "react-i18next";
+import type { DimensionSummary } from "@/openapi-client";
+
 
 interface ChartData {
   dimension_name: string;
@@ -177,6 +180,65 @@ export const ConsolidatedReport: React.FC<ConsolidatedReportProps> = ({
   const report = organizationId ? orgData : dgrvData;
   const loading = organizationId ? orgLoading : dgrvLoading;
   const error = organizationId ? orgError : dgrvError;
+  const highestRiskDimension = useMemo(() => {
+    if (
+      !report?.dimension_summaries ||
+      report.dimension_summaries.length === 0
+    ) {
+      return null;
+    }
+    return report.dimension_summaries.reduce((max: DimensionSummary, summary: DimensionSummary) => {
+      if (summary.average_risk_level !== max.average_risk_level) {
+        return summary.average_risk_level > max.average_risk_level ? summary : max;
+      }
+      // Tie-break: prefer higher high_risk_percentage
+      return summary.risk_level_distribution.high_risk_percentage >
+        max.risk_level_distribution.high_risk_percentage
+        ? summary
+        : max;
+    });
+  }, [report]);
+
+  const chartData = useMemo(() => {
+    if (!report?.dimension_summaries) return [];
+
+    return report.dimension_summaries.map((summary: DimensionSummary) => {
+      const {
+        high_risk_percentage,
+        medium_risk_percentage,
+        low_risk_percentage,
+      } = summary.risk_level_distribution;
+
+      let dominantRisk = {
+        name: t("consolidatedReport.focus.lowRisk"),
+        value: low_risk_percentage,
+        color: RISK_COLORS.low,
+      };
+
+      if (medium_risk_percentage >= dominantRisk.value) {
+        dominantRisk = {
+          name: t("consolidatedReport.focus.mediumRisk"),
+          value: medium_risk_percentage,
+          color: RISK_COLORS.medium,
+        };
+      }
+
+      if (high_risk_percentage >= dominantRisk.value) {
+        dominantRisk = {
+          name: t("consolidatedReport.focus.highRisk"),
+          value: high_risk_percentage,
+          color: RISK_COLORS.high,
+        };
+      }
+
+      return {
+        dimension_name: summary.dimension_name,
+        dominant_risk_name: dominantRisk.name,
+        dominant_risk_value: dominantRisk.value,
+        dominant_risk_color: dominantRisk.color,
+      };
+    });
+  }, [report, t]);
 
   const handleExportPDF = () => {
     if (report) {
@@ -240,71 +302,69 @@ export const ConsolidatedReport: React.FC<ConsolidatedReportProps> = ({
     }
   };
 
-  const highestRiskDimension = useMemo(() => {
-    if (
-      !report?.dimension_summaries ||
-      report.dimension_summaries.length === 0
-    ) {
-      return null;
+  const handleExportWord = () => {
+    if (report) {
+      const translations: ExportTranslations = {
+        title: t("consolidatedReport.title"),
+        digitalGapAnalysis: t("consolidatedReport.digitalGapAnalysis"),
+        totalSubmissions: t("consolidatedReport.metrics.totalSubmissions"),
+        dimensionAnalysis: t("consolidatedReport.dimensions.title"),
+        riskDistributionDesc: t("consolidatedReport.dimensions.subtitle"),
+        table: {
+          dimension: t("consolidatedReport.dimensions.table.dimension"),
+          highRisk: t("consolidatedReport.dimensions.table.highRisk"),
+          mediumRisk: t("consolidatedReport.dimensions.table.mediumRisk"),
+          lowRisk: t("consolidatedReport.dimensions.table.lowRisk"),
+        },
+        attention: {
+          title: t("consolidatedReport.focus.high.title"),
+          avgScore: t("consolidatedReport.focus.avgScore"),
+          recommendations: t("consolidatedReport.focus.high.recTitle"),
+          subtitles: {
+            high: t("consolidatedReport.focus.high.subtitle"),
+            medium: t("consolidatedReport.focus.medium.subtitle"),
+            low: t("consolidatedReport.focus.low.subtitle"),
+          },
+          riskLevels: {
+            high: t("consolidatedReport.focus.highRisk"),
+            medium: t("consolidatedReport.focus.mediumRisk"),
+            low: t("consolidatedReport.focus.lowRisk"),
+          },
+        },
+        chart: {
+          title: t("consolidatedReport.chart.title"),
+          subtitle: t("consolidatedReport.chart.subtitle"),
+        },
+        legend: {
+          highRisk: t("consolidatedReport.chart.highRisk"),
+          mediumRisk: t("consolidatedReport.chart.mediumRisk"),
+          lowRisk: t("consolidatedReport.chart.lowRisk"),
+        },
+        footer: {
+          generatedOn: t("consolidatedReport.footer.generatedOn"),
+          pageOf: t("consolidatedReport.footer.pageOf"),
+        },
+      };
+
+      if (highestRiskDimension) {
+        const avg = highestRiskDimension.average_risk_level;
+        if (avg > 2.5) {
+          translations.attention.title = t("consolidatedReport.focus.high.title");
+          translations.attention.recommendations = t("consolidatedReport.focus.high.recTitle");
+        } else if (avg >= 1.5) {
+          translations.attention.title = t("consolidatedReport.focus.medium.title");
+          translations.attention.recommendations = t("consolidatedReport.focus.medium.recTitle");
+        } else {
+          translations.attention.title = t("consolidatedReport.focus.low.title");
+          translations.attention.recommendations = t("consolidatedReport.focus.low.recTitle");
+        }
+      }
+
+      exportConsolidatedReportAsWord(report, translations);
     }
-    return report.dimension_summaries.reduce((max, summary) => {
-      if (summary.average_risk_level !== max.average_risk_level) {
-        return summary.average_risk_level > max.average_risk_level ? summary : max;
-      }
-      // Tie-break: prefer higher high_risk_percentage
-      return summary.risk_level_distribution.high_risk_percentage >
-        max.risk_level_distribution.high_risk_percentage
-        ? summary
-        : max;
-    });
-  }, [report]);
-
-  const chartData = useMemo(() => {
-    if (!report?.dimension_summaries) return [];
-
-    return report.dimension_summaries.map((summary) => {
-      const {
-        high_risk_percentage,
-        medium_risk_percentage,
-        low_risk_percentage,
-      } = summary.risk_level_distribution;
-
-      let dominantRisk = {
-        name: t("consolidatedReport.focus.lowRisk"),
-        value: low_risk_percentage,
-        color: RISK_COLORS.low,
-      };
-
-      if (medium_risk_percentage >= dominantRisk.value) {
-        dominantRisk = {
-          name: t("consolidatedReport.focus.mediumRisk"),
-          value: medium_risk_percentage,
-          color: RISK_COLORS.medium,
-        };
-      }
-
-      if (high_risk_percentage >= dominantRisk.value) {
-        dominantRisk = {
-          name: t("consolidatedReport.focus.highRisk"),
-          value: high_risk_percentage,
-          color: RISK_COLORS.high,
-        };
-      }
-
-      return {
-        dimension_name: summary.dimension_name,
-        dominant_risk_name: dominantRisk.name,
-        dominant_risk_value: dominantRisk.value,
-        dominant_risk_color: dominantRisk.color,
-      };
-    });
-  }, [report]);
-
-  const getRiskBadgeVariant = (riskLevel: number) => {
-    if (riskLevel >= 2.5) return "destructive";
-    if (riskLevel >= 1.5) return "warning";
-    return "success";
   };
+
+
 
   const getRiskPercentageBadge = (
     percentage: number,
@@ -376,10 +436,16 @@ export const ConsolidatedReport: React.FC<ConsolidatedReportProps> = ({
             {t("consolidatedReport.subtitle")}
           </p>
         </div>
-        <Button onClick={handleExportPDF} className="gap-2">
-          <Download className="h-4 w-4" />
-          {t("consolidatedReport.exportPDF")}
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={handleExportPDF} variant="outline" className="gap-2">
+            <Download className="h-4 w-4" />
+            {t("consolidatedReport.exportPDF")}
+          </Button>
+          <Button onClick={handleExportWord} className="gap-2">
+            <Download className="h-4 w-4" />
+            {t("consolidatedReport.exportWord")}
+          </Button>
+        </div>
       </div>
 
       <div className="p-4">
@@ -430,7 +496,7 @@ export const ConsolidatedReport: React.FC<ConsolidatedReportProps> = ({
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {report.dimension_summaries.map((summary, index) => (
+                  {report.dimension_summaries.map((summary: DimensionSummary, index: number) => (
                     <TableRow
                       key={summary.dimension_name}
                       className={cn(
@@ -557,7 +623,7 @@ export const ConsolidatedReport: React.FC<ConsolidatedReportProps> = ({
                     <h4 className="font-semibold mb-3 text-base">{recTitle}</h4>
                     <ul className="space-y-2">
                       {(highestRiskDimension.top_recommendations ?? []).map(
-                        (rec, index) => (
+                        (rec: string, index: number) => (
                           <li key={index} className="flex items-start gap-3">
                             <span className={`mt-1.5 h-1.5 w-1.5 rounded-full ${bulletColor} shrink-0`} />
                             <span className="text-sm leading-relaxed">{rec}</span>
@@ -608,7 +674,7 @@ export const ConsolidatedReport: React.FC<ConsolidatedReportProps> = ({
                   <YAxis unit="%" domain={[0, 100]} tick={{ fontSize: 12 }} />
                   <Tooltip content={<CustomBarTooltip />} />
                   <Bar dataKey="dominant_risk_value" radius={[8, 8, 0, 0]}>
-                    {chartData.map((entry, index) => (
+                    {chartData.map((entry: ChartData, index: number) => (
                       <Cell
                         key={`cell-${index}`}
                         fill={entry.dominant_risk_color}

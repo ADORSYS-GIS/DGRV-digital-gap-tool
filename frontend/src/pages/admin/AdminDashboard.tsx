@@ -24,7 +24,7 @@ import { useAllSubmissions } from "@/hooks/submissions/useAllSubmissions";
 import { useAllOrganizationMembers } from "@/hooks/users/useAllOrganizationMembers";
 import { AssessmentSummary } from "@/types/assessment";
 import { SyncStatus } from "@/types/sync";
-import { Building2, FileText, History, Settings, Users } from "lucide-react";
+import { Building2, FileText, History, Settings, Users, BookOpen } from "lucide-react";
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation, Trans } from "react-i18next";
@@ -68,17 +68,27 @@ const AdminDashboard: React.FC = () => {
     <div className="space-y-8 max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
       {/* Welcome Header */}
       <div className="mb-8 rounded-2xl bg-gradient-to-r from-primary/5 via-primary/10 to-transparent p-6 sm:p-10">
-        <div className="space-y-2 max-w-3xl">
-          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-gray-900">
-            {t("adminDashboard.title")}
-          </h1>
-          <p className="text-lg text-muted-foreground">
-            {t("adminDashboard.welcomePrefix", { name: "" })}
-            <span className="font-semibold text-primary">
-              {user?.name || user?.preferred_username || t("adminDashboard.defaultAdmin")}
-            </span>
-            {t("adminDashboard.welcomeSuffix")}
-          </p>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+          <div className="space-y-2 max-w-3xl">
+            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-gray-900">
+              {t("adminDashboard.title")}
+            </h1>
+            <p className="text-lg text-muted-foreground">
+              {t("adminDashboard.welcomePrefix", { name: "" })}
+              <span className="font-semibold text-primary">
+                {user?.name || user?.preferred_username || t("adminDashboard.defaultAdmin")}
+              </span>
+              {t("adminDashboard.welcomeSuffix")}
+            </p>
+          </div>
+          <div className="mt-6 sm:mt-0">
+            <Link to="/admin/manual-guide">
+              <Button variant="outline" className="gap-2 bg-background/50 backdrop-blur-sm border-primary/20 hover:bg-primary/10">
+                <BookOpen className="h-4 w-4" />
+                View Manual Guide
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
 

@@ -959,6 +959,39 @@ impl KeycloakService {
         }
     }
 
+    /// Get user groups by user ID
+    pub async fn get_user_groups(&self, token: &str, user_id: &str) -> Result<Vec<KeycloakGroup>> {
+        let url = format!(
+            "{}/admin/realms/{}/users/{}/groups",
+            self.config.keycloak.url, self.config.keycloak.realm, user_id
+        );
+
+        let response = self.client.get(&url).bearer_auth(token).send().await?.error_for_status()?;
+        let raw_groups: Vec<RawKeycloakGroup> = response.json().await?;
+        let groups = raw_groups
+            .into_iter()
+            .map(|g| KeycloakGroup {
+                id: g.id.clone(),
+                name: g.name.clone(),
+                path: g.path.clone(),
+                description: g.description.clone(),
+            })
+            .collect();
+        Ok(groups)
+    }
+
+    /// Get user organizations by user ID
+    pub async fn get_user_organizations(&self, token: &str, user_id: &str) -> Result<Vec<KeycloakOrganization>> {
+        let url = format!(
+            "{}/admin/realms/{}/users/{}/organizations",
+            self.config.keycloak.url, self.config.keycloak.realm, user_id
+        );
+
+        let response = self.client.get(&url).bearer_auth(token).send().await?.error_for_status()?;
+        let orgs: Vec<KeycloakOrganization> = response.json().await?;
+        Ok(orgs)
+    }
+
     /// Generate a temporary password for new users
     fn generate_temporary_password(&self) -> String {
         use rand::distributions::Alphanumeric;

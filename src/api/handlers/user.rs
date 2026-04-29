@@ -47,6 +47,27 @@ pub async fn add_member(
         .map(|dimension_ids| serde_json::json!({ "assigned_dimensions": dimension_ids }));
 
     let user_id = if let Some(user) = existing_user {
+        // Exclusivity checks
+        let groups = state.keycloak_service.get_user_groups(&admin_token, &user.id).await?;
+        if groups.iter().any(|g| g.id != group_id) {
+            return Err(crate::error::AppError::BadRequest("User is already a member of a cooperative".to_string()));
+        }
+
+        let orgs = state.keycloak_service.get_user_organizations(&admin_token, &user.id).await?;
+        if !orgs.is_empty() {
+            return Err(crate::error::AppError::BadRequest("User is already a member of an organization".to_string()));
+        }
+
+        if let Some(attrs) = &user.attributes {
+            if let Some(invited) = attrs.get("invited_organization") {
+                if let Some(arr) = invited.as_array() {
+                    if !arr.is_empty() {
+                        return Err(crate::error::AppError::BadRequest("User is already a member of an organization".to_string()));
+                    }
+                }
+            }
+        }
+
         // If user exists, update attributes when provided
         if let Some(attrs) = &dimension_attrs {
             tracing::info!(

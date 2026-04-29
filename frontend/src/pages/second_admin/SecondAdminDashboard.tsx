@@ -31,6 +31,7 @@ import {
   FileText,
   History,
   Users,
+  BookOpen,
 } from "lucide-react";
 import React from "react";
 import { useTranslation, Trans } from "react-i18next";
@@ -93,26 +94,36 @@ const SecondAdminDashboard: React.FC = () => {
     <div className="overflow-y-auto h-full bg-background">
       <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-8 sm:px-6 lg:px-8">
         {/* Welcome Header */}
-        <header className="space-y-2">
-          <div>
-            {user?.organization_name && (
-              <p className="text-xs font-medium uppercase tracking-[0.2em] text-primary/80">
-                {user.organization_name}
-              </p>
-            )}
-            <h1 className="mt-1 text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-              {t('secondAdmin.header.title')}
-            </h1>
+        <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
+          <div className="space-y-2">
+            <div>
+              {user?.organization_name && (
+                <p className="text-xs font-medium uppercase tracking-[0.2em] text-primary/80">
+                  {user.organization_name}
+                </p>
+              )}
+              <h1 className="mt-1 text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+                {t('secondAdmin.header.title')}
+              </h1>
+            </div>
+            <p className="max-w-2xl text-sm text-muted-foreground">
+              <Trans
+                i18nKey="secondAdmin.header.welcome"
+                values={{ name: user?.name || user?.preferred_username || t('secondAdmin.header.defaultUser') }}
+                components={{ 1: <span className="font-medium text-foreground" /> }}
+              >
+                Welcome back <span className="font-medium text-foreground">{user?.name || user?.preferred_username || t('secondAdmin.header.defaultUser')}</span>. Use these tools to manage cooperatives, users, assessments, and action plans.
+              </Trans>
+            </p>
           </div>
-          <p className="max-w-2xl text-sm text-muted-foreground">
-            <Trans
-              i18nKey="secondAdmin.header.welcome"
-              values={{ name: user?.name || user?.preferred_username || t('secondAdmin.header.defaultUser') }}
-              components={{ 1: <span className="font-medium text-foreground" /> }}
-            >
-              Welcome back <span className="font-medium text-foreground">{user?.name || user?.preferred_username || t('secondAdmin.header.defaultUser')}</span>. Use these tools to manage cooperatives, users, assessments, and action plans.
-            </Trans>
-          </p>
+          <div>
+            <Link to="/second-admin/manual-guide">
+              <Button variant="outline" className="gap-2 bg-background/50 backdrop-blur-sm border-primary/20 hover:bg-primary/10">
+                <BookOpen className="h-4 w-4" />
+                View Manual Guide
+              </Button>
+            </Link>
+          </div>
         </header>
 
         {/* Management Tools Grid */}

@@ -754,6 +754,7 @@
     "title": "Consolidated Report",
     "subtitle": "Complete overview of the gap analysis",
     "exportPDF": "Export to PDF",
+    "exportWord": "Export to Word",
     "metrics": {
       "totalSubmissions": "Total submissions"
     },

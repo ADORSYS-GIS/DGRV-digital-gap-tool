@@ -754,6 +754,7 @@
     "title": "Rapport Consolidé",
     "subtitle": "Aperçu complet de l'analyse des écarts",
     "exportPDF": "Exporter en PDF",
+    "exportWord": "Exporter en Word",
     "metrics": {
       "totalSubmissions": "Total des soumissions"
     },

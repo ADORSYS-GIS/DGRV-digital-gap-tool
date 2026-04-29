@@ -38,6 +38,7 @@ import {
   History,
   Inbox,
   Users,
+  BookOpen,
 } from "lucide-react";
 import React from "react";
 import { useTranslation, Trans } from "react-i18next";
@@ -118,25 +119,35 @@ const ThirdAdminDashboard: React.FC = () => {
     <div className="overflow-y-auto h-full bg-background">
       <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-8 sm:px-6 lg:px-8">
         {/* Welcome Header */}
-        <header className="space-y-3">
-          <div>
-            <p className="text-xs font-medium uppercase tracking-[0.2em] text-primary/80">
-              {cooperationName || t("thirdAdmin.header.defaultType")}
+        <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
+          <div className="space-y-3">
+            <div>
+              <p className="text-xs font-medium uppercase tracking-[0.2em] text-primary/80">
+                {cooperationName || t("thirdAdmin.header.defaultType")}
+              </p>
+              <h1 className="mt-1 text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+                {t("thirdAdmin.header.title")}
+              </h1>
+            </div>
+            <p className="max-w-2xl text-sm text-muted-foreground">
+              <Trans
+                i18nKey="thirdAdmin.header.welcome"
+                values={{ name: user?.name || user?.preferred_username || t("thirdAdmin.header.defaultUser") }}
+              >
+                Welcome back <span className="font-medium text-foreground">{"{{name}}"}</span>.
+                Use these tools to keep your cooperative's assessments, users, and
+                action plans on track.
+              </Trans>
             </p>
-            <h1 className="mt-1 text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-              {t("thirdAdmin.header.title")}
-            </h1>
           </div>
-          <p className="max-w-2xl text-sm text-muted-foreground">
-            <Trans
-              i18nKey="thirdAdmin.header.welcome"
-              values={{ name: user?.name || user?.preferred_username || t("thirdAdmin.header.defaultUser") }}
-            >
-              Welcome back <span className="font-medium text-foreground">{"{{name}}"}</span>.
-              Use these tools to keep your cooperative's assessments, users, and
-              action plans on track.
-            </Trans>
-          </p>
+          <div>
+            <Link to="/third-admin/manual-guide">
+              <Button variant="outline" className="gap-2 bg-background/50 backdrop-blur-sm border-primary/20 hover:bg-primary/10">
+                <BookOpen className="h-4 w-4" />
+                View Manual Guide
+              </Button>
+            </Link>
+          </div>
         </header>
 
         {/* Management Tools Grid */}
@@ -261,7 +272,7 @@ const ThirdAdminDashboard: React.FC = () => {
               <CardContent>
                 <SubmissionChart
                   assessments={latestAssessments}
-                  assessmentName={submissions[0]?.assessment?.document_title}
+                  assessmentName={submissions[0]?.assessment?.document_title || ""}
                   dimensions={mergedDimensions}
                   allDimensionStates={allDimensionStates ?? []}
                 />

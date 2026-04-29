@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { ConsolidatedReport } from "@/openapi-client";
 import { consolidatedReportRepository } from "@/services/consolidated_reports/consolidatedReportRepository";
 import { exportConsolidatedReportAsPDF, type ExportTranslations } from "@/utils/exportConsolidatedReport";
+import { exportConsolidatedReportAsWord } from "@/utils/exportConsolidatedReportAsWord";
 import {
   Card,
   CardContent,
@@ -31,10 +32,7 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend,
   ResponsiveContainer,
-  PieChart,
-  Pie,
   Cell,
 } from "recharts";
 import {
@@ -174,7 +172,6 @@ export function ConsolidatedReportPage() {
   const [report, setReport] = useState<ConsolidatedReport | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
   const handleExportPDF = () => {
     if (report) {
       const translations: ExportTranslations = {
@@ -246,6 +243,80 @@ export function ConsolidatedReportPage() {
       }
 
       exportConsolidatedReportAsPDF(report, translations);
+    }
+  };
+
+  const handleExportWord = () => {
+    if (report) {
+      const translations: ExportTranslations = {
+        title: t("consolidatedReport.title"),
+        digitalGapAnalysis: t("consolidatedReport.digitalGapAnalysis"),
+        totalSubmissions: t("consolidatedReport.metrics.totalSubmissions"),
+        dimensionAnalysis: t("consolidatedReport.dimensions.title"),
+        riskDistributionDesc: t("consolidatedReport.dimensions.subtitle"),
+        table: {
+          dimension: t("consolidatedReport.dimensions.table.dimension"),
+          highRisk: t("consolidatedReport.dimensions.table.highRisk"),
+          mediumRisk: t("consolidatedReport.dimensions.table.mediumRisk"),
+          lowRisk: t("consolidatedReport.dimensions.table.lowRisk"),
+        },
+        attention: {
+          title: t("consolidatedReport.focus.high.title"),
+          avgScore: t("consolidatedReport.focus.avgScore"),
+          recommendations: t("consolidatedReport.focus.high.recTitle"),
+          subtitles: {
+            high: t("consolidatedReport.focus.high.subtitle"),
+            medium: t("consolidatedReport.focus.medium.subtitle"),
+            low: t("consolidatedReport.focus.low.subtitle"),
+          },
+          riskLevels: {
+            high: t("consolidatedReport.focus.highRisk"),
+            medium: t("consolidatedReport.focus.mediumRisk"),
+            low: t("consolidatedReport.focus.lowRisk"),
+          },
+        },
+        chart: {
+          title: t("consolidatedReport.chart.title"),
+          subtitle: t("consolidatedReport.chart.subtitle"),
+        },
+        legend: {
+          highRisk: t("consolidatedReport.chart.highRisk"),
+          mediumRisk: t("consolidatedReport.chart.mediumRisk"),
+          lowRisk: t("consolidatedReport.chart.lowRisk"),
+        },
+        footer: {
+          generatedOn: t("consolidatedReport.footer.generatedOn"),
+          pageOf: t("consolidatedReport.footer.pageOf"),
+        },
+      };
+
+      const highest = report.dimension_summaries.reduce((a, b) => {
+        if (a.average_risk_level !== b.average_risk_level) {
+          return a.average_risk_level > b.average_risk_level ? a : b;
+        }
+        return a.risk_level_distribution.high_risk_percentage >=
+          b.risk_level_distribution.high_risk_percentage
+          ? a
+          : b;
+      });
+      if (highest.average_risk_level > 2.5) {
+        translations.attention.title = t("consolidatedReport.focus.high.title");
+        translations.attention.recommendations = t(
+          "consolidatedReport.focus.high.recTitle",
+        );
+      } else if (highest.average_risk_level >= 1.5) {
+        translations.attention.title = t("consolidatedReport.focus.medium.title");
+        translations.attention.recommendations = t(
+          "consolidatedReport.focus.medium.recTitle",
+        );
+      } else {
+        translations.attention.title = t("consolidatedReport.focus.low.title");
+        translations.attention.recommendations = t(
+          "consolidatedReport.focus.low.recTitle",
+        );
+      }
+
+      exportConsolidatedReportAsWord(report, translations);
     }
   };
 
@@ -326,11 +397,6 @@ export function ConsolidatedReportPage() {
     });
   }, [report]);
 
-  const getRiskBadgeVariant = (riskLevel: number) => {
-    if (riskLevel >= 2.5) return "destructive";
-    if (riskLevel >= 1.5) return "warning";
-    return "success";
-  };
 
   const getRiskPercentageBadge = (
     percentage: number,
@@ -438,10 +504,16 @@ export function ConsolidatedReportPage() {
             {t("consolidatedReport.subtitle")}
           </p>
         </div>
-        <Button onClick={handleExportPDF} className="gap-2">
-          <Download className="h-4 w-4" />
-          {t("consolidatedReport.exportPDF")}
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={handleExportPDF} variant="outline" className="gap-2">
+            <Download className="h-4 w-4" />
+            {t("consolidatedReport.exportPDF")}
+          </Button>
+          <Button onClick={handleExportWord} className="gap-2">
+            <Download className="h-4 w-4" />
+            {t("consolidatedReport.exportWord")}
+          </Button>
+        </div>
       </div>
 
       <div className="p-4" id="consolidated-report-content">

@@ -127,6 +127,27 @@ pub async fn invite_user_to_organization(
         })?;
 
     let user = if let Some(user) = existing_user {
+        // Exclusivity Checks
+        let groups = app_state.keycloak_service.get_user_groups(&admin_token, &user.id).await.unwrap_or_default();
+        if !groups.is_empty() {
+            return Err(AppError::BadRequest("User is already a member of a cooperative".to_string()));
+        }
+
+        let orgs = app_state.keycloak_service.get_user_organizations(&admin_token, &user.id).await.unwrap_or_default();
+        if orgs.iter().any(|o| o.id != org_id) {
+            return Err(AppError::BadRequest("User is already a member of another organization".to_string()));
+        }
+
+        if let Some(attrs) = &user.attributes {
+            if let Some(invited) = attrs.get("invited_organization") {
+                if let Some(arr) = invited.as_array() {
+                    if arr.iter().any(|v| v.as_str() != Some(org_id.as_str())) {
+                        return Err(AppError::BadRequest("User is already a member of another organization".to_string()));
+                    }
+                }
+            }
+        }
+
         user
     } else {
         // Create user if not exists with the invitation attribute

@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -85,9 +84,10 @@ export const InviteUserForm: React.FC<InviteUserFormProps> = ({
         onClose();
         form.reset();
       },
-      onError: (error) => {
+      onError: (error: any) => {
+        const errorMessage = error.body?.message || error.message;
         toast.error(t("sharedUsers.invite.toast.error"), {
-          description: error.message,
+          description: errorMessage,
         });
       },
     });
