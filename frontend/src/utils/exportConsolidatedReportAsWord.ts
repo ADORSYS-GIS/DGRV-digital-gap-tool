@@ -13,6 +13,7 @@ import {
     Packer,
     Header,
     Footer,
+    ImageRun,
 } from "docx";
 import { saveAs } from "file-saver";
 import type { ConsolidatedReport } from "@/openapi-client/types.gen";
@@ -103,12 +104,40 @@ export async function exportConsolidatedReportAsWord(
     report: ConsolidatedReport,
     translations: ExportTranslations,
     organizationName?: string,
+    chartImage?: string,
 ): Promise<void> {
     const date = new Date().toLocaleDateString(undefined, {
         year: "numeric",
         month: "long",
         day: "numeric",
     });
+
+    // ... (rest of the logic for highest risk and table rows)
+
+    // ── Chart section ────────────────────────────────────────────────────────
+    const chartParagraphs: Paragraph[] = [];
+    if (chartImage) {
+        const base64Data = chartImage.includes(",") ? chartImage.split(",")[1] : chartImage;
+
+        if (base64Data) {
+            chartParagraphs.push(
+                new Paragraph({
+                    children: [
+                        new ImageRun({
+                            data: Uint8Array.from(window.atob(base64Data), (c) => c.charCodeAt(0)),
+                            transformation: {
+                                width: 500,
+                                height: 250,
+                            },
+                            type: "png",
+                        }),
+                    ],
+                    alignment: AlignmentType.CENTER,
+                    spacing: { before: 200, after: 200 },
+                }),
+            );
+        }
+    }
 
     // ── Highest-risk dimension ───────────────────────────────────────────────
     const highest =
@@ -299,6 +328,9 @@ export async function exportConsolidatedReportAsWord(
                         children: [new TextRun({ text: translations.riskDistributionDesc, color: "64748B", size: 18 })],
                         spacing: { after: 180 },
                     }),
+
+                    // Chart section
+                    ...chartParagraphs,
 
                     // Dimension table
                     new Table({

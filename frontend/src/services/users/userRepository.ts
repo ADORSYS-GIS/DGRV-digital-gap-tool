@@ -23,7 +23,7 @@ class UserRepository {
         requestBody: invitation,
       });
     } catch (error) {
-      throw new Error("Failed to send invitation. Please try again later.");
+      throw error;
     }
   }
 

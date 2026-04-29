@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
+import html2canvas from "html2canvas";
 import { exportConsolidatedReportAsPDF, type ExportTranslations } from "@/utils/exportConsolidatedReport";
 import { exportConsolidatedReportAsWord } from "@/utils/exportConsolidatedReportAsWord";
 import {
@@ -166,6 +167,8 @@ export const ConsolidatedReport: React.FC<ConsolidatedReportProps> = ({
   organizationId,
 }) => {
   const { t } = useTranslation();
+  const [isWordExporting, setIsWordExporting] = useState(false);
+  const chartRef = useRef<HTMLDivElement>(null);
   const {
     data: dgrvData,
     isLoading: dgrvLoading,
@@ -302,8 +305,24 @@ export const ConsolidatedReport: React.FC<ConsolidatedReportProps> = ({
     }
   };
 
-  const handleExportWord = () => {
-    if (report) {
+  const handleExportWord = async () => {
+    if (!report) return;
+
+    setIsWordExporting(true);
+    let chartImage: string | undefined;
+
+    try {
+      if (chartRef.current) {
+        // Wait a bit for any animations to finish if necessary
+        const canvas = await html2canvas(chartRef.current, {
+          scale: 2,
+          logging: false,
+          useCORS: true,
+          backgroundColor: "#ffffff",
+        });
+        chartImage = canvas.toDataURL("image/png");
+      }
+
       const translations: ExportTranslations = {
         title: t("consolidatedReport.title"),
         digitalGapAnalysis: t("consolidatedReport.digitalGapAnalysis"),
@@ -360,7 +379,11 @@ export const ConsolidatedReport: React.FC<ConsolidatedReportProps> = ({
         }
       }
 
-      exportConsolidatedReportAsWord(report, translations);
+      await exportConsolidatedReportAsWord(report, translations, undefined, chartImage);
+    } catch (error) {
+      console.error("Failed to export Word report:", error);
+    } finally {
+      setIsWordExporting(false);
     }
   };
 
@@ -441,8 +464,12 @@ export const ConsolidatedReport: React.FC<ConsolidatedReportProps> = ({
             <Download className="h-4 w-4" />
             {t("consolidatedReport.exportPDF")}
           </Button>
-          <Button onClick={handleExportWord} className="gap-2">
-            <Download className="h-4 w-4" />
+          <Button onClick={handleExportWord} className="gap-2" disabled={isWordExporting}>
+            {isWordExporting ? (
+              <span className="animate-spin h-4 w-4">⏳</span>
+            ) : (
+              <Download className="h-4 w-4" />
+            )}
             {t("consolidatedReport.exportWord")}
           </Button>
         </div>
@@ -658,31 +685,33 @@ export const ConsolidatedReport: React.FC<ConsolidatedReportProps> = ({
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={400}>
-                <BarChart
-                  data={chartData}
-                  margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis
-                    dataKey="dimension_name"
-                    angle={-45}
-                    textAnchor="end"
-                    height={100}
-                    tick={{ fontSize: 12 }}
-                  />
-                  <YAxis unit="%" domain={[0, 100]} tick={{ fontSize: 12 }} />
-                  <Tooltip content={<CustomBarTooltip />} />
-                  <Bar dataKey="dominant_risk_value" radius={[8, 8, 0, 0]}>
-                    {chartData.map((entry: ChartData, index: number) => (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill={entry.dominant_risk_color}
-                      />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
+              <div ref={chartRef} className="bg-white p-4 rounded-lg">
+                <ResponsiveContainer width="100%" height={400}>
+                  <BarChart
+                    data={chartData}
+                    margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                    <XAxis
+                      dataKey="dimension_name"
+                      angle={-45}
+                      textAnchor="end"
+                      height={100}
+                      tick={{ fontSize: 12 }}
+                    />
+                    <YAxis unit="%" domain={[0, 100]} tick={{ fontSize: 12 }} />
+                    <Tooltip content={<CustomBarTooltip />} />
+                    <Bar dataKey="dominant_risk_value" radius={[8, 8, 0, 0]}>
+                      {chartData.map((entry: ChartData, index: number) => (
+                        <Cell
+                          key={`cell-${index}`}
+                          fill={entry.dominant_risk_color}
+                        />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
             </CardContent>
           </Card>
         </div>

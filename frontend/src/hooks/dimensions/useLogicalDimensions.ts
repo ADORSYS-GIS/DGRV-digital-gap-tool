@@ -5,6 +5,7 @@
  */
 import { useQuery } from "@tanstack/react-query";
 import { dimensionRepository } from "@/services/dimensions/dimensionRepository";
+import { useTranslation } from "react-i18next";
 
 export interface ILogicalDimension {
   dimension_key: string;
@@ -12,23 +13,51 @@ export interface ILogicalDimension {
 }
 
 export const useLogicalDimensions = () => {
+  const { i18n } = useTranslation();
+  const lang = i18n.language || "en";
+
   return useQuery<ILogicalDimension[]>({
-    queryKey: ["logicalDimensions"],
+    queryKey: ["logicalDimensions", lang],
     queryFn: async () => {
-      const dims = await dimensionRepository.getAll("en");
-      // Deduplicate by dimension_key (in case multiple EN rows exist)
+      // Fetch current language dimensions
+      const dims = await dimensionRepository.getAll(lang);
+
+      // If language is not English, also fetch English as fallback
+      let enDims: any[] = [];
+      if (lang !== "en") {
+        enDims = await dimensionRepository.getAll("en");
+      }
+
+      // Deduplicate and merge, preferring current language
       const seen = new Set<string>();
-      return dims
-        .filter((d) => {
-          const key = (d as any).dimension_key ?? d.id;
-          if (seen.has(key)) return false;
+      const result: ILogicalDimension[] = [];
+
+      // First pass: current language
+      dims.forEach((d) => {
+        const key = (d as any).dimension_key ?? d.id;
+        if (!seen.has(key)) {
           seen.add(key);
-          return true;
-        })
-        .map((d) => ({
-          dimension_key: (d as any).dimension_key ?? d.id,
-          name: d.name,
-        }));
+          result.push({
+            dimension_key: key,
+            name: d.name,
+          });
+        }
+      });
+
+      // Second pass: English fallback for missing dimensions
+      enDims.forEach((d) => {
+        const key = (d as any).dimension_key ?? d.id;
+        if (!seen.has(key)) {
+          seen.add(key);
+          result.push({
+            dimension_key: key,
+            name: d.name,
+          });
+        }
+      });
+
+      return result;
     },
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 };
