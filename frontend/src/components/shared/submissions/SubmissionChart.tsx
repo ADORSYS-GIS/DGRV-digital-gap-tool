@@ -36,16 +36,18 @@ interface CustomTooltipProps {
   label?: string;
 }
 
-const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
-  if (active && payload && payload.length) {
-    const { dimensionName, currentStateName, desiredStateName } =
-      payload[0].payload;
+const CustomTooltip = ({ active, payload }: CustomTooltipProps) => {
+  const { t } = useTranslation();
+  if (active && payload && payload.length > 0) {
+    const firstPayload = payload[0];
+    if (!firstPayload || !firstPayload.payload) return null;
+    const { dimensionName, currentStateName, desiredStateName } = firstPayload.payload;
     return (
       <div className="bg-white p-4 border border-gray-200 rounded-lg shadow-lg">
         <p className="font-bold text-lg mb-2">{dimensionName}</p>
         {payload.map((entry: Payload, index: number) => {
           const stateName =
-            entry.name === "Current State"
+            entry.name === t("sharedSubmissions.chart.currentState")
               ? currentStateName
               : desiredStateName;
           return (
