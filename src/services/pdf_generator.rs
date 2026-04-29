@@ -19,12 +19,13 @@ use tera::{Context, Tera};
 use tracing::{error, info, instrument, warn};
 use uuid::Uuid;
 
-#[derive(Serialize)]
-struct ChartData {
-    labels: Vec<String>,
-    current_state: Vec<i32>,
-    desired_state: Vec<i32>,
+#[derive(Serialize, Clone, Debug)]
+pub struct ChartData {
+    pub labels: Vec<String>,
+    pub current_state: Vec<i32>,
+    pub desired_state: Vec<i32>,
 }
+
 
 /// One row in the report table: one dimension assessment
 #[derive(Debug, Clone, Serialize)]
@@ -83,12 +84,13 @@ impl PdfGeneratorService {
     }
 
     #[instrument(skip(db), fields(assessment_id = %assessment_id))]
-    async fn fetch_report_data(
+    pub async fn fetch_report_data(
         db: &DatabaseConnection,
         assessment_id: Uuid,
         organization_name: Option<String>,
         lang: &str,
     ) -> Result<PdfReportData, AppError> {
+
         let labels = Self::get_labels(lang);
         let assessment = AssessmentsRepository::find_by_id(db, assessment_id)
             .await?
@@ -249,7 +251,7 @@ impl PdfGeneratorService {
     }
 
     #[instrument(skip(data))]
-    fn render_html_template(data: &PdfReportData) -> Result<String, AppError> {
+    pub(crate) fn render_html_template(data: &PdfReportData) -> Result<String, AppError> {
         let tera = Tera::new("templates/**/*.html").map_err(|e| {
             error!(error = %e, "Failed to parse templates.");
             AppError::InternalServerError(format!("Template error: {}", e))

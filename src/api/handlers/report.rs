@@ -36,9 +36,12 @@ fn convert_entity_report_format_to_dto(
     match entity_format {
         crate::entities::reports::ReportFormat::Pdf => ReportFormat::Pdf,
         crate::entities::reports::ReportFormat::Excel => ReportFormat::Excel,
+        crate::entities::reports::ReportFormat::Word => ReportFormat::Word,
         crate::entities::reports::ReportFormat::Json => ReportFormat::Json,
     }
 }
+
+
 
 fn convert_entity_report_status_to_dto(
     entity_status: crate::entities::reports::ReportStatus,
@@ -65,9 +68,11 @@ fn convert_dto_report_format_to_entity(
     match dto_format {
         ReportFormat::Pdf => crate::entities::reports::ReportFormat::Pdf,
         ReportFormat::Excel => crate::entities::reports::ReportFormat::Excel,
+        ReportFormat::Word => crate::entities::reports::ReportFormat::Word,
         ReportFormat::Json => crate::entities::reports::ReportFormat::Json,
     }
 }
+
 
 /// Generate a new report
 #[utoipa::path(
@@ -297,11 +302,15 @@ pub async fn download_report(
                 crate::entities::reports::ReportFormat::Excel => {
                     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                 }
+                crate::entities::reports::ReportFormat::Word => {
+                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                }
                 crate::entities::reports::ReportFormat::Json => "application/json",
             }
             .to_string(),
         ),
     };
+
 
     Ok(success_response(response))
 }
@@ -331,8 +340,12 @@ pub async fn serve_report_file(
         crate::entities::reports::ReportFormat::Excel => {
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         }
+        crate::entities::reports::ReportFormat::Word => {
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        }
         crate::entities::reports::ReportFormat::Json => "application/json",
     };
+
 
     let filename = format!(
         "{}.{}",
@@ -340,9 +353,11 @@ pub async fn serve_report_file(
         match report.format {
             crate::entities::reports::ReportFormat::Pdf => "pdf",
             crate::entities::reports::ReportFormat::Excel => "xlsx",
+            crate::entities::reports::ReportFormat::Word => "docx",
             crate::entities::reports::ReportFormat::Json => "json",
         }
     );
+
 
     let mut headers = http::HeaderMap::new();
     headers.insert(
@@ -616,6 +631,80 @@ pub async fn generate_and_export_report(
 
     Ok((headers, pdf_bytes))
 }
+
+/// Generate fresh Word, overwrite the single stored file for this assessment, and stream it back
+#[utoipa::path(
+    post,
+    path = "/reports/assessment/{assessment_id}/generate-and-export-word",
+    params(("assessment_id" = Uuid, Path, description = "Assessment ID")),
+    responses(
+        (status = 200, description = "Word generated and returned", body = Vec<u8>),
+        (status = 404, description = "Assessment not found")
+    )
+)]
+pub async fn generate_and_export_word_report(
+    State(state): State<AppState>,
+    Path(assessment_id): Path<Uuid>,
+    Query(params): Query<HashMap<String, String>>,
+) -> Result<impl axum::response::IntoResponse, (StatusCode, Json<serde_json::Value>)> {
+    tracing::info!(assessment_id = %assessment_id, "Generating fresh Word for export");
+
+    let lang = params.get("lang").cloned();
+
+    // Fetch cooperation name from Keycloak to include in the report header
+    let organization_name = async {
+        let admin_token = state.keycloak_service.get_admin_token().await.ok()?;
+        let assessment = crate::repositories::assessments::AssessmentsRepository::find_by_id(
+            &state.db,
+            assessment_id,
+        )
+        .await
+        .ok()??;
+
+        // Use cooperation name if available, otherwise fall back to org name
+        if let Some(cooperation_id) = &assessment.cooperation_id {
+            if let Ok(group) = state
+                .keycloak_service
+                .get_group_by_id(&admin_token, cooperation_id)
+                .await
+            {
+                return Some(group.name);
+            }
+        }
+
+        // Fallback: org name
+        let org = state
+            .keycloak_service
+            .get_organization(&admin_token, &assessment.organization_id)
+            .await
+            .ok()?;
+        Some(org.name)
+    }
+    .await;
+
+    let (word_bytes, _) = state
+        .report_service
+        .generate_and_export_word(assessment_id, organization_name, lang)
+        .await
+        .map_err(crate::api::handlers::common::handle_error)?;
+
+    let mut headers = http::HeaderMap::new();
+    headers.insert(
+        http::header::CONTENT_TYPE,
+        http::HeaderValue::from_static("application/vnd.openxmlformats-officedocument.wordprocessingml.document"),
+    );
+    headers.insert(
+        http::header::CONTENT_DISPOSITION,
+        http::HeaderValue::from_str(&format!(
+            "attachment; filename=\"report-{}.docx\"",
+            assessment_id
+        ))
+        .unwrap(),
+    );
+
+    Ok((headers, word_bytes))
+}
+
 #[utoipa::path(
     get,
     path = "/reports/assessment/{assessment_id}/download",

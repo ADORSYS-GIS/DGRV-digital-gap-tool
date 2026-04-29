@@ -103,6 +103,14 @@ impl ReportsRepository {
         db: &DbConn,
         assessment_id: Uuid,
     ) -> Result<Option<reports::Model>, AppError> {
+        Self::find_latest_by_assessment_and_format(db, assessment_id, reports::ReportFormat::Pdf).await
+    }
+
+    pub async fn find_latest_by_assessment_and_format(
+        db: &DbConn,
+        assessment_id: Uuid,
+        format: reports::ReportFormat,
+    ) -> Result<Option<reports::Model>, AppError> {
         // We cast columns to text to handle both Enum and Varchar types safely.
         // This resolves "operator does not exist" errors caused by schema inconsistencies.
         Reports::find()
@@ -110,7 +118,7 @@ impl ReportsRepository {
             .filter(
                 Expr::col(reports::Column::Format)
                     .cast_as(Alias::new("text"))
-                    .eq("pdf"),
+                    .eq(format.to_string()),
             )
             .filter(
                 Expr::col(reports::Column::Status)
@@ -122,6 +130,7 @@ impl ReportsRepository {
             .await
             .map_err(AppError::from)
     }
+
 
     pub async fn find_by_type(
         db: &DbConn,

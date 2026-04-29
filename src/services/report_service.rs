@@ -47,8 +47,12 @@ impl ReportService {
             ReportFormat::Excel => {
                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             }
+            ReportFormat::Word => {
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            }
             ReportFormat::Json => "application/json",
         };
+
 
         // Upload file to S3/MinIO
         let _ = self
@@ -129,7 +133,7 @@ impl ReportService {
             .await?;
 
         // 3. Upsert single report record
-        let existing = ReportsRepository::find_latest_pdf_by_assessment(self.db.as_ref(), assessment_id).await?;
+        let existing = ReportsRepository::find_latest_by_assessment_and_format(self.db.as_ref(), assessment_id, ReportFormat::Pdf).await?;
         if let Some(report) = existing {
             let mut active: crate::entities::reports::ActiveModel = report.into();
             active.file_path = sea_orm::ActiveValue::Set(Some(object_name.clone()));
@@ -158,6 +162,61 @@ impl ReportService {
 
         Ok((pdf_bytes, object_name))
     }
+
+    /// Generate fresh Word, overwrite the single stored file for this assessment, return bytes
+    pub async fn generate_and_export_word(
+        &self,
+        assessment_id: Uuid,
+        organization_name: Option<String>,
+        lang: Option<String>,
+    ) -> Result<(Bytes, String), AppError> {
+        // 1. Generate Word
+        let word_bytes = crate::services::word_generator::WordGeneratorService::generate_assessment_word(
+            self.db.as_ref(),
+            assessment_id,
+            organization_name,
+            lang,
+        )
+        .await?;
+
+        // 2. Fixed path per assessment — overwrites on every export
+        let object_name = format!("reports/{}/report.docx", assessment_id);
+        self.storage_service
+            .upload_file(&object_name, word_bytes.clone(), "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+            .await?;
+
+        // 3. Upsert single report record
+        let existing = ReportsRepository::find_latest_by_assessment_and_format(self.db.as_ref(), assessment_id, ReportFormat::Word).await?;
+        if let Some(report) = existing {
+            let mut active: crate::entities::reports::ActiveModel = report.into();
+            active.file_path = sea_orm::ActiveValue::Set(Some(object_name.clone()));
+            active.status = sea_orm::ActiveValue::Set(ReportStatus::Completed);
+            active.generated_at = sea_orm::ActiveValue::Set(chrono::Utc::now());
+            active.updated_at = sea_orm::ActiveValue::Set(chrono::Utc::now());
+            let id = active.report_id.clone().unwrap();
+            ReportsRepository::update(self.db.as_ref(), id, active).await?;
+        } else {
+            let new_report = crate::entities::reports::ActiveModel {
+                report_id: sea_orm::ActiveValue::Set(uuid::Uuid::new_v4()),
+                assessment_id: sea_orm::ActiveValue::Set(assessment_id),
+                report_type: sea_orm::ActiveValue::Set(ReportType::Detailed),
+                title: sea_orm::ActiveValue::Set(format!("Report {}", assessment_id)),
+                format: sea_orm::ActiveValue::Set(ReportFormat::Word),
+                summary: sea_orm::ActiveValue::Set(None),
+                report_data: sea_orm::ActiveValue::Set(None),
+                file_path: sea_orm::ActiveValue::Set(Some(object_name.clone())),
+                status: sea_orm::ActiveValue::Set(ReportStatus::Completed),
+                generated_at: sea_orm::ActiveValue::Set(chrono::Utc::now()),
+                created_at: sea_orm::ActiveValue::Set(chrono::Utc::now()),
+                updated_at: sea_orm::ActiveValue::Set(chrono::Utc::now()),
+            };
+            ReportsRepository::create(self.db.as_ref(), new_report).await?;
+        }
+
+        Ok((word_bytes, object_name))
+    }
+
+
 
     pub async fn delete_report(&self, report_id: Uuid) -> Result<bool, AppError> {
         // Get report metadata
@@ -277,3 +336,4 @@ impl FileStorageService for ReportService {
         self.storage_service.delete_file(object_name).await
     }
 }
+

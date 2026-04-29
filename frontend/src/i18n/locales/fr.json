@@ -1310,7 +1310,8 @@
     "reports": {
       "chooseSubmissionDesc": "Sélectionnez une soumission pour voir le rapport.",
       "failedToLoadSubmissions": "Échec du chargement des soumissions",
-      "generatePdf": "Générer PDF",
+      "generatePdf": "Exporter en PDF",
+      "generateWord": "Exporter en Word",
       "generating": "Génération...",
       "generationFailed": "La génération a échoué",
       "noSubmissionsFound": "Aucune soumission trouvée",

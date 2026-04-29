@@ -39,6 +39,8 @@ mod m20260408_000001_add_source_to_recommendations;
 mod m20260420_000001_add_language_to_content_tables;
 mod m20260421_000001_multilang_dimension_keys;
 mod m20260421_000002_add_dimension_key_to_org_dimensions;
+mod m20260429_000001_add_word_to_report_format;
+
 
 pub struct Migrator;
 
@@ -87,6 +89,8 @@ impl MigratorTrait for Migrator {
             Box::new(m20260420_000001_add_language_to_content_tables::Migration),
             Box::new(m20260421_000001_multilang_dimension_keys::Migration),
             Box::new(m20260421_000002_add_dimension_key_to_org_dimensions::Migration),
+            Box::new(m20260429_000001_add_word_to_report_format::Migration),
         ]
     }
 }
+

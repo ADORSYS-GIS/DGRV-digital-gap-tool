@@ -6,9 +6,11 @@ use axum::{
 
 use crate::api::handlers::report::{
     delete_report, download_latest_report_by_assessment, download_report, generate_and_export_report,
-    generate_report, get_report, get_report_status, list_reports, list_reports_by_assessment,
-    update_report,
+    generate_and_export_word_report, generate_report, get_report, get_report_status, list_reports,
+    list_reports_by_assessment, update_report,
 };
+
+
 
 /// Create report routes
 pub fn create_report_routes() -> Router<AppState> {
@@ -38,4 +40,9 @@ pub fn create_report_routes() -> Router<AppState> {
             "/assessment/:assessment_id/generate-and-export",
             post(generate_and_export_report),
         )
+        .route(
+            "/assessment/:assessment_id/generate-and-export-word",
+            post(generate_and_export_word_report),
+        )
 }
+

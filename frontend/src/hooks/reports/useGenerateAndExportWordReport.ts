@@ -1,0 +1,74 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { OpenAPI } from "@/openapi-client/core/OpenAPI";
+import { authService } from "@/services/shared/authService";
+import { useTranslation } from "react-i18next";
+
+/**
+ * Generates a fresh Word (.docx) from current assessment + action plan data,
+ * overwrites the single stored file for this assessment, and downloads it.
+ */
+export const useGenerateAndExportWordReport = () => {
+    const queryClient = useQueryClient();
+    const { i18n } = useTranslation();
+
+    return useMutation({
+        mutationFn: async (assessmentId: string) => {
+            const token = await authService.getAccessToken();
+            const baseUrl = OpenAPI.BASE || "";
+            const currentLang = i18n.language || "en";
+
+            const response = await fetch(
+                `${baseUrl}/reports/assessment/${assessmentId}/generate-and-export-word?lang=${currentLang}`,
+                {
+                    method: "POST",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                },
+            );
+
+            if (!response.ok) {
+                throw new Error(`Failed to generate Word report: ${response.statusText}`);
+            }
+
+            const blob = await response.blob();
+
+            // Get assessment title from cache for the filename
+            const cachedSummaries =
+                queryClient
+                    .getQueriesData<any>({ queryKey: ["submissions"] })
+                    .flatMap(([, data]) => (Array.isArray(data) ? data : [])) || [];
+
+            const match = cachedSummaries.find(
+                (s: any) => s?.assessment?.assessment_id === assessmentId,
+            );
+            const title = match?.assessment?.document_title || "report";
+            const safeTitle = title
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, "-")
+                .replace(/^-+|-+$/g, "")
+                .slice(0, 80);
+
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.setAttribute("download", `${safeTitle || "report"}-${assessmentId}.docx`);
+            document.body.appendChild(link);
+            link.click();
+            link.parentNode?.removeChild(link);
+            window.URL.revokeObjectURL(url);
+
+            return blob;
+        },
+        onSuccess: () => {
+            toast.success("Word report generated and downloaded successfully");
+        },
+        onError: (error: unknown) => {
+            toast.error(
+                error instanceof Error ? error.message : "Failed to generate Word report",
+            );
+            console.error(error);
+        },
+    });
+};

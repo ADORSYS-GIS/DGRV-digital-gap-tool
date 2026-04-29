@@ -42,19 +42,24 @@ pub enum ReportFormat {
     Pdf,
     #[sea_orm(string_value = "excel")]
     Excel,
+    #[sea_orm(string_value = "word")]
+    Word,
     #[sea_orm(string_value = "json")]
     Json,
 }
+
 
 impl fmt::Display for ReportFormat {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             ReportFormat::Pdf => write!(f, "pdf"),
             ReportFormat::Excel => write!(f, "excel"),
+            ReportFormat::Word => write!(f, "word"),
             ReportFormat::Json => write!(f, "json"),
         }
     }
 }
+
 
 #[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize)]
 #[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "report_status")]

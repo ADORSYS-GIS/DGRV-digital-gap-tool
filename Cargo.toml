@@ -67,6 +67,8 @@ printpdf = "0.7"
 tera = "1.19"
 base64 = "0.22.1"
 headless_chrome = "1.0.18"
+docx-rs = "0.4"
+
 
 [dev-dependencies]
 sea-orm = { version = "0.12", features = ["mock"] }
