@@ -22,6 +22,7 @@ pub struct CreateGapRequest {
 #[schema(example = json!({
     "gap_id": "550e8400-e29b-41d4-a716-446655440000",
     "dimension_id": "550e8400-e29b-41d4-a716-446655440002",
+    "dimension_key": "550e8400-e29b-41d4-a716-446655440003",
     "gap_size": 3,
     "gap_severity": "HIGH",
     "gap_description": "Significant gap in digital transformation",
@@ -37,6 +38,10 @@ pub struct GapResponse {
     /// Reference to the dimension
     #[schema(example = "550e8400-e29b-41d4-a716-446655440002")]
     pub dimension_id: Uuid,
+
+    /// Cross-language key of the dimension
+    #[schema(example = "550e8400-e29b-41d4-a716-446655440003")]
+    pub dimension_key: Uuid,
 
     /// Numeric size of the gap
     #[schema(example = 3)]

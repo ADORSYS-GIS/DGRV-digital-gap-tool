@@ -146,12 +146,12 @@ const AssessmentDetailPage: React.FC = () => {
     // Build a set of dimension_key values that have been submitted
     return new Set(
       (dimensionAssessments || [])
-        .filter((da) =>
-          !isCoopUserRestricted
-            ? true
-            : assignedDimensionIds.includes(da.dimensionId),
-        )
-        .map((da) => {
+        .filter((da) => {
+          if (!isCoopUserRestricted) return true;
+          const dim = allDimensions.find((d) => d.id === da.dimensionId);
+          const dimKey = dim ? ((dim as any).dimension_key ?? da.dimensionId) : da.dimensionId;
+          return assignedDimensionIds.includes(dimKey) || assignedDimensionIds.includes(da.dimensionId);
+        }).map((da) => {
           // Find the dimension_key for this dimensionId by searching all dimensions globally
           const dim = allDimensions.find((d) => d.id === da.dimensionId);
           return dim ? ((dim as any).dimension_key ?? da.dimensionId) : da.dimensionId;

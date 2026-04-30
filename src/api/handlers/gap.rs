@@ -22,6 +22,7 @@ fn to_gap_response(model: gaps::Model) -> GapResponse {
     GapResponse {
         gap_id: model.gap_id,
         dimension_id: model.dimension_id,
+        dimension_key: model.dimension_key,
         gap_size: model.gap_size,
         gap_severity: GapSeverity::from(model.gap_severity),
         gap_description: model.gap_description,
