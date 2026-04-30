@@ -409,15 +409,30 @@ pub async fn create_dimension_assessment(
             request.dimension_id
         } else {
             // Treat as dimension_key — find the English (base) dimension row
-            crate::repositories::dimensions::DimensionsRepository::find_by_key_and_language(
+            let maybe_en = crate::repositories::dimensions::DimensionsRepository::find_by_key_and_language(
                 db.as_ref(),
                 request.dimension_id,
                 "en",
             )
             .await
-            .map_err(crate::api::handlers::common::handle_error)?
-            .map(|d| d.dimension_id)
-            .unwrap_or(request.dimension_id)
+            .map_err(crate::api::handlers::common::handle_error)?;
+            
+            if let Some(en) = maybe_en {
+                en.dimension_id
+            } else {
+                // If english doesn't exist, try ANY language
+                let any_lang = crate::repositories::dimensions::DimensionsRepository::find_by_key_and_language(
+                    db.as_ref(),
+                    request.dimension_id,
+                    "pt",
+                ).await.map_err(crate::api::handlers::common::handle_error)?;
+                
+                if let Some(pt) = any_lang {
+                    pt.dimension_id
+                } else {
+                    request.dimension_id
+                }
+            }
         }
     };
 
@@ -491,17 +506,29 @@ pub async fn create_dimension_assessment(
     .map(|cs| cs.language)
     .unwrap_or_else(|| "en".to_string());
 
-    let gap = GapsRepository::find_by_dimension_key_and_severity_and_language(
+    let mut gap = GapsRepository::find_by_dimension_key_and_severity_and_language(
         db.as_ref(),
         dimension_key,
         gap_severity.clone(),
         &user_language,
     )
     .await
-    .map_err(crate::api::handlers::common::handle_error)?
-    .ok_or_else(|| {
+    .map_err(crate::api::handlers::common::handle_error)?;
+
+    if gap.is_none() && user_language != "en" {
+        gap = GapsRepository::find_by_dimension_key_and_severity_and_language(
+            db.as_ref(),
+            dimension_key,
+            gap_severity.clone(),
+            "en",
+        )
+        .await
+        .map_err(crate::api::handlers::common::handle_error)?;
+    }
+
+    let gap = gap.ok_or_else(|| {
         crate::api::handlers::common::handle_error(AppError::NotFound(
-            format!("No gap found for dimension_key {} with severity {:?} in language {}", dimension_key, gap_severity, user_language),
+            format!("No gap found for dimension_key {} with severity {:?} cross-language", dimension_key, gap_severity),
         ))
     })?;
 
@@ -536,14 +563,27 @@ pub async fn create_dimension_assessment(
         3 => "High",
         _ => "Medium",
     };
-    if let Some(recommendation) = RecommendationsRepository::find_by_dimension_key_and_priority_and_language(
+    let mut recommendation = RecommendationsRepository::find_by_dimension_key_and_priority_and_language(
         db.as_ref(),
         dimension_key,
         recommendation_priority,
         &user_language,
     )
     .await
-    .map_err(crate::api::handlers::common::handle_error)?
+    .map_err(crate::api::handlers::common::handle_error)?;
+
+    if recommendation.is_none() && user_language != "en" {
+        recommendation = RecommendationsRepository::find_by_dimension_key_and_priority_and_language(
+            db.as_ref(),
+            dimension_key,
+            recommendation_priority,
+            "en",
+        )
+        .await
+        .map_err(crate::api::handlers::common::handle_error)?;
+    }
+
+    if let Some(recommendation) = recommendation
     {
         let action_item_active_model = crate::entities::action_items::ActiveModel {
             id: sea_orm::Set(Uuid::new_v4()),
@@ -681,28 +721,62 @@ pub async fn update_dimension_assessment(
     if let Some(gap_score) = request.gap_score {
         active_model.gap_score = sea_orm::Set(gap_score);
 
-        // Look up the corresponding gap by dimension and severity
-        let gap = GapsRepository::find_by_dimension_and_severity(
+        // Use cross-language gap lookup via dimension_key
+        let dimension_key = crate::repositories::dimensions::DimensionsRepository::find_by_id(db.as_ref(), dimension_assessment.dimension_id)
+            .await
+            .map_err(crate::api::handlers::common::handle_error)?
+            .map(|d| d.dimension_key)
+            .unwrap_or(dimension_assessment.dimension_id);
+
+        let user_language = if let Some(cs_id) = request.current_state_id.or(dimension_assessment.current_state_id) {
+            crate::repositories::current_states::CurrentStatesRepository::find_by_id(
+                db.as_ref(),
+                cs_id,
+            )
+            .await
+            .map_err(crate::api::handlers::common::handle_error)?
+            .map(|cs| cs.language)
+            .unwrap_or_else(|| "en".to_string())
+        } else {
+            "en".to_string()
+        };
+
+        let gap_severity = match gap_score {
+            1 => crate::entities::gaps::GapSeverity::Low,
+            2 => crate::entities::gaps::GapSeverity::Medium,
+            3 => crate::entities::gaps::GapSeverity::High,
+            _ => {
+                return Err(crate::api::handlers::common::handle_error(
+                    AppError::ValidationError(
+                        "Invalid gap_score. Must be 1, 2, or 3.".to_string(),
+                    ),
+                ));
+            }
+        };
+
+        let mut gap = GapsRepository::find_by_dimension_key_and_severity_and_language(
             db.as_ref(),
-            dimension_assessment.dimension_id,
-            match gap_score {
-                1 => crate::entities::gaps::GapSeverity::Low,
-                2 => crate::entities::gaps::GapSeverity::Medium,
-                3 => crate::entities::gaps::GapSeverity::High,
-                _ => {
-                    return Err(crate::api::handlers::common::handle_error(
-                        AppError::ValidationError(
-                            "Invalid gap_score. Must be 1, 2, or 3.".to_string(),
-                        ),
-                    ));
-                }
-            },
+            dimension_key,
+            gap_severity.clone(),
+            &user_language,
         )
         .await
-        .map_err(crate::api::handlers::common::handle_error)?
-        .ok_or_else(|| {
+        .map_err(crate::api::handlers::common::handle_error)?;
+
+        if gap.is_none() && user_language != "en" {
+            gap = GapsRepository::find_by_dimension_key_and_severity_and_language(
+                db.as_ref(),
+                dimension_key,
+                gap_severity.clone(),
+                "en",
+            )
+            .await
+            .map_err(crate::api::handlers::common::handle_error)?;
+        }
+
+        let gap = gap.ok_or_else(|| {
             crate::api::handlers::common::handle_error(AppError::NotFound(
-                "Corresponding gap not found for the given dimension and severity".to_string(),
+                "Corresponding gap not found for the given dimension and severity cross-language".to_string(),
             ))
         })?;
 

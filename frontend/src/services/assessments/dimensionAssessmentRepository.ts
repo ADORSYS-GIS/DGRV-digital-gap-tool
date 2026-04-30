@@ -251,11 +251,11 @@ export const dimensionAssessmentRepository = {
           .toArray();
 
         // If no levels for exact language, try any language
-        const fallbackLevels = levels.length === 0 
+        const fallbackLevels = levels.length === 0
           ? await db.digitalisationLevels
-              .where("dimensionId")
-              .equals(dimensionId)
-              .toArray()
+            .where("dimensionId")
+            .equals(dimensionId)
+            .toArray()
           : levels;
 
         const states: IDimensionState[] = fallbackLevels.map(level => ({
@@ -277,7 +277,7 @@ export const dimensionAssessmentRepository = {
 
         // Cache this constructed result for future use
         await db.dimensionWithStatesCache.put(dimensionWithStates);
-        
+
         return dimensionWithStates;
       }
 
@@ -297,7 +297,7 @@ export const dimensionAssessmentRepository = {
       return minimalDimension;
     } catch (dbError) {
       console.error("Critical error reading from IndexedDB cache:", dbError);
-      
+
       // Even if DB fails, return a minimal structure to prevent complete failure
       return {
         id: dimensionId,
@@ -748,7 +748,7 @@ export const dimensionAssessmentRepository = {
                 id: da.current_state_id,
                 dimensionId: da.dimension_id,
                 level: 0,
-                name: "",
+                name: "Unknown",
                 description: "",
                 createdAt: da.created_at,
                 updatedAt: da.updated_at,
@@ -757,7 +757,7 @@ export const dimensionAssessmentRepository = {
                 id: da.desired_state_id,
                 dimensionId: da.dimension_id,
                 level: 0,
-                name: "",
+                name: "Unknown",
                 description: "",
                 createdAt: da.created_at,
                 updatedAt: da.updated_at,
@@ -769,40 +769,21 @@ export const dimensionAssessmentRepository = {
               lastError: "",
             };
 
-            // Try to populate levels from local DB if available
-            const currentLevel = await db.digitalisationLevels
-              .where("id")
-              .equals(da.current_state_id)
-              .first();
-            if (currentLevel) {
-              assessment.currentState.level = Number(currentLevel.level ?? currentLevel.state ?? 0);
-              assessment.currentState.name = currentLevel.title;
-              assessment.currentState.description =
-                currentLevel.description || "";
-            }
-
-            const desiredLevel = await db.digitalisationLevels
-              .where("id")
-              .equals(da.desired_state_id)
-              .first();
-            if (desiredLevel) {
-              assessment.desiredState.level = Number(desiredLevel.level ?? desiredLevel.state ?? 0);
-              assessment.desiredState.name = desiredLevel.title;
-              assessment.desiredState.description =
-                desiredLevel.description || "";
-            }
-
-            // If levels still missing, fetch from backend via dimension with-states
-            if (assessment.currentState.level === 0 || assessment.desiredState.level === 0) {
+            // Attempt to fetch current/desired state details using OpenAPI endpoint
+            if (da.current_state_id && da.desired_state_id) {
               try {
-                const lang = i18n.language?.split("-")[0] || "en";
-                const dimData = await getDimensionWithStatesApi({ id: da.dimension_id, lang });
+                // Determine user language
+                const lang = (String(i18n.language || window.localStorage.getItem("i18nextLng") || "en").split("-")[0]) as string;
+                const dimData = await getDimensionWithStatesApi({
+                  id: da.dimension_id,
+                  lang,
+                });
                 if (dimData.data) {
                   const cs = dimData.data.current_states?.find(
-                    (s) => s.current_state_id === da.current_state_id,
+                    (s: any) => s.current_state_id === da.current_state_id,
                   );
                   const ds = dimData.data.desired_states?.find(
-                    (s) => s.desired_state_id === da.desired_state_id,
+                    (s: any) => s.desired_state_id === da.desired_state_id,
                   );
                   if (cs) {
                     assessment.currentState.level = cs.score ?? 0;
@@ -824,7 +805,26 @@ export const dimensionAssessmentRepository = {
             await db.dimensionAssessments.put(assessment);
           }
 
-          return assessments;
+          // Merge any locally PENDING or FAILED items into the resulting array
+          // so the user's dashboard progress is correct before background sync finishes
+          const localOnly = await db.dimensionAssessments
+            .where("assessmentId")
+            .equals(assessmentId)
+            .filter(
+              (da) =>
+                da.syncStatus === SyncStatus.PENDING ||
+                da.syncStatus === SyncStatus.FAILED,
+            )
+            .toArray();
+
+          const result = [...assessments];
+          for (const local of localOnly) {
+            if (!result.find(r => r.dimensionId === local.dimensionId)) {
+              result.push(local);
+            }
+          }
+
+          return result;
         }
       } catch (error) {
         console.error("Error fetching dimension assessments from API:", error);

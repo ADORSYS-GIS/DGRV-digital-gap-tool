@@ -48,7 +48,7 @@ export function DimensionAssessmentDetail({
   const { data: allGaps, isLoading: isLoadingGap } = useDigitalisationGaps(lang);
   const gap = allGaps?.find(
     (g) => ((g as any).dimension_key === dimensionKey || g.dimensionId === assessment.dimensionId) &&
-      g.gap_severity === risk.level
+      String(g.gap_severity).toUpperCase() === risk.level.toUpperCase()
   );
 
   const allStates: IDimensionState[] = [
