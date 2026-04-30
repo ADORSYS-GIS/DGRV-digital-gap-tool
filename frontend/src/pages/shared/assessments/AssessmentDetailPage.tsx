@@ -69,6 +69,29 @@ const AssessmentDetailPage: React.FC = () => {
   const { data: allDimensions = [] } = useQuery({
     queryKey: ["allDimensionsMapping"],
     queryFn: async () => {
+      if (navigator.onLine) {
+        try {
+          const SUPPORTED_LANGS = ["en", "pt", "fr", "ss"];
+          const { listDimensions } = await import("@/openapi-client/services.gen");
+          const responses = await Promise.all(
+            SUPPORTED_LANGS.map((l) => listDimensions({ lang: l }).catch(() => null))
+          );
+
+          const allDims: any[] = [];
+          responses.forEach((res) => {
+            if (res?.data?.items) {
+              allDims.push(...res.data.items.map((d: any) => ({
+                ...d,
+                id: d.dimension_id
+              })));
+            }
+          });
+
+          if (allDims.length > 0) return allDims;
+        } catch (e) {
+          console.error("Failed to map all dimensions", e);
+        }
+      }
       return dimensionRepository.getAll("all");
     },
     staleTime: Infinity,

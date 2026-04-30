@@ -754,6 +754,7 @@
     "title": "Relatório Consolidado",
     "subtitle": "Visão geral completa da análise de gaps",
     "exportPDF": "Exportar para PDF",
+    "exportWord": "Exportar para Word",
     "metrics": {
       "totalSubmissions": "Total de submissões"
     },
@@ -841,6 +842,7 @@
     "subtitle": "Gerar e descarregar um relatório PDF profissional da avaliação de gaps de digitalização",
     "generating": "A gerar o PDF...",
     "generateBtn": "Gerar PDF",
+    "exportWord": "Exportar para Word",
     "details": "Detalhes da submissão"
   },
   "sharedPages": {
@@ -934,28 +936,28 @@
       "title": "Avaliação"
     },
     "manageCoopUsersPage": {
-      "description": "Consulte os detalhes e as recomendações da avaliação.",
+      "description": "Convidar e gerir utilizadores para esta cooperativa.",
       "empty": {
-        "description": "Consulte os detalhes e as recomendações da avaliação.",
-        "title": "Avaliação"
+        "description": "Nenhum utilizador foi ainda adicionado a esta cooperativa.",
+        "title": "Sem Utilizadores Atribuídos"
       },
-      "error": "Erro",
-      "title": "Avaliação"
+      "error": "Erro ao carregar utilizadores",
+      "title": "Gerir Utilizadores da Cooperativa"
     },
     "manageCoops": {
-      "description": "Consulte os detalhes e as recomendações da avaliação.",
+      "description": "Ver e gerir perfis das cooperativas.",
       "empty": {
-        "description": "Consulte os detalhes e as recomendações da avaliação.",
-        "title": "Avaliação"
+        "description": "Nenhuma cooperativa foi ainda criada.",
+        "title": "Sem Cooperativas"
       },
-      "title": "Avaliação"
+      "title": "Gerir Cooperativas"
     },
     "submissionsPage": {
-      "description": "Consulte os detalhes e as recomendações da avaliação.",
+      "description": "Acompanhar o progresso das avaliações.",
       "empty": "Vazio",
       "noSubmissions": "Sem submissões",
       "submissionCount": "{{count}} submissão(ões)",
-      "title": "Avaliação"
+      "title": "Submissões"
     }
   },
   "sharedSubmissions": {
@@ -990,6 +992,7 @@
       "errorLoad": "Falha ao carregar os detalhes",
       "errorLoading": "Erro ao carregar",
       "exportPdf": "Exportar para PDF",
+      "exportWord": "Exportar para Word",
       "noDimensionAssessments": "Nenhuma avaliação de dimensão encontrada",
       "riskLevel": "Nível de risco",
       "riskLevelDesc": "O gap entre os seus níveis atual e desejado é analisado para determinar um nível de risco, indicando a urgência e a importância de abordar esta área.",
@@ -1311,6 +1314,7 @@
       "chooseSubmissionDesc": "Selecione uma submissão para ver o relatório.",
       "failedToLoadSubmissions": "Falha ao carregar as submissões",
       "generatePdf": "Gerar PDF",
+      "generateWord": "Exportar para Word",
       "generating": "A gerar...",
       "generationFailed": "A geração falhou",
       "noSubmissionsFound": "Nenhuma submissão encontrada",

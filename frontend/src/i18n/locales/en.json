@@ -935,28 +935,28 @@
       "title": "Assessment"
     },
     "manageCoopUsersPage": {
-      "description": "View the details and recommendations of the assessment.",
+      "description": "Invite and manage users for this cooperative.",
       "empty": {
-        "description": "View the details and recommendations of the assessment.",
-        "title": "Assessment"
+        "description": "No users have been added to this cooperative yet.",
+        "title": "No Cooperative Users"
       },
-      "error": "Error",
-      "title": "Assessment"
+      "error": "Error loading users",
+      "title": "Manage Cooperative Users"
     },
     "manageCoops": {
-      "description": "View the details and recommendations of the assessment.",
+      "description": "View and manage cooperative profiles.",
       "empty": {
-        "description": "View the details and recommendations of the assessment.",
-        "title": "Assessment"
+        "description": "No cooperatives have been created yet.",
+        "title": "No Cooperatives"
       },
-      "title": "Assessment"
+      "title": "Manage Cooperatives"
     },
     "submissionsPage": {
-      "description": "View the details and recommendations of the assessment.",
+      "description": "Track the progress of assessments.",
       "empty": "Empty",
       "noSubmissions": "No Submissions",
       "submissionCount": "{{count}} submission(s)",
-      "title": "Assessment"
+      "title": "Submissions"
     }
   },
   "sharedSubmissions": {

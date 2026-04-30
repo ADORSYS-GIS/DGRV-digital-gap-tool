@@ -754,6 +754,7 @@
     "title": "Umbiko Lohlanganisiwe",
     "subtitle": "Umbono lophelele wekuhlaziya emagap",
     "exportPDF": "Exporta ku-PDF",
+    "exportWord": "Exporta ku-Word",
     "metrics": {
       "totalSubmissions": "Sekonke kuthunyelwa"
     },
@@ -841,6 +842,7 @@
     "subtitle": "Yakha ulayishe i-PDF lephrofeshinali yekuhlola emagap ekudijithali",
     "generating": "Iyayakha i-PDF...",
     "generateBtn": "Yakha i-PDF",
+    "exportWord": "Exporta ku-Word",
     "details": "Imininingwane yekuthunyelwa"
   },
   "sharedPages": {
@@ -934,28 +936,28 @@
       "title": "Kuhlola"
     },
     "manageCoopUsersPage": {
-      "description": "Bukela imininingwane netincomo tekuhlola.",
+      "description": "Mema uphatse basebenti bale cooperative.",
       "empty": {
-        "description": "Bukela imininingwane netincomo tekuhlola.",
-        "title": "Kuhlola"
+        "description": "Kute basebentisi lase bangeziwe kule cooperative.",
+        "title": "Kute Basebentisi be-Cooperative"
       },
-      "error": "Liphutha",
-      "title": "Kuhlola"
+      "error": "Liphutha ngekulayisha basebentisi",
+      "title": "Phatsa Basebenzisi be-Cooperative"
     },
     "manageCoops": {
-      "description": "Bukela imininingwane netincomo tekuhlola.",
+      "description": "Buka uphatse emaphrofayili ema-cooperative.",
       "empty": {
-        "description": "Bukela imininingwane netincomo tekuhlola.",
-        "title": "Kuhlola"
+        "description": "Kute ema-cooperative lase bangeziwe.",
+        "title": "Kute Ema-Cooperative"
       },
-      "title": "Kuhlola"
+      "title": "Phatsa Ema-Cooperative"
     },
     "submissionsPage": {
-      "description": "Bukela imininingwane netincomo tekuhlola.",
+      "description": "Landzela intfutfuko yekuhlola.",
       "empty": "Kute",
       "noSubmissions": "Kute Kuthunyelwa",
       "submissionCount": "{{count}} kuthunyelwa",
-      "title": "Kuhlola"
+      "title": "Kuthunyelwa"
     }
   },
   "sharedSubmissions": {
@@ -990,6 +992,7 @@
       "errorLoad": "Kwehlulekile kulayisha imininingwane",
       "errorLoading": "Liphutha ngekulayisha",
       "exportPdf": "Exporta ku-PDF",
+      "exportWord": "Exporta ku-Word",
       "noDimensionAssessments": "Kute kuhlola kwenchubekela lokufoliwe",
       "riskLevel": "Izinga lebunga",
       "riskLevelDesc": "Igap emkhatsini weleveli yakho yamanje neleveli lefiselekako ihlaziywa kute kutfolwe izinga lebunga, likhomba kusho kucina nekubaluleka kwekubhekana nale ndzawo.",
@@ -1311,6 +1314,7 @@
       "chooseSubmissionDesc": "Khetha kuthunyelwa kute ubuke umbiko.",
       "failedToLoadSubmissions": "Kwehlulekile kulayisha kuthunyelwa",
       "generatePdf": "Yakha PDF",
+      "generateWord": "Exporta ku-Word",
       "generating": "Iyayakha...",
       "generationFailed": "Kwehlulekile kwakha",
       "noSubmissionsFound": "Kute kuthunyelwa lokufoliwe",

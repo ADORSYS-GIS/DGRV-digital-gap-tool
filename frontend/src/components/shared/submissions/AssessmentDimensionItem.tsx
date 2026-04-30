@@ -162,6 +162,7 @@ export const AssessmentDimensionItem = ({
             syncStatus: "SYNCED",
             gap_id: dimensionAssessment.gap_id,
           }}
+          dimensionKey={dimensionKey}
           allDimensionStates={allStates}
         />
       </AccordionContent>

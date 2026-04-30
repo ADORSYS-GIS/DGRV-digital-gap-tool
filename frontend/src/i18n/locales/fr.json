@@ -935,28 +935,28 @@
       "title": "Évaluation"
     },
     "manageCoopUsersPage": {
-      "description": "Consultez les détails et les recommandations de l'évaluation.",
+      "description": "Inviter et gérer les utilisateurs pour cette coopérative.",
       "empty": {
-        "description": "Consultez les détails et les recommandations de l'évaluation.",
-        "title": "Évaluation"
+        "description": "Aucun utilisateur n'a encore été ajouté à cette coopérative.",
+        "title": "Aucun Utilisateur de Coopérative"
       },
-      "error": "Error",
-      "title": "Évaluation"
+      "error": "Erreur lors du chargement des utilisateurs",
+      "title": "Gérer les Utilisateurs de Coopérative"
     },
     "manageCoops": {
-      "description": "Consultez les détails et les recommandations de l'évaluation.",
+      "description": "Voir et gérer les profils des coopératives.",
       "empty": {
-        "description": "Consultez les détails et les recommandations de l'évaluation.",
-        "title": "Évaluation"
+        "description": "Aucune coopérative n'a encore été créée.",
+        "title": "Aucune Coopérative"
       },
-      "title": "Évaluation"
+      "title": "Gérer les Coopératives"
     },
     "submissionsPage": {
-      "description": "Consultez les détails et les recommandations de l'évaluation.",
-      "empty": "Empty",
-      "noSubmissions": "No Submissions",
+      "description": "Suivre l'avancement des évaluations.",
+      "empty": "Vide",
+      "noSubmissions": "Aucune soumission",
       "submissionCount": "{{count}} soumission(s)",
-      "title": "Évaluation"
+      "title": "Soumissions"
     }
   },
   "sharedSubmissions": {

@@ -9,12 +9,13 @@ import { IDimensionAssessment, IDimensionState } from "@/types/dimension";
 import { cn } from "@/lib/utils";
 
 import { useTranslation } from "react-i18next";
-import { useDigitalisationGap } from "@/hooks/digitalisationGaps/useDigitalisationGap";
+import { useDigitalisationGaps } from "@/hooks/digitalisationGaps/useDigitalisationGaps";
 import { Loader2 } from "lucide-react";
 
 interface DimensionAssessmentDetailProps {
   assessment: IDimensionAssessment;
   allDimensionStates: IDimensionState[];
+  dimensionKey: string;
 }
 
 function getRiskLevel(gapScore: number): {
@@ -33,13 +34,22 @@ function getRiskLevel(gapScore: number): {
 export function DimensionAssessmentDetail({
   assessment,
   allDimensionStates,
+  dimensionKey,
 }: DimensionAssessmentDetailProps) {
-  const { t } = useTranslation();
-  const { currentState, desiredState, gap_id } = assessment;
+  const { t, i18n } = useTranslation();
+  const lang = (i18n.language ?? "en").split("-")[0];
+  const { currentState, desiredState } = assessment;
   const gapScore = desiredState.level - currentState.level;
   const risk = getRiskLevel(gapScore);
 
-  const { data: gap, isLoading: isLoadingGap } = useDigitalisationGap(gap_id || "");
+  // Fetch all gaps in the current UI language to reliably find the localized description.
+  // The gap_id stored in the assessment might correspond to a different language, 
+  // so we match by dimension_key and severity instead of gap_id directly.
+  const { data: allGaps, isLoading: isLoadingGap } = useDigitalisationGaps(lang);
+  const gap = allGaps?.find(
+    (g) => ((g as any).dimension_key === dimensionKey || g.dimensionId === assessment.dimensionId) &&
+      g.gap_severity === risk.level
+  );
 
   const allStates: IDimensionState[] = [
     ...allDimensionStates,
