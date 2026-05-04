@@ -13,6 +13,15 @@ import { InvitationPendingDialog } from "@/components/shared/InvitationPendingDi
 import { ROLES } from "@/constants/roles";
 import { syncManager } from "@/services/sync/syncManager";
 
+const INACTIVITY_LOGOUT_MS = 10 * 60 * 1000;
+const ACTIVITY_EVENTS = [
+  "mousemove",
+  "mousedown",
+  "keydown",
+  "touchstart",
+  "scroll",
+] as const;
+
 export const AuthContext = createContext<AuthContextType | undefined>(
   undefined,
 );
@@ -66,6 +75,32 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     await authService.logout();
     updateAuthState();
   }, [updateAuthState]);
+
+  useEffect(() => {
+    if (!authState.isAuthenticated) return;
+
+    let timeoutId: ReturnType<typeof window.setTimeout>;
+
+    const resetInactivityTimer = () => {
+      window.clearTimeout(timeoutId);
+      timeoutId = window.setTimeout(() => {
+        void logout();
+      }, INACTIVITY_LOGOUT_MS);
+    };
+
+    ACTIVITY_EVENTS.forEach((event) => {
+      window.addEventListener(event, resetInactivityTimer, { passive: true });
+    });
+
+    resetInactivityTimer();
+
+    return () => {
+      window.clearTimeout(timeoutId);
+      ACTIVITY_EVENTS.forEach((event) => {
+        window.removeEventListener(event, resetInactivityTimer);
+      });
+    };
+  }, [authState.isAuthenticated, logout]);
 
   useEffect(() => {
     // 1. Instant re-hydration: check for cached profile and tokens immediately
