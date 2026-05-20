@@ -90,6 +90,14 @@ export class AppDB extends Dexie {
     this.version(20).stores({
       digitalisationGaps: "[id+lang], id, lang, dimensionId, dimension_key, [dimension_key+gap_severity+lang], [dimensionId+gap_severity+lang]",
     });
+    // v21: Re-assert indexes on composite-key tables to fix "index was not found"
+    // errors for users with partially migrated IndexedDB schemas.
+    this.version(21).stores({
+      dimensions: "[id+lang], id, lang",
+      digitalisationLevels: "[id+lang], id, lang, dimensionId, [dimensionId+levelType]",
+      digitalisationGaps:
+        "[id+lang], id, lang, dimensionId, dimension_key, [dimension_key+gap_severity+lang], [dimensionId+gap_severity+lang]",
+    });
   }
 }
 

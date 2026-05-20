@@ -3,6 +3,7 @@ import {
   deleteDimension,
   updateDimension,
 } from "@/openapi-client/services.gen";
+import { cascadeDeleteDimensionCache } from "@/services/db/cascadeDelete";
 import { db } from "@/services/db";
 import { dimensionRepository } from "@/services/dimensions/dimensionRepository";
 import { IDimension } from "@/types/dimension";
@@ -64,7 +65,7 @@ export const dimensionSyncService = {
       }
       case "DELETE": {
         await deleteDimension({ id: op.entityId });
-        await db.dimensions.where("id").equals(op.entityId).delete();
+        await cascadeDeleteDimensionCache(op.entityId);
         break;
       }
       default:

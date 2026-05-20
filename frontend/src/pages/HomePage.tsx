@@ -307,7 +307,7 @@ export const HomePage: React.FC = () => {
             <a href="#" className="hover:text-blue-600 transition-colors">
               {t('home.footer.terms')}
             </a>
-            <a href="#" className="hover:text-blue-600 transition-colors">
+            <a href="tel:+26878542660" className="hover:text-blue-600 transition-colors">
               {t('home.footer.contact')}
             </a>
           </div>

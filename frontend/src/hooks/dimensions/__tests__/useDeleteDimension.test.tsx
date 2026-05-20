@@ -1,9 +1,14 @@
 import { renderHook, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { vi, describe, it, expect, beforeEach, Mock } from "vitest";
+import { vi, describe, it, expect, beforeEach } from "vitest";
 import { useDeleteDimension } from "../useDeleteDimension";
-import { db } from "@/services/db";
-import { Table } from "dexie";
+import { dimensionRepository } from "@/services/dimensions/dimensionRepository";
+
+vi.mock("@/services/dimensions/dimensionRepository", () => ({
+  dimensionRepository: {
+    delete: vi.fn(),
+  },
+}));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -24,45 +29,26 @@ describe("useDeleteDimension", () => {
   });
 
   it("should delete a dimension successfully", async () => {
-    (db.dimensions.get as Mock).mockResolvedValue({
-      id: "1",
-      name: "Test Dimension",
-    });
-    (db.dimensions.get as Mock).mockResolvedValue({
-      id: "1",
-      name: "Test Dimension",
-    });
-    (db.dimensions.update as Mock).mockResolvedValue(1);
-    (db.sync_queue.add as Mock).mockResolvedValue("1");
+    vi.mocked(dimensionRepository.delete).mockResolvedValue(undefined);
 
     const { result } = renderHook(() => useDeleteDimension(), { wrapper });
 
-    result.current.mutate("1");
+    result.current.mutate("dim-1");
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
-    expect(db.dimensions.update).toHaveBeenCalledTimes(1);
-    expect(db.dimensions.update).toHaveBeenCalledWith("1", {
-      syncStatus: "pending",
-    });
-    expect(db.sync_queue.add).toHaveBeenCalledTimes(1);
+    expect(dimensionRepository.delete).toHaveBeenCalledWith("dim-1");
   });
 
   it("should handle errors when deleting a dimension", async () => {
     const errorMessage = "Failed to delete dimension";
-    (db.dimensions.get as Mock).mockResolvedValue({
-      id: "1",
-      name: "Test Dimension",
-    });
-    (db.dimensions.get as Mock).mockResolvedValue({
-      id: "1",
-      name: "Test Dimension",
-    });
-    (db.dimensions.update as Mock).mockRejectedValue(new Error(errorMessage));
+    vi.mocked(dimensionRepository.delete).mockRejectedValue(
+      new Error(errorMessage),
+    );
 
     const { result } = renderHook(() => useDeleteDimension(), { wrapper });
 
-    result.current.mutate("1");
+    result.current.mutate("dim-1");
 
     await waitFor(() => expect(result.current.isError).toBe(true));
 
