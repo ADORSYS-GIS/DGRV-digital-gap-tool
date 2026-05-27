@@ -41,7 +41,7 @@ describe("OnboardingStep", () => {
       />,
     );
 
-    expect(screen.getByText("Previous")).toBeDisabled();
+    expect(screen.getByRole("button", { name: /previous/i })).toBeDisabled();
   });
 
   it('enables the "Previous" button on subsequent steps', () => {
@@ -56,7 +56,9 @@ describe("OnboardingStep", () => {
       />,
     );
 
-    expect(screen.getByText("Previous")).not.toBeDisabled();
+    expect(
+      screen.getByRole("button", { name: /previous/i }),
+    ).not.toBeDisabled();
   });
 
   it('calls "handleNext" when the "Next" button is clicked', () => {
@@ -72,7 +74,7 @@ describe("OnboardingStep", () => {
       />,
     );
 
-    fireEvent.click(screen.getByText("Next"));
+    fireEvent.click(screen.getByRole("button", { name: /next/i }));
     expect(handleNext).toHaveBeenCalledTimes(1);
   });
 
@@ -89,7 +91,7 @@ describe("OnboardingStep", () => {
       />,
     );
 
-    fireEvent.click(screen.getByText("Previous"));
+    fireEvent.click(screen.getByRole("button", { name: /previous/i }));
     expect(handlePrevious).toHaveBeenCalledTimes(1);
   });
 
@@ -105,6 +107,6 @@ describe("OnboardingStep", () => {
       />,
     );
 
-    expect(screen.getByText("Finish")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /finish/i })).toBeInTheDocument();
   });
 });

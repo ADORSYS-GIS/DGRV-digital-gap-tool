@@ -1,14 +1,21 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { describe, it, expect, vi, beforeEach, Mock } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { MemoryRouter } from "react-router-dom";
 import OnboardingFlow from "../OnboardingFlow";
-import { useAuth } from "@/context/AuthContext";
+import * as AuthContext from "@/context/AuthContext";
 
 vi.mock("@/context/AuthContext");
 
 describe("OnboardingFlow", () => {
   beforeEach(() => {
-    (useAuth as Mock).mockReturnValue({ user: { sub: "test-user" } });
+    vi.mocked(AuthContext.useAuth).mockReturnValue({
+      user: { sub: "test-user" },
+      isAuthenticated: true,
+      roles: [],
+      loading: false,
+      login: vi.fn(),
+      logout: vi.fn(),
+    });
   });
 
   it("renders the first step initially", () => {
@@ -26,7 +33,7 @@ describe("OnboardingFlow", () => {
         <OnboardingFlow />
       </MemoryRouter>,
     );
-    fireEvent.click(screen.getByText("Next"));
+    fireEvent.click(screen.getByRole("button", { name: /next/i }));
     await waitFor(() => {
       expect(screen.getByText("Define Your Future")).toBeInTheDocument();
     });
@@ -38,9 +45,9 @@ describe("OnboardingFlow", () => {
         <OnboardingFlow />
       </MemoryRouter>,
     );
-    fireEvent.click(screen.getByText("Next"));
+    fireEvent.click(screen.getByRole("button", { name: /next/i }));
     await waitFor(() => {
-      fireEvent.click(screen.getByText("Previous"));
+      fireEvent.click(screen.getByRole("button", { name: /previous/i }));
     });
     await waitFor(() => {
       expect(screen.getByText("Assess Your Current")).toBeInTheDocument();
@@ -53,18 +60,19 @@ describe("OnboardingFlow", () => {
         <OnboardingFlow />
       </MemoryRouter>,
     );
-    fireEvent.click(screen.getByText("Next"));
+    fireEvent.click(screen.getByRole("button", { name: /next/i }));
     await waitFor(() => {
-      fireEvent.click(screen.getByText("Next"));
+      expect(screen.getByText("Define Your Future")).toBeInTheDocument();
     });
-    // await waitFor(() => {
-    //   expect(screen.getByText("Finish")).toBeInTheDocument();
-    // });
-    // fireEvent.click(screen.getByText("Finish"));
-    // await waitFor(() => {
-    //   expect(
-    //     screen.getByText("You're Ready to Get Started!")
-    //   ).toBeInTheDocument();
-    // });
+    fireEvent.click(screen.getByRole("button", { name: /next/i }));
+    await waitFor(() => {
+      expect(screen.getByText("Analyze Results &")).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByRole("button", { name: /finish/i }));
+    await waitFor(() => {
+      expect(
+        screen.getByText("You're Ready to Get Started!"),
+      ).toBeInTheDocument();
+    });
   });
 });

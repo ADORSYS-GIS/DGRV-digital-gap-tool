@@ -32,7 +32,9 @@ describe("OnboardingCompletion", () => {
       />,
     );
 
-    fireEvent.click(screen.getByText("Begin Your Journey"));
+    fireEvent.click(
+      screen.getByRole("button", { name: /begin your journey/i }),
+    );
     expect(handleGetStarted).toHaveBeenCalledTimes(1);
   });
 
@@ -46,7 +48,7 @@ describe("OnboardingCompletion", () => {
       />,
     );
 
-    fireEvent.click(screen.getByText("Back to steps"));
+    fireEvent.click(screen.getByRole("button", { name: /back to steps/i }));
     expect(handlePrevious).toHaveBeenCalledTimes(1);
   });
 });
