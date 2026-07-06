@@ -1,5 +1,15 @@
 # Arc42 Architecture Documentation
 
+> ⚠️ **DESIGN-TARGET, NOT AS-BUILT.** This document describes an aspirational
+> microservices / API-Gateway / CQRS architecture and Kubernetes/AWS deployment that is
+> **more ambitious** than the actual single-repo Rust/Axum monolith in `src/`. Some
+> deployment manifests and the dual-storage notes are illustrative. For the
+> **actual** architecture, deployment, and feature implementation as currently shipped,
+> read [`../docs/ARCHITECTURE.md`](../docs/ARCHITECTURE.md),
+> [`../docs/DEPLOYMENT.md`](../docs/DEPLOYMENT.md), and
+> [`../docs/FEATURES.md`](../docs/FEATURES.md). This Arc42 is kept for historical design
+> context.
+
 ## Gap Assessment Tool (GAT) for Cooperatives
 
 ## Table of Contents

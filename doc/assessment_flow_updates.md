@@ -1,5 +1,15 @@
 # Assessment Flow Updates: Implementation Plan
 
+> ⚠️ **FORWARD-LOOKING PLAN, NOW PARTIALLY DIVERGENT FROM CODE.** This spec was written
+> during the role-based assessment flow design. The columns it calls `coop_id`/`org_id`
+> were actually implemented as `cooperation_id`/`organization_id` (see
+> [`../docs/DATABASE_SCHEMA.md`](../docs/DATABASE_SCHEMA.md)), and the endpoint paths
+> shown with the `/api/v1/` prefix are actually served without the version prefix
+> (e.g. `POST /assessments`, `POST /api/submissions/submit`). For the **current**
+> assessment endpoints and request/response shapes, read
+> [`../docs/FEATURES.md`](../docs/FEATURES.md) §4. Treat this document as historical
+> design context only.
+
 This document outlines the necessary changes to the database schema and API endpoints to support the new role-based assessment and submission flow for `ORG_ADMIN`, `COOP_ADMIN`, and `COOP_USER`.
 
 ## 1. Database Schema Modifications

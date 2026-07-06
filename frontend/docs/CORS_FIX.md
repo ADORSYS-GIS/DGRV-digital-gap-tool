@@ -1,5 +1,10 @@
 # CORS Issue Fix for Keycloak Authentication
 
+> ℹ️ The proxy technique below remains valid, though it references the older
+> `sustainability-realm`. For the current realm (`digital-gap`) and routing see
+> [`../../docs/ARCHITECTURE.md`](../../docs/ARCHITECTURE.md) and
+> [`../../docs/DEPLOYMENT.md`](../../docs/DEPLOYMENT.md).
+
 ## Problem
 
 The application was experiencing CORS errors when making requests from the frontend (localhost:8000) to Keycloak (localhost:8080) with credentials included.

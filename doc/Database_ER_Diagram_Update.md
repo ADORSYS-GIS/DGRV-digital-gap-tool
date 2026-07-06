@@ -1,5 +1,9 @@
 # Database ER Diagram Update - MinIO Integration
 
+> ℹ️ **SUPERSEDED** by [`../docs/DATABASE_SCHEMA.md`](../docs/DATABASE_SCHEMA.md), which
+> documents the full current schema including the `reports` table and object storage.
+> This delta doc is kept for historical context.
+
 ## Overview
 
 This document describes the database schema changes required for MinIO integration to store generated reports as files instead of storing them directly in the database.

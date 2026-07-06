@@ -1,5 +1,13 @@
 # Authentication System
 
+> ⚠️ **PARTIALLY OUT OF DATE.** This document predates the Keycloak 26 `digital-gap`
+> realm migration and references the old `sustainability-realm` and PascalCase role
+> names (`Org_User`, `DGRV_Admin`) and the deprecated `oidc-spa` library. For the
+> **current, authoritative** auth setup, read
+> [`../../docs/RBAC_AND_AUTH_SYSTEM.md`](../../docs/RBAC_AND_AUTH_SYSTEM.md) and
+> [`../../docs/RBAC_AND_ROLES.md`](../../docs/RBAC_AND_ROLES.md). The general patterns
+> below (IndexedDB token storage, `ProtectedRoute`) remain conceptually valid.
+
 This application uses **keycloak-js** for OpenID Connect authentication with Keycloak.
 
 ## Overview

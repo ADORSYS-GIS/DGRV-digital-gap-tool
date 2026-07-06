@@ -36,23 +36,93 @@ The solution is built on a modern, secure, and scalable technology stack as prop
 
 ## 🚀 Getting Started
 
-Instructions on how to set up the development environment and run the project will be added here.
+Full instructions live in [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md). Quick start below.
 
 ### Prerequisites
 
--   Node.js
--   Rust & Cargo
--   Docker
--   PostgreSQL Client
+-   Docker + Docker Compose v2 (easiest path)
+-   Node.js 20 + npm (frontend dev without Docker)
+-   Rust 1.88 toolchain (`rustup`) (backend dev without Docker)
+-   PostgreSQL client (optional, direct DB access)
 
-### Installation
+### Run the full stack with Docker (recommended)
 
 ```bash
 # Clone the repository
-git clone [git@github.com:chendiblessing/DGRV-digital-gap-tool.git]
+git clone git@github.com:chendiblessing/DGRV-digital-gap-tool.git
 cd DGRV-digital-gap-tool
 
-# Backend setup instructions...
+# Configure environment
+cp .env.example .env   # edit with strong secrets (see docs/DEPLOYMENT.md §4)
 
-# Frontend setup instructions...
+# Build and start all services (Postgres×2, MinIO, Keycloak, backend, frontend)
+docker compose up -d --build
+
+# Watch the backend come up (runs DB migrations, validates OpenAPI, starts API)
+docker compose logs -f backend
 ```
+
+Local endpoints:
+
+| Service | URL |
+|---|---|
+| Frontend (Vite dev) | http://localhost:8000 (run `npm run dev` in `frontend/`) |
+| Frontend (container) | http://localhost:8110 |
+| Backend API / Swagger | http://localhost:3001/docs |
+| Keycloak Admin | http://localhost:8080/keycloak (admin / admin123) |
+| MinIO Console | http://localhost:9001 |
+
+### Run the backend locally (against dockerized deps)
+
+```bash
+docker compose up -d db keycloak-db keycloak minio
+export DGAT_DATABASE_URL="postgres://postgres:postgres@localhost:5430/dgat"
+# (see docs/DEVELOPMENT.md §4 for the full env-var set)
+cargo run
+```
+
+### Run the frontend locally
+
+```bash
+cd frontend
+cp .env.example .env   # set VITE_KEYCLOAK_URL, VITE_API_BASE_URL, etc.
+npm install            # also regenerates the OpenAPI client (postinstall)
+npm run dev
+```
+
+## 🧪 Testing
+
+-   **Backend:** `cargo nextest run --workspace --all-targets --all-features --no-fail-fast`
+    (CI: `rust-backend.yml`).
+-   **Frontend:** `cd frontend && npm run test:unit` (CI: `ci.yml`).
+-   Validate the OpenAPI spec: `cargo test test_openapi_spec_is_valid`.
+
+## 🚢 Deployment
+
+See [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) for the full runbook (SSH into the
+server, `docker compose up`, obtain TLS certs with `certbot`, configure host Nginx,
+Keycloak provisioning). The automated CD pipeline is described in
+[`docs/CI_CD_PIPELINE.md`](docs/CI_CD_PIPELINE.md).
+
+## 🔐 Backup & Recovery
+
+See [`docs/BACKUP_AND_RECOVERY.md`](docs/BACKUP_AND_RECOVERY.md) for the backup/restore
+runbook (`scripts/backup.sh`, `scripts/restore.sh`), scheduling, and the disaster-recovery
+procedure.
+
+## 📚 Documentation
+
+The complete, handover-ready documentation is in [`docs/`](docs/). Start with
+[`docs/README.md`](docs/README.md). Key documents:
+
+-   [Architecture (as-built)](docs/ARCHITECTURE.md)
+-   [RBAC & Roles](docs/RBAC_AND_ROLES.md) — all roles, where & how authorization is
+    enforced (and where it isn't)
+-   [Database Schema](docs/DATABASE_SCHEMA.md)
+-   [Feature Implementation Index](docs/FEATURES.md)
+-   [Deployment Runbook](docs/DEPLOYMENT.md)
+-   [CI/CD Pipeline](docs/CI_CD_PIPELINE.md)
+-   [Backup & Recovery](docs/BACKUP_AND_RECOVERY.md)
+-   [Local Development Setup](docs/DEVELOPMENT.md)
+-   [RBAC & Auth System (deep dive)](docs/RBAC_AND_AUTH_SYSTEM.md)
+-   [End-User Manual](doc/USER_MANUAL.md)

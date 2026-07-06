@@ -1,5 +1,13 @@
 # Backend Logic for Consolidated Report Generation
 
+> ℹ️ **LOGIC IS ACCURATE; ENDPOINT PATHS DRIFT.** The algorithm described here matches
+> `src/services/consolidated_report.rs`, but the endpoint paths shown below use the
+> `/api/v1/` prefix which is **not** how routes are actually served. The real paths are
+> `GET /consolidated-reports/dgrv-admin` and
+> `GET /consolidated-reports/org-admin/:organization_id` (see
+> [`../docs/FEATURES.md`](../docs/FEATURES.md) §6). For the authoritative route list
+> see [`../docs/FEATURES.md`](../docs/FEATURES.md).
+
 This document provides a detailed breakdown of the backend process for generating the consolidated reports for both DGRV Admins and Organization Admins.
 
 ## 1. API Request

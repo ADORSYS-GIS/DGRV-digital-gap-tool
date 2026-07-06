@@ -1,5 +1,11 @@
 # Keycloak Authentication Guide for DGAT Assessment Tool
 
+> ⚠️ **PARTIALLY OUT OF DATE.** Uses the older `sustainability-realm` name and a
+> component model (`/src/pages/user/Login.tsx`, Zustand `useAuth.ts`) that differs from
+> the current `digital-gap` realm and the AuthService/AuthContext model. For the current
+> as-built auth design see [`../../docs/RBAC_AND_AUTH_SYSTEM.md`](../../docs/RBAC_AND_AUTH_SYSTEM.md).
+> The OIDC + PKCE flow description and security best practices below remain valid.
+
 This document provides a comprehensive, clear, and professional guide to integrating Keycloak authentication and authorization into the DGAT Assessment Tool, a React-based Progressive Web App (PWA) with an offline-first architecture and a Rust-based backend. It addresses the specific issue where, after clearing local data (e.g., IndexedDB `auth_user`), clicking "Login" redirects directly to `/dashboard` instead of the Keycloak login page due to a persistent Single Sign-On (SSO) session. The guide includes corrected Mermaid diagrams, implementation details, security best practices, configuration, testing, and troubleshooting.
 
 ## Table of Contents

@@ -1,5 +1,13 @@
 # Sustainability Assessment Tool: Frontend Architecture and Requirements
 
+> ⚠️ **DESIGN BLUEPRINT, NOT AS-BUILT.** This doc calls the product "Sustainability
+> Assessment Tool", uses roles `Org_User`/`Org_Admin`/`Org_Expert`/`DGRV_Admin`
+> (different casing; `Org_Expert` does not exist) and mentions Zustand for `useAuth`
+> (the app now uses React Query + a custom AuthContext). For the **actual** current
+> frontend architecture and role model see [`../../docs/ARCHITECTURE.md`](../../docs/ARCHITECTURE.md)
+> and [`../../docs/RBAC_AND_ROLES.md`](../../docs/RBAC_AND_ROLES.md). Treat this
+> document as historical design context only.
+
 This document outlines the architectural design and requirements for the frontend of the Sustainability Assessment Tool, a React-based Progressive Web App (PWA) developed for DGRV to facilitate sustainability assessments for cooperatives in Southern Africa. It details user and admin interactions, frontend functionalities (including offline support and synchronization), and interactions with the Rust backend (via Open API) and Keycloak authentication service. The document aligns with the provided project structure, incorporates a real-world use case scenario, and uses TanStack Query for data fetching and Zustand for state management. Diagrams (in Mermaid syntax) illustrate key flows, and the architecture avoids code in diagrams, focusing on high-level design.
 
 ## Table of Contents

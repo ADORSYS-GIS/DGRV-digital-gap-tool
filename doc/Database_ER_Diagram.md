@@ -1,5 +1,10 @@
 # Database ER Diagram - Gap Assessment Tool (GAT)
 
+> ℹ️ **SUPERSEDED.** This is the original ER design (uses `current_score`/`desired_score`,
+> `action_plan.report_id`, `gap_severity` on recommendations, etc. — all since changed).
+> For the **current** schema aligned with the actual migrations and entities, read
+> [`../docs/DATABASE_SCHEMA.md`](../docs/DATABASE_SCHEMA.md).
+
 ## Entity Relationship Diagram
 
 ```mermaid

@@ -1,5 +1,15 @@
 # MinIO Integration for Report Storage
 
+> ℹ️ **ACCURATE, NOW EXTENDED.** The env vars (`DGAT_MINIO_*`), the
+> `FileStorageService` trait, and the object-naming convention below match the current
+> `src/services/s3_storage.rs`. Since this doc was written: (1) the active storage
+> backend is `S3StorageService` (AWS SDK S3, `force_path_style(true)`) — the legacy
+> `MinioService` is no longer wired in; (2) the `word` format was added to
+> `report_format`; (3) `ReportService` now upserts a single report row per
+> assessment+format and supports on-demand `generate-and-export-word`. The fuller,
+> current picture is in [`../docs/FEATURES.md`](../docs/FEATURES.md) §5 and
+> [`../docs/ARCHITECTURE.md`](../docs/ARCHITECTURE.md) §3.4.
+
 ## Overview
 
 This document outlines the integration of MinIO (S3-compatible storage) for storing generated reports (PDF, Excel, Word) to reduce database storage costs and improve performance.
