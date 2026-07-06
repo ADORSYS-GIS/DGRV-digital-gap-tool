@@ -2,6 +2,12 @@ import { getDimension, listDimensions } from "@/openapi-client/services.gen"; //
 import { ICreateDimensionRequest, IDimension } from "@/types/dimension";
 import { SyncStatus } from "@/types/sync/index";
 import { v4 as uuidv4 } from "uuid";
+import { cascadeDeleteDimensionCache } from "../db/cascadeDelete";
+import {
+  safeWhereAnyOf,
+  safeWhereEquals,
+  safeWhereEqualsFirst,
+} from "../db/queryHelpers";
 import { db } from "../db";
 import { syncService } from "../sync/syncService"; // Import syncService
 
@@ -83,12 +89,12 @@ export const dimensionRepository = {
     if (lang === 'all') {
       return db.dimensions.toArray();
     }
-    return db.dimensions.where("lang").equals(lang).toArray();
+    return safeWhereEquals(db.dimensions, "lang", lang);
   },
   getById: async (id: string, lang?: string): Promise<IDimension | undefined> => {
     let localDimension = lang
       ? await db.dimensions.get([id, lang])
-      : await db.dimensions.where("id").equals(id).first();
+      : await safeWhereEqualsFirst(db.dimensions, "id", id);
 
     try {
       if (navigator.onLine) {
@@ -126,7 +132,7 @@ export const dimensionRepository = {
     return localDimension;
   },
   getByIds: async (ids: string[]): Promise<IDimension[]> => {
-    return db.dimensions.where("id").anyOf(ids).toArray();
+    return safeWhereAnyOf(db.dimensions, "id", ids);
   },
   add: async (dimension: ICreateDimensionRequest): Promise<IDimension> => {
     // Extract language explicitly — it's on CreateDimensionRequest but not on IDimension
@@ -211,7 +217,7 @@ export const dimensionRepository = {
     await db.dimensions.bulkAdd(dimensions);
   },
   update: async (id: string, changes: Partial<IDimension>): Promise<void> => {
-    const existingDimension = await db.dimensions.where("id").equals(id).first();
+    const existingDimension = await safeWhereEqualsFirst(db.dimensions, "id", id);
     if (!existingDimension) {
       console.warn(`Dimension with ID ${id} not found in IndexedDB.`);
       return;
@@ -246,20 +252,34 @@ export const dimensionRepository = {
     });
   },
   delete: async (id: string): Promise<void> => {
-    const existingDimensions = await db.dimensions.where("id").equals(id).toArray();
-    if (existingDimensions.length === 0) {
-      console.warn(`Dimension with ID ${id} not found in IndexedDB.`);
-      return;
+    let existingDimensions: IDimension[] = [];
+    try {
+      existingDimensions = await safeWhereEquals(db.dimensions, "id", id);
+    } catch (error) {
+      console.warn(
+        `Unable to read dimension ${id} from IndexedDB before delete:`,
+        error,
+      );
     }
+    const dimensionKey = existingDimensions[0]?.dimension_key ?? id;
 
     if (navigator.onLine) {
       const { deleteDimension } = await import("@/openapi-client/services.gen");
       await deleteDimension({ id });
-      for (const d of existingDimensions) {
-        const lang = (d as any).lang || "en";
-        await db.dimensions.delete([id, lang]);
+      try {
+        await cascadeDeleteDimensionCache(id, dimensionKey);
+      } catch (error) {
+        console.warn(
+          `Dimension ${id} was deleted from backend, but local cache cleanup failed:`,
+          error,
+        );
       }
-      await db.sync_queue.filter((item) => item.entityId === id).delete();
+      return;
+    }
+
+    if (existingDimensions.length === 0) {
+      console.warn(`Dimension with ID ${id} not found in IndexedDB.`);
+      syncService.addToSyncQueue("Dimension", id, "DELETE", null);
       return;
     }
 
@@ -271,7 +291,7 @@ export const dimensionRepository = {
     syncService.addToSyncQueue("Dimension", id, "DELETE", null);
   },
   markAsSynced: async (offlineId: string, serverId: string): Promise<void> => {
-    const existing = await db.dimensions.where("id").equals(offlineId).toArray();
+    const existing = await safeWhereEquals(db.dimensions, "id", offlineId);
     for (const d of existing) {
       const lang = (d as any).lang || "en";
       await db.dimensions.update([offlineId, lang], {
@@ -282,7 +302,7 @@ export const dimensionRepository = {
     }
   },
   markAsFailed: async (id: string, error: string) => {
-    const existing = await db.dimensions.where("id").equals(id).toArray();
+    const existing = await safeWhereEquals(db.dimensions, "id", id);
     for (const d of existing) {
       const lang = (d as any).lang || "en";
       await db.dimensions.update([id, lang], {
