@@ -14,7 +14,6 @@ import { useAuth } from "@/hooks/useAuth";
 import {
   ArrowRight,
   BarChart3,
-  Building2,
   Globe,
   HeartHandshake,
   Shield,
@@ -256,7 +255,11 @@ export const HomePage: React.FC = () => {
           </p>
           <div className="flex flex-col md:flex-row justify-center items-center gap-16">
             <div className="flex flex-col items-center">
-              <Building2 className="h-16 w-16 text-gray-500 mb-4" />
+              <img
+                src="/german_coop.jpeg"
+                alt="DGRV - German Confederation of Cooperatives and Raiffeisen"
+                className="rounded-xl shadow-md h-40 w-64 object-cover mb-4"
+              />
               <h3 className="text-xl font-semibold text-gray-800">DGRV</h3>
               <p className="text-gray-600">
                 {t('home.partners.dgrv')}
@@ -269,15 +272,6 @@ export const HomePage: React.FC = () => {
                 {t('home.partners.bmz')}
               </p>
             </div>
-          </div>
-
-          {/* German Cooperative Image */}
-          <div className="mt-16">
-            <img
-              src="/german_coop.jpeg"
-              alt="German Cooperative"
-              className="mx-auto rounded-xl shadow-md max-h-80 w-full max-w-2xl object-cover"
-            />
           </div>
         </div>
       </section>
