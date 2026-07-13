@@ -270,6 +270,15 @@ export const HomePage: React.FC = () => {
               </p>
             </div>
           </div>
+
+          {/* German Cooperative Image */}
+          <div className="mt-16">
+            <img
+              src="/german_coop.jpeg"
+              alt="German Cooperative"
+              className="mx-auto rounded-xl shadow-md max-h-80 w-full max-w-2xl object-cover"
+            />
+          </div>
         </div>
       </section>
 
