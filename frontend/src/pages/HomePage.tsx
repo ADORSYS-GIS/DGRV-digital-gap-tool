@@ -15,7 +15,6 @@ import {
   ArrowRight,
   BarChart3,
   Globe,
-  HeartHandshake,
   Shield,
   Target,
   TrendingUp,
@@ -124,88 +123,84 @@ export const HomePage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-800">
+    <div className="min-h-screen bg-white text-gray-800">
       {/* Header */}
-      <header className="absolute top-0 left-0 right-0 z-10 p-4">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
+      <header className="sticky top-0 z-10 bg-white/90 backdrop-blur border-b border-gray-100 px-4 py-3">
+        <div className="max-w-6xl mx-auto flex justify-between items-center">
           <div className="flex items-center gap-2">
-            <img src="/coopdigigap-removebg-preview.png" alt="DGAT Logo" className="h-10 w-auto" />
-            <span className="text-xl font-semibold text-gray-700">{t('home.header.logoText')}</span>
+            <img src="/coopdigigap-removebg-preview.png" alt="DGAT Logo" className="h-9 w-auto" />
+            <span className="text-lg font-semibold text-gray-700">{t('home.header.logoText')}</span>
           </div>
-          <div className="flex items-center gap-4">
-            {!isAuthenticated ? (
-              <Button
-                variant="outline"
-                className="border-blue-600 text-blue-600 hover:bg-blue-50 hover:text-blue-700"
-                onClick={() => login()}
-              >
-                {t('home.header.login')}
-              </Button>
-            ) : null}
-          </div>
+          {!isAuthenticated && (
+            <Button
+              variant="outline"
+              className="border-blue-600 text-blue-600 hover:bg-blue-50 hover:text-blue-700"
+              onClick={() => login()}
+            >
+              {t('home.header.login')}
+            </Button>
+          )}
         </div>
       </header>
 
       {/* Hero Section */}
-      <main className="pt-24 pb-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
+      <section className="py-20 bg-gray-50">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="text-center lg:text-left">
-              <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-6 leading-tight">
+              <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4 leading-tight">
                 {t('home.hero.title')}
               </h1>
-              <h2 className="text-2xl md:text-3xl font-semibold text-blue-600 mb-6">
+              <h2 className="text-xl md:text-2xl font-semibold text-blue-600 mb-5">
                 {t('home.hero.subtitle')}
               </h2>
-              <p className="text-lg text-gray-600 max-w-2xl mx-auto lg:mx-0 mb-10 leading-relaxed">
+              <p className="text-base text-gray-600 max-w-xl mx-auto lg:mx-0 mb-8 leading-relaxed">
                 {t('home.hero.description')}
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start items-center">
-                <Button
-                  size="lg"
-                  className="group px-8 py-6 text-lg font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-lg transition-all duration-300 transform hover:scale-105"
-                  onClick={handleGetStarted}
-                >
-                  {isAuthenticated ? t('home.hero.continueToDashboard') : t('home.hero.getStarted')}
-                  <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
-                </Button>
-              </div>
+              <Button
+                size="lg"
+                className="group px-8 py-5 text-base font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow transition-all duration-200 hover:scale-105"
+                onClick={handleGetStarted}
+              >
+                {isAuthenticated ? t('home.hero.continueToDashboard') : t('home.hero.getStarted')}
+                <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+              </Button>
             </div>
             <div className="hidden lg:block">
               <img
                 src="/dgat.jpg"
                 alt="Digital Transformation"
-                className="rounded-lg w-full h-auto object-cover"
+                className="rounded-2xl w-full h-auto object-cover shadow-lg"
               />
             </div>
           </div>
         </div>
-      </main>
+      </section>
 
       {/* Features Section */}
       <section id="features" className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900">
               {t('home.features.title')}
             </h2>
-            <p className="text-lg text-gray-600 mt-4 max-w-3xl mx-auto">
+            <p className="text-base text-gray-500 mt-3 max-w-2xl mx-auto">
               {t('home.features.subtitle')}
             </p>
           </div>
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-3 gap-6">
             <FeatureCard
-              icon={<BarChart3 className="h-10 w-10" />}
+              icon={<BarChart3 className="h-8 w-8" />}
               title={t('home.features.gapAssessment.title')}
               description={t('home.features.gapAssessment.desc')}
             />
             <FeatureCard
-              icon={<Target className="h-10 w-10" />}
+              icon={<Target className="h-8 w-8" />}
               title={t('home.features.strategy.title')}
               description={t('home.features.strategy.desc')}
             />
             <FeatureCard
-              icon={<TrendingUp className="h-10 w-10" />}
+              icon={<TrendingUp className="h-8 w-8" />}
               title={t('home.features.tracking.title')}
               description={t('home.features.tracking.desc')}
             />
@@ -215,28 +210,28 @@ export const HomePage: React.FC = () => {
 
       {/* Benefits Section */}
       <section id="benefits" className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900">
               {t('home.benefits.title')}
             </h2>
-            <p className="text-lg text-gray-600 mt-4 max-w-3xl mx-auto">
+            <p className="text-base text-gray-500 mt-3 max-w-2xl mx-auto">
               {t('home.benefits.subtitle')}
             </p>
           </div>
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-3 gap-6">
             <BenefitCard
-              icon={<Users className="h-12 w-12 text-blue-600" />}
+              icon={<Users className="h-10 w-10 text-blue-600" />}
               title={t('home.benefits.empowerment.title')}
               description={t('home.benefits.empowerment.desc')}
             />
             <BenefitCard
-              icon={<Shield className="h-12 w-12 text-blue-600" />}
+              icon={<Shield className="h-10 w-10 text-blue-600" />}
               title={t('home.benefits.secure.title')}
               description={t('home.benefits.secure.desc')}
             />
             <BenefitCard
-              icon={<Globe className="h-12 w-12 text-blue-600" />}
+              icon={<Globe className="h-10 w-10 text-blue-600" />}
               title={t('home.benefits.accessible.title')}
               description={t('home.benefits.accessible.desc')}
             />
@@ -246,61 +241,27 @@ export const HomePage: React.FC = () => {
 
       {/* Partners Section */}
       <section id="partners" className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl font-bold text-gray-900 mb-3">
             {t('home.partners.title')}
           </h2>
-          <p className="text-lg text-gray-600 mb-12">
+          <p className="text-base text-gray-500 mb-10">
             {t('home.partners.subtitle')}
           </p>
-          <div className="flex flex-col md:flex-row justify-center items-center gap-16">
-            <div className="flex flex-col items-center">
-              <img
-                src="/german_coop.jpeg"
-                alt="DGRV - German Confederation of Cooperatives and Raiffeisen"
-                className="rounded-xl shadow-md h-40 w-64 object-cover mb-4"
-              />
-              <h3 className="text-xl font-semibold text-gray-800">DGRV</h3>
-              <p className="text-gray-600">
-                {t('home.partners.dgrv')}
-              </p>
-            </div>
-            <div className="flex flex-col items-center">
-              <HeartHandshake className="h-16 w-16 text-gray-500 mb-4" />
-              <h3 className="text-xl font-semibold text-gray-800">BMZ</h3>
-              <p className="text-gray-600">
-                {t('home.partners.bmz')}
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-20">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-gradient-to-r from-blue-600 to-blue-800 rounded-2xl p-10 md:p-16 text-center text-white shadow-xl">
-            <h2 className="text-3xl md:text-4xl font-bold mb-6">
-              {t('home.cta.title')}
-            </h2>
-            <p className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">
-              {t('home.cta.subtitle')}
-            </p>
-            <Button
-              size="lg"
-              className="px-8 py-6 text-lg font-semibold bg-white text-blue-600 hover:bg-blue-50 rounded-lg transform hover:scale-105 transition-transform"
-              onClick={handleGetStarted}
-            >
-              {isAuthenticated ? t('home.cta.goDashboard') : t('home.cta.getStartedNow')}
-            </Button>
+          <div className="flex justify-center">
+            <img
+              src="/german_coop.jpeg"
+              alt="German Cooperative"
+              className="rounded-2xl shadow-md h-48 w-72 object-cover"
+            />
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-gray-200">
-        <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 text-center text-gray-500">
-          <p className="mb-4">
+      <footer className="bg-gray-50 border-t border-gray-200">
+        <div className="max-w-6xl mx-auto py-8 px-4 sm:px-6 lg:px-8 text-center text-gray-400 text-sm">
+          <p className="mb-3">
             {t('home.footer.copyright', { year: new Date().getFullYear() })}
           </p>
           <div className="flex justify-center gap-6">
