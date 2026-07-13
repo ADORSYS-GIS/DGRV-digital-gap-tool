@@ -245,18 +245,17 @@ export const HomePage: React.FC = () => {
 
       {/* Partners Section */}
       <section id="partners" className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">
-            {t('home.partners.title')}
-          </h2>
-          <p className="text-lg text-gray-600 mb-12">
-            {t('home.partners.subtitle')}
-          </p>
-          <div className="flex justify-center">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-center items-center gap-12">
             <img
-              src="/german_coop.jpeg"
+              src="/german_coop-removebg-preview.png"
               alt="German Cooperative"
-              className="rounded-xl shadow-md h-40 w-64 object-cover"
+              className="h-32 w-auto object-contain"
+            />
+            <img
+              src="/dgrv-logo.png"
+              alt="DGRV"
+              className="h-32 w-auto object-contain"
             />
           </div>
         </div>
