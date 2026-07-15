@@ -17,4 +17,8 @@ pub fn create_group_routes() -> Router<AppState> {
             "/:group_id/members",
             post(add_member).get(get_group_members),
         )
+        .route(
+            "/:group_id/members/:user_id/resend-verification",
+            post(resend_member_verification_email),
+        )
 }

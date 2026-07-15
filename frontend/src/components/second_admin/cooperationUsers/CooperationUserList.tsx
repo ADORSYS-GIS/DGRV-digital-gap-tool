@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { CooperationUser } from "@/types/cooperationUser";
 import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
+import { Trash2, RefreshCw } from "lucide-react";
 import { useDeleteCooperationUser } from "@/hooks/cooperationUsers/useDeleteCooperationUser";
 import { EditCooperationUserForm } from "./EditCooperationUserForm";
 import {
@@ -23,6 +23,10 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { useMutation } from "@tanstack/react-query";
+import { cooperationUserSyncService } from "@/services/cooperationUsers/cooperationUserSyncService";
+import { toast } from "sonner";
+import { useParams } from "react-router-dom";
 
 interface CooperationUserListProps {
   users: CooperationUser[];
@@ -34,6 +38,14 @@ interface CooperationUserListProps {
 export const CooperationUserList = ({ users }: CooperationUserListProps) => {
   const { t } = useTranslation();
   const { mutate: deleteUser, isPending } = useDeleteCooperationUser();
+  const { cooperationId } = useParams<{ cooperationId: string }>();
+
+  const resendMutation = useMutation({
+    mutationFn: ({ userId }: { userId: string }) =>
+      cooperationUserSyncService.resendVerificationEmail(userId, cooperationId!),
+    onSuccess: () => toast.success(t("secondAdminCooperationUsers.list.resend.success")),
+    onError: () => toast.error(t("secondAdminCooperationUsers.list.resend.error")),
+  });
 
   return (
     <Table>
@@ -70,6 +82,18 @@ export const CooperationUserList = ({ users }: CooperationUserListProps) => {
             </TableCell>
             <TableCell className="text-right">
               <div className="flex justify-end gap-2">
+                {!user.emailVerified && user.syncStatus === "synced" && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={resendMutation.isPending}
+                    className="border-blue-200 text-blue-700 hover:border-blue-300 hover:bg-blue-50"
+                    onClick={() => resendMutation.mutate({ userId: user.id })}
+                  >
+                    <RefreshCw className="mr-2 h-4 w-4" />
+                    {t("secondAdminCooperationUsers.list.actions.resend")}
+                  </Button>
+                )}
                 {user.roles.includes("coop_user") && user.syncStatus === "synced" && (
                   <EditCooperationUserForm user={user} />
                 )}

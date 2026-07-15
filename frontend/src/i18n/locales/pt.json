@@ -408,7 +408,8 @@
       },
       "toast": {
         "success": "Utilizador convidado com sucesso.",
-        "error": "Falha ao convidar o utilizador."
+        "error": "Falha ao convidar o utilizador.",
+        "emailFailed": "Utilizador criado, mas o envio do e-mail de verificação falhou. Pode reenviar a partir da lista de utilizadores."
       }
     },
     "list": {
@@ -424,7 +425,12 @@
         "pending": "Pendente"
       },
       "actions": {
-        "delete": "Eliminar"
+        "delete": "Eliminar",
+        "resend": "Reenviar E-mail"
+      },
+      "resend": {
+        "success": "E-mail de verificação reenviado com sucesso.",
+        "error": "Falha ao reenviar o e-mail de verificação."
       }
     },
     "edit": {

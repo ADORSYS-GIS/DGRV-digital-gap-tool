@@ -1,5 +1,5 @@
 use crate::{
-    api::dto::member::AddMemberRequest, error::AppResult, models::keycloak::CreateUserRequest,
+    api::dto::member::{AddMemberRequest, AddMemberResponse}, error::AppResult, models::keycloak::CreateUserRequest,
     AppState,
 };
 use axum::{
@@ -18,7 +18,7 @@ use axum::{
         ("group_id" = String, Path, description = "Cooperation Group ID")
     ),
     request_body = AddMemberRequest,
-    responses((status = 201, description = "Created"))
+    responses((status = 201, description = "Created", body = AddMemberResponse))
 )]
 pub async fn add_member(
     State(state): State<AppState>,
@@ -45,6 +45,8 @@ pub async fn add_member(
         .dimension_ids
         .as_ref()
         .map(|dimension_ids| serde_json::json!({ "assigned_dimensions": dimension_ids }));
+
+    let mut email_sent = true;
 
     let user_id = if let Some(user) = existing_user {
         // Exclusivity checks
@@ -83,24 +85,23 @@ pub async fn add_member(
         user.id
     } else {
         // Create user if not exists
-        // When creating a new user we can attach dimension-level permissions
-        // as a Keycloak attribute so they can be used later for filtering.
         let user_request = CreateUserRequest {
             username: payload.email.clone(),
             email: payload.email.clone(),
             first_name: payload.first_name,
             last_name: payload.last_name,
-            email_verified: Some(true),
+            email_verified: Some(false),
             enabled: Some(true),
             attributes: dimension_attrs.clone(),
             credentials: None,
-            required_actions: None,
+            required_actions: Some(vec!["VERIFY_EMAIL".to_string()]),
         };
 
         let new_user = state
             .keycloak_service
             .create_user_with_email_verification(&admin_token, &user_request)
             .await?;
+
         // Ensure attributes are persisted by explicitly updating after creation
         if let Some(attrs) = &dimension_attrs {
             tracing::info!(
@@ -113,6 +114,22 @@ pub async fn add_member(
                 .update_user_attributes(&admin_token, &new_user.id, attrs.clone(), Some(&payload.email))
                 .await?;
         }
+
+        // Try to send verification email, track whether it succeeded
+        match state
+            .keycloak_service
+            .trigger_email_verification(&admin_token, &new_user.id, None)
+            .await
+        {
+            Ok(_) => {
+                tracing::info!(user_id = %new_user.id, "Verification email sent successfully");
+            }
+            Err(e) => {
+                tracing::warn!(user_id = %new_user.id, error = %e, "Failed to send verification email");
+                email_sent = false;
+            }
+        }
+
         new_user.id
     };
 
@@ -176,7 +193,18 @@ pub async fn add_member(
         .add_user_to_group(&admin_token, &user_id, &group_id)
         .await?;
 
-    Ok(StatusCode::CREATED)
+    let response = AddMemberResponse {
+        user_id: user_id.clone(),
+        email: payload.email,
+        email_sent,
+        message: if email_sent {
+            "User added successfully".to_string()
+        } else {
+            "User added but failed to send verification email".to_string()
+        },
+    };
+
+    Ok((StatusCode::CREATED, Json(response)))
 }
 
 /// Get all members of a group
@@ -215,6 +243,33 @@ pub async fn delete_user(
 ) -> AppResult<impl IntoResponse> {
     let admin_token = state.keycloak_service.get_admin_token().await?;
     state.keycloak_service.delete_user(&admin_token, &user_id).await?;
+    Ok(StatusCode::NO_CONTENT)
+}
+
+/// Resend verification email to a group member
+#[utoipa::path(
+    post,
+    path = "/admin/groups/{group_id}/members/{user_id}/resend-verification",
+    tag = "User",
+    params(
+        ("group_id" = String, Path, description = "Cooperation Group ID"),
+        ("user_id" = String, Path, description = "User ID")
+    ),
+    responses((status = 204, description = "No Content"))
+)]
+pub async fn resend_member_verification_email(
+    State(state): State<AppState>,
+    Extension(_token): Extension<String>,
+    Path((_group_id, user_id)): Path<(String, String)>,
+) -> AppResult<impl IntoResponse> {
+    let admin_token = state.keycloak_service.get_admin_token().await?;
+    state
+        .keycloak_service
+        .trigger_email_verification(&admin_token, &user_id, None)
+        .await
+        .map_err(|e| crate::error::AppError::InternalServerError(
+            format!("Failed to send verification email: {}", e)
+        ))?;
     Ok(StatusCode::NO_CONTENT)
 }
 

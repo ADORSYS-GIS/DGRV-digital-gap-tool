@@ -79,8 +79,12 @@ export const AddCooperationUserForm = () => {
     addUser(
       { user, cooperationId },
       {
-        onSuccess: () => {
-          toast.success(t("secondAdminCooperationUsers.add.toast.success"));
+        onSuccess: (data) => {
+          if (data && !data.emailSent) {
+            toast.warning(t("secondAdminCooperationUsers.add.toast.emailFailed"));
+          } else {
+            toast.success(t("secondAdminCooperationUsers.add.toast.success"));
+          }
           setIsOpen(false);
           setEmail("");
           setFirstName("");

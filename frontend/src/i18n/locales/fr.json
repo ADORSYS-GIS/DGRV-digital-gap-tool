@@ -408,7 +408,8 @@
       },
       "toast": {
         "success": "Utilisateur invité avec succès.",
-        "error": "Échec de l'invitation de l'utilisateur."
+        "error": "Échec de l'invitation de l'utilisateur.",
+        "emailFailed": "Utilisateur créé mais l'envoi de l'e-mail de vérification a échoué. Vous pouvez le renvoyer depuis la liste des utilisateurs."
       }
     },
     "list": {
@@ -424,7 +425,12 @@
         "pending": "En attente"
       },
       "actions": {
-        "delete": "Supprimer"
+        "delete": "Supprimer",
+        "resend": "Renvoyer l'e-mail"
+      },
+      "resend": {
+        "success": "E-mail de vérification renvoyé avec succès.",
+        "error": "Échec du renvoi de l'e-mail de vérification."
       }
     },
     "edit": {

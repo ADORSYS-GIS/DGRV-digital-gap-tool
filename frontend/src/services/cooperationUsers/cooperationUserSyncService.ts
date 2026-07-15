@@ -2,6 +2,7 @@ import {
   addMember,
   deleteUser,
   getGroupMembers,
+  resendMemberVerificationEmail,
 } from "@/openapi-client/services.gen";
 import { db } from "@/services/db";
 import { cooperationUserRepository } from "./cooperationUserRepository";
@@ -53,15 +54,13 @@ export const cooperationUserSyncService = {
     if (!user.email) {
       throw new Error("Email is required to add a user.");
     }
-    await addMember({
+    const result = await addMember({
       groupId: user.cooperationId,
       requestBody: {
         email: user.email || "",
         first_name: user.firstName ?? null,
         last_name: user.lastName ?? null,
         roles: user.roles,
-        // Pass through any assigned dimensions so they can be stored as
-        // Keycloak user attributes.
         dimension_ids: user.dimensionIds ?? null,
       },
     });
@@ -69,6 +68,12 @@ export const cooperationUserSyncService = {
       user.id,
       SyncStatus.SYNCED,
     );
+    // Return result so callers can check email_sent status
+    return result as { user_id: string; email: string; email_sent: boolean; message: string } | undefined;
+  },
+
+  async resendVerificationEmail(userId: string, groupId: string) {
+    await resendMemberVerificationEmail({ groupId, userId });
   },
 
   async delete(user: CooperationUser) {

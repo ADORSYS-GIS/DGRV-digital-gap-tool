@@ -18,9 +18,10 @@ export const useAddCooperationUser = () => {
       if (!cooperationId) throw new Error("Cooperation ID is not defined");
       const newUser = await cooperationUserRepository.add(cooperationId, user);
       if (isOnline) {
-        await cooperationUserSyncService.add(newUser);
+        const result = await cooperationUserSyncService.add(newUser);
+        return { newUser, emailSent: result?.email_sent ?? true };
       }
-      return newUser;
+      return { newUser, emailSent: true };
     },
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({

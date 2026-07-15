@@ -408,7 +408,8 @@
       },
       "toast": {
         "success": "User invited successfully.",
-        "error": "Failed to invite user."
+        "error": "Failed to invite user.",
+        "emailFailed": "User created but failed to send verification email. You can resend it from the user list."
       }
     },
     "list": {
@@ -424,7 +425,12 @@
         "pending": "Pending"
       },
       "actions": {
-        "delete": "Delete"
+        "delete": "Delete",
+        "resend": "Resend Email"
+      },
+      "resend": {
+        "success": "Verification email resent successfully.",
+        "error": "Failed to resend verification email."
       }
     },
     "edit": {

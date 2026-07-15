@@ -408,7 +408,8 @@
       },
       "toast": {
         "success": "Umsebentisi umenyiwe ngempumelelo.",
-        "error": "Kwehlulekile kumema umsebentisi."
+        "error": "Kwehlulekile kumema umsebentisi.",
+        "emailFailed": "Umsebentisi usakhiwe kodvwa kwehlulekile kuthumela i-email yekucinisekisa. Ungayithumela emuva kusuka kuluhlu lwabamsebentisi."
       }
     },
     "list": {
@@ -424,7 +425,12 @@
         "pending": "Ilindile"
       },
       "actions": {
-        "delete": "Susa"
+        "delete": "Susa",
+        "resend": "Thumela I-email Emuva"
+      },
+      "resend": {
+        "success": "I-email yekucinisekisa ithumbelwe emuva ngempumelelo.",
+        "error": "Kwehlulekile kuthumela emuva i-email yekucinisekisa."
       }
     },
     "edit": {

@@ -11,3 +11,11 @@ pub struct AddMemberRequest {
     #[serde(default)]
     pub dimension_ids: Option<Vec<String>>,
 }
+
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+pub struct AddMemberResponse {
+    pub user_id: String,
+    pub email: String,
+    pub email_sent: bool,
+    pub message: String,
+}
