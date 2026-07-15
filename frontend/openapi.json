@@ -476,7 +476,48 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "Created"
+                        "description": "Created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AddMemberResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/groups/{group_id}/members/{user_id}/resend-verification": {
+            "post": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Resend verification email to a group member",
+                "operationId": "resend_member_verification_email",
+                "parameters": [
+                    {
+                        "name": "group_id",
+                        "in": "path",
+                        "description": "Cooperation Group ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "user_id",
+                        "in": "path",
+                        "description": "User ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
                     }
                 }
             }
@@ -3373,6 +3414,29 @@
                         "items": {
                             "type": "string"
                         }
+                    }
+                }
+            },
+            "AddMemberResponse": {
+                "type": "object",
+                "required": [
+                    "user_id",
+                    "email",
+                    "email_sent",
+                    "message"
+                ],
+                "properties": {
+                    "user_id": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "email_sent": {
+                        "type": "boolean"
+                    },
+                    "message": {
+                        "type": "string"
                     }
                 }
             },
